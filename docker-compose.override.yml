@@ -1,0 +1,70 @@
+services:
+  # --- Oracle (inchangé, juste pour référence) ---
+  oracle:
+    networks:
+      backend:
+        aliases:
+          - oracle
+          - oracle-db
+    healthcheck:
+      test: ["CMD", "/opt/oracle/scripts/healthcheck.sh"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10m
+      retries: 80
+
+  # --- Backend DEV: hot reload Spring Boot ---
+  backend:
+    image: maven:3.9.9-eclipse-temurin-21
+    container_name: api-dev
+    working_dir: /workspace
+    command:
+      - mvn
+      - -q
+      - -Dspring-boot.run.profiles=docker
+      - "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
+      - spring-boot:run
+    volumes:
+      - ./backend:/workspace:cached
+      - maven-cache:/root/.m2
+    environment:
+      DB_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1   # <-- mets ici le NOM DE SERVICE DB
+      DB_USERNAME: appuser
+      DB_PASSWORD: ChangeMe_App#2025
+      SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT: "0"
+      SPRING_SECURITY_USER_NAME: dev
+      SPRING_SECURITY_USER_PASSWORD: dev
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8080:8080"
+      - "5006:5006"
+    depends_on:
+      oracle:
+        condition: service_started
+    networks: [ backend ]
+
+  # --- Frontend DEV: ng serve hot reload ---
+  frontend:
+    image: node:22
+    container_name: web-dev
+    working_dir: /app
+    command: sh -c "npm install && npx ng serve --host 0.0.0.0 --port 4200"
+    volumes:
+      - ./frontend:/app:cached              # ton code monté en live
+      - node-cache:/root/.npm               # cache npm
+    environment:
+      # Utilise cette variable dans ton code si tu veux
+      API_BASE_URL: http://localhost:8080
+    ports:
+      - "4300:4200"
+    depends_on:
+      - backend
+    networks: [ backend ]
+
+volumes:
+  maven-cache:
+  node-cache:
+
+networks:
+  backend:

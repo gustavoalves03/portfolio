@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# IDE / OS
+.idea
+.vscode
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Backend (Java/Maven)
+target/
+**/application-*.properties
+**/application-*.yml
+**/application-*.yaml
+
+# Frontend (Angular/Node)
+frontend/node_modules
+frontend/dist
+frontend/.angular
+npm-debug.log
+yarn-error.log
+
+# Docker
+.dockerignore
+docker-compose.yml
+.env
+oradata

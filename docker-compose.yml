@@ -1,0 +1,49 @@
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+    volumes:
+      - oradata:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "/opt/oracle/scripts/healthcheck.sh"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10m
+      retries: 80
+  backend:
+    build: ./backend
+    container_name: api
+    depends_on:
+      oracle:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
+      DB_USERNAME: ${APP_USER}
+      DB_PASSWORD: ${APP_USER_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks: [ backend ]
+
+  frontend:
+    build: ./frontend
+    container_name: web
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"   # ou "8081:80", comme tu préfères
+    networks: [ backend ]
+
+volumes:
+  oradata:
+
+networks:
+  backend:
