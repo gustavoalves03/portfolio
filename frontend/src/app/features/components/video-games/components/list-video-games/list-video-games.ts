@@ -3,10 +3,11 @@ import {GetAllVideoGames} from '../../services/get-all-video-games';
 import {AsyncPipe} from '@angular/common';
 import {TableVideoGames} from '../table-video-games/table-video-games';
 import {VideoGame} from '../../models/video-games';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-list-video-games',
-  imports: [AsyncPipe, TableVideoGames, TableVideoGames],
+  imports: [AsyncPipe, TableVideoGames, TableVideoGames, FormsModule],
   templateUrl: './list-video-games.html',
   styleUrl: './list-video-games.scss',
 })
@@ -21,7 +22,13 @@ export class ListVideoGames {
     this.title.set('Les jeux-vidéos (OK)');
   }
 
+  videoGameToBeEdited = signal<VideoGame | null | undefined>(undefined);
+
   editOne(item: VideoGame) {
-    console.log('editOne', item);
+    this.videoGameToBeEdited.set(item);
+  }
+
+  saveOne(item: VideoGame) {
+    console.log('saveOne', item);
   }
 }

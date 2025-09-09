@@ -10,3 +10,15 @@
 } @else {
   <p>Chargement...</p>
 }
+
+@let editItem = videoGameToBeEdited();
+
+@if (editItem) {
+
+
+  <form action="">
+    <input type="text" required name="name" [(ngModel)]="editItem.name"/>
+    <button type="submit" (click)="saveOne(editItem)">Save</button>
+  </form>
+
+}
