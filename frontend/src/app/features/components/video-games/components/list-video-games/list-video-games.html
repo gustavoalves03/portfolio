@@ -1,0 +1,12 @@
+@let videoGamesResult = videoGamesResult$ | async;
+
+<h1>{{ title() }}</h1>
+
+<button (click)="changeTitle()">Change</button>
+
+
+@if (videoGamesResult) {
+  <app-table-video-games [items]="videoGamesResult.data" (toEdit)="editOne($event)" />
+} @else {
+  <p>Chargement...</p>
+}

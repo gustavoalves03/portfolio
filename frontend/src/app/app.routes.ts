@@ -1,6 +1,6 @@
 // app.routes.ts (Angular 21, standalone)
 import { Routes } from '@angular/router';
-import { ListVideoGames } from './features/video-games/components/list-video-games/list-video-games';
+import { ListVideoGames } from './features/components/video-games/components/list-video-games/list-video-games';
 import {Home} from './pages/home/home';
 import {NotFound} from './pages/not-found/not-found';
 
