@@ -8,10 +8,10 @@
 		<version>3.5.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>Portfolio</artifactId>
+	<groupId>fr.fleurdecoquillage</groupId>
+	<artifactId>fleur-de-coquillage-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<name>Fleur de Coquillage</name>
 	<description>Mon portfolio</description>
 	<url/>
 	<licenses>
