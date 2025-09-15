@@ -6,5 +6,6 @@ public record CareResponse(
         Integer price,
         String description,
         Integer duration,
-        com.example.demo.care.domain.CareStatus status
+        com.example.demo.care.domain.CareStatus status,
+        Long categoryId
 ) {}

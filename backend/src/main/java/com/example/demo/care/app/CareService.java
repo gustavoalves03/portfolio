@@ -9,12 +9,17 @@ import com.example.demo.care.domain.Care;
 import com.example.demo.care.web.dto.CareRequest;
 import com.example.demo.care.web.dto.CareResponse;
 import com.example.demo.care.web.mapper.CareMapper;
+import com.example.demo.category.repo.CategoryRepository;
 
 @Service
 public class CareService {
 
     private final CareRepository repo;
-    public CareService(CareRepository repo) { this.repo = repo; }
+    private final CategoryRepository categoryRepository;
+    public CareService(CareRepository repo, CategoryRepository categoryRepository) {
+        this.repo = repo;
+        this.categoryRepository = categoryRepository;
+    }
 
     @Transactional(readOnly = true)
     public Page<CareResponse> list(Pageable pageable) {
@@ -29,7 +34,11 @@ public class CareService {
 
     @Transactional
     public CareResponse create(CareRequest req) {
-        Care saved = repo.save(CareMapper.toEntity(req));
+        Care entity = CareMapper.toEntity(req);
+        var category = categoryRepository.findById(req.categoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
+        entity.setCategory(category);
+        Care saved = repo.save(entity);
         return CareMapper.toResponse(saved);
     }
 
@@ -37,6 +46,9 @@ public class CareService {
     public CareResponse update(Long id, CareRequest req) {
         Care c = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
         CareMapper.updateEntity(c, req);
+        var category = categoryRepository.findById(req.categoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
+        c.setCategory(category);
         return CareMapper.toResponse(repo.save(c));
     }
 

@@ -13,7 +13,8 @@ public class CareMapper {
                 c.getPrice(),
                 c.getDescription(),
                 c.getDuration(),
-                c.getStatus()
+                c.getStatus(),
+                c.getCategory() != null ? c.getCategory().getId() : null
         );
     }
 

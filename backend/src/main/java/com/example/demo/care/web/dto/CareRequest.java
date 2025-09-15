@@ -8,5 +8,6 @@ public record CareRequest(
         @NotNull @Positive Integer price,
         @NotBlank String description,
         @NotNull @Positive Integer duration,
-        @NotNull CareStatus status
+        @NotNull CareStatus status,
+        @NotNull Long categoryId
 ) {}
