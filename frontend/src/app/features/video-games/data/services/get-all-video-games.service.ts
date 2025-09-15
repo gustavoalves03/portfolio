@@ -6,7 +6,7 @@ import {VideoGameResponse} from '../models/video-games';
 @Injectable({
   providedIn: 'root'
 })
-export class GetAllVideoGames {
+export class GetAllVideoGamesService {
 
   private readonly httpClient = inject(HttpClient)
   private readonly url = 'https://jsonfakery.com/games/paginated'
@@ -16,3 +16,4 @@ export class GetAllVideoGames {
   }
 
 }
+

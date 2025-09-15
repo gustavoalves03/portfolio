@@ -21,3 +21,4 @@ describe('TableVideoGames', () => {
     expect(component).toBeTruthy();
   });
 });
+

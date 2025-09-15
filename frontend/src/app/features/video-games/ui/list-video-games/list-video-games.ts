@@ -1,8 +1,8 @@
 import {Component, inject, signal} from '@angular/core';
-import {GetAllVideoGames} from '../../services/get-all-video-games';
+import {GetAllVideoGamesService} from '../../data/services/get-all-video-games.service';
 import {AsyncPipe} from '@angular/common';
 import {TableVideoGames} from '../table-video-games/table-video-games';
-import {VideoGame} from '../../models/video-games';
+import {VideoGame} from '../../data/models/video-games';
 import {FormsModule} from '@angular/forms';
 
 @Component({
@@ -13,7 +13,7 @@ import {FormsModule} from '@angular/forms';
 })
 export class ListVideoGames {
 
-  private readonly service = inject(GetAllVideoGames);
+  private readonly service = inject(GetAllVideoGamesService);
   videoGamesResult$ = this.service.getAll();
 
   title = signal('List Video Games');
@@ -32,3 +32,4 @@ export class ListVideoGames {
     console.log('saveOne', item);
   }
 }
+

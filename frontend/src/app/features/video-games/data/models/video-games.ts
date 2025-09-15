@@ -15,3 +15,4 @@ export interface VideoGame {
 export type VideoGameResponse = {
   data: VideoGame[];
 }
+
