@@ -1,1 +1,25 @@
-<p>home works!</p>
+<section class="mb-10 text-center">
+  <h1 class="text-3xl font-semibold tracking-tight mb-2">Nos prestations</h1>
+  <p class="text-gray-600">Découvrez nos soins, leurs tarifs et leur durée</p>
+  
+</section>
+
+<section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  @for (s of services; track s.id) {
+  <mat-card appearance="outlined" class="hover:shadow-md transition">
+    <mat-card-header>
+      <mat-card-title class="text-lg font-semibold">{{ s.name }}</mat-card-title>
+      <mat-card-subtitle class="text-gray-600">{{ s.duration }} min</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="text-sm text-gray-700">{{ s.description }}</p>
+    </mat-card-content>
+    <mat-card-footer class="pt-3">
+      <div class="flex items-center justify-between">
+        <span class="text-rose-600 font-semibold">{{ s.price | currency:'EUR':'symbol':'1.0-0' }}</span>
+        <a class="text-sm text-rose-700 hover:underline" href="#">Réserver</a>
+      </div>
+    </mat-card-footer>
+  </mat-card>
+  }
+</section>
