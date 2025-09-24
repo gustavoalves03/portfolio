@@ -1,0 +1,13 @@
+<section>
+  <h2>Utilisatrices</h2>
+  @if (store.loading()) { <p>Chargement…</p> }
+  @if (store.error()) { <p>{{ store.error() }}</p> }
+  @if (!store.loading() && !store.error()) {
+    <ul>
+      @for (u of store.users(); track u.id) {
+        <li><strong>{{ u.name }}</strong> — {{ u.email }}</li>
+      }
+    </ul>
+    @if (store.users().length === 0) { <p>Aucune utilisatrice.</p> }
+  }
+</section>

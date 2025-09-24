@@ -1,0 +1,16 @@
+<section>
+  <h2>Réservations</h2>
+  @if (store.loading()) { <p>Chargement…</p> }
+  @if (store.error()) { <p>{{ store.error() }}</p> }
+  @if (!store.loading() && !store.error()) {
+    <ul>
+      @for (b of store.bookings(); track b.id) {
+        <li>
+          #{{ b.id }} • Utilisatrice {{ b.userId }} • Soin {{ b.careId }} • Qté {{ b.quantity }} •
+          {{ b.status }} • {{ b.createdAt | date: 'short' }}
+        </li>
+      }
+    </ul>
+    @if (store.bookings().length === 0) { <p>Aucune réservation.</p> }
+  }
+</section>

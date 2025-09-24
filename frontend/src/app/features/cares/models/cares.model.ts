@@ -1,12 +1,8 @@
 import {Category} from '../../categories/models/categories.model';
 
 export enum CareStatus {
-  PENDING = 'PENDING',
-  SENT = 'SENT',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  CANCELLED = 'CANCELLED',
-  FINISHED = 'FINISHED',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export interface Care {
@@ -25,7 +21,7 @@ export interface CreateCareRequest {
   description: string;
   duration: number;
   status: CareStatus;
-  category: Category;
+  categoryId: string;
 }
 
 export type UpdateCareRequest = CreateCareRequest;

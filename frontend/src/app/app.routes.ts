@@ -4,18 +4,18 @@ import { ListVideoGames } from './features/video-games/ui/list-video-games/list-
 import { Home } from './pages/home/home';
 import { NotFound } from './pages/not-found/not-found';
 import { About } from './pages/about/about';
-import { Cares } from './features/cares/cares';
-import { Categories } from './features/categories/categories';
-import { Users } from './features/users/users';
-import { Bookings } from './features/bookings/bookings';
+import { CaresComponent } from './features/cares/cares.component';
+import { CategoriesComponent } from './features/categories/categories.component';
+import { UsersComponent } from './features/users/users.component';
+import { BookingsComponent } from './features/bookings/bookings.component';
 
 export const routes: Routes = [
   { path: '', component: Home },            // pas de redirect
   { path: 'about', component: About },
   { path: 'video-games', component: ListVideoGames },
-  { path: 'cares', component: Cares },
-  { path: 'categories', component: Categories },
-  { path: 'users', component: Users },
-  { path: 'bookings', component: Bookings },
+  { path: 'cares', component: CaresComponent },
+  { path: 'categories', component: CategoriesComponent },
+  { path: 'users', component: UsersComponent },
+  { path: 'bookings', component: BookingsComponent },
   { path: '**', component: NotFound },      // ou supprime-le si pas encore prêt
 ];

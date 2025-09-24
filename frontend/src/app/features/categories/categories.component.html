@@ -1,0 +1,20 @@
+<section>
+  <h2>Catégories</h2>
+  @if (store.loading()) {
+    <p>Chargement…</p>
+  }
+  @if (store.error()) {
+    <p>{{ store.error() }}</p>
+  }
+  @if (!store.loading() && !store.error()) {
+    <ul>
+      @for (c of store.categories(); track c.id) {
+        <li>
+          <strong>{{ c.name }}</strong>
+          @if (c.description) { <span> — {{ c.description }}</span> }
+        </li>
+      }
+    </ul>
+    @if (store.categories().length === 0) { <p>Aucune catégorie.</p> }
+  }
+</section>
