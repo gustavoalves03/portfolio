@@ -1,8 +1,8 @@
 <section>
   <h2>Soins</h2>
-  @if (store.loading()) { <p>Chargement…</p> }
+  @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
-  @if (!store.loading() && !store.error()) {
+  @if (!store.isPending() && !store.error()) {
     <ul>
       @for (care of store.availableCares(); track care.id) {
         <li>

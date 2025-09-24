@@ -3,37 +3,35 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { BookingsService } from '../services/bookings.service';
 import { CareBooking, CreateCareBookingRequest } from '../models/bookings.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, finalize, pipe, switchMap, tap } from 'rxjs';
+import { exhaustMap, pipe, switchMap, tap } from 'rxjs';
+import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
 type BookingsState = {
   bookings: CareBooking[];
-  loading: boolean;
-  error: string | null;
 };
 
 export const BookingsStore = signalStore(
-  withState<BookingsState>({ bookings: [], loading: false, error: null }),
+  withState<BookingsState>({ bookings: [] }),
+  withRequestStatus(),
   withMethods((store, gateway = inject(BookingsService)) => ({
     getBookings: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         switchMap(() => gateway.list({ page: 0, size: 50 })),
         tap({
-          next: (page) => patchState(store, { bookings: page.content }),
-          error: (err) => patchState(store, { error: err?.message ?? 'Erreur de chargement' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (page) => patchState(store, { bookings: page.content }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur de chargement')),
+        })
       )
     ),
     createBooking: rxMethod<CreateCareBookingRequest>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         exhaustMap((payload) => gateway.create(payload)),
         tap({
-          next: (created) => patchState(store, { bookings: [...store.bookings(), created] }),
-          error: (err) => patchState(store, { error: err?.message ?? 'Erreur à la création' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (created) => patchState(store, { bookings: [...store.bookings(), created] }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur à la création')),
+        })
       )
     ),
   })),

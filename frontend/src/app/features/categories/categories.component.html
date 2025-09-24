@@ -1,12 +1,12 @@
 <section>
   <h2>Catégories</h2>
-  @if (store.loading()) {
+  @if (store.isPending()) {
     <p>Chargement…</p>
   }
   @if (store.error()) {
     <p>{{ store.error() }}</p>
   }
-  @if (!store.loading() && !store.error()) {
+  @if (!store.isPending() && !store.error()) {
     <ul>
       @for (c of store.categories(); track c.id) {
         <li>

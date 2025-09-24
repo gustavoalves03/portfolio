@@ -3,39 +3,35 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { CategoriesService } from '../services/categories.service';
 import { Category, CreateCategoryRequest } from '../models/categories.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, finalize, pipe, switchMap, tap } from 'rxjs';
+import { exhaustMap, pipe, switchMap, tap } from 'rxjs';
+import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
 type CategoriesState = {
   categories: Category[];
-  loading: boolean;
-  error: string | null;
 };
 
 export const CategoriesStore = signalStore(
-  withState<CategoriesState>({ categories: [], loading: false, error: null }),
+  withState<CategoriesState>({ categories: [] }),
+  withRequestStatus(),
   withMethods((store, gateway = inject(CategoriesService)) => ({
     getCategories: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         switchMap(() => gateway.list({ page: 0, size: 50 })),
         tap({
-          next: (page) => patchState(store, { categories: page.content }),
-          error: (err) =>
-            patchState(store, { error: err?.message ?? 'Erreur de chargement des catégories' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (page) => patchState(store, { categories: page.content }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur de chargement des catégories')),
+        })
       )
     ),
     createCategory: rxMethod<CreateCategoryRequest>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         exhaustMap((payload) => gateway.create(payload)),
         tap({
-          next: (created) => patchState(store, { categories: [...store.categories(), created] }),
-          error: (err) =>
-            patchState(store, { error: err?.message ?? 'Erreur lors de la création de catégorie' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (created) => patchState(store, { categories: [...store.categories(), created] }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur lors de la création de catégorie')),
+        })
       )
     ),
   })),

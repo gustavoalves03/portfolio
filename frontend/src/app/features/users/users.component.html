@@ -1,8 +1,8 @@
 <section>
   <h2>Utilisatrices</h2>
-  @if (store.loading()) { <p>Chargement…</p> }
+  @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
-  @if (!store.loading() && !store.error()) {
+  @if (!store.isPending() && !store.error()) {
     <ul>
       @for (u of store.users(); track u.id) {
         <li><strong>{{ u.name }}</strong> — {{ u.email }}</li>

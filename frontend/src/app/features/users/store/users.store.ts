@@ -3,37 +3,35 @@ import { patchState, signalStore, withHooks, withMethods, withState } from '@ngr
 import { UsersService } from '../services/users.service';
 import { CreateUserRequest, User } from '../models/users.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, finalize, pipe, switchMap, tap } from 'rxjs';
+import { exhaustMap, pipe, switchMap, tap } from 'rxjs';
+import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
 type UsersState = {
   users: User[];
-  loading: boolean;
-  error: string | null;
 };
 
 export const UsersStore = signalStore(
-  withState<UsersState>({ users: [], loading: false, error: null }),
+  withState<UsersState>({ users: [] }),
+  withRequestStatus(),
   withMethods((store, gateway = inject(UsersService)) => ({
     getUsers: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         switchMap(() => gateway.list({ page: 0, size: 50 })),
         tap({
-          next: (page) => patchState(store, { users: page.content }),
-          error: (err) => patchState(store, { error: err?.message ?? 'Erreur de chargement' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (page) => patchState(store, { users: page.content }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur de chargement')),
+        })
       )
     ),
     createUser: rxMethod<CreateUserRequest>(
       pipe(
-        tap(() => patchState(store, { loading: true, error: null })),
+        tap(() => patchState(store, setPending())),
         exhaustMap((payload) => gateway.create(payload)),
         tap({
-          next: (created) => patchState(store, { users: [...store.users(), created] }),
-          error: (err) => patchState(store, { error: err?.message ?? 'Erreur à la création' }),
-        }),
-        finalize(() => patchState(store, { loading: false }))
+          next: (created) => patchState(store, { users: [...store.users(), created] }, setFulfilled()),
+          error: (err) => patchState(store, setError(err?.message ?? 'Erreur à la création')),
+        })
       )
     ),
   })),
