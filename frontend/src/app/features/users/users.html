@@ -1,0 +1,11 @@
+<section>
+  <h2>Utilisatrices</h2>
+  <p *ngIf="loading()">Chargement…</p>
+  <p *ngIf="error()">{{ error() }}</p>
+  <ul *ngIf="!loading() && !error()">
+    <li *ngFor="let u of users()">
+      <strong>{{ u.name }}</strong> — {{ u.email }}
+    </li>
+  </ul>
+  <p *ngIf="!loading() && !error() && users().length === 0">Aucune utilisatrice.</p>
+</section>

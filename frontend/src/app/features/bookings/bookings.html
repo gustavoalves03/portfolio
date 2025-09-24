@@ -1,0 +1,12 @@
+<section>
+  <h2>Réservations</h2>
+  <p *ngIf="loading()">Chargement…</p>
+  <p *ngIf="error()">{{ error() }}</p>
+  <ul *ngIf="!loading() && !error()">
+    <li *ngFor="let b of bookings()">
+      #{{ b.id }} • Utilisatrice {{ b.userId }} • Soin {{ b.careId }} • Qté {{ b.quantity }} •
+      {{ b.status }} • {{ b.createdAt | date: 'short' }}
+    </li>
+  </ul>
+  <p *ngIf="!loading() && !error() && bookings().length === 0">Aucune réservation.</p>
+</section>

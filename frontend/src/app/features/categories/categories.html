@@ -1,0 +1,12 @@
+<section>
+  <h2>Catégories</h2>
+  <p *ngIf="loading()">Chargement…</p>
+  <p *ngIf="error()">{{ error() }}</p>
+  <ul *ngIf="!loading() && !error()">
+    <li *ngFor="let c of categories()">
+      <strong>{{ c.name }}</strong>
+      <span *ngIf="c.description"> — {{ c.description }}</span>
+    </li>
+  </ul>
+  <p *ngIf="!loading() && !error() && categories().length === 0">Aucune catégorie.</p>
+</section>

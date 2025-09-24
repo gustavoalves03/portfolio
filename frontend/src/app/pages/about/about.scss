@@ -1,0 +1,7 @@
+@reference "tailwindcss";
+.prose h1 {
+  @apply text-3xl font-semibold mb-2;
+}
+.prose p {
+  @apply text-gray-700;
+}
