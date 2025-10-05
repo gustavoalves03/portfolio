@@ -1,9 +1,14 @@
 <section class="content-center justify-center">
-  <h2>Prestations</h2>
+  <h2 class="sr-only">Prestations</h2>
   @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
   @if (!store.isPending() && !store.error()) {
-    <crud-table [dataSource]="store.availableCares()" [displayedColumns]="displayedColumns"/>
+    <crud-table
+      [dataSource]="store.availableCares()"
+      [displayedColumns]="displayedColumns"
+      [title]="'Prestations'"
+      [emptyMessage]="'Aucune prestation à afficher'"
+      (addItem)="onAddCare()"
+    />
   }
-
 </section>

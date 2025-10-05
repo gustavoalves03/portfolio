@@ -14,7 +14,7 @@ public class CareMapper {
                 c.getDescription(),
                 c.getDuration(),
                 c.getStatus(),
-                c.getCategory() != null ? c.getCategory() : null
+                c.getCategory() != null ? c.getCategory().getId() : null
         );
     }
 
