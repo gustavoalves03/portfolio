@@ -64,3 +64,129 @@
 - Mots-clés esthétiques : **nacre, coquillage rosé, sable, mer brume**, formes arrondies, ombres très **douces**.
 - Micro-animations : transitions légères (hover/focus), durées 150–250ms, **jamais** flashy.
 - Accessibilité : WCAG **AA** (contrastes, focus visible, aria-labels, clavier ok).
+
+## Angular 20 — pratiques recommandées
+
+> Objectif: éviter les API dépréciées et aligner le code sur Angular 20 (standalone, control flow, signals, SSR, tests).
+
+### Démarrage & Providers
+- Préférer `bootstrapApplication` et les providers fonctionnels, pas les modules.
+
+```ts
+// frontend/src/main.ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptors, withFetch, withTransferCache } from '@angular/common/http';
+import { provideClientHydration } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(
+      withFetch(),
+      withTransferCache(),
+      withInterceptors([authInterceptor])
+    ),
+    provideClientHydration(),
+    provideAnimations(),
+  ],
+});
+
+// Exemple d'intercepteur fonctionnel (Angular 20)
+import { HttpInterceptorFn } from '@angular/common/http';
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // ajouter headers/token si besoin
+  return next(req);
+};
+```
+
+### Standalone components (Sans NgModule)
+- Déclarer des composants standalone et importer ce qu'ils utilisent dans `imports`.
+
+```ts
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [RouterLink],
+  template: `<a routerLink="/home">Home</a>`
+})
+export class ExampleComponent {}
+```
+
+### Routing moderne
+- Définir `Routes` avec lazy via `loadComponent`/`loadChildren`.
+- Utiliser des guards/résolveurs fonctionnels avec `inject()`.
+
+```ts
+// frontend/src/app/app.routes.ts
+import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { AuthService } from './shared/auth.service';
+
+export const routes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [() => inject(AuthService).requireAuth()],
+  },
+];
+```
+
+### Control flow de template
+- Préférer `@if`, `@for`, `@switch`, `@defer` à `*ngIf/*ngFor` dans le nouveau code.
+
+```html
+@if (items().length === 0) { Aucun élément }
+@for (item of items(); track item.id) { {{ item.name }} }
+@defer (on viewport) { <heavy-widget /> }
+```
+
+### Signals pour l'état local
+- Utiliser `signal/computed/effect` pour l'état UI local; interop RxJS via `toSignal/toObservable`.
+
+```ts
+import { signal, computed, effect } from '@angular/core';
+
+const count = signal(0);
+const doubled = computed(() => count() * 2);
+effect(() => console.log('valeur', doubled()));
+```
+
+### SSR & Hydration
+- Builder SSR via `@angular/ssr`. Activer `provideClientHydration()` et `withTransferCache()` pour le cache des requêtes.
+- Commandes du repo: `npm run build` puis `npm run serve:ssr:app`.
+
+### Tests (v20)
+- Utiliser les providers fonctionnels dans `TestBed` (pas `*Module`).
+
+```ts
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [
+      provideHttpClient(),
+      provideRouter([]),
+      provideNoopAnimations(),
+    ],
+  });
+});
+```
+
+### À éviter (déprécié/legacy dans ce repo)
+- `NgModule`, `BrowserModule`, `HttpClientModule`, `RouterModule.forRoot/forChild` dans le nouveau code.
+- Intercepteurs/guards class‑based héritant d'interfaces; préférer les variantes fonctionnelles.
+- Ancien control flow `*ngIf/*ngFor` pour les nouveaux écrans (toléré en existant).
