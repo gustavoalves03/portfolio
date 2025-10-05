@@ -1,17 +1,9 @@
-<section>
-  <h2>Soins</h2>
+<section class="content-center justify-center">
+  <h2>Prestations</h2>
   @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
   @if (!store.isPending() && !store.error()) {
-    <ul>
-      @for (care of store.availableCares(); track care.id) {
-        <li>
-          <strong>{{ care.name }}</strong> —
-          {{ care.price | currency: 'EUR':'symbol':'1.0-0' }} •
-          {{ care.duration }} min • {{ care.status }}
-        </li>
-      }
-    </ul>
-    @if (store.cares().length === 0) { <p>Aucun soin pour le moment.</p> }
+    <crud-table [dataSource]="store.availableCares()" [displayedColumns]="displayedColumns"/>
   }
+
 </section>

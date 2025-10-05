@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { CategoriesStore } from './store/categories.store';
+import {Component, inject} from '@angular/core';
+import {CategoriesStore} from './store/categories.store';
 
 @Component({
   selector: 'app-categories',

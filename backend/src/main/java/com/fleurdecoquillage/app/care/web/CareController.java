@@ -15,7 +15,10 @@ import com.fleurdecoquillage.app.care.web.dto.CareResponse;
 public class CareController {
 
     private final CareService service;
-    public CareController(CareService service) { this.service = service; }
+
+    public CareController(CareService service) {
+        this.service = service;
+    }
 
     @GetMapping
     public Page<CareResponse> list(Pageable pageable) {
@@ -41,4 +44,4 @@ public class CareController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
- }
+}

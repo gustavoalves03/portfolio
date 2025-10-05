@@ -1,6 +1,7 @@
 package com.fleurdecoquillage.app.care.web.dto;
 
 import com.fleurdecoquillage.app.care.domain.CareStatus;
+import com.fleurdecoquillage.app.category.domain.Category;
 
 public record CareResponse(
         Long id,
@@ -9,5 +10,5 @@ public record CareResponse(
         String description,
         Integer duration,
         CareStatus status,
-        Long categoryId
+        Category category
 ) {}
