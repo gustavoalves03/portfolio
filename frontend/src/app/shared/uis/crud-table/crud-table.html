@@ -2,10 +2,17 @@
   <div class="crud-table__toolbar">
     <div class="crud-table__left">
       @if (showSearch()) {
-        <mat-form-field appearance="outline" class="crud-table__search">
-          <mat-label>Rechercher</mat-label>
-          <input matInput type="search" #q (input)="onSearch(q.value)" aria-label="Rechercher" />
-        </mat-form-field>
+        <div class="search-bar crud-table__search" role="search" [style.max-width]="searchMaxWidth()">
+          <mat-icon fontIcon="search" class="search-icon" aria-hidden="true"></mat-icon>
+          <input
+            type="search"
+            #q
+            (input)="onSearch(q.value)"
+            [placeholder]="searchPlaceholder()"
+            aria-label="Rechercher"
+            class="search-input"
+          />
+        </div>
       }
     </div>
     <div class="crud-table__center">

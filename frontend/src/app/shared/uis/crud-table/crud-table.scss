@@ -34,7 +34,42 @@
   letter-spacing: .2px;
 }
 
-.crud-table__search { width: 220px; }
+.crud-table__search { width: 100%; }
+
+/* Barre de recherche custom (non form-field) */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #fff;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.search-bar:focus-within {
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+
+.search-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+.search-input::placeholder { color: rgba(0, 0, 0, 0.26); }
 
 .crud-table__empty {
   text-align: center;

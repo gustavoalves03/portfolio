@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { API_BASE_URL } from '../config/api-base-url.token';
+import { TranslocoService } from '@jsverse/transloco';
 
 function encodeBasic(user: string, pass: string): string {
   const raw = `${user}:${pass}`;
@@ -17,6 +18,7 @@ const DEV_PASS = 'dev';
 
 export const basicAuthInterceptor: HttpInterceptorFn = (req, next) => {
   const apiBaseUrl = inject(API_BASE_URL);
+  const i18n = inject(TranslocoService);
 
   // Decide whether to attach the header: only to our API
   const url = req.url;
@@ -42,7 +44,7 @@ export const basicAuthInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const auth = encodeBasic(DEV_USER, DEV_PASS);
-  const cloned = req.clone({ setHeaders: { Authorization: auth } });
+  const lang = (i18n?.getActiveLang?.() as string) || 'fr';
+  const cloned = req.clone({ setHeaders: { Authorization: auth, 'Accept-Language': lang } });
   return next(cloned);
 };
-

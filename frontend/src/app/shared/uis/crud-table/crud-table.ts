@@ -2,8 +2,6 @@ import {Component, input, output} from '@angular/core';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
 
 /**
  * @title Binding event handlers and properties to the table rows.
@@ -13,7 +11,7 @@ import {MatInputModule} from '@angular/material/input';
   standalone: true,
   styleUrl: 'crud-table.scss',
   templateUrl: 'crud-table.html',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
+  imports: [MatTableModule, MatButtonModule, MatIconModule],
 })
 export class CrudTable {
 
@@ -22,6 +20,8 @@ export class CrudTable {
   emptyMessage = input<string>('Aucun élément à afficher');
   title = input<string>('');
   showSearch = input<boolean>(true);
+  searchPlaceholder = input<string>('Recherche...');
+  searchMaxWidth = input<string>('200px');
   addItem = output<void>();
   searchChange = output<string>();
 

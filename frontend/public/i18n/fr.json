@@ -1,0 +1,16 @@
+{
+  "app": {
+    "title": "Fleur de Coquillage"
+  },
+  "table": {
+    "search": {
+      "placeholder": "Recherche..."
+    },
+    "empty": "Aucun élément à afficher"
+  },
+  "cares": {
+    "title": "Prestations",
+    "add": "Ajouter"
+  }
+}
+
