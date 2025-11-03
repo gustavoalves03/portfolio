@@ -1,0 +1,129 @@
+<div class="modal-container">
+  <!-- En-tête -->
+  <div mat-dialog-title class="modal-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">spa</mat-icon>
+      <h2>Créer un nouveau soin</h2>
+    </div>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Contenu -->
+  <mat-dialog-content class="modal-content mt-4">
+    <form [formGroup]="careForm" class="care-form">
+
+      <!-- Nom du soin -->
+      <mat-form-field appearance="fill" class="full-width" >
+        <mat-label>Nom du soin</mat-label>
+        <input matInput
+               formControlName="name"
+               placeholder="Ex: Massage relaxant"
+               autocomplete="off">
+        @if (careForm.get('name')?.invalid && careForm.get('name')?.touched) {
+          <mat-error>{{ getErrorMessage('name') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Description -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput
+                  formControlName="description"
+                  placeholder="Décrivez le soin en détail..."
+                  rows="4"
+                  autocomplete="off"></textarea>
+        <mat-icon matPrefix>description</mat-icon>
+        @if (careForm.get('description')?.invalid && careForm.get('description')?.touched) {
+          <mat-error>{{ getErrorMessage('description') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Prix et Durée sur la même ligne -->
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Prix (€)</mat-label>
+          <input matInput
+                 type="number"
+                 formControlName="price"
+                 placeholder="0.00"
+                 step="0.01"
+                 min="0">
+          <mat-icon matPrefix>euro</mat-icon>
+          <span matTextSuffix>€</span>
+          @if (careForm.get('price')?.invalid && careForm.get('price')?.touched) {
+            <mat-error>{{ getErrorMessage('price') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Durée (minutes)</mat-label>
+          <input matInput
+                 type="number"
+                 formControlName="duration"
+                 placeholder="30"
+                 min="1">
+          <mat-icon matPrefix>schedule</mat-icon>
+          <span matTextSuffix>min</span>
+          @if (careForm.get('duration')?.invalid && careForm.get('duration')?.touched) {
+            <mat-error>{{ getErrorMessage('duration') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Catégorie et Statut sur la même ligne -->
+      <div class="form-row">
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Catégorie</mat-label>
+          <mat-select formControlName="categoryId">
+            @if (categories.length === 0) {
+              <mat-option disabled>Aucune catégorie disponible</mat-option>
+            }
+            @for (category of categories; track category.id) {
+              <mat-option [value]="category.id">{{ category.name }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>category</mat-icon>
+          @if (careForm.get('categoryId')?.invalid && careForm.get('categoryId')?.touched) {
+            <mat-error>{{ getErrorMessage('categoryId') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="half-width">
+          <mat-label>Statut</mat-label>
+          <mat-select formControlName="status">
+            @for (status of careStatuses; track status) {
+              <mat-option [value]="status">
+                {{ status === 'ACTIVE' ? 'Actif' : 'Inactif' }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>
+            {{ careForm.get('status')?.value === 'ACTIVE' ? 'toggle_on' : 'toggle_off' }}
+          </mat-icon>
+          @if (careForm.get('status')?.invalid && careForm.get('status')?.touched) {
+            <mat-error>{{ getErrorMessage('status') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="modal-actions">
+    <button mat-stroked-button (click)="onCancel()" type="button">
+      <mat-icon>close</mat-icon>
+      Annuler
+    </button>
+    <button mat-raised-button
+            color="primary"
+            (click)="onSave()"
+            [disabled]="careForm.invalid"
+            type="submit">
+      <mat-icon>check</mat-icon>
+      Créer le soin
+    </button>
+  </mat-dialog-actions>
+</div>
