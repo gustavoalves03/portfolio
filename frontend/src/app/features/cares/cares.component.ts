@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { CaresStore } from './store/cares.store';
 import {CrudTable} from '../../shared/uis/crud-table/crud-table';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {CreateCare} from './modals/create/create-care.component';
 
 @Component({
   selector: 'app-cares',
@@ -14,10 +15,23 @@ import { TranslocoPipe } from '@jsverse/transloco';
 })
 export class CaresComponent {
   readonly store = inject(CaresStore);
+  private dialog = inject(MatDialog);
 
-  displayedColumns: string[] = ['id', 'name', 'description', 'price', 'duration', 'actions'];
+  displayedColumns: string[] = [ 'Nom', 'Description', 'Prix', 'Durée', 'Actions'];
 
   onAddCare() {
-    console.log('Add care clicked');
+    const dialogRef = this.dialog.open(CreateCare, {
+      width: '500px',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Nouveau care:', result);
+        // TODO: Appeler le store ou le service pour sauvegarder le care
+        // this.store.addCare(result);
+      }
+    });
   }
 }
