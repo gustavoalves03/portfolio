@@ -1,16 +1,15 @@
-<section>
-  <h2>Réservations</h2>
+<section class="content-center justify-center">
+  <h2 class="sr-only">Réservations</h2>
   @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
   @if (!store.isPending() && !store.error()) {
-    <ul>
-      @for (b of store.bookings(); track b.id) {
-        <li>
-          #{{ b.id }} • Utilisatrice {{ b.userId }} • Soin {{ b.careId }} • Qté {{ b.quantity }} •
-          {{ b.status }} • {{ b.createdAt | date: 'short' }}
-        </li>
-      }
-    </ul>
-    @if (store.bookings().length === 0) { <p>Aucune réservation.</p> }
+    <crud-table
+      [dataSource]="store.bookings()"
+      [displayedColumns]="displayedColumns"
+      [title]="'Réservations'"
+      [emptyMessage]="'Aucune réservation'"
+      [searchPlaceholder]="'Rechercher une réservation...'"
+      (addItem)="onAddBooking()"
+    />
   }
 </section>

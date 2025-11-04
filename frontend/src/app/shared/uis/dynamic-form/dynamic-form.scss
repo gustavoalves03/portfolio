@@ -1,0 +1,70 @@
+.dynamic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+
+    .half-width {
+      flex: 1;
+    }
+  }
+
+  mat-form-field {
+    mat-icon[matPrefix] {
+      margin-right: 8px;
+      color: #666;
+    }
+
+    &.mat-form-field-invalid {
+      mat-icon[matPrefix] {
+        color: #f44336;
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+
+    .half-width {
+      width: 100%;
+    }
+  }
+}
+
+/* Animations */
+mat-form-field {
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    transform: translateY(-2px);
+  }
+}
+
+/* Personnalisation des icônes */
+mat-icon[matPrefix] {
+  transition: color 0.2s ease;
+}
+
+/* Style pour les champs avec erreur */
+.mat-mdc-form-field.mat-form-field-invalid {
+  .mat-mdc-text-field-wrapper {
+    animation: shake 0.3s ease;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}

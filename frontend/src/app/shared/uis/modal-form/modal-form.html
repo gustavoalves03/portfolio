@@ -1,0 +1,36 @@
+<div class="modal-container">
+  <!-- En-tête -->
+  <div mat-dialog-title class="modal-header">
+    <div class="header-content">
+      <mat-icon class="header-icon" [style.color]="iconColor()">{{ icon() }}</mat-icon>
+      <h2>{{ title() }}</h2>
+    </div>
+    @if (showCloseButton()) {
+      <button mat-icon-button (click)="onCancel()" class="close-button" type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Contenu (formulaire injecté via ng-content) -->
+  <mat-dialog-content class="modal-content">
+    <ng-content></ng-content>
+  </mat-dialog-content>
+
+  <!-- Actions -->
+  <mat-dialog-actions class="modal-actions">
+    <button mat-stroked-button (click)="onCancel()" type="button">
+      <mat-icon>{{ cancelIcon() }}</mat-icon>
+      {{ cancelLabel() }}
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSave()"
+      [disabled]="saveDisabled()"
+      type="button">
+      <mat-icon>{{ saveIcon() }}</mat-icon>
+      {{ saveLabel() }}
+    </button>
+  </mat-dialog-actions>
+</div>

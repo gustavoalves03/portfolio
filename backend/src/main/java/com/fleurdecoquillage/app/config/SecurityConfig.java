@@ -1,5 +1,7 @@
 package com.fleurdecoquillage.app.config;
 
+import com.fleurdecoquillage.app.common.error.RestAccessDeniedHandler;
+import com.fleurdecoquillage.app.common.error.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +17,15 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    private final RestAccessDeniedHandler accessDeniedHandler;
+    private final RestAuthenticationEntryPoint authenticationEntryPoint;
+
+    public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
+                          RestAuthenticationEntryPoint authenticationEntryPoint) {
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -28,6 +39,10 @@ public class SecurityConfig {
                     return c;
                 }))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/ping").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

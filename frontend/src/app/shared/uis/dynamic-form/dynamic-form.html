@@ -1,0 +1,143 @@
+<form [formGroup]="formGroup()" class="dynamic-form">
+  @for (row of config().rows; track $index) {
+    @if (row.fields.length === 1) {
+      <!-- Single field - full width -->
+      @for (field of row.fields; track field.name) {
+        @switch (field.type) {
+          @case ('textarea') {
+            <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+              <mat-label>{{ field.label }}</mat-label>
+              @if (field.icon) {
+                <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+              }
+              <textarea
+                matInput
+                [formControlName]="field.name"
+                [placeholder]="field.placeholder || ''"
+                [rows]="field.rows || 3"
+                [autocomplete]="field.autocomplete || 'off'">
+              </textarea>
+              @if (hasError(field.name)) {
+                <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+              }
+            </mat-form-field>
+          }
+          @case ('select') {
+            <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+              <mat-label>{{ field.label }}</mat-label>
+              @if (field.icon) {
+                <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+              }
+              <mat-select [formControlName]="field.name">
+                @if (!field.options || field.options.length === 0) {
+                  <mat-option disabled>Aucune option disponible</mat-option>
+                }
+                @for (option of field.options; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+              @if (hasError(field.name)) {
+                <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+              }
+            </mat-form-field>
+          }
+          @default {
+            <!-- text, number, email, date -->
+            <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+              <mat-label>{{ field.label }}</mat-label>
+              @if (field.icon) {
+                <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+              }
+              <input
+                matInput
+                [type]="field.type"
+                [formControlName]="field.name"
+                [placeholder]="field.placeholder || ''"
+                [step]="field.step"
+                [min]="field.min"
+                [max]="field.max"
+                [autocomplete]="field.autocomplete || 'off'"
+              />
+              @if (field.suffix) {
+                <span matTextSuffix>{{ field.suffix }}</span>
+              }
+              @if (hasError(field.name)) {
+                <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+              }
+            </mat-form-field>
+          }
+        }
+      }
+    } @else {
+      <!-- Multiple fields in row -->
+      <div class="form-row">
+        @for (field of row.fields; track field.name) {
+          @switch (field.type) {
+            @case ('textarea') {
+              <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+                <mat-label>{{ field.label }}</mat-label>
+                @if (field.icon) {
+                  <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+                }
+                <textarea
+                  matInput
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  [rows]="field.rows || 3"
+                  [autocomplete]="field.autocomplete || 'off'">
+                </textarea>
+                @if (hasError(field.name)) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+            @case ('select') {
+              <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+                <mat-label>{{ field.label }}</mat-label>
+                @if (field.icon) {
+                  <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+                }
+                <mat-select [formControlName]="field.name">
+                  @if (!field.options || field.options.length === 0) {
+                    <mat-option disabled>Aucune option disponible</mat-option>
+                  }
+                  @for (option of field.options; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (hasError(field.name)) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+            @default {
+              <!-- text, number, email, date -->
+              <mat-form-field appearance="fill" [class]="getFieldWidth(field)">
+                <mat-label>{{ field.label }}</mat-label>
+                @if (field.icon) {
+                  <mat-icon matPrefix>{{ field.icon }}</mat-icon>
+                }
+                <input
+                  matInput
+                  [type]="field.type"
+                  [formControlName]="field.name"
+                  [placeholder]="field.placeholder || ''"
+                  [step]="field.step"
+                  [min]="field.min"
+                  [max]="field.max"
+                  [autocomplete]="field.autocomplete || 'off'"
+                />
+                @if (field.suffix) {
+                  <span matTextSuffix>{{ field.suffix }}</span>
+                }
+                @if (hasError(field.name)) {
+                  <mat-error>{{ getErrorMessage(field.name) }}</mat-error>
+                }
+              </mat-form-field>
+            }
+          }
+        }
+      </div>
+    }
+  }
+</form>

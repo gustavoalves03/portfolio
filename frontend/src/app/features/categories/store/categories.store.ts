@@ -1,10 +1,11 @@
-import { inject } from '@angular/core';
-import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import {computed, inject} from '@angular/core';
+import {patchState, signalStore, withComputed, withHooks, withMethods, withState} from '@ngrx/signals';
 import { CategoriesService } from '../services/categories.service';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../models/categories.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { exhaustMap, map, pipe, switchMap, tap } from 'rxjs';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
+import {CareStatus} from '../../cares/models/cares.model';
 
 type CategoriesState = {
   categories: Category[];
@@ -13,6 +14,9 @@ type CategoriesState = {
 export const CategoriesStore = signalStore(
   withState<CategoriesState>({ categories: [] }),
   withRequestStatus(),
+  withComputed((store) => ({
+    availableCategories: computed(() => store.categories),
+  })),
   withMethods((store, gateway = inject(CategoriesService)) => ({
     getCategories: rxMethod<void>(
       pipe(

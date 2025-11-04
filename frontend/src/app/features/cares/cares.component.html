@@ -1,8 +1,8 @@
 <section class="content-center justify-center">
   <h2 class="sr-only">Prestations</h2>
   @if (store.isPending()) { <p>Chargement…</p> }
-  @if (store.error()) { <p>{{ store.error() }}</p> }
-  @if (!store.isPending() && !store.error()) {
+  @if (store.error()) { <p class="error-banner">{{ store.error() }}</p> }
+  @if (!store.isPending()) {
     <crud-table
       [dataSource]="store.availableCares()"
       [displayedColumns]="displayedColumns"

@@ -1,25 +1,22 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { CareStatus, CreateCareRequest } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
+import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
+import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
+import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
+
+interface CreateCareDialogData {
+  categories: Category[];
+}
 
 @Component({
   selector: 'app-create',
   standalone: true,
   imports: [
-    MatDialogModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatIconModule,
-    ReactiveFormsModule
+    ModalForm,
+    DynamicForm
   ],
   templateUrl: './create-care.component.html',
   styleUrl: './create-care.component.scss'
@@ -27,28 +24,113 @@ import { Category } from '../../../categories/models/categories.model';
 export class CreateCare implements OnInit {
   private dialogRef = inject(MatDialogRef<CreateCare>);
   private fb = inject(FormBuilder);
+  private data = inject<CreateCareDialogData>(MAT_DIALOG_DATA);
 
   careForm!: FormGroup;
-  careStatuses = Object.values(CareStatus);
-
-  // TODO: Récupérer les catégories depuis un service
-  categories: Category[] = [];
+  categories: Category[] = this.data.categories;
+  formConfig!: DynamicFormConfig;
 
   ngOnInit(): void {
-    this.initForm();
+    this.careForm = this.fb.group({});
+    this.initFormConfig();
     // TODO: Charger les catégories
     // this.loadCategories();
   }
 
-  private initForm(): void {
-    this.careForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-      price: [0, [Validators.required, Validators.min(0)]],
-      duration: [30, [Validators.required, Validators.min(1)]],
-      status: [CareStatus.ACTIVE, Validators.required],
-      categoryId: ['', Validators.required]
-    });
+  private initFormConfig(): void {
+    this.formConfig = {
+      rows: [
+        // Nom
+        {
+          fields: [
+            {
+              name: 'name',
+              label: 'Nom du soin',
+              type: 'text',
+              placeholder: 'Ex: Massage relaxant',
+              icon: 'edit',
+              required: true,
+              minLength: 3,
+              width: 'full'
+            }
+          ]
+        },
+        // Description
+        {
+          fields: [
+            {
+              name: 'description',
+              label: 'Description',
+              type: 'textarea',
+              placeholder: 'Décrivez le soin en détail...',
+              icon: 'description',
+              rows: 4,
+              required: true,
+              minLength: 10,
+              width: 'full'
+            }
+          ]
+        },
+        // Prix et Durée
+        {
+          fields: [
+            {
+              name: 'price',
+              label: 'Prix (€)',
+              type: 'number',
+              placeholder: '50.00',
+              icon: 'euro',
+              suffix: '€',
+              step: 5,
+              min: 5,
+              required: true,
+              width: 'half'
+            },
+            {
+              name: 'duration',
+              label: 'Durée (minutes)',
+              type: 'number',
+              placeholder: '30',
+              icon: 'schedule',
+              suffix: 'min',
+              min: 1,
+              required: true,
+              width: 'half'
+            }
+          ]
+        },
+        // Catégorie et Statut
+        {
+          fields: [
+            {
+              name: 'categoryId',
+              label: 'Catégorie',
+              type: 'select',
+              icon: 'category',
+              options: this.mapCategoriesToOptions(),
+              required: true,
+              width: 'half'
+            },
+            {
+              name: 'status',
+              label: 'Statut',
+              type: 'select',
+              icon: 'toggle_on',
+              options: Object.values(CareStatus).map(s => ({
+                label: s === 'ACTIVE' ? 'Actif' : 'Inactif',
+                value: s
+              })),
+              required: true,
+              width: 'half'
+            }
+          ]
+        }
+      ]
+    };
+  }
+
+  private mapCategoriesToOptions(): Array<{ label: string; value: number }> {
+    return this.categories.map(c => ({ label: c.name, value: c.id }));
   }
 
   onCancel(): void {
@@ -57,25 +139,23 @@ export class CreateCare implements OnInit {
 
   onSave(): void {
     if (this.careForm.valid) {
-      const careData: CreateCareRequest = this.careForm.value;
+      const careData = this.mapFormToRequest();
       this.dialogRef.close(careData);
     } else {
       this.careForm.markAllAsTouched();
     }
   }
 
-  getErrorMessage(fieldName: string): string {
-    const field = this.careForm.get(fieldName);
-    if (field?.hasError('required')) {
-      return 'Ce champ est requis';
-    }
-    if (field?.hasError('minLength')) {
-      const minLength = field.errors?.['minLength'].requiredLength;
-      return `Minimum ${minLength} caractères requis`;
-    }
-    if (field?.hasError('min')) {
-      return 'La valeur doit être positive';
-    }
-    return '';
+  private mapFormToRequest(): CreateCareRequest {
+    const rawValue = this.careForm.getRawValue();
+
+    return {
+      name: rawValue['name'] ?? '',
+      description: rawValue['description'] ?? '',
+      status: rawValue['status'] as CareStatus,
+      categoryId: rawValue['categoryId'] ?? 0,
+      price: Number(rawValue['price'] ?? 0),
+      duration: Number(rawValue['duration'] ?? 0),
+    };
   }
 }

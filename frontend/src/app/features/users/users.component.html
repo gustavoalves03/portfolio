@@ -1,13 +1,15 @@
-<section>
-  <h2>Utilisatrices</h2>
+<section class="content-center justify-center">
+  <h2 class="sr-only">Utilisateurs</h2>
   @if (store.isPending()) { <p>Chargement…</p> }
   @if (store.error()) { <p>{{ store.error() }}</p> }
   @if (!store.isPending() && !store.error()) {
-    <ul>
-      @for (u of store.users(); track u.id) {
-        <li><strong>{{ u.name }}</strong> — {{ u.email }}</li>
-      }
-    </ul>
-    @if (store.users().length === 0) { <p>Aucune utilisatrice.</p> }
+    <crud-table
+      [dataSource]="store.users()"
+      [displayedColumns]="displayedColumns"
+      [title]="'Utilisateurs'"
+      [emptyMessage]="'Aucun utilisateur'"
+      [searchPlaceholder]="'Rechercher un utilisateur...'"
+      (addItem)="onAddUser()"
+    />
   }
 </section>

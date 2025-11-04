@@ -1,0 +1,15 @@
+<section class="content-center justify-center">
+  <h2 class="sr-only">Catégories</h2>
+  @if (store.isPending()) { <p>Chargement…</p> }
+  @if (store.error()) { <p>{{ store.error() }}</p> }
+  @if (!store.isPending() && !store.error()) {
+    <crud-table
+      [dataSource]="store.categories()"
+      [displayedColumns]="displayedColumns"
+      [title]="'Catégories'"
+      [emptyMessage]="'Aucune catégorie'"
+      [searchPlaceholder]="'Rechercher une catégorie...'"
+      (addItem)="onAddCategory()"
+    />
+  }
+</section>
