@@ -1,11 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { CareStatus, CreateCareRequest } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
-import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
+import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/form-field.model';
 
 interface CreateCareDialogData {
   categories: Category[];
@@ -31,14 +31,14 @@ export class CreateCare implements OnInit {
   formConfig!: DynamicFormConfig;
 
   ngOnInit(): void {
-    this.careForm = this.fb.group({});
-    this.initFormConfig();
+    this.formConfig = this.buildFormConfig();
+    this.careForm = this.buildFormGroup(this.formConfig);
     // TODO: Charger les catégories
     // this.loadCategories();
   }
 
-  private initFormConfig(): void {
-    this.formConfig = {
+  private buildFormConfig(): DynamicFormConfig {
+    return {
       rows: [
         // Nom
         {
@@ -131,6 +131,57 @@ export class CreateCare implements OnInit {
 
   private mapCategoriesToOptions(): Array<{ label: string; value: number }> {
     return this.categories.map(c => ({ label: c.name, value: c.id }));
+  }
+
+  private buildFormGroup(config: DynamicFormConfig): FormGroup {
+    const group = this.fb.group({});
+
+    config.rows.forEach(row => {
+      row.fields.forEach(field => {
+        const validators = this.getValidators(field);
+        const defaultValue = this.getDefaultValue(field);
+        group.addControl(
+          field.name,
+          this.fb.control({ value: defaultValue, disabled: field.disabled }, validators)
+        );
+      });
+    });
+
+    return group;
+  }
+
+  private getValidators(field: FormFieldConfig): ValidatorFn[] {
+    const validators: ValidatorFn[] = [];
+
+    if (field.required) {
+      validators.push(Validators.required);
+    }
+    if (field.minLength) {
+      validators.push(Validators.minLength(field.minLength));
+    }
+    if (field.maxLength) {
+      validators.push(Validators.maxLength(field.maxLength));
+    }
+    if (field.min !== undefined) {
+      validators.push(Validators.min(field.min));
+    }
+    if (field.max !== undefined) {
+      validators.push(Validators.max(field.max));
+    }
+    if (field.pattern) {
+      validators.push(Validators.pattern(field.pattern));
+    }
+    if (field.type === 'email') {
+      validators.push(Validators.email);
+    }
+
+    return validators;
+  }
+
+  private getDefaultValue(field: FormFieldConfig): any {
+    if (field.type === 'number') return 0;
+    if (field.type === 'select' && field.options?.length) return field.options[0].value;
+    return '';
   }
 
   onCancel(): void {
