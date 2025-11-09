@@ -76,3 +76,28 @@
   color: rgba(0, 0, 0, 0.6);
   padding: 16px;
 }
+
+// Styles pour la colonne d'actions
+.actions-column {
+  width: 120px;
+  text-align: center !important;
+}
+
+.actions-container {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-button {
+  transition: transform 150ms ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

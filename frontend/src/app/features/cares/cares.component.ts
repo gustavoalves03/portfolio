@@ -1,12 +1,12 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CaresStore } from './store/cares.store';
 import { CategoriesStore } from '../categories/store/categories.store';
 import { CrudTable } from '../../shared/uis/crud-table/crud-table';
+import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CreateCare } from './modals/create/create-care.component';
-import { take } from 'rxjs';
 
 @Component({
   selector: 'app-cares',
@@ -22,7 +22,29 @@ export class CaresComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
-  displayedColumns: string[] = ['name', 'description', 'price', 'duration'];
+  // Configuration des colonnes avec traduction (en signal)
+  readonly columns = signal<TableColumn[]>([
+    { key: 'name', headerKey: 'cares.columns.name', align: 'left' },
+    { key: 'description', headerKey: 'cares.columns.description', align: 'left' },
+    { key: 'price', headerKey: 'cares.columns.price', type: 'currency', align: 'right' },
+    { key: 'duration', headerKey: 'cares.columns.duration', align: 'center' }
+  ]);
+
+  // Configuration des actions (modifier, supprimer) (en signal)
+  readonly actions = signal<TableAction[]>([
+    {
+      icon: 'edit',
+      tooltipKey: 'actions.edit',
+      color: 'primary',
+      callback: (care: any) => this.onEditCare(care)
+    },
+    {
+      icon: 'delete',
+      tooltipKey: 'actions.delete',
+      color: 'warn',
+      callback: (care: any) => this.onDeleteCare(care)
+    }
+  ]);
 
   private readonly showErrorSnack = effect(() => {
 
@@ -43,5 +65,17 @@ export class CaresComponent {
         this.store.createCare(result);
       }
     });
+  }
+
+  onEditCare(care: any) {
+    console.log('Edit care:', care);
+    // TODO: Ouvrir modal d'édition
+    this.snackBar.open(`Édition de ${care.name}`, 'OK', { duration: 2000 });
+  }
+
+  onDeleteCare(care: any) {
+    console.log('Delete care:', care);
+    // TODO: Confirmer et supprimer
+    this.snackBar.open(`Suppression de ${care.name}`, 'OK', { duration: 2000 });
   }
 }

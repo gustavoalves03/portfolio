@@ -8,9 +8,45 @@
     },
     "empty": "No items to display"
   },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  },
   "cares": {
     "title": "Cares",
-    "add": "Add"
+    "add": "Add",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "price": "Price",
+      "duration": "Duration"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "columns": {
+      "name": "Name",
+      "description": "Description"
+    }
+  },
+  "bookings": {
+    "title": "Bookings",
+    "columns": {
+      "id": "ID",
+      "userId": "User",
+      "careId": "Care",
+      "quantity": "Quantity",
+      "status": "Status",
+      "createdAt": "Created At"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "columns": {
+      "id": "ID",
+      "name": "Name",
+      "email": "Email"
+    }
   }
 }
 

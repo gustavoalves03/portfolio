@@ -5,10 +5,11 @@
   @if (!store.isPending() && !store.error()) {
     <crud-table
       [dataSource]="store.bookings()"
-      [displayedColumns]="displayedColumns"
-      [title]="'Réservations'"
-      [emptyMessage]="'Aucune réservation'"
-      [searchPlaceholder]="'Rechercher une réservation...'"
+      [columns]="columns()"
+      [actions]="actions()"
+      [title]="('bookings.title' | transloco)"
+      [emptyMessage]="('table.empty' | transloco)"
+      [searchPlaceholder]="('table.search.placeholder' | transloco)"
       (addItem)="onAddBooking()"
     />
   }

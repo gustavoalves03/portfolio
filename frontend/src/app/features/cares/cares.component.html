@@ -5,7 +5,8 @@
   @if (!store.isPending()) {
     <crud-table
       [dataSource]="store.availableCares()"
-      [displayedColumns]="displayedColumns"
+      [columns]="columns()"
+      [actions]="actions()"
       [title]="('cares.title' | transloco)"
       [emptyMessage]="('table.empty' | transloco)"
       [searchPlaceholder]="('table.search.placeholder' | transloco)"

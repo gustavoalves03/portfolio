@@ -8,9 +8,45 @@
     },
     "empty": "Aucun élément à afficher"
   },
+  "actions": {
+    "edit": "Modifier",
+    "delete": "Supprimer"
+  },
   "cares": {
     "title": "Prestations",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "columns": {
+      "name": "Nom",
+      "description": "Description",
+      "price": "Prix",
+      "duration": "Durée"
+    }
+  },
+  "categories": {
+    "title": "Catégories",
+    "columns": {
+      "name": "Nom",
+      "description": "Description"
+    }
+  },
+  "bookings": {
+    "title": "Réservations",
+    "columns": {
+      "id": "ID",
+      "userId": "Utilisateur",
+      "careId": "Prestation",
+      "quantity": "Quantité",
+      "status": "Statut",
+      "createdAt": "Date de création"
+    }
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "columns": {
+      "id": "ID",
+      "name": "Nom",
+      "email": "Email"
+    }
   }
 }
 
