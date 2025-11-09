@@ -25,14 +25,7 @@ export class CaresComponent {
   displayedColumns: string[] = ['name', 'description', 'price', 'duration'];
 
   private readonly showErrorSnack = effect(() => {
-    const message = this.store.error();
-    if (message) {
-      const snack = this.snackBar.open(message, 'Fermer', {
-        duration: 4000,
-        panelClass: ['snackbar-error']
-      });
-      snack.afterDismissed().pipe(take(1)).subscribe(() => this.store.clearError());
-    }
+
   });
 
   onAddCare() {

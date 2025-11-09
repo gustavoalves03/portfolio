@@ -1,10 +1,17 @@
+<!-- Sidenav overlay -->
+<app-sidenav-overlay></app-sidenav-overlay>
+
 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
   <div class="mx-auto max-w-[1440px] px-6">
     <div class="h-20 grid grid-cols-3 items-center">
       <!-- Left: burger + About (discret) -->
       <div class="flex items-center gap-4">
-        <button type="button" aria-label="Ouvrir le menu"
-                class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
+        <button
+          type="button"
+          aria-label="Ouvrir le menu"
+          (click)="toggleSidenav()"
+          class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300 transition-colors duration-150"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
           </svg>
