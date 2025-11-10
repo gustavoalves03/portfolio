@@ -5,9 +5,9 @@ import { CaresStore } from './store/cares.store';
 import { CategoriesStore } from '../categories/store/categories.store';
 import { CrudTable } from '../../shared/uis/crud-table/crud-table';
 import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CreateCare } from './modals/create/create-care.component';
-import { Care } from './models/cares.model';
+import { Care, CareStatus } from './models/cares.model';
 import { DeleteCareComponent } from './modals/delete/delete-care.component';
 
 @Component({
@@ -23,13 +23,19 @@ export class CaresComponent {
   readonly categoriesStore = inject(CategoriesStore);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private i18n = inject(TranslocoService);
 
   // Configuration des colonnes avec traduction (en signal)
   readonly columns = signal<TableColumn[]>([
     { key: 'name', headerKey: 'cares.columns.name', align: 'left' },
     { key: 'description', headerKey: 'cares.columns.description', align: 'left' },
     { key: 'price', headerKey: 'cares.columns.price', type: 'currency', align: 'right' },
-    { key: 'status', headerKey: 'cares.columns.status', type: 'text', align: 'right' },
+    {
+      key: 'status',
+      headerKey: 'cares.columns.status',
+      align: 'center',
+      valueGetter: (care: Care) => this.translateStatus(care.status)
+    },
     { key: 'duration', headerKey: 'cares.columns.duration', align: 'center' }
   ]);
 
@@ -107,5 +113,9 @@ export class CaresComponent {
         this.store.deleteCare(care.id);
       }
     });
+  }
+
+  private translateStatus(status: CareStatus): string {
+    return this.i18n.translate(`cares.status.${status}`) || status;
   }
 }

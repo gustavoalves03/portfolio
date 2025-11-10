@@ -9,6 +9,8 @@ export interface TableColumn {
   width?: string;
   /** Alignement du contenu */
   align?: 'left' | 'center' | 'right';
+  /** Fonction optionnelle pour formater une valeur à l'affichage */
+  valueGetter?: (row: any) => string | number | null | undefined;
 }
 
 export interface TableAction {

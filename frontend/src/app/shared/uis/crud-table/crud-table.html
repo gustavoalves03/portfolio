@@ -59,7 +59,7 @@
             }
           </th>
           <td mat-cell *matCellDef="let element">
-            {{ element[columnKey] }}
+            {{ resolveCellValue(columnKey, element) }}
           </td>
         </ng-container>
       }

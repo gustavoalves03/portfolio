@@ -21,6 +21,10 @@
       "price": "Price",
       "duration": "Duration",
       "status": "Status"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
     }
   },
   "categories": {
@@ -50,4 +54,3 @@
     }
   }
 }
-
