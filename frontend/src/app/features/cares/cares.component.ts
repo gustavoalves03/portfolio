@@ -74,8 +74,8 @@ export class CaresComponent {
   }
 
   onDeleteCare(care: any) {
-    console.log('Delete care:', care);
-    // TODO: Confirmer et supprimer
-    this.snackBar.open(`Suppression de ${care.name}`, 'OK', { duration: 2000 });
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${care.name}" ?`)) {
+      this.store.deleteCare(care.id);
+    }
   }
 }

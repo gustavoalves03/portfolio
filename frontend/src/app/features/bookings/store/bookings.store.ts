@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { BookingsService } from '../services/bookings.service';
-import { CareBooking, CreateCareBookingRequest } from '../models/bookings.model';
+import { CareBooking, CreateCareBookingRequest, UpdateCareBookingRequest } from '../models/bookings.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, pipe, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, exhaustMap, map, pipe, switchMap, tap } from 'rxjs';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
 type BookingsState = {
@@ -32,6 +32,50 @@ export const BookingsStore = signalStore(
           next: (created) => patchState(store, { bookings: [...store.bookings(), created] }, setFulfilled()),
           error: (err) => patchState(store, setError(err?.message ?? 'Erreur à la création')),
         })
+      )
+    ),
+    updateBooking: rxMethod<{ id: number; payload: UpdateCareBookingRequest }>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap(({ id, payload }) =>
+          gateway.update(id, payload).pipe(
+            tap((updatedBooking) =>
+              patchState(
+                store,
+                {
+                  bookings: store.bookings().map((booking) => (booking.id === id ? updatedBooking : booking))
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la modification de la réservation'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    deleteBooking: rxMethod<number>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap((id) =>
+          gateway.delete(id).pipe(
+            tap(() =>
+              patchState(
+                store,
+                {
+                  bookings: store.bookings().filter((booking) => booking.id !== id)
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la suppression de la réservation'));
+              return EMPTY;
+            })
+          )
+        )
       )
     ),
   })),

@@ -62,7 +62,8 @@ export class CategoriesComponent {
   }
 
   onDeleteCategory(category: any) {
-    console.log('Delete category:', category);
-    this.snackBar.open(`Suppression de ${category.name}`, 'OK', { duration: 2000 });
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${category.name}" ?`)) {
+      this.store.deleteCategory(category.id);
+    }
   }
 }

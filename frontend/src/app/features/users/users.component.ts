@@ -63,7 +63,8 @@ export class UsersComponent {
   }
 
   onDeleteUser(user: any) {
-    console.log('Delete user:', user);
-    this.snackBar.open(`Suppression de ${user.name}`, 'OK', { duration: 2000 });
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${user.name}" ?`)) {
+      this.store.deleteUser(user.id);
+    }
   }
 }

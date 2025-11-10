@@ -66,7 +66,8 @@ export class BookingsComponent {
   }
 
   onDeleteBooking(booking: any) {
-    console.log('Delete booking:', booking);
-    this.snackBar.open(`Suppression de la réservation #${booking.id}`, 'OK', { duration: 2000 });
+    if (confirm(`Êtes-vous sûr de vouloir supprimer la réservation #${booking.id} ?`)) {
+      this.store.deleteBooking(booking.id);
+    }
   }
 }

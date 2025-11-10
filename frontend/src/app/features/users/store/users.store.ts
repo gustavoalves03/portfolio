@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { UsersService } from '../services/users.service';
-import { CreateUserRequest, User } from '../models/users.model';
+import { CreateUserRequest, UpdateUserRequest, User } from '../models/users.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, pipe, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
 type UsersState = {
@@ -32,6 +32,50 @@ export const UsersStore = signalStore(
           next: (created) => patchState(store, { users: [...store.users(), created] }, setFulfilled()),
           error: (err) => patchState(store, setError(err?.message ?? 'Erreur à la création')),
         })
+      )
+    ),
+    updateUser: rxMethod<{ id: number; payload: UpdateUserRequest }>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap(({ id, payload }) =>
+          gateway.update(id, payload).pipe(
+            tap((updatedUser) =>
+              patchState(
+                store,
+                {
+                  users: store.users().map((user) => (user.id === id ? updatedUser : user))
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la modification de l\'utilisateur'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    deleteUser: rxMethod<number>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap((id) =>
+          gateway.delete(id).pipe(
+            tap(() =>
+              patchState(
+                store,
+                {
+                  users: store.users().filter((user) => user.id !== id)
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la suppression de l\'utilisateur'));
+              return EMPTY;
+            })
+          )
+        )
       )
     ),
   })),

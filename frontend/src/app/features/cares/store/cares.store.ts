@@ -3,7 +3,7 @@ import { patchState, signalStore, withComputed, withHooks, withMethods, withStat
 import { computed, inject } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
-import { Care, CareStatus, CreateCareRequest } from '../models/cares.model';
+import { Care, CareStatus, CreateCareRequest, UpdateCareRequest } from '../models/cares.model';
 import { CaresService } from '../services/cares.service';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 
@@ -75,6 +75,50 @@ export const CaresStore = signalStore(
             ),
             catchError((err) => {
               patchState(store, setError(extractErrorMessage(err, 'Erreur lors de la création du soin')));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    updateCare: rxMethod<{ id: number; payload: UpdateCareRequest }>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap(({ id, payload }) =>
+          caresGateway.update(id, payload).pipe(
+            tap((updatedCare) =>
+              patchState(
+                store,
+                {
+                  cares: store.cares().map((care) => (care.id === id ? updatedCare : care))
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(extractErrorMessage(err, 'Erreur lors de la modification du soin')));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    deleteCare: rxMethod<number>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap((id) =>
+          caresGateway.delete(id).pipe(
+            tap(() =>
+              patchState(
+                store,
+                {
+                  cares: store.cares().filter((care) => care.id !== id)
+                },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(extractErrorMessage(err, 'Erreur lors de la suppression du soin')));
               return EMPTY;
             })
           )
