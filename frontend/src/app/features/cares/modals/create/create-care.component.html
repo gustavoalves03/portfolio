@@ -1,6 +1,6 @@
 <modal-form
   [title]="dialogTitle"
-  icon="spa"
+  [icon]="isEditMode ? 'edit' : 'spa'"
   iconColor="#fa8e8e"
   [saveLabel]="saveLabel"
   [saveDisabled]="careForm.invalid"

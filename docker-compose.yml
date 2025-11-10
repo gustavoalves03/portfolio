@@ -120,12 +120,10 @@ services:
       - node-cache:/root/.npm
       - node-modules:/app/node_modules
     environment:
-      API_BASE_URL: http://backend-dev:8080
+      API_BASE_URL: http://localhost:8080
       CHOKIDAR_USEPOLLING: "true"
     ports:
       - "4300:4200"
-    depends_on:
-      - backend-dev
     networks: [ backend ]
 
 volumes:

@@ -4,7 +4,7 @@ import { appConfig } from './app.config';
 import { API_BASE_URL } from './core/config/api-base-url.token';
 import { serverRoutes } from './app.routes.server';
 
-const serverApiBase = (globalThis as any).process?.env?.API_BASE_URL ?? 'http://backend:8080';
+const serverApiBase = (globalThis as any).process?.env?.API_BASE_URL ?? 'http://host.docker.internal:8080';
 
 const serverConfig: ApplicationConfig = {
   providers: [
