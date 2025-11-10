@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.nav-item {
+  transition: background-color 150ms ease-in-out;
+
+  &:hover {
+    background-color: rgb(245 245 245); // neutral-100
+  }
+
+  &.active-link {
+    background-color: rgb(254 242 242); // rose-50
+    border-left: 3px solid rgb(244 63 94); // rose-500
+
+    mat-icon {
+      color: rgb(244 63 94); // rose-500
+    }
+
+    span {
+      color: rgb(244 63 94); // rose-500
+      font-weight: 500;
+    }
+  }
+}
+
+// Animation douce pour les icônes
+mat-icon {
+  transition: color 150ms ease-in-out;
+}

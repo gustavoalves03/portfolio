@@ -1,0 +1,45 @@
+:host {
+  display: contents;
+}
+
+// Backdrop (overlay sombre)
+.sidenav-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  animation: fadeIn 200ms ease-in-out;
+}
+
+// Panel du sidenav
+.sidenav-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: white;
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 250ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+// Animation du backdrop
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

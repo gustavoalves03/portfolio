@@ -1,0 +1,15 @@
+<!-- Overlay backdrop -->
+@if (sidenavService.isOpen()) {
+  <div
+    class="sidenav-backdrop"
+    (click)="closeOnBackdrop()"
+  ></div>
+}
+
+<!-- Sidenav panel -->
+<aside
+  class="sidenav-panel"
+  [class.open]="sidenavService.isOpen()"
+>
+  <app-sidenav-menu (linkClicked)="sidenavService.close()"></app-sidenav-menu>
+</aside>

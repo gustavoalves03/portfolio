@@ -1,0 +1,22 @@
+<modal-form
+  [title]="title"
+  icon="warning_amber"
+  iconColor="#d32f2f"
+  saveIcon="delete"
+  [saveLabel]="'Supprimer'"
+  cancelIcon="close"
+  cancelLabel="Annuler"
+  [saveDisabled]="false"
+  (save)="confirm()"
+  (cancel)="cancel()">
+
+  <p class="confirmation-text">
+    Cette action supprimera définitivement le soin
+    <strong>{{ data.careName }}</strong>. Vous pourrez recréer ce soin plus tard,
+    mais l’historique associé sera perdu.
+  </p>
+  <p class="confirmation-warning">
+    Êtes-vous sûr de vouloir continuer&nbsp;?
+  </p>
+
+</modal-form>
