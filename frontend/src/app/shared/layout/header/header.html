@@ -26,21 +26,37 @@
         </a>
       </div>
 
-      <!-- Right: profil + calendrier (icônes fines) -->
-      <div class="flex items-center justify-end gap-1">
-        <a routerLink="/profile" aria-label="Profil"
-           class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.5 0-8 2.3-8 5v1h16v-1c0-2.7-3.5-5-8-5Z"/>
-          </svg>
-        </a>
-        <a routerLink="/cares" aria-label="Mes rendez-vous"
-           class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M7 2v3M17 2v3M3 9h18"/>
-            <rect x="3" y="5" width="18" height="16" rx="2"/>
-          </svg>
-        </a>
+      <!-- Right: langues + actions rapides -->
+      <div class="flex items-center justify-end gap-3 md:gap-4">
+        <div class="lang-switcher flex items-center gap-1 rounded-full bg-neutral-50/80 px-2 py-1 shadow-sm">
+          @for (lang of languages; track lang.code) {
+            <button
+              type="button"
+              class="lang-button"
+              [class.active]="langService.active() === lang.code"
+              (click)="setLanguage(lang.code)"
+              [attr.aria-pressed]="langService.active() === lang.code"
+              [attr.aria-label]="lang.label">
+              <span class="sr-only">{{ lang.label }}</span>
+              <span aria-hidden="true" class="text-xl leading-none">{{ lang.flag }}</span>
+            </button>
+          }
+        </div>
+        <div class="flex items-center gap-1">
+          <a routerLink="/profile" aria-label="Profil"
+             class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.5 0-8 2.3-8 5v1h16v-1c0-2.7-3.5-5-8-5Z"/>
+            </svg>
+          </a>
+          <a routerLink="/cares" aria-label="Mes rendez-vous"
+             class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 2v3M17 2v3M3 9h18"/>
+              <rect x="3" y="5" width="18" height="16" rx="2"/>
+            </svg>
+          </a>
+        </div>
       </div>
     </div>
   </div>

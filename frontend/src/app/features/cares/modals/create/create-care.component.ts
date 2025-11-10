@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { CareStatus, CreateCareRequest } from '../../models/cares.model';
+import { Care, CareStatus, CreateCareRequest } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
@@ -9,6 +9,7 @@ import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/fo
 
 interface CreateCareDialogData {
   categories: Category[];
+  care?: Care;
 }
 
 @Component({
@@ -27,14 +28,18 @@ export class CreateCare implements OnInit {
   private data = inject<CreateCareDialogData>(MAT_DIALOG_DATA);
 
   careForm!: FormGroup;
-  categories: Category[] = this.data.categories;
+  categories: Category[] = this.mergeCategoriesWithCurrent();
   formConfig!: DynamicFormConfig;
+  readonly isEditMode = !!this.data?.care;
+  readonly dialogTitle = this.isEditMode ? 'Modifier un soin' : 'Créer un nouveau soin';
+  readonly saveLabel = this.isEditMode ? 'Mettre à jour le soin' : 'Créer le soin';
 
   ngOnInit(): void {
     this.formConfig = this.buildFormConfig();
     this.careForm = this.buildFormGroup(this.formConfig);
-    // TODO: Charger les catégories
-    // this.loadCategories();
+    if (this.data?.care) {
+      this.populateForm(this.data.care);
+    }
   }
 
   private buildFormConfig(): DynamicFormConfig {
@@ -179,6 +184,12 @@ export class CreateCare implements OnInit {
   }
 
   private getDefaultValue(field: FormFieldConfig): any {
+    if (field.name === 'status') {
+      return CareStatus.ACTIVE;
+    }
+    if (field.name === 'categoryId') {
+      return this.data?.care?.category?.id ?? this.categories[0]?.id ?? null;
+    }
     if (field.type === 'number') return 0;
     if (field.type === 'select' && field.options?.length) return field.options[0].value;
     return '';
@@ -204,9 +215,32 @@ export class CreateCare implements OnInit {
       name: rawValue['name'] ?? '',
       description: rawValue['description'] ?? '',
       status: rawValue['status'] as CareStatus,
-      categoryId: rawValue['categoryId'] ?? 0,
+      categoryId: Number(
+        rawValue['categoryId'] ?? this.data?.care?.category?.id ?? 0
+      ),
       price: Number(rawValue['price'] ?? 0),
       duration: Number(rawValue['duration'] ?? 0),
     };
+  }
+
+  private populateForm(care: Care): void {
+    this.careForm.patchValue({
+      name: care.name,
+      description: care.description,
+      price: care.price,
+      duration: care.duration,
+      status: care.status,
+      categoryId: care.category?.id ?? null,
+    });
+  }
+
+  private mergeCategoriesWithCurrent(): Category[] {
+    const categories = this.data?.categories ?? [];
+    const careCategory = this.data?.care?.category;
+    if (!careCategory) {
+      return categories;
+    }
+    const exists = categories.some(category => category.id === careCategory.id);
+    return exists ? categories : [...categories, careCategory];
   }
 }

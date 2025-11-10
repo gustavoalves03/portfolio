@@ -21,7 +21,7 @@ export interface CreateCareRequest {
   description: string;
   duration: number;
   status: CareStatus;
-  categoryId: string;
+  categoryId: number;
 }
 
 export type UpdateCareRequest = CreateCareRequest;

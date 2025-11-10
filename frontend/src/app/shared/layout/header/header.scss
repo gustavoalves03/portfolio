@@ -11,3 +11,31 @@
 header a {
   -webkit-tap-highlight-color: transparent;
 }
+
+.lang-switcher {
+  backdrop-filter: blur(6px);
+}
+
+.lang-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    border-color: #d6a17a;
+    box-shadow: 0 0 0 1px rgba(214, 161, 122, 0.4);
+    background: rgba(214, 161, 122, 0.1);
+  }
+}

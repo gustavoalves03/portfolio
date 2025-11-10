@@ -7,6 +7,8 @@ import { CrudTable } from '../../shared/uis/crud-table/crud-table';
 import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CreateCare } from './modals/create/create-care.component';
+import { Care } from './models/cares.model';
+import { DeleteCareComponent } from './modals/delete/delete-care.component';
 
 @Component({
   selector: 'app-cares',
@@ -27,6 +29,7 @@ export class CaresComponent {
     { key: 'name', headerKey: 'cares.columns.name', align: 'left' },
     { key: 'description', headerKey: 'cares.columns.description', align: 'left' },
     { key: 'price', headerKey: 'cares.columns.price', type: 'currency', align: 'right' },
+    { key: 'status', headerKey: 'cares.columns.status', type: 'text', align: 'right' },
     { key: 'duration', headerKey: 'cares.columns.duration', align: 'center' }
   ]);
 
@@ -36,13 +39,13 @@ export class CaresComponent {
       icon: 'edit',
       tooltipKey: 'actions.edit',
       color: 'primary',
-      callback: (care: any) => this.onEditCare(care)
+      callback: (care: Care) => this.onEditCare(care)
     },
     {
       icon: 'delete',
       tooltipKey: 'actions.delete',
       color: 'warn',
-      callback: (care: any) => this.onDeleteCare(care)
+      callback: (care: Care) => this.onDeleteCare(care)
     }
   ]);
 
@@ -67,15 +70,42 @@ export class CaresComponent {
     });
   }
 
-  onEditCare(care: any) {
-    console.log('Edit care:', care);
-    // TODO: Ouvrir modal d'édition
-    this.snackBar.open(`Édition de ${care.name}`, 'OK', { duration: 2000 });
+  onEditCare(care: Care) {
+    const dialogRef = this.dialog.open(CreateCare, {
+      width: '500px',
+      disableClose: false,
+      autoFocus: true,
+      data: {
+        categories: this.categoriesStore.categories(),
+        care
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const payload = {
+          ...result,
+          categoryId: Number(result.categoryId ?? care.category.id)
+        };
+        this.store.updateCare({ id: care.id, payload });
+      }
+    });
   }
 
-  onDeleteCare(care: any) {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer "${care.name}" ?`)) {
-      this.store.deleteCare(care.id);
-    }
+  onDeleteCare(care: Care) {
+    const dialogRef = this.dialog.open(DeleteCareComponent, {
+      width: '420px',
+      disableClose: true,
+      autoFocus: false,
+      data: {
+        careName: care.name
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.store.deleteCare(care.id);
+      }
+    });
   }
 }

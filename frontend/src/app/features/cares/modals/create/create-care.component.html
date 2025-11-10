@@ -1,8 +1,8 @@
 <modal-form
-  title="Créer un nouveau soin"
+  [title]="dialogTitle"
   icon="spa"
   iconColor="#fa8e8e"
-  saveLabel="Créer le soin"
+  [saveLabel]="saveLabel"
   [saveDisabled]="careForm.invalid"
   (save)="onSave()"
   (cancel)="onCancel()">

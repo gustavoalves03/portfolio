@@ -19,7 +19,8 @@
       "name": "Name",
       "description": "Description",
       "price": "Price",
-      "duration": "Duration"
+      "duration": "Duration",
+      "status": "Status"
     }
   },
   "categories": {
