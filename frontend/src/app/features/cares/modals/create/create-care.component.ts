@@ -1,11 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { Care, CareStatus, CreateCareRequest } from '../../models/cares.model';
+import { MatTabsModule } from '@angular/material/tabs';
+import { Care, CareStatus, CreateCareRequest, CareImage } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/form-field.model';
+import { ImageManager } from '../../../../shared/uis/image-manager/image-manager.component';
 
 interface CreateCareDialogData {
   categories: Category[];
@@ -17,7 +19,9 @@ interface CreateCareDialogData {
   standalone: true,
   imports: [
     ModalForm,
-    DynamicForm
+    DynamicForm,
+    MatTabsModule,
+    ImageManager
   ],
   templateUrl: './create-care.component.html',
   styleUrl: './create-care.component.scss'
@@ -30,6 +34,8 @@ export class CreateCare implements OnInit {
   careForm!: FormGroup;
   categories: Category[] = this.mergeCategoriesWithCurrent();
   formConfig!: DynamicFormConfig;
+  images = signal<CareImage[]>([]);
+
   readonly isEditMode = !!this.data?.care;
   readonly dialogTitle = this.isEditMode ? 'Modifier un soin' : 'Créer un nouveau soin';
   readonly saveLabel = this.isEditMode ? 'Mettre à jour le soin' : 'Créer le soin';
@@ -39,7 +45,14 @@ export class CreateCare implements OnInit {
     this.careForm = this.buildFormGroup(this.formConfig);
     if (this.data?.care) {
       this.populateForm(this.data.care);
+      if (this.data.care.images) {
+        this.images.set(this.data.care.images);
+      }
     }
+  }
+
+  onImagesChange(updatedImages: CareImage[]): void {
+    this.images.set(updatedImages);
   }
 
   private buildFormConfig(): DynamicFormConfig {
@@ -220,6 +233,7 @@ export class CreateCare implements OnInit {
       ),
       price: Number(rawValue['price'] ?? 0),
       duration: Number(rawValue['duration'] ?? 0),
+      images: this.images(),
     };
   }
 

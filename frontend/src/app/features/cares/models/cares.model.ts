@@ -5,6 +5,14 @@ export enum CareStatus {
   INACTIVE = 'INACTIVE',
 }
 
+export interface CareImage {
+  id?: string;
+  url: string;
+  name: string;
+  order: number;
+  file?: File;
+}
+
 export interface Care {
   id: number;
   name: string;
@@ -13,6 +21,7 @@ export interface Care {
   duration: number;
   status: CareStatus;
   category: Category;
+  images?: CareImage[];
 }
 
 export interface CreateCareRequest {
@@ -22,6 +31,7 @@ export interface CreateCareRequest {
   duration: number;
   status: CareStatus;
   categoryId: number;
+  images?: CareImage[];
 }
 
 export type UpdateCareRequest = CreateCareRequest;

@@ -7,6 +7,21 @@
   (save)="onSave()"
   (cancel)="onCancel()">
 
-  <dynamic-form [config]="formConfig" [formGroup]="careForm" />
+  <mat-tab-group>
+    <mat-tab label="Informations">
+      <div class="tab-content">
+        <dynamic-form [config]="formConfig" [formGroup]="careForm" />
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Images">
+      <div class="tab-content">
+        <image-manager
+          [images]="images()"
+          (imagesChange)="onImagesChange($event)"
+        />
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 
 </modal-form>

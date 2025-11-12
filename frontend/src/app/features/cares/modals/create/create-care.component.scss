@@ -1,2 +1,21 @@
 // Styles spécifiques si nécessaire
 // Les styles du formulaire sont maintenant dans dynamic-form.scss
+
+.tab-content {
+  padding: 1.5rem 0;
+  min-height: 400px;
+}
+
+::ng-deep {
+  .mat-mdc-tab-body-content {
+    overflow: visible !important;
+  }
+
+  .mat-mdc-tab-labels {
+    justify-content: center;
+  }
+
+  .mat-mdc-tab {
+    min-width: 160px;
+  }
+}
