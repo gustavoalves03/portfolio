@@ -3,15 +3,19 @@ import { map, Observable } from 'rxjs';
 import { BaseCrudService } from '../../../core/data/base-crud.service';
 import { Care, CreateCareRequest, UpdateCareRequest } from '../models/cares.model';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
+import { Page } from '../../../shared/models/page.model';
 
 @Injectable({ providedIn: 'root' })
 export class CaresService extends BaseCrudService<Care, CreateCareRequest, UpdateCareRequest> {
   protected readonly basePath = '/api/care';
-  private apiBaseUrl = inject(API_BASE_URL);
+  protected override apiBaseUrl = inject(API_BASE_URL);
 
-  override list(): Observable<Care[]> {
-    return super.list().pipe(
-      map(cares => cares.map(care => this.transformCareImageUrls(care)))
+  override list(params?: { page?: number; size?: number; sort?: string }): Observable<Page<Care>> {
+    return super.list(params).pipe(
+      map(page => ({
+        ...page,
+        content: page.content.map(care => this.transformCareImageUrls(care))
+      }))
     );
   }
 
