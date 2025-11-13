@@ -1,4 +1,5 @@
 import {
+  APP_INITIALIZER,
   ApplicationConfig,
   isDevMode,
   provideBrowserGlobalErrorListeners,
@@ -11,9 +12,11 @@ import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
 import {provideClientHydration, withEventReplay} from '@angular/platform-browser';
-import {provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
+import {provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration} from '@angular/common/http';
 import {API_BASE_URL} from './core/config/api-base-url.token';
 import {basicAuthInterceptor} from './core/http/basic-auth.interceptor';
+import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
+import {CsrfService} from './core/security/csrf.service';
 import {provideTransloco} from '@jsverse/transloco';
 import {provideTranslocoLocale} from '@jsverse/transloco-locale';
 import {TranslocoHttpLoader} from './i18n/transloco-http.loader';
@@ -24,8 +27,19 @@ export const appConfig: ApplicationConfig = {
     {provide: API_BASE_URL, useValue: 'http://localhost:8080'},
     provideHttpClient(
       withFetch(),
-      withInterceptors([basicAuthInterceptor])
+      withInterceptors([credentialsInterceptor, basicAuthInterceptor]),
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN',
+        headerName: 'X-XSRF-TOKEN',
+      })
     ),
+    // Initialize CSRF token on app startup
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (csrfService: CsrfService) => () => csrfService.initializeCsrfToken(),
+      deps: [CsrfService],
+      multi: true
+    },
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes), provideClientHydration(withEventReplay()),

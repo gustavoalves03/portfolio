@@ -1,16 +1,14 @@
 <section class="content-center justify-center">
   <h2 class="sr-only">Réservations</h2>
-  @if (store.isPending()) { <p>Chargement…</p> }
-  @if (store.error()) { <p>{{ store.error() }}</p> }
-  @if (!store.isPending() && !store.error()) {
-    <crud-table
-      [dataSource]="store.bookings()"
-      [columns]="columns()"
-      [actions]="actions()"
-      [title]="('bookings.title' | transloco)"
-      [emptyMessage]="('table.empty' | transloco)"
-      [searchPlaceholder]="('table.search.placeholder' | transloco)"
-      (addItem)="onAddBooking()"
-    />
-  }
+  <crud-table
+    [dataSource]="store.bookings()"
+    [columns]="columns()"
+    [actions]="actions()"
+    [title]="('bookings.title' | transloco)"
+    [emptyMessage]="('table.empty' | transloco)"
+    [searchPlaceholder]="('table.search.placeholder' | transloco)"
+    [loading]="store.isPending()"
+    [errorMessage]="store.error()"
+    (addItem)="onAddBooking()"
+  />
 </section>

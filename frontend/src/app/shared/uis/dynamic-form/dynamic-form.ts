@@ -1,4 +1,4 @@
-import { Component, input, OnInit, inject } from '@angular/core';
+import { Component, input, OnInit, inject, computed } from '@angular/core';
 import { FormGroup, ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,7 +10,7 @@ import { DynamicFormConfig, FormFieldConfig } from '../../models/form-field.mode
  * Composant de formulaire dynamique
  *
  * Usage:
- * <dynamic-form [config]="formConfig" [formGroup]="myForm" />
+ * <dynamic-form [config]="formConfig" [formGroup]="myForm" [loading]="isLoading" />
  */
 @Component({
   selector: 'dynamic-form',
@@ -33,6 +33,13 @@ export class DynamicForm implements OnInit {
 
   // FormGroup fourni par le parent
   formGroup = input.required<FormGroup>();
+
+  // Loading state
+  loading = input<boolean>(false);
+
+  // Computed state
+  protected readonly showSkeleton = computed(() => this.loading());
+  protected readonly showForm = computed(() => !this.loading());
 
   ngOnInit(): void {
     this.buildForm();

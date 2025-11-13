@@ -68,3 +68,83 @@ mat-icon[matPrefix] {
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
+
+/* Skeleton Loader Styles */
+.dynamic-form-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.form-row-skeleton {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-field-skeleton {
+  height: 56px;
+  border-radius: 4px;
+  background: rgba(230, 230, 230, 0.5);
+  position: relative;
+  overflow: hidden;
+  animation: fade-in 0.3s ease-out;
+
+  &.full-width {
+    width: 100%;
+  }
+
+  &.half-width {
+    flex: 1;
+  }
+}
+
+/* Animation shimmer pour le skeleton */
+.skeleton-pulse {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.8s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive skeleton */
+@media (max-width: 600px) {
+  .form-row-skeleton {
+    flex-direction: column;
+
+    .form-field-skeleton {
+      width: 100%;
+    }
+  }
+}

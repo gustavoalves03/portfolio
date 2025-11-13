@@ -1,4 +1,4 @@
-import { Component, input, output, computed, effect } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,6 +31,10 @@ export class CrudTable {
   showSearch = input<boolean>(true);
   searchPlaceholder = input<string>('Recherche...');
   searchMaxWidth = input<string>('200px');
+  loading = input<boolean>(false);
+  loadingMessage = input<string>('Chargement des données…');
+  errorMessage = input<string | null>(null);
+  skeletonRows = input<number>(4);
   addItem = output<void>();
   searchChange = output<string>();
 
@@ -58,6 +62,37 @@ export class CrudTable {
     return [];
   });
 
+  protected readonly skeletonRowPlaceholders = computed(() =>
+    Array.from({ length: Math.max(1, this.skeletonRows()) }, (_, index) => index)
+  );
+
+  protected readonly skeletonColumnKeys = computed(() => {
+    const keys = this.columnKeys();
+    if (keys.length > 0) {
+      return keys;
+    }
+    return Array.from({ length: 3 }, (_, index) => `placeholder-${index}`);
+  });
+
+  // États d'affichage: ne montrer l'erreur QUE si le chargement est terminé ET qu'il y a une erreur
+  protected readonly showSkeletonState = computed(() => {
+    return this.loading();
+  });
+
+  protected readonly showErrorState = computed(() => {
+    // Montrer l'erreur SEULEMENT si:
+    // 1. Le chargement est terminé (loading = false)
+    // 2. Il y a un message d'erreur
+    // 3. Il n'y a pas de données à afficher
+    return !this.loading() && !!this.errorMessage() && this.dataSource().length === 0;
+  });
+
+  protected readonly showTable = computed(() => {
+    // Montrer la table si:
+    // 1. Le chargement est terminé
+    // 2. Pas d'erreur bloquante (ou il y a des données malgré l'erreur)
+    return !this.loading() && (!this.errorMessage() || this.dataSource().length > 0);
+  });
 
   // Méthode pour obtenir la config d'une colonne par sa clé
   protected getColumnConfig(key: string): TableColumn | undefined {

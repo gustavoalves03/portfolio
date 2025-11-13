@@ -25,55 +25,97 @@
     </div>
   </div>
 
-  <table mat-table [dataSource]="dataSource()" class="mat-elevation-z2 demo-table">
+  <div class="crud-table__body" [attr.aria-busy]="loading()">
+    @if (showSkeletonState()) {
+      <!-- État de chargement: skeleton + message -->
+      <div class="crud-table__loading-container">
+        <div class="crud-table__state crud-table__state--loading" role="status" aria-live="polite">
+          <div class="crud-table__loading-icon">
+            <mat-icon fontIcon="hourglass_top" aria-hidden="true" class="rotating-icon"></mat-icon>
+          </div>
+          <div class="crud-table__loading-text">
+            <p class="crud-table__state-title">{{ loadingMessage() }}</p>
+            <p class="crud-table__state-hint">Veuillez patienter pendant le chargement des données...</p>
+          </div>
+        </div>
 
-    @for (columnKey of columnKeys(); track columnKey) {
-      @if (columnKey === 'actions') {
-        <!-- Colonne d'actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="actions-column">Actions</th>
-          <td mat-cell *matCellDef="let element" class="actions-column">
-            <div class="actions-container">
-              @for (action of actions(); track action.icon) {
-                <button
-                  mat-icon-button
-                  [color]="action.color || 'primary'"
-                  [matTooltip]="action.tooltipKey | transloco"
-                  (click)="action.callback(element)"
-                  class="action-button"
-                >
-                  <mat-icon [fontIcon]="action.icon"></mat-icon>
-                </button>
+        <!-- Skeleton table structure -->
+        <div class="crud-table__skeleton" aria-hidden="true">
+          <div class="crud-table__skeleton-header">
+            @for (columnKey of skeletonColumnKeys(); track columnKey) {
+              <div class="crud-table__skeleton-header-cell skeleton-pulse"></div>
+            }
+          </div>
+          @for (rowIndex of skeletonRowPlaceholders(); track rowIndex) {
+            <div class="crud-table__skeleton-row" [style.animation-delay.ms]="rowIndex * 100">
+              @for (columnKey of skeletonColumnKeys(); track columnKey; let colIndex = $index) {
+                <div class="crud-table__skeleton-cell skeleton-pulse"
+                     [class.skeleton-cell--short]="colIndex % 3 === 0"
+                     [class.skeleton-cell--medium]="colIndex % 3 === 1"
+                     [class.skeleton-cell--long]="colIndex % 3 === 2"></div>
               }
             </div>
+          }
+        </div>
+      </div>
+<!--    } @else if (showErrorState()) {
+      <div class="crud-table__state crud-table__state--error" role="alert">
+        <mat-icon fontIcon="warning"></mat-icon>
+        <div>
+          <p class="crud-table__state-title">Une erreur est survenue</p>
+          <p class="crud-table__state-hint">{{ errorMessage() }}</p>
+        </div>
+      </div> -->
+    } @else if (showTable()) {
+      <table mat-table [dataSource]="dataSource()" class="mat-elevation-z2 demo-table">
+        @for (columnKey of columnKeys(); track columnKey) {
+          @if (columnKey === 'actions') {
+            <!-- Colonne d'actions -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions-column">Actions</th>
+              <td mat-cell *matCellDef="let element" class="actions-column">
+                <div class="actions-container">
+                  @for (action of actions(); track action.icon) {
+                    <button
+                      mat-icon-button
+                      [color]="action.color || 'primary'"
+                      [matTooltip]="action.tooltipKey | transloco"
+                      (click)="action.callback(element)"
+                      class="action-button"
+                    >
+                      <mat-icon [fontIcon]="action.icon"></mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
+          } @else {
+            <!-- Colonnes normales -->
+            <ng-container [matColumnDef]="columnKey">
+              <th mat-header-cell *matHeaderCellDef>
+                @if (getColumnConfig(columnKey)) {
+                  {{ getColumnConfig(columnKey)!.headerKey | transloco }}
+                } @else {
+                  {{ columnKey }}
+                }
+              </th>
+              <td mat-cell *matCellDef="let element">
+                {{ resolveCellValue(columnKey, element) }}
+              </td>
+            </ng-container>
+          }
+        }
+
+        <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnKeys();"></tr>
+
+        <!-- État vide: ligne couvrant toutes les colonnes -->
+        <tr class="mat-mdc-row" *matNoDataRow>
+          <td class="mat-mdc-cell crud-table__empty" [attr.colspan]="columnKeys().length">
+            {{ emptyMessage() }}
           </td>
-        </ng-container>
-      } @else {
-        <!-- Colonnes normales -->
-        <ng-container [matColumnDef]="columnKey">
-          <th mat-header-cell *matHeaderCellDef>
-            @if (getColumnConfig(columnKey)) {
-              {{ getColumnConfig(columnKey)!.headerKey | transloco }}
-            } @else {
-              {{ columnKey }}
-            }
-          </th>
-          <td mat-cell *matCellDef="let element">
-            {{ resolveCellValue(columnKey, element) }}
-          </td>
-        </ng-container>
-      }
+        </tr>
+      </table>
     }
-
-    <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnKeys();"></tr>
-
-    <!-- État vide: ligne couvrant toutes les colonnes -->
-    <tr class="mat-mdc-row" *matNoDataRow>
-      <td class="mat-mdc-cell crud-table__empty" [attr.colspan]="columnKeys().length">
-        {{ emptyMessage() }}
-      </td>
-    </tr>
-
-  </table>
+  </div>
 </div>

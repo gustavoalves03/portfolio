@@ -2,6 +2,8 @@ package com.fleurdecoquillage.app.care.web.dto;
 
 import com.fleurdecoquillage.app.care.domain.CareStatus;
 
+import java.util.List;
+
 public record CareResponse(
         Long id,
         String name,
@@ -9,5 +11,6 @@ public record CareResponse(
         String description,
         Integer duration,
         CareStatus status,
-        Long categoryId
+        Long categoryId,
+        List<CareImageDto> images
 ) {}
