@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -27,11 +28,14 @@ public class SecurityConfig {
 
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
+    private final CsrfLoggingFilter csrfLoggingFilter;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
-                          RestAuthenticationEntryPoint authenticationEntryPoint) {
+                          RestAuthenticationEntryPoint authenticationEntryPoint,
+                          CsrfLoggingFilter csrfLoggingFilter) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.csrfLoggingFilter = csrfLoggingFilter;
     }
 
     @Bean
@@ -68,6 +72,7 @@ public class SecurityConfig {
         };
 
         http
+                .addFilterBefore(csrfLoggingFilter, BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)

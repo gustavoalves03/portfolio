@@ -11,6 +11,7 @@ export interface CareImage {
   name: string;
   order: number;
   file?: File;
+  base64Data?: string;  // Base64 data to send to backend
 }
 
 export interface Care {

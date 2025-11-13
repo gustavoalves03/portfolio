@@ -1,5 +1,7 @@
 package com.fleurdecoquillage.app.care.app;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,8 @@ import com.fleurdecoquillage.app.common.storage.FileStorageService;
 
 @Service
 public class CareService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CareService.class);
 
     private final CareRepository repo;
     private final CategoryRepository categoryRepository;
@@ -40,6 +44,10 @@ public class CareService {
 
     @Transactional
     public CareResponse create(CareRequest req) {
+        logger.info("====== CREATE CARE START ======");
+        logger.info("Care name: {}", req.name());
+        logger.info("Images count: {}", req.images() != null ? req.images().size() : 0);
+
         Care entity = CareMapper.toEntity(req);
         var category = categoryRepository.findById(req.categoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
@@ -47,16 +55,25 @@ public class CareService {
 
         // Save Care first to get ID
         Care saved = repo.save(entity);
+        logger.info("Care saved with ID: {}", saved.getId());
 
         // Process images if present
         if (req.images() != null && !req.images().isEmpty()) {
-            for (CareImageDto imageDto : req.images()) {
+            logger.info("Processing {} images", req.images().size());
+            for (int i = 0; i < req.images().size(); i++) {
+                CareImageDto imageDto = req.images().get(i);
+                logger.info("Image {}: name={}, has base64={}", i, imageDto.name(),
+                    imageDto.base64Data() != null && !imageDto.base64Data().isEmpty());
+
                 if (imageDto.base64Data() != null && !imageDto.base64Data().isEmpty()) {
+                    logger.info("Calling fileStorageService.saveBase64Image for image {}", i);
                     // Save file to disk
                     String filePath = fileStorageService.saveBase64Image(imageDto.base64Data(), saved.getId());
+                    logger.info("File saved at: {}", filePath);
 
                     // Extract filename from path
                     String filename = extractFilename(filePath);
+                    logger.info("Filename extracted: {}", filename);
 
                     // Create CareImage entity
                     CareImage careImage = CareMapper.toImageEntity(imageDto, saved);
@@ -64,17 +81,28 @@ public class CareService {
                     careImage.setFilePath(filePath);
 
                     saved.getImages().add(careImage);
+                    logger.info("CareImage entity added to care");
                 }
             }
             // Save again with images
+            logger.info("Saving care with images...");
             saved = repo.save(saved);
+            logger.info("Care saved with {} images", saved.getImages().size());
+        } else {
+            logger.info("No images to process");
         }
 
+        logger.info("====== CREATE CARE END ======");
         return CareMapper.toResponse(saved);
     }
 
     @Transactional
     public CareResponse update(Long id, CareRequest req) {
+        logger.info("====== UPDATE CARE START ======");
+        logger.info("Care ID: {}", id);
+        logger.info("Care name: {}", req.name());
+        logger.info("Images count: {}", req.images() != null ? req.images().size() : 0);
+
         Care c = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
         CareMapper.updateEntity(c, req);
         var category = categoryRepository.findById(req.categoryId())
@@ -83,6 +111,7 @@ public class CareService {
 
         // Handle images update
         // Remove old images (files and entities)
+        logger.info("Removing {} old images", c.getImages().size());
         for (CareImage oldImage : c.getImages()) {
             fileStorageService.deleteFile(oldImage.getFilePath());
         }
@@ -90,13 +119,21 @@ public class CareService {
 
         // Add new images
         if (req.images() != null && !req.images().isEmpty()) {
-            for (CareImageDto imageDto : req.images()) {
+            logger.info("Processing {} new images", req.images().size());
+            for (int i = 0; i < req.images().size(); i++) {
+                CareImageDto imageDto = req.images().get(i);
+                logger.info("Image {}: name={}, has base64={}", i, imageDto.name(),
+                    imageDto.base64Data() != null && !imageDto.base64Data().isEmpty());
+
                 if (imageDto.base64Data() != null && !imageDto.base64Data().isEmpty()) {
+                    logger.info("Calling fileStorageService.saveBase64Image for image {}", i);
                     // Save file to disk
                     String filePath = fileStorageService.saveBase64Image(imageDto.base64Data(), id);
+                    logger.info("File saved at: {}", filePath);
 
                     // Extract filename from path
                     String filename = extractFilename(filePath);
+                    logger.info("Filename extracted: {}", filename);
 
                     // Create CareImage entity
                     CareImage careImage = CareMapper.toImageEntity(imageDto, c);
@@ -104,11 +141,19 @@ public class CareService {
                     careImage.setFilePath(filePath);
 
                     c.getImages().add(careImage);
+                    logger.info("CareImage entity added to care");
                 }
             }
+        } else {
+            logger.info("No images to process");
         }
 
-        return CareMapper.toResponse(repo.save(c));
+        logger.info("Saving care...");
+        Care saved = repo.save(c);
+        logger.info("Care saved with {} images", saved.getImages().size());
+        logger.info("====== UPDATE CARE END ======");
+
+        return CareMapper.toResponse(saved);
     }
 
     @Transactional

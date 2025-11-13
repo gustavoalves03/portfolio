@@ -224,6 +224,19 @@ export class CreateCare implements OnInit {
   private mapFormToRequest(): CreateCareRequest {
     const rawValue = this.careForm.getRawValue();
 
+    // Convert images: extract base64Data from url for new images
+    const imagesWithBase64 = this.images().map(img => {
+      // If image has 'file' property, it's a new image with Data URL in 'url'
+      if (img.file && img.url) {
+        return {
+          ...img,
+          base64Data: img.url // Data URL already in correct format (data:image/png;base64,...)
+        };
+      }
+      // Existing image from server (has 'id' as number, no 'file')
+      return img;
+    });
+
     return {
       name: rawValue['name'] ?? '',
       description: rawValue['description'] ?? '',
@@ -233,7 +246,7 @@ export class CreateCare implements OnInit {
       ),
       price: Number(rawValue['price'] ?? 0),
       duration: Number(rawValue['duration'] ?? 0),
-      images: this.images(),
+      images: imagesWithBase64,
     };
   }
 

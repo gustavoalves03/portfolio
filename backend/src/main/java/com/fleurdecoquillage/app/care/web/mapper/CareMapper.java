@@ -49,7 +49,7 @@ public class CareMapper {
                 img.getFilename());
 
         return new CareImageDto(
-                img.getId(),
+                img.getId() != null ? String.valueOf(img.getId()) : null,
                 img.getName(),
                 img.getImageOrder(),
                 url,
