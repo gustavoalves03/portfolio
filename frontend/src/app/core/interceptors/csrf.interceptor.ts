@@ -1,4 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { switchMap } from 'rxjs';
+import { CsrfService } from '../security/csrf.service';
 
 /**
  * CSRF Interceptor for Spring Security
@@ -18,12 +21,15 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
+  // During SSR there is no document/cookie, skip gracefully
+  if (typeof document === 'undefined') {
+    return next(req);
+  }
+
+  const csrfService = inject(CsrfService);
+
   // Read CSRF token from cookie
   const csrfToken = getCookie('XSRF-TOKEN');
-
-  console.log('[CSRF Interceptor] Method:', req.method, 'URL:', req.url);
-  console.log('[CSRF Interceptor] All cookies:', document.cookie);
-  console.log('[CSRF Interceptor] CSRF Token found:', csrfToken);
 
   // If token exists, add it to the request header
   if (csrfToken) {
@@ -32,12 +38,24 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
         'X-XSRF-TOKEN': csrfToken
       }
     });
-    console.log('[CSRF Interceptor] Added X-XSRF-TOKEN header');
     return next(clonedRequest);
   }
 
-  console.warn('[CSRF Interceptor] No CSRF token found in cookies!');
-  return next(req);
+  // Token missing (first call or cookie expired): fetch a fresh one, then retry with header
+  return csrfService.initializeCsrfToken().pipe(
+    switchMap(() => {
+      const refreshedToken = getCookie('XSRF-TOKEN');
+      if (refreshedToken) {
+        const retriedRequest = req.clone({
+          setHeaders: {
+            'X-XSRF-TOKEN': refreshedToken
+          }
+        });
+        return next(retriedRequest);
+      }
+      return next(req);
+    })
+  );
 };
 
 /**

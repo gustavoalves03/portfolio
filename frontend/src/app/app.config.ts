@@ -16,18 +16,20 @@ import {provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration} f
 import {API_BASE_URL} from './core/config/api-base-url.token';
 import {basicAuthInterceptor} from './core/http/basic-auth.interceptor';
 import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
+import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 import {CsrfService} from './core/security/csrf.service';
 import {provideTransloco} from '@jsverse/transloco';
 import {provideTranslocoLocale} from '@jsverse/transloco-locale';
 import {TranslocoHttpLoader} from './i18n/transloco-http.loader';
 import {LANG_TO_LOCALE} from './i18n/locale.config';
+import { firstValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     {provide: API_BASE_URL, useValue: 'http://localhost:8080'},
     provideHttpClient(
       withFetch(),
-      withInterceptors([credentialsInterceptor, basicAuthInterceptor]),
+      withInterceptors([credentialsInterceptor, csrfInterceptor, basicAuthInterceptor]),
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN',
@@ -36,7 +38,7 @@ export const appConfig: ApplicationConfig = {
     // Initialize CSRF token on app startup
     {
       provide: APP_INITIALIZER,
-      useFactory: (csrfService: CsrfService) => () => csrfService.initializeCsrfToken(),
+      useFactory: (csrfService: CsrfService) => () => firstValueFrom(csrfService.initializeCsrfToken()),
       deps: [CsrfService],
       multi: true
     },
