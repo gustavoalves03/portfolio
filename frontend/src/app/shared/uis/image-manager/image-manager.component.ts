@@ -30,6 +30,7 @@ const ACCEPTED_FORMATS = ['image/png', 'image/jpeg', 'image/jpg'];
 export class ImageManager {
   images = input<CareImage[]>([]);
   imagesChange = output<CareImage[]>();
+  readonly = input<boolean>(false);
 
   localImages = signal<CareImage[]>([]);
   errorMessage = signal<string | null>(null);

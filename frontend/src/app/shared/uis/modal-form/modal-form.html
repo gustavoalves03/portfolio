@@ -23,14 +23,16 @@
       <mat-icon>{{ cancelIcon() }}</mat-icon>
       {{ cancelLabel() }}
     </button>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="onSave()"
-      [disabled]="saveDisabled()"
-      type="button">
-      <mat-icon>{{ saveIcon() }}</mat-icon>
-      {{ saveLabel() }}
-    </button>
+    @if (!hideSaveButton()) {
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSave()"
+        [disabled]="saveDisabled()"
+        type="button">
+        <mat-icon>{{ saveIcon() }}</mat-icon>
+        {{ saveLabel() }}
+      </button>
+    }
   </mat-dialog-actions>
 </div>

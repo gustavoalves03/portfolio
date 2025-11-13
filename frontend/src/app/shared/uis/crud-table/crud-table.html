@@ -74,7 +74,7 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef class="actions-column">Actions</th>
               <td mat-cell *matCellDef="let element" class="actions-column">
-                <div class="actions-container">
+                <div class="actions-container" (click)="$event.stopPropagation()">
                   @for (action of actions(); track action.icon) {
                     <button
                       mat-icon-button
@@ -107,7 +107,7 @@
         }
 
         <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnKeys();"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnKeys();" (click)="onRowClick(row)" class="clickable-row"></tr>
 
         <!-- État vide: ligne couvrant toutes les colonnes -->
         <tr class="mat-mdc-row" *matNoDataRow>

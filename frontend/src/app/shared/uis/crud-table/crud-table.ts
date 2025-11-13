@@ -37,6 +37,7 @@ export class CrudTable {
   skeletonRows = input<number>(4);
   addItem = output<void>();
   searchChange = output<string>();
+  rowClick = output<any>();
 
   // Computed: génère les noms de colonnes à partir de la configuration
   protected readonly columnKeys = computed(() => {
@@ -112,6 +113,10 @@ export class CrudTable {
 
   onSearch(value: string) {
     this.searchChange.emit(value);
+  }
+
+  onRowClick(row: any) {
+    this.rowClick.emit(row);
   }
 
 }

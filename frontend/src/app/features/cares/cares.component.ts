@@ -28,7 +28,12 @@ export class CaresComponent {
   // Configuration des colonnes avec traduction (en signal)
   readonly columns = signal<TableColumn[]>([
     { key: 'name', headerKey: 'cares.columns.name', align: 'left' },
-    { key: 'description', headerKey: 'cares.columns.description', align: 'left' },
+    {
+      key: 'description',
+      headerKey: 'cares.columns.description',
+      align: 'left',
+      valueGetter: (care: Care) => this.truncateDescription(care.description)
+    },
     { key: 'price', headerKey: 'cares.columns.price', type: 'currency', align: 'right' },
     {
       key: 'status',
@@ -115,7 +120,28 @@ export class CaresComponent {
     });
   }
 
+  readonly onViewCareDetails = (care: Care) => {
+    this.dialog.open(CreateCare, {
+      width: '500px',
+      disableClose: false,
+      autoFocus: false,
+      data: {
+        care,
+        categories: this.categoriesStore.categories(),
+        viewOnly: true
+      }
+    });
+  };
+
   private translateStatus(status: CareStatus): string {
     return this.i18n.translate(`cares.status.${status}`) || status;
+  }
+
+  private truncateDescription(description: string): string {
+    const maxLength = 60;
+    if (!description || description.length <= maxLength) {
+      return description;
+    }
+    return description.substring(0, maxLength) + '...';
   }
 }

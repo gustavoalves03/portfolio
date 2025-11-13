@@ -1,9 +1,10 @@
 <modal-form
   [title]="dialogTitle"
-  [icon]="isEditMode ? 'edit' : 'spa'"
+  [icon]="isViewOnly ? 'visibility' : isEditMode ? 'edit' : 'spa'"
   iconColor="#fa8e8e"
   [saveLabel]="saveLabel"
   [saveDisabled]="careForm.invalid"
+  [hideSaveButton]="isViewOnly"
   (save)="onSave()"
   (cancel)="onCancel()">
 
@@ -16,10 +17,14 @@
 
     <mat-tab label="Images">
       <div class="tab-content">
-        <image-manager
-          [images]="images()"
-          (imagesChange)="onImagesChange($event)"
-        />
+        @if (isViewOnly) {
+          <image-carousel [images]="images()" />
+        } @else {
+          <image-manager
+            [images]="images()"
+            (imagesChange)="onImagesChange($event)"
+          />
+        }
       </div>
     </mat-tab>
   </mat-tab-group>

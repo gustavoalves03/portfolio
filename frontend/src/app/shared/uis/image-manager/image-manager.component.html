@@ -29,7 +29,7 @@
         <div
           class="image-item"
           cdkDrag
-          [cdkDragDisabled]="false">
+          [cdkDragDisabled]="readonly()">
 
           <!-- Custom drag preview (what follows the cursor) -->
           <div class="image-item" *cdkDragPreview>
@@ -44,64 +44,74 @@
           </div>
 
           <!-- Drag handle -->
-          <div class="drag-handle" cdkDragHandle>
-            <mat-icon>drag_indicator</mat-icon>
-          </div>
+          @if (!readonly()) {
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+          }
 
           <!-- Preview -->
           <div class="image-preview">
             <img [src]="image.url" [alt]="image.name" />
           </div>
 
-          <!-- Name input -->
-          <mat-form-field class="image-name" appearance="outline">
-            <input
-              matInput
-              [value]="image.name"
-              (input)="onNameChange(image, $any($event.target).value)"
-              placeholder="Nom de l'image"
-            />
-          </mat-form-field>
+          <!-- Name input or label -->
+          @if (!readonly()) {
+            <mat-form-field class="image-name" appearance="outline">
+              <input
+                matInput
+                [value]="image.name"
+                (input)="onNameChange(image, $any($event.target).value)"
+                placeholder="Nom de l'image"
+              />
+            </mat-form-field>
+          } @else {
+            <div class="image-name-readonly">{{ image.name }}</div>
+          }
 
           <!-- Delete button -->
-          <button
-            mat-icon-button
-            class="delete-btn"
-            (click)="onDelete(image.id)"
-            type="button">
-            <mat-icon>delete</mat-icon>
-          </button>
+          @if (!readonly()) {
+            <button
+              mat-icon-button
+              class="delete-btn"
+              (click)="onDelete(image.id)"
+              type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         </div>
       }
     </div>
   }
 
   <!-- Add button -->
-  <div class="add-section">
-    <input
-      #fileInput
-      type="file"
-      accept="image/png,image/jpeg,image/jpg"
-      multiple
-      (change)="onFileSelected($event)"
-      class="file-input"
-    />
+  @if (!readonly()) {
+    <div class="add-section">
+      <input
+        #fileInput
+        type="file"
+        accept="image/png,image/jpeg,image/jpg"
+        multiple
+        (change)="onFileSelected($event)"
+        class="file-input"
+      />
 
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="fileInput.click()"
-      [disabled]="!canAddMore"
-      type="button"
-      class="add-btn">
-      <mat-icon>add_photo_alternate</mat-icon>
-      <span>
-        @if (canAddMore) {
-          Ajouter une image ({{ remainingSlots }} restant{{ remainingSlots > 1 ? 's' : '' }})
-        } @else {
-          Limite atteinte ({{ MAX_IMAGES }} images max)
-        }
-      </span>
-    </button>
-  </div>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="fileInput.click()"
+        [disabled]="!canAddMore"
+        type="button"
+        class="add-btn">
+        <mat-icon>add_photo_alternate</mat-icon>
+        <span>
+          @if (canAddMore) {
+            Ajouter une image ({{ remainingSlots }} restant{{ remainingSlots > 1 ? 's' : '' }})
+          } @else {
+            Limite atteinte ({{ MAX_IMAGES }} images max)
+          }
+        </span>
+      </button>
+    </div>
+  }
 </div>

@@ -10,17 +10,22 @@
   },
   "actions": {
     "edit": "Modifier",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "close": "Fermer"
   },
   "cares": {
     "title": "Prestations",
     "add": "Ajouter",
+    "details": {
+      "title": "Détails de la prestation"
+    },
     "columns": {
       "name": "Nom",
       "description": "Description",
       "price": "Prix",
       "duration": "Durée",
-      "status": "Statut"
+      "status": "Statut",
+      "category": "Catégorie"
     },
     "status": {
       "ACTIVE": "Actif",

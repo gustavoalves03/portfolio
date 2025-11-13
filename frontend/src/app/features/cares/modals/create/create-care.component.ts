@@ -8,10 +8,12 @@ import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/form-field.model';
 import { ImageManager } from '../../../../shared/uis/image-manager/image-manager.component';
+import { ImageCarousel } from '../../../../shared/uis/image-carousel/image-carousel.component';
 
 interface CreateCareDialogData {
   categories: Category[];
   care?: Care;
+  viewOnly?: boolean;
 }
 
 @Component({
@@ -21,7 +23,8 @@ interface CreateCareDialogData {
     ModalForm,
     DynamicForm,
     MatTabsModule,
-    ImageManager
+    ImageManager,
+    ImageCarousel
   ],
   templateUrl: './create-care.component.html',
   styleUrl: './create-care.component.scss'
@@ -36,8 +39,9 @@ export class CreateCare implements OnInit {
   formConfig!: DynamicFormConfig;
   images = signal<CareImage[]>([]);
 
-  readonly isEditMode = !!this.data?.care;
-  readonly dialogTitle = this.isEditMode ? 'Modifier un soin' : 'Créer un nouveau soin';
+  readonly isViewOnly = !!this.data?.viewOnly;
+  readonly isEditMode = !!this.data?.care && !this.isViewOnly;
+  readonly dialogTitle = this.isViewOnly ? 'Détails de la prestation' : this.isEditMode ? 'Modifier un soin' : 'Créer un nouveau soin';
   readonly saveLabel = this.isEditMode ? 'Mettre à jour le soin' : 'Créer le soin';
 
   ngOnInit(): void {
@@ -48,6 +52,11 @@ export class CreateCare implements OnInit {
       if (this.data.care.images) {
         this.images.set(this.data.care.images);
       }
+    }
+
+    // Disable all form controls in view-only mode
+    if (this.isViewOnly) {
+      this.careForm.disable();
     }
   }
 

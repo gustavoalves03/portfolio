@@ -1,0 +1,65 @@
+<div class="carousel-wrapper">
+  @if (hasImages) {
+    <div class="carousel-container">
+      <!-- Carousel -->
+      <div class="carousel">
+        <!-- Previous Button -->
+        <button
+          mat-icon-button
+          color="primary"
+          class="carousel-nav carousel-nav-prev"
+          (click)="previousImage()"
+          [disabled]="!hasPrevious"
+          type="button">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <!-- Image Display -->
+        <div class="carousel-image-container">
+          <img
+            [src]="currentImage?.url"
+            [alt]="currentImage?.name"
+            class="carousel-image">
+        </div>
+
+        <!-- Next Button -->
+        <button
+          mat-icon-button
+          color="primary"
+          class="carousel-nav carousel-nav-next"
+          (click)="nextImage()"
+          [disabled]="!hasNext"
+          type="button">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- Dots Indicator -->
+      @if (totalImages > 1) {
+        <div class="carousel-dots">
+          @for (image of images(); track image.id; let i = $index) {
+            <button
+              type="button"
+              class="carousel-dot"
+              [class.active]="i === currentIndex()"
+              (click)="goToImage(i)"
+              [attr.aria-label]="'Image ' + (i + 1)">
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Image Name -->
+      @if (currentImage) {
+        <div class="carousel-image-name">
+          {{ currentImage.name }}
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>image</mat-icon>
+      <p>Aucune image disponible</p>
+    </div>
+  }
+</div>

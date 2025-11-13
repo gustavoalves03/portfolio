@@ -35,6 +35,7 @@ export class ModalForm {
   cancelIcon = input<string>('close');
   saveDisabled = input<boolean>(false);
   showCloseButton = input<boolean>(true);
+  hideSaveButton = input<boolean>(false);
 
   // Outputs
   save = output<void>();

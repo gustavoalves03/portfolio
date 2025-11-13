@@ -10,5 +10,6 @@
     [loading]="store.isPending()"
     [errorMessage]="store.error()"
     (addItem)="onAddCare()"
+    (rowClick)="onViewCareDetails($event)"
   />
 </section>
