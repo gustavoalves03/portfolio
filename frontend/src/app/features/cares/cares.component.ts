@@ -9,6 +9,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CreateCare } from './modals/create/create-care.component';
 import { Care, CareStatus } from './models/cares.model';
 import { DeleteCareComponent } from './modals/delete/delete-care.component';
+import { CaresService } from './services/cares.service';
 
 @Component({
   selector: 'app-cares',
@@ -21,6 +22,7 @@ import { DeleteCareComponent } from './modals/delete/delete-care.component';
 export class CaresComponent {
   readonly store = inject(CaresStore);
   readonly categoriesStore = inject(CategoriesStore);
+  private caresService = inject(CaresService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private i18n = inject(TranslocoService);
@@ -82,23 +84,37 @@ export class CaresComponent {
   }
 
   onEditCare(care: Care) {
-    const dialogRef = this.dialog.open(CreateCare, {
-      width: '500px',
-      disableClose: false,
-      autoFocus: true,
-      data: {
-        categories: this.categoriesStore.categories(),
-        care
-      }
-    });
+    // Fetch fresh care details from backend to ensure images are up to date
+    this.caresService.get(care.id).subscribe({
+      next: (freshCare) => {
+        console.log('[CaresComponent] Fresh care loaded for edit:', freshCare);
+        console.log('[CaresComponent] Images:', freshCare.images);
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        const payload = {
-          ...result,
-          categoryId: Number(result.categoryId ?? care.category.id)
-        };
-        this.store.updateCare({ id: care.id, payload });
+        const dialogRef = this.dialog.open(CreateCare, {
+          width: '500px',
+          disableClose: false,
+          autoFocus: true,
+          data: {
+            categories: this.categoriesStore.categories(),
+            care: freshCare
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            const payload = {
+              ...result,
+              categoryId: Number(result.categoryId ?? freshCare.category.id)
+            };
+            this.store.updateCare({ id: freshCare.id, payload });
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error loading care for edit:', err);
+        this.snackBar.open('Erreur lors du chargement du soin', 'Fermer', {
+          duration: 3000
+        });
       }
     });
   }
@@ -121,14 +137,29 @@ export class CaresComponent {
   }
 
   readonly onViewCareDetails = (care: Care) => {
-    this.dialog.open(CreateCare, {
-      width: '500px',
-      disableClose: false,
-      autoFocus: false,
-      data: {
-        care,
-        categories: this.categoriesStore.categories(),
-        viewOnly: true
+    // Fetch fresh care details from backend to ensure images are up to date
+    this.caresService.get(care.id).subscribe({
+      next: (freshCare) => {
+        console.log('[CaresComponent] Fresh care loaded:', freshCare);
+        console.log('[CaresComponent] Images:', freshCare.images);
+
+        // Open dialog with fresh data
+        this.dialog.open(CreateCare, {
+          width: '500px',
+          disableClose: false,
+          autoFocus: false,
+          data: {
+            care: freshCare,
+            categories: this.categoriesStore.categories(),
+            viewOnly: true
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error loading care details:', err);
+        this.snackBar.open('Erreur lors du chargement des détails', 'Fermer', {
+          duration: 3000
+        });
       }
     });
   };

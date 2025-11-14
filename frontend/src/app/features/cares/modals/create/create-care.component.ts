@@ -50,7 +50,9 @@ export class CreateCare implements OnInit {
     if (this.data?.care) {
       this.populateForm(this.data.care);
       if (this.data.care.images) {
-        this.images.set(this.data.care.images);
+        // Sort images by order before setting them
+        const sortedImages = [...this.data.care.images].sort((a, b) => a.order - b.order);
+        this.images.set(sortedImages);
       }
     }
 
@@ -238,12 +240,22 @@ export class CreateCare implements OnInit {
       // If image has 'file' property, it's a new image with Data URL in 'url'
       if (img.file && img.url) {
         return {
-          ...img,
+          id: img.id,
+          name: img.name,
+          order: img.order,
+          url: img.url,
           base64Data: img.url // Data URL already in correct format (data:image/png;base64,...)
         };
       }
-      // Existing image from server (has 'id' as number, no 'file')
-      return img;
+      // Existing image from server (has numeric ID, no 'file', no base64Data)
+      // Only send essential fields: id, name, order
+      return {
+        id: img.id,
+        name: img.name,
+        order: img.order,
+        url: img.url
+        // No base64Data for existing images
+      };
     });
 
     return {

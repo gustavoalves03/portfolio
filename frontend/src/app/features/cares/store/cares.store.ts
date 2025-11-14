@@ -65,6 +65,32 @@ export const CaresStore = signalStore(
         )
       )
     ),
+    getCare: rxMethod<number>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        switchMap((id) =>
+          caresGateway.get(id).pipe(
+            tap((care) => {
+              // Update the care in the list if it exists, otherwise add it
+              const existingIndex = store.cares().findIndex(c => c.id === id);
+              if (existingIndex !== -1) {
+                patchState(store, {
+                  cares: store.cares().map(c => c.id === id ? care : c)
+                }, setFulfilled());
+              } else {
+                patchState(store, {
+                  cares: [...store.cares(), care]
+                }, setFulfilled());
+              }
+            }),
+            catchError((err) => {
+              patchState(store, setError(extractErrorMessage(err, 'Erreur de chargement du soin')));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
     createCare: rxMethod<CreateCareRequest>(
       pipe(
         tap(() => patchState(store, setPending())),

@@ -109,24 +109,48 @@ public class CareService {
                 .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
         c.setCategory(category);
 
-        // Handle images update
-        // Remove old images (files and entities)
-        logger.info("Removing {} old images", c.getImages().size());
-        for (CareImage oldImage : c.getImages()) {
-            fileStorageService.deleteFile(oldImage.getFilePath());
-        }
-        c.getImages().clear();
-
-        // Add new images
+        // Handle images update intelligently
         if (req.images() != null && !req.images().isEmpty()) {
-            logger.info("Processing {} new images", req.images().size());
+            logger.info("Processing {} images from request", req.images().size());
+            logger.info("Current care has {} existing images", c.getImages().size());
+
+            // Collect IDs of images to keep
+            java.util.Set<Long> imageIdsToKeep = new java.util.HashSet<>();
+
+            // Process each image from request
             for (int i = 0; i < req.images().size(); i++) {
                 CareImageDto imageDto = req.images().get(i);
-                logger.info("Image {}: name={}, has base64={}", i, imageDto.name(),
+                logger.info("Image {}: id={}, name={}, order={}, has base64={}",
+                    i, imageDto.id(), imageDto.name(), imageDto.order(),
                     imageDto.base64Data() != null && !imageDto.base64Data().isEmpty());
 
-                if (imageDto.base64Data() != null && !imageDto.base64Data().isEmpty()) {
-                    logger.info("Calling fileStorageService.saveBase64Image for image {}", i);
+                // Check if this is an existing image (has numeric ID, no base64Data)
+                if (imageDto.id() != null && !imageDto.id().isEmpty() &&
+                    (imageDto.base64Data() == null || imageDto.base64Data().isEmpty())) {
+                    try {
+                        Long existingImageId = Long.parseLong(imageDto.id());
+                        imageIdsToKeep.add(existingImageId);
+
+                        // Find and update existing image
+                        CareImage existingImage = c.getImages().stream()
+                            .filter(img -> img.getId().equals(existingImageId))
+                            .findFirst()
+                            .orElse(null);
+
+                        if (existingImage != null) {
+                            // Update name and order
+                            existingImage.setName(imageDto.name());
+                            existingImage.setImageOrder(imageDto.order());
+                            logger.info("Updated existing image ID={} with name={}, order={}",
+                                existingImageId, imageDto.name(), imageDto.order());
+                        }
+                    } catch (NumberFormatException e) {
+                        logger.warn("Invalid image ID format: {}", imageDto.id());
+                    }
+                }
+                // New image (has base64Data)
+                else if (imageDto.base64Data() != null && !imageDto.base64Data().isEmpty()) {
+                    logger.info("Processing new image with base64 data");
                     // Save file to disk
                     String filePath = fileStorageService.saveBase64Image(imageDto.base64Data(), id);
                     logger.info("File saved at: {}", filePath);
@@ -141,11 +165,29 @@ public class CareService {
                     careImage.setFilePath(filePath);
 
                     c.getImages().add(careImage);
-                    logger.info("CareImage entity added to care");
+                    logger.info("New CareImage entity added to care");
                 }
             }
+
+            // Remove images that are no longer in the request
+            // Only remove images that have an ID (persisted) and are not in imageIdsToKeep
+            java.util.List<CareImage> imagesToRemove = c.getImages().stream()
+                .filter(img -> img.getId() != null && !imageIdsToKeep.contains(img.getId()))
+                .toList();
+
+            logger.info("Removing {} images that are no longer in request", imagesToRemove.size());
+            for (CareImage imgToRemove : imagesToRemove) {
+                fileStorageService.deleteFile(imgToRemove.getFilePath());
+                c.getImages().remove(imgToRemove);
+                logger.info("Removed image ID={}", imgToRemove.getId());
+            }
         } else {
-            logger.info("No images to process");
+            // No images in request - remove all
+            logger.info("No images in request, removing all {} existing images", c.getImages().size());
+            for (CareImage oldImage : c.getImages()) {
+                fileStorageService.deleteFile(oldImage.getFilePath());
+            }
+            c.getImages().clear();
         }
 
         logger.info("Saving care...");
