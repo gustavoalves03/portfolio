@@ -1,22 +1,23 @@
 <section class="mb-16 text-center">
-  <h1 class="text-4xl font-light tracking-wide mb-3 text-gray-900">Nos Prestations</h1>
+  <h1 class="text-4xl font-light tracking-wide mb-3 text-gray-900">Nos Services</h1>
   <p class="text-gray-500 font-light text-lg">L'excellence au service de votre beauté</p>
 </section>
 
 <section class="care-collection">
   @for (care of caresStore.availableCares(); track care.id) {
-  <article class="care-card">
-    <div class="care-card-inner">
+  <article class="service-card" [class.flipped]="isCardFlipped(care.id)">
+    <!-- Front Face: 60% Image + 40% Content -->
+    <div class="service-card-front">
       <!-- Image Section (60%) -->
-      <div class="care-image-wrapper"
+      <div class="service-image-wrapper"
            (touchstart)="onTouchStart($event)"
            (touchend)="onTouchEnd($event, care.id, care.images?.length || 0)">
         @if (care.images && care.images.length > 0) {
-          <img [src]="care.images[getCurrentImageIndex(care.id)]?.url || care.images[0].url"
+          <img [src]="care.images[getCurrentImageIndex(care.id)].url"
                [alt]="care.name"
-               class="care-image" />
+               class="service-image" />
 
-          <!-- Navigation Chevrons (visible on hover - desktop only) -->
+          <!-- Navigation Chevrons -->
           @if (care.images.length > 1) {
             <div class="carousel-controls">
               <button class="carousel-btn carousel-btn-prev"
@@ -34,7 +35,7 @@
               </button>
             </div>
 
-            <!-- Image indicators (dots) -->
+            <!-- Image indicators -->
             <div class="carousel-indicators">
               @for (img of care.images; track img.id; let i = $index) {
                 <span class="indicator-dot"
@@ -43,32 +44,107 @@
             </div>
           }
         } @else {
-          <div class="care-image-placeholder">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.5" stroke="currentColor" class="w-24 h-24 text-rose-200">
+          <div class="service-image-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.5" stroke="currentColor" class="w-32 h-32 text-rose-200">
               <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
             </svg>
           </div>
         }
       </div>
 
-      <!-- Content Section (30%) -->
-      <div class="care-content">
-        <div class="care-header">
-          <h2 class="care-title">{{ care.name }}</h2>
-          <p class="care-duration">{{ care.duration }} minutes</p>
+      <!-- Content Section (40%) -->
+      <div class="service-content">
+        <h2 class="service-title">{{ care.name }}</h2>
+        <button class="booking-button" (click)="toggleBooking(care.id)">
+          <span>Rendez-vous</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Back Face: Booking Calendar -->
+    <div class="service-card-back">
+      <div class="booking-header">
+        <button class="back-button" (click)="toggleBooking(care.id)">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Retour</span>
+        </button>
+        <h3 class="booking-title">{{ care.name }}</h3>
+      </div>
+
+      <div class="booking-content">
+        <!-- Calendar (Left on desktop, Step 1 on mobile) -->
+        <div class="booking-calendar" [class.hidden-mobile]="hasSelectedDay(care.id)">
+          <div class="calendar-header">
+            <button class="month-nav-btn" (click)="previousMonth(care.id)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <h4 class="calendar-month-title">{{ getCalendar(care.id).monthName }} {{ getCalendar(care.id).year }}</h4>
+            <button class="month-nav-btn" (click)="nextMonth(care.id)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+
+          <!-- Calendar Grid -->
+          <div class="calendar-grid">
+            <!-- Day headers -->
+            <div class="calendar-day-header">Lun</div>
+            <div class="calendar-day-header">Mar</div>
+            <div class="calendar-day-header">Mer</div>
+            <div class="calendar-day-header">Jeu</div>
+            <div class="calendar-day-header">Ven</div>
+            <div class="calendar-day-header">Sam</div>
+            <div class="calendar-day-header">Dim</div>
+
+            <!-- Calendar days -->
+            @for (week of getCalendar(care.id).weeks; track week) {
+              @for (day of week; track day.date) {
+                <button
+                  class="calendar-day"
+                  [class.other-month]="!day.isCurrentMonth"
+                  [class.today]="day.isToday"
+                  [class.past]="day.isPast"
+                  [class.selected]="isSelectedDay(care.id, day.date)"
+                  [disabled]="!day.isAvailable"
+                  (click)="selectDay(care.id, day.date)">
+                  {{ day.dayNumber }}
+                </button>
+              }
+            }
+          </div>
         </div>
 
-        <p class="care-description">{{ care.description }}</p>
-
-        <div class="care-footer">
-          <button class="reserve-button">
-            <span>Réserver</span>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-            </svg>
-          </button>
-          <span class="care-price">{{ care.price | currency:'EUR':'symbol':'1.0-0' }}</span>
+        <!-- Time Slots Selection (Right on desktop, Step 2 on mobile) -->
+        <div class="booking-times" [class.hidden-mobile]="!hasSelectedDay(care.id)">
+          <div class="mobile-step-header">
+            <button class="mobile-back-btn" (click)="backToCalendar(care.id)">
+              <mat-icon>arrow_back</mat-icon>
+              <span>Changer la date</span>
+            </button>
+          </div>
+          <h4 class="booking-section-title">Choisir une heure</h4>
+          <div class="times-grid">
+            @for (slot of getAvailableTimeSlots(); track slot) {
+              <button class="time-button"
+                      [class.selected]="isSelectedTime(care.id, slot)"
+                      (click)="selectTime(care.id, slot)">
+                {{ slot }}
+              </button>
+            }
+          </div>
         </div>
+      </div>
+
+      <div class="booking-footer">
+        <div class="booking-summary">
+          <span class="price">{{ care.price | currency:'EUR':'symbol':'1.0-0' }}</span>
+          <span class="duration">{{ care.duration }} min</span>
+        </div>
+        <button class="confirm-button" [disabled]="!canConfirmBooking(care.id)">
+          Confirmer
+        </button>
       </div>
     </div>
   </article>
