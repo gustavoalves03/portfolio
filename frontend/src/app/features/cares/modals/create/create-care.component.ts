@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Care, CareStatus, CreateCareRequest, CareImage } from '../../models/cares.model';
+import { Care, CareStatus, CreateCareRequest, CareImage, CareImageRequest } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
@@ -236,25 +236,24 @@ export class CreateCare implements OnInit {
     const rawValue = this.careForm.getRawValue();
 
     // Convert images: extract base64Data from url for new images
-    const imagesWithBase64 = this.images().map(img => {
+    const imagesWithBase64: CareImageRequest[] = this.images().map(img => {
       // If image has 'file' property, it's a new image with Data URL in 'url'
       if (img.file && img.url) {
         return {
           id: img.id,
           name: img.name,
           order: img.order,
-          url: img.url,
+          // Don't send url for new images (redundant with base64Data)
           base64Data: img.url // Data URL already in correct format (data:image/png;base64,...)
         };
       }
       // Existing image from server (has numeric ID, no 'file', no base64Data)
-      // Only send essential fields: id, name, order
+      // Only send essential fields: id, name, order (no url needed)
       return {
         id: img.id,
         name: img.name,
-        order: img.order,
-        url: img.url
-        // No base64Data for existing images
+        order: img.order
+        // No url, no base64Data for existing images
       };
     });
 
