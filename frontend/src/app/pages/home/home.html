@@ -7,10 +7,41 @@
   @for (care of caresStore.availableCares(); track care.id) {
   <article class="care-card">
     <div class="care-card-inner">
-      <!-- Image Section (70%) -->
-      <div class="care-image-wrapper">
+      <!-- Image Section (60%) -->
+      <div class="care-image-wrapper"
+           (touchstart)="onTouchStart($event)"
+           (touchend)="onTouchEnd($event, care.id, care.images?.length || 0)">
         @if (care.images && care.images.length > 0) {
-          <img [src]="care.images[0].url" [alt]="care.name" class="care-image" />
+          <img [src]="care.images[getCurrentImageIndex(care.id)]?.url || care.images[0].url"
+               [alt]="care.name"
+               class="care-image" />
+
+          <!-- Navigation Chevrons (visible on hover - desktop only) -->
+          @if (care.images.length > 1) {
+            <div class="carousel-controls">
+              <button class="carousel-btn carousel-btn-prev"
+                      (click)="previousImage(care.id, care.images.length, $event)"
+                      type="button"
+                      aria-label="Image précédente">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+
+              <button class="carousel-btn carousel-btn-next"
+                      (click)="nextImage(care.id, care.images.length, $event)"
+                      type="button"
+                      aria-label="Image suivante">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <!-- Image indicators (dots) -->
+            <div class="carousel-indicators">
+              @for (img of care.images; track img.id; let i = $index) {
+                <span class="indicator-dot"
+                      [class.active]="i === getCurrentImageIndex(care.id)"></span>
+              }
+            </div>
+          }
         } @else {
           <div class="care-image-placeholder">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.5" stroke="currentColor" class="w-24 h-24 text-rose-200">

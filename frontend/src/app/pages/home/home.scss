@@ -48,12 +48,14 @@
   }
 }
 
-/* Image Section (70%) */
+/* Image Section (60%) */
 .care-image-wrapper {
   flex: 0 0 60%;
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+  user-select: none;
+  touch-action: pan-y;
 
   @media (max-width: 768px) {
     flex: 0 0 300px;
@@ -66,6 +68,7 @@
   object-fit: cover;
   object-position: center;
   transition: transform 600ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
 
   .care-card:hover & {
     transform: scale(1.05);
@@ -79,6 +82,105 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+}
+
+/* ===== Carousel Controls ===== */
+.carousel-controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+
+  .care-image-wrapper:hover & {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    display: none; // Hide on mobile (swipe only)
+  }
+}
+
+.carousel-btn {
+  pointer-events: auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+
+  mat-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &:hover {
+    background: #ffffff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #e11d48;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.carousel-btn-prev {
+  margin-left: 0.5rem;
+}
+
+.carousel-btn-next {
+  margin-right: 0.5rem;
+}
+
+/* ===== Carousel Indicators (Dots) ===== */
+.carousel-indicators {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+  opacity: 0.8;
+  transition: opacity 300ms ease;
+
+  .care-image-wrapper:hover & {
+    opacity: 1;
+  }
+}
+
+.indicator-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 250ms ease;
+  cursor: pointer;
+
+  &.active {
+    background: #ffffff;
+    transform: scale(1.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* Content Section (30%) */
