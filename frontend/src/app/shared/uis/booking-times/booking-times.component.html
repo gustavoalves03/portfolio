@@ -1,0 +1,22 @@
+<div class="booking-times" [class.hidden-mobile]="hiddenOnMobile()">
+  @if (showBackButton()) {
+    <div class="mobile-step-header">
+      <button class="mobile-back-btn" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Changer la date</span>
+      </button>
+    </div>
+  }
+
+  <h4 class="booking-section-title">Choisir une heure</h4>
+
+  <div class="times-grid">
+    @for (slot of timeSlots; track slot) {
+      <button class="time-button"
+              [class.selected]="isSelectedTime(slot)"
+              (click)="selectTime(slot)">
+        {{ slot }}
+      </button>
+    }
+  </div>
+</div>

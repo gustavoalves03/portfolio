@@ -1,0 +1,39 @@
+<div class="booking-calendar" [class.hidden-mobile]="hiddenOnMobile()">
+  <div class="calendar-header">
+    <button class="month-nav-btn" (click)="previousMonth()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <h4 class="calendar-month-title">{{ calendar().monthName }} {{ calendar().year }}</h4>
+    <button class="month-nav-btn" (click)="nextMonth()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Day headers -->
+    <div class="calendar-day-header">Lun</div>
+    <div class="calendar-day-header">Mar</div>
+    <div class="calendar-day-header">Mer</div>
+    <div class="calendar-day-header">Jeu</div>
+    <div class="calendar-day-header">Ven</div>
+    <div class="calendar-day-header">Sam</div>
+    <div class="calendar-day-header">Dim</div>
+
+    <!-- Calendar days -->
+    @for (week of calendar().weeks; track week) {
+      @for (day of week; track day.date) {
+        <button
+          class="calendar-day"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.past]="day.isPast"
+          [class.selected]="isSelectedDay(day.date)"
+          [disabled]="!day.isAvailable"
+          (click)="selectDay(day.date)">
+          {{ day.dayNumber }}
+        </button>
+      }
+    }
+  </div>
+</div>
