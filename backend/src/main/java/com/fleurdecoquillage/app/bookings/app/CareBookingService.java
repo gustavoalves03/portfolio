@@ -1,7 +1,9 @@
 package com.fleurdecoquillage.app.bookings.app;
 
 import com.fleurdecoquillage.app.bookings.domain.CareBooking;
+import com.fleurdecoquillage.app.bookings.domain.CareBookingStatus;
 import com.fleurdecoquillage.app.bookings.repo.CareBookingRepository;
+import com.fleurdecoquillage.app.bookings.web.dto.CareBookingDetailedResponse;
 import com.fleurdecoquillage.app.bookings.web.dto.CareBookingRequest;
 import com.fleurdecoquillage.app.bookings.web.dto.CareBookingResponse;
 import com.fleurdecoquillage.app.bookings.web.mapper.CareBookingMapper;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 public class CareBookingService {
@@ -27,6 +31,27 @@ public class CareBookingService {
     @Transactional(readOnly = true)
     public Page<CareBookingResponse> list(Pageable pageable) {
         return repo.findAll(pageable).map(CareBookingMapper::toResponse);
+    }
+
+    /**
+     * List bookings with optional filters and detailed information
+     * @param status Optional status filter (PENDING, CONFIRMED)
+     * @param from Optional start date filter
+     * @param to Optional end date filter
+     * @param userId Optional user ID filter
+     * @param pageable Pagination parameters
+     * @return Page of detailed booking responses
+     */
+    @Transactional(readOnly = true)
+    public Page<CareBookingDetailedResponse> listDetailed(
+            CareBookingStatus status,
+            Instant from,
+            Instant to,
+            Long userId,
+            Pageable pageable
+    ) {
+        return repo.findByFilters(status, from, to, userId, pageable)
+                .map(CareBookingMapper::toDetailedResponse);
     }
 
     @Transactional(readOnly = true)

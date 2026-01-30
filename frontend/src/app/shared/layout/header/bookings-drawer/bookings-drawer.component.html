@@ -1,0 +1,150 @@
+<mat-drawer-container class="drawer-container" [class.open]="isOpen()" autosize>
+  <mat-drawer #drawer mode="over" position="end" [opened]="isOpen()" (closedStart)="close()">
+    <div class="drawer-content">
+      <!-- Header -->
+      <div class="drawer-header">
+        <h2 class="drawer-title">Mes rendez-vous</h2>
+        <button mat-icon-button (click)="close()" aria-label="Fermer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <!-- Status filters -->
+        <div class="filter-group">
+          <span class="filter-label">Statut:</span>
+          <mat-chip-listbox class="chip-list" aria-label="Filtrer par statut">
+            <mat-chip-option
+              [selected]="selectedStatus() === undefined"
+              (click)="setStatusFilter(undefined)"
+            >
+              Tous
+            </mat-chip-option>
+            <mat-chip-option
+              [selected]="selectedStatus() === CareBookingStatus.PENDING"
+              (click)="setStatusFilter(CareBookingStatus.PENDING)"
+            >
+              En attente
+            </mat-chip-option>
+            <mat-chip-option
+              [selected]="selectedStatus() === CareBookingStatus.CONFIRMED"
+              (click)="setStatusFilter(CareBookingStatus.CONFIRMED)"
+            >
+              Confirmés
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+
+        <!-- Date filters -->
+        <div class="filter-group">
+          <span class="filter-label">Période:</span>
+          <mat-chip-listbox class="chip-list" aria-label="Filtrer par période">
+            <mat-chip-option
+              [selected]="selectedDateFilter() === 'all'"
+              (click)="setDateFilter('all')"
+            >
+              Tout
+            </mat-chip-option>
+            <mat-chip-option
+              [selected]="selectedDateFilter() === 'today'"
+              (click)="setDateFilter('today')"
+            >
+              Aujourd'hui
+            </mat-chip-option>
+            <mat-chip-option
+              [selected]="selectedDateFilter() === 'week'"
+              (click)="setDateFilter('week')"
+            >
+              Cette semaine
+            </mat-chip-option>
+            <mat-chip-option
+              [selected]="selectedDateFilter() === 'month'"
+              (click)="setDateFilter('month')"
+            >
+              Ce mois
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      @if (isLoading()) {
+        <div class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+
+      <!-- Bookings list -->
+      @if (!isLoading()) {
+        <div class="bookings-list">
+          @if (bookings().length === 0) {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">event_busy</mat-icon>
+              <p class="empty-text">Aucun rendez-vous trouvé</p>
+              <a routerLink="/bookings" class="link-button" (click)="close()">
+                Prendre un rendez-vous
+              </a>
+            </div>
+          } @else {
+            @for (booking of bookings(); track booking.id) {
+              <mat-card class="booking-card">
+                <mat-card-content>
+                  <div class="booking-header">
+                    <span class="booking-date">{{ formatDate(booking.createdAt) }}</span>
+                    <span class="status-badge" [ngClass]="getStatusClass(booking.status)">
+                      {{ getStatusLabel(booking.status) }}
+                    </span>
+                  </div>
+
+                  <div class="booking-care">
+                    <h3 class="care-name">{{ booking.care.name }}</h3>
+                    <div class="care-details">
+                      <span class="care-duration">{{ booking.care.duration }} min</span>
+                      <span class="care-separator">•</span>
+                      <span class="care-price">{{ formatPrice(booking.care.price) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="booking-user">
+                    <mat-icon class="user-icon">person</mat-icon>
+                    <span class="user-name">{{ booking.user.name }}</span>
+                  </div>
+
+                  @if (booking.quantity > 1) {
+                    <div class="booking-quantity">
+                      <mat-icon class="quantity-icon">groups</mat-icon>
+                      <span>{{ booking.quantity }} personne(s)</span>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            }
+          }
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (!isLoading() && bookings().length > 0) {
+        <div class="pagination-container">
+          <mat-paginator
+            [length]="totalElements()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageSizeOptions]="[5, 10, 20]"
+            (page)="onPageChange($event)"
+            aria-label="Sélectionner la page"
+          ></mat-paginator>
+        </div>
+      }
+
+      <!-- Footer link -->
+      <div class="drawer-footer">
+        <a routerLink="/bookings" class="view-all-link" (click)="close()">
+          Voir tous les rendez-vous
+          <mat-icon class="link-icon">arrow_forward</mat-icon>
+        </a>
+      </div>
+    </div>
+  </mat-drawer>
+</mat-drawer-container>

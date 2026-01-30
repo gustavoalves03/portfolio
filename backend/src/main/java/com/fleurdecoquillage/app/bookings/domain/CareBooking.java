@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -28,6 +30,12 @@ public class CareBooking {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column(nullable = false)
+    private LocalDate appointmentDate;
+
+    @Column(nullable = false)
+    private LocalTime appointmentTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

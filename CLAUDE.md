@@ -30,15 +30,21 @@ mvn package                      # Build JAR
 ```
 
 ### Docker Development
+
+**⚠️ CURRENT SETUP:** Frontend runs in Docker container, Backend runs locally on host machine.
+
 ```bash
-# Development with hot reload
-docker compose --profile dev up
+# Start frontend container (backend must be running locally)
+docker compose --profile dev up frontend-dev
 
-# Frontend: http://localhost:4300
-# Backend: http://localhost:8080 (with debug port 5006)
-# Oracle DB: localhost:1521
+# Frontend: http://localhost:4300 (container)
+# Backend: http://localhost:8080 (local, run with mvn spring-boot:run)
+# Oracle DB: localhost:1521 (optional, can use Docker or local)
 
-# Production build
+# Force recreate frontend container (after config changes)
+docker compose --profile dev up -d --force-recreate frontend-dev
+
+# Production build (both frontend and backend in containers)
 docker compose --profile prod up
 ```
 
@@ -48,6 +54,12 @@ ORACLE_PASSWORD=yourpassword
 APP_USER=youruser
 APP_USER_PASSWORD=yourpassword
 ```
+
+**SSR and Docker Networking:**
+- Frontend SSR (server-side) uses `API_BASE_URL=http://host.docker.internal:8080` to reach backend on host
+- Browser-side requests use `http://localhost:8080` (proxied by browser)
+- `app.config.server.ts` overrides API_BASE_URL for SSR context
+- If you move backend to Docker, change `API_BASE_URL` to `http://backend-dev:8080` in `docker-compose.yml`
 
 ## Architecture Patterns
 
@@ -169,6 +181,18 @@ backend/src/main/java/com/fleurdecoquillage/app/
 - Use `TranslocoPipe` in templates: `{{ 'key' | transloco }}`
 - Locale data registered: `localeFr`, `localeEn`
 
+**⚠️ CRITICAL: Always Update Translations**
+- **When adding new UI elements, labels, buttons, error messages, or any user-facing text:**
+  1. Add translation keys to BOTH `fr.json` AND `en.json`
+  2. Use descriptive, hierarchical keys (e.g., `bookings.form.selectDate`, `errors.auth.invalidCredentials`)
+  3. NEVER hardcode user-facing text in templates - always use translation keys
+  4. Check existing keys before creating new ones to maintain consistency
+  5. Test both languages after adding translations
+- **Translation key naming convention:**
+  - Feature-based: `{feature}.{section}.{element}` (e.g., `cares.list.title`, `bookings.modal.cancel`)
+  - Shared UI: `common.{element}` (e.g., `common.save`, `common.cancel`, `common.loading`)
+  - Errors: `errors.{domain}.{type}` (e.g., `errors.api.serverError`, `errors.form.required`)
+
 ### Angular 20 Modern Patterns
 
 **Use these patterns (aligned with AGENTS.md):**
@@ -241,12 +265,15 @@ backend/src/main/java/com/fleurdecoquillage/app/
 
 ## Important Notes
 
-- **Environment Setup:** Requires Oracle DB via Docker. Set credentials in `.env` before running `docker compose`.
+- **⚠️ TRANSLATIONS MANDATORY:** Always update both `fr.json` and `en.json` when adding UI text. No hardcoded strings in templates!
+- **Development Setup:** Frontend in Docker (port 4300), Backend runs locally on host (port 8080). Use `host.docker.internal` for SSR API calls.
+- **Environment Setup:** Set credentials in `.env` before running `docker compose`. Backend connects to Oracle DB (Docker or local).
 - **SSR Compatibility:** Use `withFetch()` in HTTP client, avoid browser-only APIs in components (use `isPlatformBrowser` check if needed).
 - **Shared Components:** Check `shared/uis/` before creating new UI components (e.g., `crud-table` for tables with search/add).
 - **Store Lifecycle:** Stores are provided at component level, initialized via `onInit` hook, destroyed with component.
 - **API Authentication:** Basic Auth currently used (dev: `dev/dev`). Will evolve to OAuth2 (Google, Facebook, Apple).
 - **Database Schema:** JPA entities auto-create schema. Check `domain/` classes for entity relationships.
+- **Container Updates:** After modifying `docker-compose.yml` environment variables, recreate containers with `--force-recreate` flag.
 
 ## Additional Resources
 

@@ -1,6 +1,20 @@
 <section class="mb-16 text-center">
   <h1 class="text-4xl font-light tracking-wide mb-3 text-gray-900">Nos Services</h1>
   <p class="text-gray-500 font-light text-lg">L'excellence au service de votre beauté</p>
+
+  <!-- DEBUG: Display loading/error state -->
+  <div class="mt-4">
+    @if (caresStore.isPending()) {
+      <p class="text-blue-600">Chargement des soins...</p>
+    }
+    @if (caresStore.error()) {
+      <p class="text-red-600">Erreur: {{ caresStore.error() }}</p>
+    }
+    <p class="text-sm text-gray-600">
+      Total soins: {{ caresStore.cares().length }} |
+      Soins actifs: {{ caresStore.availableCares().length }}
+    </p>
+  </div>
 </section>
 
 <section class="care-collection">

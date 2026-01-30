@@ -26,6 +26,7 @@ import { firstValueFrom } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Browser uses localhost, SSR uses host.docker.internal (overridden in app.config.server.ts)
     {provide: API_BASE_URL, useValue: 'http://localhost:8080'},
     provideHttpClient(
       withFetch(),

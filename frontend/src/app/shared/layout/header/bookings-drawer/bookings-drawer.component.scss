@@ -1,0 +1,352 @@
+// Drawer container
+.drawer-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 1000;
+  transition: opacity 200ms ease;
+}
+
+.drawer-container.open {
+  pointer-events: all;
+  visibility: visible;
+  opacity: 1;
+}
+
+::ng-deep .mat-drawer-backdrop {
+  pointer-events: all;
+}
+
+::ng-deep .mat-drawer {
+  pointer-events: all;
+  width: min(450px, 100vw);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 640px) {
+    width: 100vw;
+  }
+}
+
+// Drawer content
+.drawer-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// Header
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+.drawer-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface);
+}
+
+// Filters section
+.filters-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(248, 248, 248, 0.5);
+}
+
+.filter-group {
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filter-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+::ng-deep .mat-mdc-chip {
+  --mdc-chip-elevated-container-color: white;
+  --mdc-chip-label-text-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  &.mdc-evolution-chip--selected {
+    --mdc-chip-elevated-container-color: var(--mat-sys-primary);
+    --mdc-chip-label-text-color: white;
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 2px 8px rgba(244, 114, 182, 0.25);
+  }
+}
+
+// Loading state
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+// Bookings list
+.bookings-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: rgba(0, 0, 0, 0.2);
+  margin-bottom: 16px;
+}
+
+.empty-text {
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.link-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--mat-sys-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: var(--mat-sys-primary-container);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
+  }
+}
+
+// Booking card
+.booking-card {
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 200ms ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+::ng-deep .booking-card .mat-mdc-card-content {
+  padding: 16px;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.booking-date {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.03em;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.status-pending {
+    background: rgba(251, 191, 36, 0.15);
+    color: #b45309;
+  }
+
+  &.status-confirmed {
+    background: rgba(34, 197, 94, 0.15);
+    color: #15803d;
+  }
+
+  &.status-cancelled {
+    background: rgba(239, 68, 68, 0.15);
+    color: #b91c1c;
+  }
+}
+
+.booking-care {
+  margin-bottom: 12px;
+}
+
+.care-name {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+  letter-spacing: 0.02em;
+}
+
+.care-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.care-separator {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.care-price {
+  font-weight: 500;
+  color: var(--mat-sys-primary);
+}
+
+.booking-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.user-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.booking-quantity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.quantity-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+// Pagination
+.pagination-container {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+::ng-deep .mat-mdc-paginator {
+  background: transparent;
+}
+
+// Footer
+.drawer-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+.view-all-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 200ms ease;
+
+  &:hover {
+    background: rgba(244, 114, 182, 0.08);
+  }
+}
+
+.link-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 200ms ease;
+}
+
+.view-all-link:hover .link-icon {
+  transform: translateX(4px);
+}
+
+// Scrollbar styling
+.bookings-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bookings-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.bookings-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+}

@@ -1,0 +1,136 @@
+services:
+    # --- Oracle (commun dev/prod) ---
+    oracle:
+        image: gvenzl/oracle-free:latest
+        container_name: oracle-db
+        ports:
+            - "1521:1521"
+            - "5500:5500"
+        environment:
+            ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+            APP_USER: ${APP_USER}
+            APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+        volumes:
+            - oradata:/opt/oracle/oradata
+        healthcheck:
+            test: ["CMD", "/opt/oracle/scripts/healthcheck.sh"]
+            interval: 15s
+            timeout: 5s
+            start_period: 10m
+            retries: 80
+        networks:
+            backend:
+                aliases:
+                    - oracle
+                    - oracle-db
+
+    # =====================
+    # ======= PROD ========
+    # =====================
+
+    # Backend PROD: build image (Maven -> JAR)
+    backend:
+        profiles: ["prod"]
+        build: ./backend
+        container_name: api
+        depends_on:
+            oracle:
+                condition: service_started
+        environment:
+            SPRING_PROFILES_ACTIVE: docker
+            DB_URL: jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
+            DB_USERNAME: ${APP_USER}
+            DB_PASSWORD: ${APP_USER_PASSWORD}
+        ports:
+            - "8080:8080"
+        networks: [ backend ]
+
+    # Frontend PROD: build Angular puis servir avec Nginx
+    frontend:
+        profiles: ["prod"]
+        build: ./frontend
+        container_name: web
+        depends_on:
+            - backend
+        ports:
+            - "4200:80"   # ajuste si tu préfères "8081:80"
+        networks: [ backend ]
+
+    # =====================
+    # ======== DEV ========
+    # =====================
+
+    # Backend DEV: hot reload Spring Boot
+    backend-dev:
+        profiles: ["dev"]
+        image: maven:3.9.9-eclipse-temurin-21
+        container_name: api-dev
+        working_dir: /workspace
+        command:
+            - sh
+            - -lc
+            - >
+                ./mvnw -q clean compile &&
+                ./mvnw
+                -DskipTests
+                -Dspring-boot.run.profiles=docker
+                -Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006'
+                -Dspring-boot.run.fork=false
+                spring-boot:run
+        volumes:
+            # ❌ supprime ":cached" pour activer la détection de fichiers en temps réel
+            - ./backend:/workspace
+            - maven-cache:/root/.m2
+        environment:
+            SPRING_PROFILES_ACTIVE: docker
+            SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+            SPRING_DEVTOOLS_RESTART_TRIGGER_FILE: .restart
+            SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/FREEPDB1
+            SPRING_DATASOURCE_USERNAME: ${APP_USER}
+            SPRING_DATASOURCE_PASSWORD: ${APP_USER_PASSWORD}
+            SPRING_DATASOURCE_DRIVER_CLASS_NAME: oracle.jdbc.OracleDriver
+            # (facultatif) Hikari:
+            SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT: "0"
+            # (recommandé) Hibernate:
+            SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.OracleDialect
+            SPRING_SECURITY_USER_NAME: dev
+            SPRING_SECURITY_USER_PASSWORD: dev
+        ports:
+            - "8080:8080"
+            - "5006:5006"
+        depends_on:
+            oracle:
+                condition: service_started
+        networks: [ backend ]
+
+    # Frontend DEV: ng serve (hot reload)
+    frontend-dev:
+        profiles: ["dev"]
+        image: node:22-bookworm-slim
+        container_name: web-dev
+        working_dir: /app
+        command: >
+            sh -lc "
+              npm ci --no-fund --no-audit || npm install --no-fund --no-audit;
+              npx ng serve --host 0.0.0.0 --port 4200 --poll 2000
+            "
+        volumes:
+            # ❌ supprime ":cached" ici aussi pour le hot reload Angular
+            - ./frontend:/app
+            - node-cache:/root/.npm
+            - node-modules:/app/node_modules
+        environment:
+            API_BASE_URL: http://host.docker.internal:8080
+            CHOKIDAR_USEPOLLING: "true"
+        ports:
+            - "4300:4200"
+        networks: [ backend ]
+
+volumes:
+    oradata:
+    maven-cache:
+    node-cache:
+    node-modules:
+
+networks:
+    backend:
