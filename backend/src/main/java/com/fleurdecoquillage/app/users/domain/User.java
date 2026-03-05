@@ -50,6 +50,9 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role = Role.USER;
 
+    @Column(name = "consent_given_at")
+    private LocalDateTime consentGivenAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

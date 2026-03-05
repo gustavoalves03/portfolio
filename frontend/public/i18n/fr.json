@@ -29,16 +29,46 @@
       "terms": "En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité."
     },
     "login": {
-      "title": "Connexion Administrateur",
+      "title": "Connexion",
+      "subtitle": "Accédez à votre espace professionnel",
       "email": "Adresse e-mail",
       "password": "Mot de passe",
-      "submit": "Se connecter"
+      "submit": "Se connecter",
+      "googleButton": "Continuer avec Google",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "S'inscrire",
+      "orDivider": "ou",
+      "loading": "Connexion en cours..."
+    },
+    "oauth2": {
+      "redirecting": "Connexion via Google en cours...",
+      "success": "Connexion réussie !",
+      "error": "Échec de la connexion Google"
+    },
+    "register": {
+      "title": "Créer votre espace professionnel",
+      "subtitle": "Rejoignez Pretty Face et développez votre activité",
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 8 caractères",
+      "consent": "J'accepte les <a href='/cgu' target='_blank'>Conditions Générales d'Utilisation</a> et la <a href='/confidentialite' target='_blank'>Politique de Confidentialité</a>",
+      "consentRequired": "Vous devez accepter les conditions pour continuer",
+      "submit": "Créer mon compte",
+      "loginLink": "Déjà inscrit ? Se connecter",
+      "success": "Compte créé avec succès ! Bienvenue sur Pretty Face."
     },
     "errors": {
       "emailRequired": "L'e-mail est requis",
       "emailInvalid": "L'e-mail n'est pas valide",
       "passwordRequired": "Le mot de passe est requis",
-      "invalidCredentials": "E-mail ou mot de passe incorrect"
+      "invalidCredentials": "E-mail ou mot de passe incorrect",
+      "emailAlreadyInUse": "Cette adresse e-mail est déjà utilisée",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+      "nameRequired": "Le nom est requis",
+      "oauthFailed": "La connexion avec Google a échoué. Veuillez réessayer.",
+      "networkError": "Erreur réseau. Vérifiez votre connexion."
     }
   },
   "cares": {

@@ -1,0 +1,95 @@
+<transloco-scope scope="auth">
+  <ng-template transloco let-t>
+    <div class="login-page">
+      <div class="login-card">
+        <div class="login-header">
+          <h1 class="login-title">{{ t('auth.login.title') }}</h1>
+          <p class="login-subtitle">{{ t('auth.login.subtitle') }}</p>
+        </div>
+
+        <!-- Google OAuth2 button -->
+        <button
+          mat-stroked-button
+          type="button"
+          class="google-btn full-width"
+          (click)="loginWithGoogle()">
+          <span class="google-btn-content">
+            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.909-2.258c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+              <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.96L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            {{ t('auth.login.googleButton') }}
+          </span>
+        </button>
+
+        <!-- OAuth error message -->
+        @if (oauthError) {
+          <div class="error-banner">{{ t('auth.errors.oauthFailed') }}</div>
+        }
+
+        <div class="divider-row">
+          <mat-divider class="divider-line"></mat-divider>
+          <span class="divider-text">{{ t('auth.login.orDivider') }}</span>
+          <mat-divider class="divider-line"></mat-divider>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="login-form">
+
+          <!-- Email field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('auth.login.email') }}</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email" />
+            @if (emailControl?.hasError('required') && emailControl?.touched) {
+              <mat-error>{{ t('auth.errors.emailRequired') }}</mat-error>
+            }
+            @if (emailControl?.hasError('email') && emailControl?.touched) {
+              <mat-error>{{ t('auth.errors.emailInvalid') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Password field -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('auth.login.password') }}</mat-label>
+            <input matInput formControlName="password" type="password" autocomplete="current-password" />
+            @if (passwordControl?.hasError('required') && passwordControl?.touched) {
+              <mat-error>{{ t('auth.errors.passwordRequired') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Invalid credentials error -->
+          @if (invalidCredentialsError) {
+            <div class="error-banner">{{ t('auth.errors.invalidCredentials') }}</div>
+          }
+
+          <!-- Network error -->
+          @if (networkError) {
+            <div class="error-banner">{{ t('auth.errors.networkError') }}</div>
+          }
+
+          <!-- Submit button -->
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            class="submit-btn full-width"
+            [disabled]="isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20" />
+            } @else {
+              {{ t('auth.login.submit') }}
+            }
+          </button>
+
+          <!-- Register link -->
+          <p class="register-link">
+            {{ t('auth.login.noAccount') }}
+            <a routerLink="/register">{{ t('auth.login.signUp') }}</a>
+          </p>
+
+        </form>
+      </div>
+    </div>
+  </ng-template>
+</transloco-scope>
