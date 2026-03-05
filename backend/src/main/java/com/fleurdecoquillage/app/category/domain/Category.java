@@ -10,17 +10,19 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "CATEGORIES")
+@Table(name = "CATEGORIES", uniqueConstraints = {
+    @UniqueConstraint(name = "UK_CATEGORY_NAME", columnNames = "name")
+})
 public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
     @OneToMany(mappedBy = "category")

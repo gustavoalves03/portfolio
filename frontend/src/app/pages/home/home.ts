@@ -1,12 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { CaresStore } from '../../features/cares/store/cares.store';
 import { ServiceCardComponent } from '../../shared/uis/service-card/service-card.component';
 import { BookingCalendarComponent } from '../../shared/uis/booking-calendar/booking-calendar.component';
 import { BookingTimesComponent } from '../../shared/uis/booking-times/booking-times.component';
 import { BookingsService } from '../../features/bookings/services/bookings.service';
 import { CareBookingStatus } from '../../features/bookings/models/bookings.model';
+import { AuthService } from '../../core/auth/auth.service';
+import { AuthModalComponent } from '../../shared/modals/auth-modal/auth-modal.component';
 
 interface BookingState {
   selectedDay?: string;
@@ -29,6 +32,8 @@ export class Home {
   readonly caresStore = inject(CaresStore);
   private readonly bookingsService = inject(BookingsService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
 
   // Track booking state for each care
   bookingState = new Map<number, BookingState>();
@@ -88,36 +93,64 @@ export class Home {
   // Confirm booking
   confirmBooking(careId: number): void {
     const state = this.bookingState.get(careId);
-    if (state?.selectedDay && state?.selectedTime) {
-      // Create booking request
-      const bookingRequest = {
-        userId: 1, // TODO: Get from authenticated user (for now hardcoded)
-        careId: careId,
-        quantity: 1,
-        appointmentDate: state.selectedDay, // Format: YYYY-MM-DD
-        appointmentTime: state.selectedTime, // Format: HH:mm
-        status: CareBookingStatus.PENDING
-      };
+    if (!state?.selectedDay || !state?.selectedTime) {
+      return;
+    }
 
-      this.bookingsService.create(bookingRequest).subscribe({
-        next: (booking) => {
-          console.log('Booking created successfully:', booking);
-          this.snackBar.open('Rendez-vous confirmé !', 'Fermer', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-          });
-          // Reset booking state after confirmation
-          this.bookingState.delete(careId);
-        },
-        error: (error) => {
-          console.error('Error creating booking:', error);
-          this.snackBar.open('Erreur lors de la confirmation du rendez-vous', 'Fermer', {
-            duration: 5000,
-            panelClass: ['snackbar-error'],
-          });
+    // Check if user is authenticated
+    if (!this.authService.isAuthenticated()) {
+      // Open authentication modal
+      const dialogRef = this.dialog.open(AuthModalComponent, {
+        width: '500px',
+        disableClose: false
+      });
+
+      dialogRef.afterClosed().subscribe(() => {
+        // After modal closes, check if user is now authenticated
+        if (this.authService.isAuthenticated()) {
+          this.createBooking(careId, state.selectedDay!, state.selectedTime!);
         }
       });
+      return;
     }
+
+    // User is authenticated, proceed with booking
+    this.createBooking(careId, state.selectedDay, state.selectedTime);
+  }
+
+  private createBooking(careId: number, appointmentDate: string, appointmentTime: string): void {
+    const user = this.authService.user();
+    if (!user) {
+      return;
+    }
+
+    const bookingRequest = {
+      userId: user.id,
+      careId: careId,
+      quantity: 1,
+      appointmentDate: appointmentDate,
+      appointmentTime: appointmentTime,
+      status: CareBookingStatus.PENDING
+    };
+
+    this.bookingsService.create(bookingRequest).subscribe({
+      next: (booking) => {
+        console.log('Booking created successfully:', booking);
+        this.snackBar.open('Rendez-vous confirmé !', 'Fermer', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
+        // Reset booking state after confirmation
+        this.bookingState.delete(careId);
+      },
+      error: (error) => {
+        console.error('Error creating booking:', error);
+        this.snackBar.open('Erreur lors de la confirmation du rendez-vous', 'Fermer', {
+          duration: 5000,
+          panelClass: ['snackbar-error'],
+        });
+      }
+    });
   }
 }

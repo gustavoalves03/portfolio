@@ -10,7 +10,36 @@
   },
   "actions": {
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "close": "Close"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "comingSoon": "Coming soon"
+  },
+  "auth": {
+    "modal": {
+      "title": "Sign in to continue",
+      "description": "To confirm your booking, please sign in with one of your accounts.",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithFacebook": "Continue with Facebook",
+      "continueWithApple": "Continue with Apple",
+      "terms": "By signing in, you agree to our terms of service and privacy policy."
+    },
+    "login": {
+      "title": "Admin Login",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Email is not valid",
+      "passwordRequired": "Password is required",
+      "invalidCredentials": "Invalid email or password"
+    }
   },
   "cares": {
     "title": "Cares",

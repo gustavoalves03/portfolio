@@ -13,6 +13,34 @@
     "delete": "Supprimer",
     "close": "Fermer"
   },
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "loading": "Chargement...",
+    "comingSoon": "Bientôt disponible"
+  },
+  "auth": {
+    "modal": {
+      "title": "Connectez-vous pour continuer",
+      "description": "Pour confirmer votre réservation, veuillez vous connecter avec l'un de vos comptes.",
+      "continueWithGoogle": "Continuer avec Google",
+      "continueWithFacebook": "Continuer avec Facebook",
+      "continueWithApple": "Continuer avec Apple",
+      "terms": "En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité."
+    },
+    "login": {
+      "title": "Connexion Administrateur",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter"
+    },
+    "errors": {
+      "emailRequired": "L'e-mail est requis",
+      "emailInvalid": "L'e-mail n'est pas valide",
+      "passwordRequired": "Le mot de passe est requis",
+      "invalidCredentials": "E-mail ou mot de passe incorrect"
+    }
+  },
   "cares": {
     "title": "Prestations",
     "add": "Ajouter",

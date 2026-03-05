@@ -1,0 +1,114 @@
+.auth-modal {
+  min-width: 420px;
+  max-width: 500px;
+  border-radius: 24px;
+
+  @media (max-width: 599px) {
+    min-width: 280px;
+  }
+}
+
+h2 {
+  color: var(--mat-sys-on-surface);
+  margin-bottom: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 1.75rem;
+  text-align: center;
+}
+
+.auth-description {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 1rem 0 2rem 0;
+  line-height: 1.6;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0.25px;
+    border-radius: 50px;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 48px;
+
+    svg {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .google-button {
+    background-color: white;
+    color: rgba(0, 0, 0, 0.87);
+    border: 1.5px solid #e0e0e0;
+
+    &:hover {
+      background-color: #fafafa;
+      border-color: #d0d0d0;
+    }
+  }
+
+  .facebook-button {
+    background-color: #1877f2;
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: #166fe5;
+    }
+  }
+
+  .apple-button {
+    background-color: #000000;
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: #1a1a1a;
+    }
+  }
+}
+
+.auth-terms {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+
+mat-dialog-actions {
+  padding: 1rem 1.5rem;
+}

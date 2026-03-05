@@ -1,0 +1,137 @@
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, tap, catchError, of } from 'rxjs';
+import { User } from './auth.model';
+import { isPlatformBrowser } from '@angular/common';
+
+const TOKEN_KEY = 'auth_token';
+const API_BASE_URL = 'http://localhost:8080';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+
+  // Signals for reactive state
+  private readonly currentUser = signal<User | null>(null);
+  private readonly token = signal<string | null>(null);
+
+  // Computed signals
+  readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  readonly user = this.currentUser.asReadonly();
+
+  constructor() {
+    // Load token from localStorage on init (browser only)
+    if (isPlatformBrowser(this.platformId)) {
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+      if (storedToken) {
+        this.token.set(storedToken);
+        this.loadCurrentUser();
+      }
+    }
+  }
+
+  /**
+   * Login with email and password
+   */
+  loginWithCredentials(email: string, password: string): Observable<User> {
+    return this.http.post<{accessToken: string, user: User}>(`${API_BASE_URL}/api/auth/login`, { email, password }).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.currentUser.set(response.user);
+      }),
+      tap(() => console.log('Login successful')),
+      catchError(error => {
+        console.error('Login failed:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Initiate Google OAuth2 login
+   */
+  loginWithGoogle(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+    }
+  }
+
+  /**
+   * Handle OAuth2 redirect callback with token
+   */
+  handleOAuth2Callback(token: string): Observable<User> {
+    this.setToken(token);
+    return this.loadCurrentUser();
+  }
+
+  /**
+   * Load current user from backend
+   */
+  private loadCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${API_BASE_URL}/api/auth/me`).pipe(
+      tap(user => this.currentUser.set(user)),
+      catchError(error => {
+        console.error('Failed to load user:', error);
+        this.logout();
+        return of(null as any);
+      })
+    );
+  }
+
+  /**
+   * Get current auth token
+   */
+  getToken(): string | null {
+    return this.token();
+  }
+
+  /**
+   * Set auth token
+   */
+  private setToken(newToken: string): void {
+    this.token.set(newToken);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(TOKEN_KEY, newToken);
+    }
+  }
+
+  /**
+   * Logout user
+   */
+  logout(): void {
+    this.token.set(null);
+    this.currentUser.set(null);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+    this.router.navigate(['/']);
+  }
+
+  /**
+   * Check if user is authenticated (for use in guards)
+   */
+  checkAuthentication(): Observable<boolean> {
+    if (!this.token()) {
+      return of(false);
+    }
+
+    if (this.currentUser()) {
+      return of(true);
+    }
+
+    return this.loadCurrentUser().pipe(
+      tap(() => {}),
+      catchError(() => of(false)),
+      tap(success => {
+        if (!success) {
+          this.logout();
+        }
+      })
+    );
+  }
+}

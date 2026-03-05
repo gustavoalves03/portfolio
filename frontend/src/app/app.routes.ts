@@ -8,14 +8,16 @@ import { CaresComponent } from './features/cares/cares.component';
 import { CategoriesComponent } from './features/categories/categories.component';
 import { UsersComponent } from './features/users/users.component';
 import { BookingsComponent } from './features/bookings/bookings.component';
+import { OAuth2RedirectComponent } from './pages/oauth2-redirect/oauth2-redirect.component';
 
 export const routes: Routes = [
-  { path: '', component: Home },            // pas de redirect
+  { path: '', component: Home },
   { path: 'about', component: About },
   { path: 'video-games', component: ListVideoGames },
   { path: 'cares', component: CaresComponent },
   { path: 'categories', component: CategoriesComponent },
   { path: 'users', component: UsersComponent },
   { path: 'bookings', component: BookingsComponent },
-  { path: '**', component: NotFound },      // ou supprime-le si pas encore prêt
+  { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
+  { path: '**', component: NotFound },
 ];

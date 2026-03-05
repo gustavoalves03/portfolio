@@ -14,9 +14,9 @@ import {routes} from './app.routes';
 import {provideClientHydration, withEventReplay} from '@angular/platform-browser';
 import {provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration} from '@angular/common/http';
 import {API_BASE_URL} from './core/config/api-base-url.token';
-import {basicAuthInterceptor} from './core/http/basic-auth.interceptor';
 import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
 import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
+import { authInterceptor } from './core/auth/auth.interceptor';
 import {CsrfService} from './core/security/csrf.service';
 import {provideTransloco} from '@jsverse/transloco';
 import {provideTranslocoLocale} from '@jsverse/transloco-locale';
@@ -30,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     {provide: API_BASE_URL, useValue: 'http://localhost:8080'},
     provideHttpClient(
       withFetch(),
-      withInterceptors([credentialsInterceptor, csrfInterceptor, basicAuthInterceptor]),
+      withInterceptors([credentialsInterceptor, csrfInterceptor, authInterceptor]),
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN',

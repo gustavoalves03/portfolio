@@ -1,8 +1,11 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { BookingsDrawerComponent } from './bookings-drawer/bookings-drawer.component';
+import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +16,8 @@ import { BookingsDrawerComponent } from './bookings-drawer/bookings-drawer.compo
 })
 export class Header {
   protected readonly sidenavService = inject(SidenavService);
+  protected readonly authService = inject(AuthService);
+  protected readonly dialog = inject(MatDialog);
   protected readonly bookingsDrawer = viewChild.required(BookingsDrawerComponent);
 
   protected toggleSidenav(): void {
@@ -21,5 +26,12 @@ export class Header {
 
   protected toggleBookingsDrawer(): void {
     this.bookingsDrawer().toggle();
+  }
+
+  protected openLoginModal(): void {
+    this.dialog.open(LoginModalComponent, {
+      width: '500px',
+      disableClose: false
+    });
   }
 }

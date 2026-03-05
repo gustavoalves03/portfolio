@@ -20,28 +20,29 @@ public class Care {
     private Long id;
 
     @Setter
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Setter
-    @Column(nullable = false)
+    @Column(name = "price", nullable = false)
     private Integer price;
 
     @Setter
-    @Column(nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
     @Setter
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private CareStatus status;
 
     @Setter
-    @Column(nullable = false)
+    @Column(name = "duration", nullable = false)
     private Integer duration;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false,
+                foreignKey = @ForeignKey(name = "FK_CARE_CATEGORY"))
     private Category category;
 
     @OneToMany(mappedBy = "care", cascade = CascadeType.ALL, orphanRemoval = true)
