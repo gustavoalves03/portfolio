@@ -91,6 +91,20 @@ export class AuthService {
   }
 
   /**
+   * Request a password reset email
+   */
+  requestPasswordReset(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/api/auth/forgot-password`, { email });
+  }
+
+  /**
+   * Reset password with token
+   */
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/api/auth/reset-password`, { token, newPassword });
+  }
+
+  /**
    * Load current user from backend
    */
   private loadCurrentUser(): Observable<User> {

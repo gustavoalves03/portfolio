@@ -59,6 +59,26 @@
       "loginLink": "Déjà inscrit ? Se connecter",
       "success": "Compte créé avec succès ! Bienvenue sur Pretty Face."
     },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Entrez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien",
+      "success": "Si un compte existe avec cet e-mail, vous recevrez un lien de réinitialisation. Vérifiez votre boîte de réception.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "resetPassword": {
+      "title": "Choisir un nouveau mot de passe",
+      "subtitle": "Entrez votre nouveau mot de passe ci-dessous.",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "passwordHint": "Au moins 8 caractères",
+      "submit": "Mettre à jour le mot de passe",
+      "success": "Votre mot de passe a été mis à jour avec succès.",
+      "goToLogin": "Se connecter avec le nouveau mot de passe",
+      "invalidToken": "Ce lien de réinitialisation est invalide ou a expiré.",
+      "requestNewLink": "Demander un nouveau lien"
+    },
     "errors": {
       "emailRequired": "L'e-mail est requis",
       "emailInvalid": "L'e-mail n'est pas valide",
@@ -68,7 +88,8 @@
       "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
       "nameRequired": "Le nom est requis",
       "oauthFailed": "La connexion avec Google a échoué. Veuillez réessayer.",
-      "networkError": "Erreur réseau. Vérifiez votre connexion."
+      "networkError": "Erreur réseau. Vérifiez votre connexion.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas"
     }
   },
   "cares": {

@@ -59,6 +59,26 @@
       "loginLink": "Already registered? Sign in",
       "success": "Account created successfully! Welcome to Pretty Face."
     },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email address and we'll send you a reset link.",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "success": "If an account exists with this email, you will receive a reset link. Please check your inbox.",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "subtitle": "Enter your new password below.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordHint": "At least 8 characters",
+      "submit": "Update password",
+      "success": "Your password has been updated successfully.",
+      "goToLogin": "Sign in with your new password",
+      "invalidToken": "This reset link is invalid or has expired.",
+      "requestNewLink": "Request a new reset link"
+    },
     "errors": {
       "emailRequired": "Email is required",
       "emailInvalid": "Email is not valid",
@@ -68,7 +88,8 @@
       "passwordTooShort": "Password must be at least 8 characters",
       "nameRequired": "Name is required",
       "oauthFailed": "Google sign-in failed. Please try again.",
-      "networkError": "Network error. Please check your connection."
+      "networkError": "Network error. Please check your connection.",
+      "passwordMismatch": "Passwords do not match"
     }
   },
   "cares": {

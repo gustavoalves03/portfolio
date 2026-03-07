@@ -10,6 +10,7 @@ import com.fleurdecoquillage.app.users.domain.Role;
 import com.fleurdecoquillage.app.users.domain.User;
 import com.fleurdecoquillage.app.users.repo.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,7 +19,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -146,5 +152,105 @@ class AuthControllerTests {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors").isArray());
+    }
+
+    // --- Forgot Password ---
+
+    @Test
+    void forgotPassword_existingEmail_returns200() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+
+        verify(emailService).sendPasswordResetEmail(any(User.class), anyString());
+    }
+
+    @Test
+    void forgotPassword_unknownEmail_returns200NoEmail() throws Exception {
+        when(userRepository.findByEmail("unknown@salon.fr")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"unknown@salon.fr\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+
+        verify(emailService, never()).sendPasswordResetEmail(any(), anyString());
+    }
+
+    @Test
+    void forgotPassword_existingValidToken_skipsEmail() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO)
+                .passwordResetToken("existing-token")
+                .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\"}"))
+                .andExpect(status().isOk());
+
+        verify(emailService, never()).sendPasswordResetEmail(any(), anyString());
+        verify(userRepository, never()).save(any());
+    }
+
+    // --- Reset Password ---
+
+    @Test
+    void resetPassword_validToken_updatesPassword() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO)
+                .passwordResetToken("valid-token")
+                .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
+                .build();
+        when(userRepository.findByPasswordResetToken("valid-token")).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode("newpassword123")).thenReturn("$2a$encoded");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"valid-token\",\"newPassword\":\"newpassword123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").exists());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getPassword()).isEqualTo("$2a$encoded");
+        assertThat(captor.getValue().getPasswordResetToken()).isNull();
+        assertThat(captor.getValue().getPasswordResetTokenExpiresAt()).isNull();
+    }
+
+    @Test
+    void resetPassword_expiredToken_returns400() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO)
+                .passwordResetToken("expired-token")
+                .passwordResetTokenExpiresAt(Instant.now().minusSeconds(60))
+                .build();
+        when(userRepository.findByPasswordResetToken("expired-token")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"expired-token\",\"newPassword\":\"newpassword123\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void resetPassword_invalidToken_returns400() throws Exception {
+        when(userRepository.findByPasswordResetToken("bogus")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"bogus\",\"newPassword\":\"newpassword123\"}"))
+                .andExpect(status().isBadRequest());
     }
 }

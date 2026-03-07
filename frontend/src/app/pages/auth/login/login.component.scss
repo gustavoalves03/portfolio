@@ -90,6 +90,18 @@
   height: 44px;
 }
 
+.forgot-password-link {
+  text-align: right;
+  margin: -4px 0 8px;
+  font-size: 13px;
+
+  a {
+    color: #e91e63;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
 .register-link {
   text-align: center;
   font-size: 13px;

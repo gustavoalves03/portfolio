@@ -59,4 +59,28 @@ public class EmailService {
             logger.error("Failed to send welcome email to {}: {}", user.getEmail(), e.getMessage());
         }
     }
+
+    @Async
+    public void sendPasswordResetEmail(User user, String resetToken) {
+        try {
+            Context ctx = new Context();
+            ctx.setVariable("userName", user.getName());
+            ctx.setVariable("resetUrl", frontendBaseUrl + "/reset-password?token=" + resetToken);
+
+            String htmlContent = templateEngine.process("password-reset", ctx);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress, fromName);
+            helper.setTo(user.getEmail());
+            helper.setSubject("Reset your password / Réinitialiser votre mot de passe");
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Password reset email sent to {}", user.getEmail());
+
+        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+            logger.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
+        }
+    }
 }
