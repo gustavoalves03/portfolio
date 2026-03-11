@@ -66,6 +66,11 @@
         <div class="error-banner">{{ 'auth.errors.invalidCredentials' | transloco }}</div>
       }
 
+      <!-- Account locked error -->
+      @if (accountLockedError) {
+        <div class="error-banner">{{ 'auth.errors.accountLocked' | transloco: { minutes: lockoutMinutes } }}</div>
+      }
+
       <!-- Network error -->
       @if (networkError) {
         <div class="error-banner">{{ 'auth.errors.networkError' | transloco }}</div>

@@ -32,12 +32,26 @@
       <!-- Right: actions rapides -->
       <div class="flex items-center justify-end gap-1">
         @if (authService.isAuthenticated()) {
-          <a routerLink="/profile" aria-label="Profil"
-             class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300">
+          <button
+            type="button"
+            [matMenuTriggerFor]="userMenu"
+            [attr.aria-label]="'auth.userMenu.ariaLabel' | transloco"
+            class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300 transition-colors duration-150">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.5 0-8 2.3-8 5v1h16v-1c0-2.7-3.5-5-8-5Z"/>
             </svg>
-          </a>
+          </button>
+          <mat-menu #userMenu="matMenu">
+            <div class="px-4 py-2 text-sm text-neutral-500 border-b">
+              {{ authService.user()?.name }}
+            </div>
+            <button mat-menu-item routerLink="/pro/dashboard">
+              {{ 'auth.userMenu.dashboard' | transloco }}
+            </button>
+            <button mat-menu-item (click)="logout()">
+              {{ 'auth.userMenu.logout' | transloco }}
+            </button>
+          </mat-menu>
         } @else {
           <button
             type="button"

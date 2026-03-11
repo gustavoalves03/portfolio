@@ -1,6 +1,9 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { BookingsDrawerComponent } from './bookings-drawer/bookings-drawer.component';
@@ -10,7 +13,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, SidenavOverlay, BookingsDrawerComponent],
+  imports: [RouterLink, SidenavOverlay, BookingsDrawerComponent, MatMenuModule, MatButtonModule, TranslocoPipe],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
@@ -33,5 +36,9 @@ export class Header {
       width: '500px',
       disableClose: false
     });
+  }
+
+  protected logout(): void {
+    this.authService.logout();
   }
 }

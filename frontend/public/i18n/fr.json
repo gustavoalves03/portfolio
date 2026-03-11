@@ -79,6 +79,13 @@
       "invalidToken": "Ce lien de réinitialisation est invalide ou a expiré.",
       "requestNewLink": "Demander un nouveau lien"
     },
+    "logout": "Déconnexion",
+    "userMenu": {
+      "ariaLabel": "Menu utilisateur",
+      "greeting": "Bonjour, {{name}}",
+      "dashboard": "Tableau de bord",
+      "logout": "Se déconnecter"
+    },
     "errors": {
       "emailRequired": "L'e-mail est requis",
       "emailInvalid": "L'e-mail n'est pas valide",
@@ -89,7 +96,9 @@
       "nameRequired": "Le nom est requis",
       "oauthFailed": "La connexion avec Google a échoué. Veuillez réessayer.",
       "networkError": "Erreur réseau. Vérifiez votre connexion.",
-      "passwordMismatch": "Les mots de passe ne correspondent pas"
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "accountLocked": "Compte temporairement bloqué. Réessayez dans {{minutes}} minute(s).",
+      "tooManyAttempts": "Trop de tentatives de connexion. Veuillez patienter."
     }
   },
   "cares": {
@@ -135,6 +144,11 @@
       "id": "ID",
       "name": "Nom",
       "email": "Email"
+    }
+  },
+  "pro": {
+    "dashboard": {
+      "title": "Tableau de bord"
     }
   }
 }

@@ -13,6 +13,7 @@ import { OAuth2RedirectComponent } from './pages/auth/oauth2-redirect/oauth2-red
 import { RegisterComponent } from './pages/auth/register/register.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -27,5 +28,16 @@ export const routes: Routes = [
   { path: 'users', component: UsersComponent },
   { path: 'bookings', component: BookingsComponent },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
+  {
+    path: 'pro',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./pages/pro/pro-dashboard.component').then(m => m.ProDashboardComponent),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    ],
+  },
   { path: '**', component: NotFound },
 ];

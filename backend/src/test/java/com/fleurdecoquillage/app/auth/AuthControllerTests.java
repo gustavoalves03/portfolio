@@ -253,4 +253,88 @@ class AuthControllerTests {
                         .content("{\"token\":\"bogus\",\"newPassword\":\"newpassword123\"}"))
                 .andExpect(status().isBadRequest());
     }
+
+    // --- Brute Force Protection ---
+
+    @Test
+    void login_lockedAccount_returns423() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(5)
+                .accountLockedUntil(Instant.now().plusSeconds(900))
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"password123\"}"))
+                .andExpect(status().isLocked())
+                .andExpect(jsonPath("$.error").value("ACCOUNT_LOCKED"))
+                .andExpect(jsonPath("$.retryAfterSeconds").isNumber());
+
+        verify(passwordEncoder, never()).matches(any(), any());
+    }
+
+    @Test
+    void login_fifthFailedAttempt_locksAccount() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(4)
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "$2a$encoded")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(5);
+        assertThat(captor.getValue().getAccountLockedUntil()).isNotNull();
+    }
+
+    @Test
+    void login_successResetsFailedAttempts() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(3)
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
+        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"password123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("jwt-token"));
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(0);
+        assertThat(captor.getValue().getAccountLockedUntil()).isNull();
+    }
+
+    @Test
+    void login_expiredLockout_allowsLogin() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(5)
+                .accountLockedUntil(Instant.now().minusSeconds(60))
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
+        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"password123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("jwt-token"));
+    }
 }

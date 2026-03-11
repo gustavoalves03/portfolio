@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -84,12 +85,36 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
+        // Check if account is locked
+        if (user.getAccountLockedUntil() != null && user.getAccountLockedUntil().isAfter(Instant.now())) {
+            long retryAfterSeconds = Duration.between(Instant.now(), user.getAccountLockedUntil()).getSeconds();
+            return ResponseEntity.status(HttpStatus.LOCKED)
+                    .body(Map.of(
+                            "error", "ACCOUNT_LOCKED",
+                            "message", "Account temporarily locked. Try again later.",
+                            "retryAfterSeconds", retryAfterSeconds
+                    ));
+        }
+
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            int attempts = user.getFailedLoginAttempts() + 1;
+            user.setFailedLoginAttempts(attempts);
+            if (attempts >= 5) {
+                user.setAccountLockedUntil(Instant.now().plusSeconds(900)); // 15 minutes
+            }
+            userRepository.save(user);
             throw new BadCredentialsException("Invalid email or password");
+        }
+
+        // Reset failed attempts on successful login
+        if (user.getFailedLoginAttempts() > 0 || user.getAccountLockedUntil() != null) {
+            user.setFailedLoginAttempts(0);
+            user.setAccountLockedUntil(null);
+            userRepository.save(user);
         }
 
         String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
