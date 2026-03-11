@@ -29,16 +29,67 @@
       "terms": "By signing in, you agree to our terms of service and privacy policy."
     },
     "login": {
-      "title": "Admin Login",
+      "title": "Sign In",
+      "subtitle": "Access your professional space",
       "email": "Email address",
       "password": "Password",
-      "submit": "Sign in"
+      "submit": "Sign in",
+      "googleButton": "Continue with Google",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account yet?",
+      "signUp": "Sign up",
+      "orDivider": "or",
+      "loading": "Signing in..."
+    },
+    "oauth2": {
+      "redirecting": "Signing in with Google...",
+      "success": "Successfully signed in!",
+      "error": "Google sign-in failed"
+    },
+    "register": {
+      "title": "Create your professional space",
+      "subtitle": "Join Pretty Face and grow your business",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "consent": "I accept the <a href='/tos' target='_blank'>Terms of Service</a> and <a href='/privacy' target='_blank'>Privacy Policy</a>",
+      "consentRequired": "You must accept the terms to continue",
+      "submit": "Create my account",
+      "loginLink": "Already registered? Sign in",
+      "success": "Account created successfully! Welcome to Pretty Face."
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email address and we'll send you a reset link.",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "success": "If an account exists with this email, you will receive a reset link. Please check your inbox.",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "subtitle": "Enter your new password below.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordHint": "At least 8 characters",
+      "submit": "Update password",
+      "success": "Your password has been updated successfully.",
+      "goToLogin": "Sign in with your new password",
+      "invalidToken": "This reset link is invalid or has expired.",
+      "requestNewLink": "Request a new reset link"
     },
     "errors": {
       "emailRequired": "Email is required",
       "emailInvalid": "Email is not valid",
       "passwordRequired": "Password is required",
-      "invalidCredentials": "Invalid email or password"
+      "invalidCredentials": "Invalid email or password",
+      "emailAlreadyInUse": "This email address is already in use",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "nameRequired": "Name is required",
+      "oauthFailed": "Google sign-in failed. Please try again.",
+      "networkError": "Network error. Please check your connection.",
+      "passwordMismatch": "Passwords do not match"
     }
   },
   "cares": {

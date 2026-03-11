@@ -8,11 +8,19 @@ import { CaresComponent } from './features/cares/cares.component';
 import { CategoriesComponent } from './features/categories/categories.component';
 import { UsersComponent } from './features/users/users.component';
 import { BookingsComponent } from './features/bookings/bookings.component';
-import { OAuth2RedirectComponent } from './pages/oauth2-redirect/oauth2-redirect.component';
+import { LoginComponent } from './pages/auth/login/login.component';
+import { OAuth2RedirectComponent } from './pages/auth/oauth2-redirect/oauth2-redirect.component';
+import { RegisterComponent } from './pages/auth/register/register.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'about', component: About },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'video-games', component: ListVideoGames },
   { path: 'cares', component: CaresComponent },
   { path: 'categories', component: CategoriesComponent },

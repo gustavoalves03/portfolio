@@ -46,9 +46,18 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
+    @Column(name = "password_reset_token", unique = true)
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expires_at")
+    private java.time.Instant passwordResetTokenExpiresAt;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role = Role.USER;
+
+    @Column(name = "consent_given_at")
+    private LocalDateTime consentGivenAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

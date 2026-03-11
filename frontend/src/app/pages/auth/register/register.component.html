@@ -1,0 +1,78 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <h1 class="register-title">{{ 'auth.register.title' | transloco }}</h1>
+      <p class="register-subtitle">{{ 'auth.register.subtitle' | transloco }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="register-form">
+
+      <!-- Name field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'auth.register.name' | transloco }}</mat-label>
+        <input matInput formControlName="name" type="text" autocomplete="name" />
+        @if (nameControl?.invalid && nameControl?.touched) {
+          <mat-error>{{ 'auth.errors.nameRequired' | transloco }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Email field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'auth.register.email' | transloco }}</mat-label>
+        <input matInput formControlName="email" type="email" autocomplete="email" />
+        @if (emailControl?.hasError('required') && emailControl?.touched) {
+          <mat-error>{{ 'auth.errors.emailRequired' | transloco }}</mat-error>
+        }
+        @if (emailControl?.hasError('email') && emailControl?.touched) {
+          <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
+        }
+        @if (emailConflictError) {
+          <mat-error>{{ 'auth.errors.emailAlreadyInUse' | transloco }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Password field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>
+        <input matInput formControlName="password" type="password" autocomplete="new-password" />
+        <mat-hint>{{ 'auth.register.passwordHint' | transloco }}</mat-hint>
+        @if (passwordControl?.hasError('required') && passwordControl?.touched) {
+          <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
+        }
+        @if (passwordControl?.hasError('minlength') && passwordControl?.touched) {
+          <mat-error>{{ 'auth.errors.passwordTooShort' | transloco }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Consent checkbox (RGPD) -->
+      <div class="consent-field">
+        <mat-checkbox formControlName="consent" color="primary">
+          <span [innerHTML]="'auth.register.consent' | transloco"></span>
+        </mat-checkbox>
+        @if (consentControl?.invalid && consentControl?.touched) {
+          <mat-error class="consent-error">{{ 'auth.register.consentRequired' | transloco }}</mat-error>
+        }
+      </div>
+
+      <!-- Submit button -->
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        class="submit-btn full-width"
+        [disabled]="isLoading">
+        @if (isLoading) {
+          <mat-spinner diameter="20" />
+        } @else {
+          {{ 'auth.register.submit' | transloco }}
+        }
+      </button>
+
+      <!-- Login link -->
+      <p class="login-link">
+        <a routerLink="/login">{{ 'auth.register.loginLink' | transloco }}</a>
+      </p>
+
+    </form>
+  </div>
+</div>

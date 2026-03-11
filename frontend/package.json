@@ -23,6 +23,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.1.7",
     "@angular/cdk": "^20.2.3",
     "@angular/common": "~20.1.6",
     "@angular/compiler": "~20.1.6",
@@ -33,6 +34,7 @@
     "@angular/platform-server": "~20.1.6",
     "@angular/router": "~20.1.6",
     "@angular/ssr": "~20.1.6",
+    "@jsverse/transloco": "^8.0.1",
     "@jsverse/transloco-locale": "^8.0.2",
     "@ngrx/signals": "^20.0.0",
     "express": "^5.1.0",

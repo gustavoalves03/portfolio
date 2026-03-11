@@ -1,5 +1,9 @@
 ---
-stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-02c-executive-summary', 'step-03-success', 'step-04-journeys', 'step-05-domain-skipped', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional']
+stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-02b-vision', 'step-02c-executive-summary', 'step-03-success', 'step-04-journeys', 'step-05-domain-skipped', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional', 'step-v-validate', 'step-e-01-discovery', 'step-e-02-review', 'step-e-03-edit']
+lastEdited: '2026-03-05'
+editHistory:
+  - date: '2026-03-05'
+    changes: 'Added NFR section (11 NFRs), Subscription Tiers, RGPD/Data Compliance, refined FR52, added Calendar Sync to Sophie journey'
 vision:
   statement: "Donner aux professionnels de la beauté indépendants les outils pro qu'ils méritent, sans le prix pro qui les étouffe."
   keyInsight: "Le moment où un pro de la beauté se lance seul, c'est le moment où il a le PLUS besoin d'outils — et le MOINS de moyens pour les payer."
@@ -158,8 +162,9 @@ Pretty Face est une plateforme SaaS multi-tenant qui permet aux professionnels d
 1. **Inscription (5 min)** — Crée son compte, entre le nom de son institut, upload son logo
 2. **Configuration vitrine (15 min)** — Ajoute ses prestations (soin visage 45€/1h, épilation 25€/30min...), configure ses horaires de disponibilité
 3. **Partage** — Met le lien Pretty Face sur son Instagram : "Réservez directement ici !"
-4. **Quotidien** — Chaque matin, ouvre l'app, voit ses RDV du jour déjà confirmés. Zéro message à envoyer.
-5. **Moment "wow"** — Après 1 mois, elle consulte son dashboard : "32 réservations ce mois, +15% vs mois dernier". Elle réalise qu'elle construit quelque chose.
+4. **Sync calendrier (1 clic)** — Connecte son Google Calendar : ses RDV Pretty Face apparaissent automatiquement dans son agenda personnel. Elle ne gère plus deux outils séparés.
+5. **Quotidien** — Chaque matin, ouvre l'app, voit ses RDV du jour déjà confirmés. Zéro message à envoyer.
+6. **Moment "wow"** — Après 1 mois, elle consulte son dashboard : "32 réservations ce mois, +15% vs mois dernier". Elle réalise qu'elle construit quelque chose.
 
 **Transformation :** De "je réponds aux messages" → "je consulte mon planning et mes stats"
 
@@ -341,6 +346,20 @@ Pretty Face est un SaaS B2B multi-tenant destiné aux professionnels de la beaut
 | **Stripe** | Paiements intégrés | Growth |
 | **SMS (Twilio)** | Rappels SMS | Optionnel |
 
+### Data & Compliance (RGPD)
+
+Pretty Face traite des données personnelles d'utilisateurs européens (prénom, email, historique RDV). Les exigences RGPD suivantes s'appliquent dès le MVP.
+
+| Exigence | Description | Phase |
+|----------|-------------|-------|
+| **Consentement** | Recueil du consentement explicite lors de l'inscription (cases à cocher distinctes : CGU, politique de confidentialité) | MVP |
+| **Droit d'accès** | Un utilisateur peut télécharger l'ensemble de ses données personnelles en moins de 30 jours après demande | MVP |
+| **Droit à l'effacement** | Un utilisateur peut supprimer son compte et toutes ses données associées (RDV, profil, historique) | MVP |
+| **Rétention des données** | Les données RDV sont conservées 3 ans après la date du RDV (obligation comptable) ; les données de compte supprimé sont purgées sous 30 jours | MVP |
+| **Cookies** | Bannière de consentement cookies affichée à la première visite ; cookies analytiques opt-in uniquement | MVP |
+| **Portabilité** | Export des données client au format JSON ou CSV sur demande | Post-MVP |
+| **DPO** | Pas de DPO requis à ce stade (traitement non massif, non sensible) — à réévaluer au-delà de 1 000 utilisateurs actifs | Post-MVP |
+
 ### Technical Architecture Considerations
 
 - **Backend :** Spring Boot 3.5 avec Spring Security OAuth2
@@ -348,6 +367,25 @@ Pretty Face est un SaaS B2B multi-tenant destiné aux professionnels de la beaut
 - **Database :** Oracle avec schémas multiples (multi-tenant)
 - **Auth :** OAuth2 (Google, Facebook, Apple) + credentials classiques
 - **Notifications :** Service email pour confirmations et rappels
+
+### Subscription Tiers
+
+**Modèle :** Post to Play — accès gratuit conditionné à une activité de contenu régulière.
+
+| Dimension | Tier Gratuit (Free) | Tier Premium (à définir) |
+|-----------|---------------------|--------------------------|
+| **Accès** | Toutes les fonctionnalités MVP | Fonctionnalités Growth + futures |
+| **Condition** | Minimum 3 posts/semaine sur le feed | Aucune condition de contenu |
+| **Grâce** | 7 jours sans poster avant suspension de visibilité sur le feed | N/A |
+| **Suspension** | Vitrine toujours accessible ; disparition du feed principal uniquement | N/A |
+| **Prix** | Gratuit | À définir (phase Growth) |
+| **Cible** | Pros en démarrage | Pros établis souhaitant visibilité sans contrainte |
+
+**Règles de transition :**
+- Free → suspension feed : après 7 jours consécutifs sans post
+- Suspension → réactivation : dès le premier post publié
+- Free → Premium : upgrade manuel via interface (phase Growth)
+- Premium → Free : downgrade possible, règle de contenu réappliquée
 
 ### Implementation Considerations
 
@@ -501,7 +539,7 @@ Pretty Face est un SaaS B2B multi-tenant destiné aux professionnels de la beaut
 - **FR49:** Un professionnel peut voir le nombre de réservations du mois en cours
 - **FR50:** Un professionnel peut voir l'évolution de son CA mois par mois
 - **FR51:** Un professionnel peut voir l'évolution de ses réservations mois par mois
-- **FR52:** Un professionnel peut voir un indicateur de progression par rapport au mois précédent
+- **FR52:** Un professionnel peut voir son taux de progression en pourcentage (CA et nombre de réservations) par rapport au mois précédent
 
 ### Multi-Tenancy
 
@@ -509,3 +547,31 @@ Pretty Face est un SaaS B2B multi-tenant destiné aux professionnels de la beaut
 - **FR54:** Un professionnel ne peut accéder qu'aux données de son propre salon
 - **FR55:** Un client peut réserver auprès de plusieurs salons différents
 - **FR56:** Le système crée automatiquement un nouveau schéma lors de l'inscription d'un salon
+
+## Non-Functional Requirements
+
+### Disponibilité
+
+- **NFR1:** Le système maintient une disponibilité ≥ 99,5 % pendant les heures de réservation (8h–20h, heure locale) mesurée par monitoring cloud mensuel
+- **NFR2:** Le temps de rétablissement après incident (RTO) est inférieur à 30 minutes pour les incidents critiques (interruption du service de réservation)
+
+### Performance
+
+- **NFR3:** Les pages vitrine client se chargent en moins de 2 secondes au P95 sur une connexion 4G mobile, mesurées par Lighthouse en conditions réelles
+- **NFR4:** Les appels API de réservation (création, confirmation) répondent en moins de 500 ms au P95 sous charge normale (≤ 50 requêtes/min)
+- **NFR5:** Le dashboard pro se charge en moins de 3 secondes au P95 avec jusqu'à 500 réservations historiques, mesuré par APM
+
+### Sécurité
+
+- **NFR6:** Les données clients (nom, email, historique RDV) sont chiffrées au repos (AES-256) et en transit (TLS 1.2+), conformément aux pratiques standard SaaS
+- **NFR7:** L'authentification OAuth2 utilise des tokens à durée de vie limitée (access token ≤ 1h, refresh token ≤ 30 jours) avec rotation automatique
+- **NFR8:** Toute tentative de connexion échouée est limitée à 5 essais consécutifs avant blocage temporaire de 15 minutes (protection brute-force)
+
+### Isolation Multi-Tenant
+
+- **NFR9:** Zéro fuite de données entre tenants : aucune requête ne peut accéder aux données d'un autre schéma salon, vérifié par tests d'isolation automatisés à chaque déploiement
+- **NFR10:** La création d'un nouveau schéma tenant se complète en moins de 10 secondes lors de l'inscription d'un salon
+
+### Scalabilité
+
+- **NFR11:** L'architecture supporte la montée à 100 salons actifs simultanément sans dégradation des SLAs de performance définis ci-dessus, validée par tests de charge

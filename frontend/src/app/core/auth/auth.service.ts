@@ -1,12 +1,12 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, map } from 'rxjs';
 import { User } from './auth.model';
 import { isPlatformBrowser } from '@angular/common';
+import { API_BASE_URL } from '../config/api-base-url.token';
 
 const TOKEN_KEY = 'auth_token';
-const API_BASE_URL = 'http://localhost:8080';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +15,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
 
   // Signals for reactive state
   private readonly currentUser = signal<User | null>(null);
@@ -36,14 +37,34 @@ export class AuthService {
   }
 
   /**
-   * Login with email and password
+   * Register a new beauty professional with email and password
    */
-  loginWithCredentials(email: string, password: string): Observable<User> {
-    return this.http.post<{accessToken: string, user: User}>(`${API_BASE_URL}/api/auth/login`, { email, password }).pipe(
+  registerPro(name: string, email: string, password: string): Observable<User> {
+    return this.http.post<{accessToken: string, user: User}>(
+      `${this.apiBaseUrl}/api/auth/register`,
+      { name, email, password }
+    ).pipe(
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
       }),
+      map(response => response.user),
+      catchError(error => {
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Login with email and password
+   */
+  loginWithCredentials(email: string, password: string): Observable<User> {
+    return this.http.post<{accessToken: string, user: User}>(`${this.apiBaseUrl}/api/auth/login`, { email, password }).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.currentUser.set(response.user);
+      }),
+      map(response => response.user),
       tap(() => console.log('Login successful')),
       catchError(error => {
         console.error('Login failed:', error);
@@ -57,7 +78,7 @@ export class AuthService {
    */
   loginWithGoogle(): void {
     if (isPlatformBrowser(this.platformId)) {
-      window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+      window.location.href = `${this.apiBaseUrl}/oauth2/authorization/google`;
     }
   }
 
@@ -70,10 +91,24 @@ export class AuthService {
   }
 
   /**
+   * Request a password reset email
+   */
+  requestPasswordReset(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/api/auth/forgot-password`, { email });
+  }
+
+  /**
+   * Reset password with token
+   */
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBaseUrl}/api/auth/reset-password`, { token, newPassword });
+  }
+
+  /**
    * Load current user from backend
    */
   private loadCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${API_BASE_URL}/api/auth/me`).pipe(
+    return this.http.get<User>(`${this.apiBaseUrl}/api/auth/me`).pipe(
       tap(user => this.currentUser.set(user)),
       catchError(error => {
         console.error('Failed to load user:', error);
@@ -125,9 +160,9 @@ export class AuthService {
     }
 
     return this.loadCurrentUser().pipe(
-      tap(() => {}),
+      map(() => true),
       catchError(() => of(false)),
-      tap(success => {
+      tap((success: boolean) => {
         if (!success) {
           this.logout();
         }

@@ -7,7 +7,9 @@ import com.fleurdecoquillage.app.auth.OAuth2AuthenticationSuccessHandler;
 import com.fleurdecoquillage.app.auth.TokenService;
 import com.fleurdecoquillage.app.common.error.RestAccessDeniedHandler;
 import com.fleurdecoquillage.app.common.error.RestAuthenticationEntryPoint;
+import com.fleurdecoquillage.app.multitenancy.TenantFilter;
 import com.fleurdecoquillage.app.users.repo.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,11 +30,15 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
 @Configuration
 public class SecurityConfig {
+
+    @Value("${app.cors.allowed-origins:http://localhost:4300,http://localhost:4200}")
+    private String allowedOriginsConfig;
 
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
@@ -42,6 +48,7 @@ public class SecurityConfig {
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final TenantFilter tenantFilter;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
                           RestAuthenticationEntryPoint authenticationEntryPoint,
@@ -50,7 +57,8 @@ public class SecurityConfig {
                           OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
                           OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
                           TokenService tokenService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          TenantFilter tenantFilter) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
@@ -59,6 +67,7 @@ public class SecurityConfig {
         this.oAuth2AuthenticationFailureHandler = oAuth2AuthenticationFailureHandler;
         this.tokenService = tokenService;
         this.userRepository = userRepository;
+        this.tenantFilter = tenantFilter;
     }
 
     @Bean
@@ -97,8 +106,9 @@ public class SecurityConfig {
         };
 
         http
-                // Add JWT authentication filter
+                // Add JWT authentication filter, then tenant resolution filter
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
@@ -106,7 +116,7 @@ public class SecurityConfig {
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     var c = new CorsConfiguration();
-                    c.setAllowedOrigins(List.of("http://localhost:4300", "http://localhost:4200"));
+                    c.setAllowedOrigins(Arrays.asList(allowedOriginsConfig.split(",")));
                     c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
                     c.setAllowedHeaders(List.of("*"));
                     c.setAllowCredentials(true);
@@ -130,6 +140,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
+                        // Pro-only endpoints (salon management)
+                        .requestMatchers("/api/pro/**").hasAnyRole("PRO", "ADMIN")
                         // User endpoints (bookings, profile)
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers("/api/**").authenticated()
