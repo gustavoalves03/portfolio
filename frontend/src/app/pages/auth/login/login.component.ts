@@ -41,6 +41,8 @@ export class LoginComponent {
   isLoading = false;
   invalidCredentialsError = false;
   networkError = false;
+  accountLockedError = false;
+  lockoutMinutes = 0;
   // Read OAuth error passed via router state from OAuth2RedirectComponent
   oauthError: string | null = (() => {
     const nav = this.router.getCurrentNavigation();
@@ -59,6 +61,7 @@ export class LoginComponent {
     this.isLoading = true;
     this.invalidCredentialsError = false;
     this.networkError = false;
+    this.accountLockedError = false;
     this.oauthError = null;
 
     const { email, password } = this.form.value;
@@ -70,7 +73,10 @@ export class LoginComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;
-        if (err.status === 401 || err.status === 403) {
+        if (err.status === 423) {
+          this.accountLockedError = true;
+          this.lockoutMinutes = Math.ceil((err.error?.retryAfterSeconds ?? 900) / 60);
+        } else if (err.status === 401 || err.status === 403) {
           this.invalidCredentialsError = true;
         } else {
           this.networkError = true;
