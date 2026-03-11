@@ -79,6 +79,13 @@
       "invalidToken": "This reset link is invalid or has expired.",
       "requestNewLink": "Request a new reset link"
     },
+    "logout": "Sign out",
+    "userMenu": {
+      "ariaLabel": "User menu",
+      "greeting": "Hello, {{name}}",
+      "dashboard": "Dashboard",
+      "logout": "Sign out"
+    },
     "errors": {
       "emailRequired": "Email is required",
       "emailInvalid": "Email is not valid",
@@ -89,7 +96,9 @@
       "nameRequired": "Name is required",
       "oauthFailed": "Google sign-in failed. Please try again.",
       "networkError": "Network error. Please check your connection.",
-      "passwordMismatch": "Passwords do not match"
+      "passwordMismatch": "Passwords do not match",
+      "accountLocked": "Account temporarily locked. Try again in {{minutes}} minute(s).",
+      "tooManyAttempts": "Too many login attempts. Please wait."
     }
   },
   "cares": {
@@ -131,6 +140,11 @@
       "id": "ID",
       "name": "Name",
       "email": "Email"
+    }
+  },
+  "pro": {
+    "dashboard": {
+      "title": "Dashboard"
     }
   }
 }
