@@ -52,6 +52,12 @@ public class User {
     @Column(name = "password_reset_token_expires_at")
     private java.time.Instant passwordResetTokenExpiresAt;
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "account_locked_until")
+    private java.time.Instant accountLockedUntil;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role = Role.USER;
