@@ -1,0 +1,120 @@
+# generated: 2026-03-05
+# project: Pretty Face
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-03-05
+project: Pretty Face
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ============================================================
+  # Epic 1: Salon Registration & Multi-Tenant Setup
+  # ============================================================
+  epic-1: in-progress
+  1-1-professional-registration-with-email-password: done
+  1-2-professional-login-with-oauth2-google: review
+  1-3-password-reset-via-email: backlog
+  1-4-pro-logout-and-session-security: backlog
+  epic-1-retrospective: optional
+
+  # ============================================================
+  # Epic 2: Salon Storefront Configuration
+  # ============================================================
+  epic-2: backlog
+  2-1-salon-profile-setup: backlog
+  2-2-service-category-management: backlog
+  2-3-service-creation-and-management: backlog
+  2-4-service-photo-upload: backlog
+  2-5-service-activation-deactivation-and-display-order: backlog
+  epic-2-retrospective: optional
+
+  # ============================================================
+  # Epic 3: Public Storefront & Client Discovery
+  # ============================================================
+  epic-3: backlog
+  3-1-pretty-face-landing-page: backlog
+  3-2-salon-discovery-by-category: backlog
+  3-3-public-salon-storefront-page: backlog
+  epic-3-retrospective: optional
+
+  # ============================================================
+  # Epic 4: Availability Management
+  # ============================================================
+  epic-4: backlog
+  4-1-weekly-opening-hours-configuration: backlog
+  4-2-block-and-unblock-specific-time-slots: backlog
+  4-3-day-cancellation-illness-and-emergency: backlog
+  epic-4-retrospective: optional
+
+  # ============================================================
+  # Epic 5: Client Account & Online Booking
+  # ============================================================
+  epic-5: backlog
+  5-1-client-registration-with-email-password: backlog
+  5-2-client-login-with-oauth2-google: backlog
+  5-3-available-slot-selection: backlog
+  5-4-booking-confirmation: backlog
+  5-5-booking-reminder-email: backlog
+  epic-5-retrospective: optional
+
+  # ============================================================
+  # Epic 6: Appointment Management (Client & Pro)
+  # ============================================================
+  epic-6: backlog
+  6-1-client-appointment-history: backlog
+  6-2-client-appointment-cancellation: backlog
+  6-3-client-appointment-rescheduling: backlog
+  6-4-pro-daily-appointment-view: backlog
+  6-5-pro-calendar-view-week-and-month: backlog
+  6-6-pro-appointment-cancellation-with-client-notification: backlog
+  epic-6-retrospective: optional
+
+  # ============================================================
+  # Epic 7: Calendar Synchronization
+  # ============================================================
+  epic-7: backlog
+  7-1-ical-export-and-calendar-subscription-url: backlog
+  7-2-automatic-calendar-sync-on-booking-changes: backlog
+  epic-7-retrospective: optional
+
+  # ============================================================
+  # Epic 8: Pro Dashboard & Statistics
+  # ============================================================
+  epic-8: backlog
+  8-1-monthly-revenue-and-booking-count: backlog
+  8-2-month-over-month-evolution-charts: backlog
+  8-3-progression-rate-vs-previous-month: backlog
+  epic-8-retrospective: optional
