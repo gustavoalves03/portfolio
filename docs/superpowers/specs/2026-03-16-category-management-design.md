@@ -29,7 +29,7 @@ No schema changes needed — the entity already supports what we need. Multi-ten
 
 ### Color Assignment
 
-Colors are **not stored** in the database. They are derived on the frontend from `index % CATEGORY_COLORS.length`:
+Colors are **not stored** in the database. They are derived on the frontend from `category.id % CATEGORY_COLORS.length` for stable assignment (color stays consistent even if list order changes):
 
 ```typescript
 const CATEGORY_COLORS = [
@@ -59,7 +59,7 @@ const CATEGORY_COLORS = [
 
 ### DTOs
 
-- **CategoryRequest** (existing, reused): `@NotBlank @Size(max=100) name`, `@Size(max=500) description`
+- **CategoryRequest** (existing, modified): add `@Size(max=100)` on `name`, add `@Size(max=500)` on `description` (currently only has `@NotBlank` on name)
 - **CategoryResponse** (existing, reused): `id`, `name`, `description`
 - **DeleteCategoryResponse** (new): `reassignedCaresCount: int`
 
@@ -67,18 +67,28 @@ const CATEGORY_COLORS = [
 
 `DELETE /api/pro/categories/{id}?reassignTo={targetId}`
 
-1. Count cares in the category
+The entire delete-with-reassign operation runs in a single `@Transactional` block in the service layer to ensure atomicity.
+
+1. Count cares in the category via `CareRepository.countByCategoryId(Long categoryId)`
 2. If cares exist and `reassignTo` is absent → **400 Bad Request** with message "Category has N cares, reassignTo is required"
-3. If `reassignTo` is provided → validate target category exists, move all cares to target, delete source category, return `{ reassignedCaresCount: N }`
+3. If `reassignTo` is provided → validate target category exists, bulk-reassign cares via `CareRepository.updateCategoryByCategoryId(Long sourceCategoryId, Category targetCategory)` (`@Modifying @Query`), delete source category, return `{ reassignedCaresCount: N }`
 4. If no cares → delete directly, return `{ reassignedCaresCount: 0 }`
+
+### CareRepository (extended)
+
+New query methods needed:
+- `long countByCategoryId(Long categoryId)` — Spring Data derived query
+- `@Modifying @Query("UPDATE Care c SET c.category = :target WHERE c.category.id = :sourceId") int updateCategoryByCategoryId(@Param("sourceId") Long sourceId, @Param("target") Category target)` — bulk reassignment
 
 ### Controller
 
-New `ProCategoryController` at `/api/pro/categories` — separate from existing `CategoryController` (which remains for admin use). Reuses `CategoryRepository` and `CareRepository`.
+New `ProCategoryController` at `/api/pro/categories` — separate from existing `CategoryController` (which remains for admin use). Delegates to `CategoryService` (extended with pro methods) which uses `CategoryRepository` and `CareRepository`.
+
+**GET endpoint returns `List<CategoryResponse>`** (flat list, no pagination) — all categories are needed at once for chips. This differs from the admin `GET /api/categories` which returns `Page<CategoryResponse>`.
 
 ### Validation
 
-- `name`: required, max 100 chars, unique per tenant (enforced by DB unique constraint within schema)
+- `name`: required, max 100 chars, unique per tenant (enforced by DB unique constraint within schema). Duplicate name → **409 Conflict** handled by global exception handler
 - `description`: optional, max 500 chars
 - `reassignTo` on delete: must reference an existing category in the same tenant, must not be the same as the category being deleted
 
@@ -101,13 +111,16 @@ New `ProCategoryController` at `/api/pro/categories` — separate from existing 
 
 ### Filtering
 
-`selectedCategoryId` signal in the component. A computed `filteredCares` filters cares by selected category or returns all if none selected. The `CrudTable` consumes `filteredCares` instead of `cares`.
+`selectedCategoryId` signal in the component (local signal, not in any store). A component-level computed `filteredCares` filters cares by selected category or returns all if none selected. The `CrudTable` consumes `filteredCares` instead of `cares`.
 
 ```typescript
+// In CaresComponent
+selectedCategoryId = signal<number | null>(null);
+
 filteredCares = computed(() => {
-  const selectedId = this.categoriesStore.selectedCategoryId();
+  const selectedId = this.selectedCategoryId();
   const cares = this.caresStore.cares();
-  return selectedId ? cares.filter(c => c.categoryId === selectedId) : cares;
+  return selectedId ? cares.filter(c => c.category.id === selectedId) : cares;
 });
 ```
 
@@ -124,13 +137,13 @@ deleteProCategory(id, reassignTo?)    → DELETE /api/pro/categories/{id}?reassi
 
 ### CategoriesStore (extended)
 
-- State: add `selectedCategoryId: number | null`
-- Methods: add pro CRUD methods calling new service endpoints + `selectCategory(id)` toggle
+- Methods: add pro CRUD methods calling new service endpoints (`getProCategories`, `createProCategory`, `updateProCategory`, `deleteProCategory`)
 - Existing admin methods remain untouched
+- **Note:** `selectedCategoryId` and `filteredCares` live in the **component**, not the store (they are view-level concerns)
 
 ### Create/Edit Dialog
 
-Reuse existing `create-category.component.ts` dialog (fields: name, description). Adapt to call pro endpoints.
+Fix and reuse existing `create-category.component.ts` dialog. **Current issues to fix:** imports `CreateCareRequest` instead of `CreateCategoryRequest`, labels say "Nom du soin" instead of category, description has wrong validation (`required: true`, `minLength: 10`). After fix: fields are name (required) + description (optional), dialog calls pro endpoints.
 
 ### Reassign Category Dialog (new)
 
@@ -143,6 +156,7 @@ frontend/src/app/features/categories/modals/reassign-category/reassign-category-
 - Buttons: Cancel / Confirm deletion
 - Calls `DELETE /api/pro/categories/{id}?reassignTo={targetId}`
 - Returns `DeleteCategoryResponse` for snackbar feedback
+- **After successful deletion:** triggers `CaresStore` refresh to update stale category references
 
 ## Internationalization
 
@@ -162,6 +176,7 @@ pro.categories.reassign.message — "Cette catégorie contient {count} soin(s)..
 pro.categories.reassign.select — "Catégorie de destination" / "Target category"
 pro.categories.reassign.confirm — "Confirmer la suppression" / "Confirm deletion"
 pro.categories.filter.all      — "Tous les soins" / "All services"
+pro.categories.duplicateName   — "Une catégorie avec ce nom existe déjà" / "A category with this name already exists"
 ```
 
 ## Testing
