@@ -11,3 +11,7 @@ export interface CreateCategoryRequest {
 
 export type UpdateCategoryRequest = CreateCategoryRequest;
 
+export interface DeleteCategoryResponse {
+  reassignedCaresCount: number;
+}
+
