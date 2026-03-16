@@ -36,8 +36,16 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./pages/pro/pro-dashboard.component').then(m => m.ProDashboardComponent),
       },
+      {
+        path: 'salon',
+        loadComponent: () => import('./features/salon-profile/salon-profile.component').then(m => m.SalonProfileComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
+  },
+  {
+    path: 'salon/:slug',
+    loadComponent: () => import('./pages/salon/salon-page.component').then(m => m.SalonPageComponent),
   },
   { path: '**', component: NotFound },
 ];
