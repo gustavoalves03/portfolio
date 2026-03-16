@@ -1,7 +1,17 @@
 package com.fleurdecoquillage.app.care.repo;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.fleurdecoquillage.app.care.domain.Care;
+import com.fleurdecoquillage.app.category.domain.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CareRepository extends JpaRepository<Care, Long> {
+
+    long countByCategoryId(Long categoryId);
+
+    @Modifying
+    @Query("UPDATE Care c SET c.category = :target WHERE c.category.id = :sourceId")
+    int reassignCategory(@Param("sourceId") Long sourceId, @Param("target") Category target);
 }
