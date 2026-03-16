@@ -29,4 +29,10 @@ public class GlobalExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest().body(Map.of("errors", msg));
     }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String,Object>> conflict(org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "A record with this value already exists"));
+    }
 }
