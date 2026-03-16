@@ -12,7 +12,7 @@
     <div class="empty-state">
       <mat-icon>image</mat-icon>
       <p>Aucune image ajoutée</p>
-      <p class="hint">Vous pouvez ajouter jusqu'à {{ MAX_IMAGES }} images (PNG, JPG, max 5MB)</p>
+      <p class="hint">Vous pouvez ajouter jusqu'à {{ maxImages() }} images (PNG, JPG, max 5MB)</p>
     </div>
   }
 
@@ -44,7 +44,7 @@
           </div>
 
           <!-- Drag handle -->
-          @if (!readonly()) {
+          @if (!readonly() && maxImages() > 1) {
             <div class="drag-handle" cdkDragHandle>
               <mat-icon>drag_indicator</mat-icon>
             </div>
@@ -57,14 +57,16 @@
 
           <!-- Name input or label -->
           @if (!readonly()) {
-            <mat-form-field class="image-name" appearance="outline">
-              <input
-                matInput
-                [value]="image.name"
-                (input)="onNameChange(image, $any($event.target).value)"
-                placeholder="Nom de l'image"
-              />
-            </mat-form-field>
+            @if (maxImages() > 1) {
+              <mat-form-field class="image-name" appearance="outline">
+                <input
+                  matInput
+                  [value]="image.name"
+                  (input)="onNameChange(image, $any($event.target).value)"
+                  placeholder="Nom de l'image"
+                />
+              </mat-form-field>
+            }
           } @else {
             <div class="image-name-readonly">{{ image.name }}</div>
           }
@@ -91,7 +93,7 @@
         #fileInput
         type="file"
         accept="image/png,image/jpeg,image/jpg"
-        multiple
+        [multiple]="maxImages() > 1"
         (change)="onFileSelected($event)"
         class="file-input"
       />
@@ -108,7 +110,7 @@
           @if (canAddMore) {
             Ajouter une image ({{ remainingSlots }} restant{{ remainingSlots > 1 ? 's' : '' }})
           } @else {
-            Limite atteinte ({{ MAX_IMAGES }} images max)
+            Limite atteinte ({{ maxImages() }} images max)
           }
         </span>
       </button>

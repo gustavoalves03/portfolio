@@ -1,18 +1,12 @@
 import {Category} from '../../categories/models/categories.model';
+import { ManagedImage } from '../../../shared/uis/image-manager/image-manager.component';
 
 export enum CareStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
 }
 
-export interface CareImage {
-  id?: string;
-  url: string;
-  name: string;
-  order: number;
-  file?: File;
-  base64Data?: string;  // Base64 data to send to backend
-}
+export interface CareImage extends ManagedImage {}
 
 // Optimized image data for API requests (only essential fields)
 export interface CareImageRequest {
