@@ -1,7 +1,51 @@
 <section class="content-center justify-center">
   <h2 class="sr-only">Prestations</h2>
+
+  <!-- Category chips -->
+  <div class="flex flex-wrap items-center gap-2 mb-4 px-1">
+    @for (category of categoriesStore.categories(); track category.id) {
+      <div class="category-chip-wrapper">
+        <button
+          type="button"
+          class="category-chip"
+          [class.selected]="selectedCategoryId() === category.id"
+          [style.--chip-color]="getCategoryColor(category.id)"
+          (click)="onSelectCategory(category.id)"
+        >
+          {{ category.name }}
+        </button>
+        <button
+          type="button"
+          class="chip-menu-trigger"
+          [matMenuTriggerFor]="chipMenu"
+          (click)="$event.stopPropagation()"
+        >
+          <mat-icon class="text-sm">more_vert</mat-icon>
+        </button>
+        <mat-menu #chipMenu="matMenu">
+          <button mat-menu-item (click)="onEditCategory(category)">
+            <mat-icon>edit</mat-icon>
+            {{ 'pro.categories.edit' | transloco }}
+          </button>
+          <button mat-menu-item (click)="onDeleteCategory(category)">
+            <mat-icon>delete</mat-icon>
+            {{ 'pro.categories.delete' | transloco }}
+          </button>
+        </mat-menu>
+      </div>
+    }
+    <button
+      type="button"
+      class="add-category-chip"
+      (click)="onAddCategory()"
+    >
+      <mat-icon class="text-sm">add</mat-icon>
+      {{ 'pro.categories.add' | transloco }}
+    </button>
+  </div>
+
   <crud-table
-    [dataSource]="store.availableCares()"
+    [dataSource]="filteredCares()"
     [columns]="columns()"
     [actions]="actions()"
     [title]="('cares.title' | transloco)"

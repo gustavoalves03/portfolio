@@ -28,6 +28,7 @@ export interface FormFieldConfig {
   width?: 'full' | 'half'; // Largeur du champ
   disabled?: boolean;
   autocomplete?: string;
+  value?: any;
 }
 
 export interface FormRowConfig {

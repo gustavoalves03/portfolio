@@ -1,6 +1,8 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { CaresStore } from './store/cares.store';
 import { CategoriesStore } from '../categories/store/categories.store';
 import { CrudTable } from '../../shared/uis/crud-table/crud-table';
@@ -10,11 +12,25 @@ import { CreateCare } from './modals/create/create-care.component';
 import { Care, CareStatus } from './models/cares.model';
 import { DeleteCareComponent } from './modals/delete/delete-care.component';
 import { CaresService } from './services/cares.service';
+import { CreateCategoryComponent } from '../categories/modals/create/create-category.component';
+import { ReassignCategoryDialogComponent } from '../categories/modals/reassign-category/reassign-category-dialog.component';
+import { Category } from '../categories/models/categories.model';
+
+const CATEGORY_COLORS = [
+  '#f4e1d2', // sable
+  '#f9d5d3', // rose poudré
+  '#dce8d2', // sauge
+  '#d5e5f0', // brume
+  '#f0dde4', // nacre rosé
+  '#e8ddd0', // beige doré
+  '#d8e2dc', // menthe douce
+  '#f0e6cc', // vanille
+];
 
 @Component({
   selector: 'app-cares',
   standalone: true,
-  imports: [CrudTable, TranslocoPipe, MatSnackBarModule],
+  imports: [CrudTable, TranslocoPipe, MatSnackBarModule, MatIconModule, MatMenuModule],
   templateUrl: './cares.component.html',
   styleUrl: './cares.component.scss',
   providers: [CaresStore, CategoriesStore]
@@ -26,6 +42,15 @@ export class CaresComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private i18n = inject(TranslocoService);
+
+  // Category filtering
+  selectedCategoryId = signal<number | null>(null);
+
+  filteredCares = computed(() => {
+    const selectedId = this.selectedCategoryId();
+    const cares = this.store.availableCares();
+    return selectedId ? cares.filter(c => c.category.id === selectedId) : cares;
+  });
 
   // Configuration des colonnes avec traduction (en signal)
   readonly columns = signal<TableColumn[]>([
@@ -65,6 +90,81 @@ export class CaresComponent {
   private readonly showErrorSnack = effect(() => {
 
   });
+
+  constructor() {
+    this.categoriesStore.getProCategories();
+  }
+
+  getCategoryColor(categoryId: number): string {
+    return CATEGORY_COLORS[categoryId % CATEGORY_COLORS.length];
+  }
+
+  onSelectCategory(categoryId: number): void {
+    this.selectedCategoryId.update(current =>
+      current === categoryId ? null : categoryId
+    );
+  }
+
+  onAddCategory(): void {
+    const dialogRef = this.dialog.open(CreateCategoryComponent, {
+      width: '500px',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoriesStore.createProCategory(result);
+        this.snackBar.open(this.i18n.translate('pro.categories.createSuccess'), 'OK', { duration: 3000 });
+      }
+    });
+  }
+
+  onEditCategory(category: Category): void {
+    const dialogRef = this.dialog.open(CreateCategoryComponent, {
+      width: '500px',
+      disableClose: false,
+      autoFocus: true,
+      data: { category }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoriesStore.updateProCategory({ id: category.id, payload: result });
+        this.snackBar.open(this.i18n.translate('pro.categories.updateSuccess'), 'OK', { duration: 3000 });
+      }
+    });
+  }
+
+  onDeleteCategory(category: Category): void {
+    const caresInCategory = this.store.cares().filter(c => c.category.id === category.id);
+
+    if (caresInCategory.length > 0) {
+      const dialogRef = this.dialog.open(ReassignCategoryDialogComponent, {
+        width: '450px',
+        disableClose: true,
+        data: {
+          categoryId: category.id,
+          categoryName: category.name,
+          careCount: caresInCategory.length,
+          availableCategories: this.categoriesStore.categories()
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(targetId => {
+        if (targetId) {
+          this.categoriesStore.deleteProCategory({ id: category.id, reassignTo: targetId });
+          this.selectedCategoryId.set(null);
+          this.store.getCares();
+          this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', { duration: 3000 });
+        }
+      });
+    } else {
+      this.categoriesStore.deleteProCategory({ id: category.id });
+      this.selectedCategoryId.set(null);
+      this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', { duration: 3000 });
+    }
+  }
 
   onAddCare() {
     const dialogRef = this.dialog.open(CreateCare, {
