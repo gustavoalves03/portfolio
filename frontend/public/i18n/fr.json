@@ -162,6 +162,26 @@
       "nameRequired": "Le nom du salon est requis",
       "descriptionLimit": "Limite de caractères atteinte",
       "logoError": "Erreur lors du téléchargement du logo"
+    },
+    "categories": {
+      "add": "Ajouter une catégorie",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "nameRequired": "Le nom est requis",
+      "createSuccess": "Catégorie créée",
+      "updateSuccess": "Catégorie modifiée",
+      "deleteSuccess": "Catégorie supprimée",
+      "deleteError": "Erreur lors de la suppression",
+      "duplicateName": "Une catégorie avec ce nom existe déjà",
+      "reassign": {
+        "title": "Réassigner les soins",
+        "message": "Cette catégorie contient {{count}} soin(s). Choisissez une catégorie de destination.",
+        "select": "Catégorie de destination",
+        "confirm": "Confirmer la suppression"
+      },
+      "filter": {
+        "all": "Tous les soins"
+      }
     }
   },
   "salon": {

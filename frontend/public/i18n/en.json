@@ -158,6 +158,26 @@
       "nameRequired": "Salon name is required",
       "descriptionLimit": "Character limit reached",
       "logoError": "Error uploading logo"
+    },
+    "categories": {
+      "add": "Add category",
+      "edit": "Edit",
+      "delete": "Delete",
+      "nameRequired": "Name is required",
+      "createSuccess": "Category created",
+      "updateSuccess": "Category updated",
+      "deleteSuccess": "Category deleted",
+      "deleteError": "Error deleting category",
+      "duplicateName": "A category with this name already exists",
+      "reassign": {
+        "title": "Reassign services",
+        "message": "This category has {{count}} service(s). Choose a target category.",
+        "select": "Target category",
+        "confirm": "Confirm deletion"
+      },
+      "filter": {
+        "all": "All services"
+      }
     }
   },
   "salon": {
