@@ -145,6 +145,27 @@
   "pro": {
     "dashboard": {
       "title": "Dashboard"
+    },
+    "salon": {
+      "title": "My salon",
+      "name": "Salon name",
+      "logo": "Logo",
+      "description": "Description",
+      "save": "Save",
+      "saveSuccess": "Profile updated successfully",
+      "saveError": "Error saving profile",
+      "slugPreview": "Your URL",
+      "nameRequired": "Salon name is required",
+      "descriptionLimit": "Character limit reached",
+      "logoError": "Error uploading logo"
+    }
+  },
+  "salon": {
+    "public": {
+      "noCares": "No services available at this time",
+      "notFound": "Salon not found",
+      "duration": "Duration",
+      "price": "Price"
     }
   }
 }

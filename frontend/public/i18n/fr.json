@@ -149,6 +149,27 @@
   "pro": {
     "dashboard": {
       "title": "Tableau de bord"
+    },
+    "salon": {
+      "title": "Mon salon",
+      "name": "Nom du salon",
+      "logo": "Logo",
+      "description": "Description",
+      "save": "Enregistrer",
+      "saveSuccess": "Profil mis à jour avec succès",
+      "saveError": "Erreur lors de la sauvegarde du profil",
+      "slugPreview": "Votre URL",
+      "nameRequired": "Le nom du salon est requis",
+      "descriptionLimit": "Limite de caractères atteinte",
+      "logoError": "Erreur lors du téléchargement du logo"
+    }
+  },
+  "salon": {
+    "public": {
+      "noCares": "Aucun soin disponible pour le moment",
+      "notFound": "Salon introuvable",
+      "duration": "Durée",
+      "price": "Prix"
     }
   }
 }
