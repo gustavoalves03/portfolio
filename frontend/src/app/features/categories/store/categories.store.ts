@@ -3,7 +3,7 @@ import {patchState, signalStore, withComputed, withHooks, withMethods, withState
 import { CategoriesService } from '../services/categories.service';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../models/categories.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { exhaustMap, map, pipe, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, map, pipe, switchMap, tap } from 'rxjs';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 import {CareStatus} from '../../cares/models/cares.model';
 
@@ -77,10 +77,74 @@ export const CategoriesStore = signalStore(
         })
       )
     ),
+    getProCategories: rxMethod<void>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        switchMap(() =>
+          gateway.listAllPro().pipe(
+            tap((categories) => patchState(store, { categories }, setFulfilled())),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur de chargement des catégories'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    createProCategory: rxMethod<CreateCategoryRequest>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap((payload) =>
+          gateway.createPro(payload).pipe(
+            tap((created) => patchState(store, { categories: [...store.categories(), created] }, setFulfilled())),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la création'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    updateProCategory: rxMethod<{ id: number; payload: UpdateCategoryRequest }>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap(({ id, payload }) =>
+          gateway.updatePro(id, payload).pipe(
+            tap((updated) =>
+              patchState(
+                store,
+                { categories: store.categories().map((it) => (it.id === updated.id ? updated : it)) },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la mise à jour'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    deleteProCategory: rxMethod<{ id: number; reassignTo?: number }>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        exhaustMap(({ id, reassignTo }) =>
+          gateway.deletePro(id, reassignTo).pipe(
+            tap(() =>
+              patchState(
+                store,
+                { categories: store.categories().filter((it) => it.id !== id) },
+                setFulfilled()
+              )
+            ),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Erreur lors de la suppression'));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
   })),
-  withHooks((store) => ({
-    onInit() {
-      store.getCategories();
-    },
-  }))
+  withHooks(() => ({}))
 );

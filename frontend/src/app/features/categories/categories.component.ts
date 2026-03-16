@@ -20,6 +20,10 @@ export class CategoriesComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
+  constructor() {
+    this.store.getCategories();
+  }
+
   // Configuration des colonnes avec traduction
   readonly columns = signal<TableColumn[]>([
     { key: 'name', headerKey: 'categories.columns.name', align: 'left' },
