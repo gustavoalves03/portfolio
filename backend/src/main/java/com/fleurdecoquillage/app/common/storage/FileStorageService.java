@@ -27,76 +27,54 @@ public class FileStorageService {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     /**
-     * Save Base64 image data to disk
+     * Save Base64 image data to disk under the "cares" domain folder.
+     * Delegates to {@link #saveBase64Image(String, String, Long)} for backward compatibility.
      * @param base64Data Base64 string with data URL prefix (data:image/png;base64,...)
      * @param careId Care ID for folder organization
      * @return Relative file path
      */
     public String saveBase64Image(String base64Data, Long careId) {
-        try {
-            logger.info("====== SAVE IMAGE START ======");
-            logger.info("Care ID: {}", careId);
-            logger.info("Base64 data length: {}", base64Data != null ? base64Data.length() : 0);
-            logger.info("Base64 data prefix: {}", base64Data != null && base64Data.length() > 50 ? base64Data.substring(0, 50) : base64Data);
+        return saveBase64Image(base64Data, "cares", careId);
+    }
 
-            // Extract MIME type and Base64 data
+    /**
+     * Save Base64 image data to disk under a specific domain folder.
+     * @param base64Data Base64 string with data URL prefix (data:image/png;base64,...)
+     * @param domain Storage domain folder (e.g., "cares", "tenant")
+     * @param entityId Entity ID for folder organization
+     * @return Relative file path
+     */
+    public String saveBase64Image(String base64Data, String domain, Long entityId) {
+        try {
             String[] parts = base64Data.split(",");
             if (parts.length != 2) {
-                logger.error("Invalid Base64 format: parts.length = {}", parts.length);
                 throw new IllegalArgumentException("Invalid Base64 data format");
             }
 
             String mimeType = extractMimeType(parts[0]);
-            logger.info("MIME type extracted: {}", mimeType);
-
             String extension = getExtensionFromMimeType(mimeType);
-            logger.info("Extension: {}", extension);
 
-            // Validate extension
             if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("jpeg")) {
                 throw new IllegalArgumentException("Only PNG and JPG images are allowed");
             }
 
-            // Decode Base64
             byte[] imageBytes = Base64.getDecoder().decode(parts[1]);
-            logger.info("Image bytes decoded: {} bytes", imageBytes.length);
 
-            // Validate size
             if (imageBytes.length > MAX_FILE_SIZE) {
                 throw new IllegalArgumentException("File size exceeds 5MB limit");
             }
 
-            // Generate unique filename
             String filename = UUID.randomUUID().toString() + "." + extension;
-            logger.info("Generated filename: {}", filename);
+            Path dir = Paths.get(uploadDir, domain, entityId.toString());
+            Files.createDirectories(dir);
 
-            // Create directory structure: uploads/cares/{careId}/
-            Path careDir = Paths.get(uploadDir, "cares", careId.toString());
-            logger.info("Creating directory: {}", careDir.toAbsolutePath());
-            Files.createDirectories(careDir);
-            logger.info("Directory created successfully");
-
-            // Write file
-            Path filePath = careDir.resolve(filename);
-            logger.info("Writing file to: {}", filePath.toAbsolutePath());
+            Path filePath = dir.resolve(filename);
             Files.write(filePath, imageBytes);
-            logger.info("File written successfully");
 
-            // Return relative path
-            String relativePath = String.format("uploads/cares/%d/%s", careId, filename);
-            logger.info("Returning relative path: {}", relativePath);
-            logger.info("====== SAVE IMAGE END ======");
-
-            return relativePath;
+            return String.format("uploads/%s/%d/%s", domain, entityId, filename);
 
         } catch (IOException e) {
-            logger.error("====== SAVE IMAGE FAILED ======");
-            logger.error("IOException: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to save image: " + e.getMessage(), e);
-        } catch (Exception e) {
-            logger.error("====== SAVE IMAGE FAILED ======");
-            logger.error("Exception: {}", e.getMessage(), e);
-            throw e;
         }
     }
 
