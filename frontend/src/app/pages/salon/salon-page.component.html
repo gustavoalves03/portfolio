@@ -1,0 +1,64 @@
+@if (loading()) {
+  <div class="flex justify-center py-16">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (notFound()) {
+  <div class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center">
+      <p class="text-xl text-neutral-500">{{ 'salon.public.notFound' | transloco }}</p>
+    </div>
+  </div>
+} @else if (salon()) {
+  @if (salon(); as salon) {
+    <div class="salon-page">
+      <!-- Salon Header -->
+      <section class="salon-header">
+        @if (salon.logoUrl) {
+          <img [src]="salon.logoUrl" [alt]="salon.name" class="salon-logo" />
+        }
+        <h1 class="text-3xl font-medium text-neutral-900 mt-4">{{ salon.name }}</h1>
+        @if (salon.description) {
+          <div class="salon-description mt-4" [innerHTML]="salon.description"></div>
+        }
+      </section>
+
+      <!-- Cares by Category (Accordion) -->
+      @if (salon.categories.length > 0) {
+        <section class="mt-8">
+          <mat-accordion multi>
+            @for (category of salon.categories; track category.name) {
+              <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                  <mat-panel-title class="font-medium">
+                    {{ category.name }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="care-list">
+                  @for (care of category.cares; track care.name) {
+                    <div class="care-card">
+                      @if (care.imageUrls.length > 0) {
+                        <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-thumbnail" />
+                      }
+                      <div class="care-info">
+                        <span class="care-name">{{ care.name }}</span>
+                        <div class="care-details">
+                          <span>{{ 'salon.public.duration' | transloco }}: {{ formatDuration(care.duration) }}</span>
+                          <span>{{ 'salon.public.price' | transloco }}: {{ formatPrice(care.price) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        </section>
+      } @else {
+        <div class="text-center py-12 text-neutral-500">
+          {{ 'salon.public.noCares' | transloco }}
+        </div>
+      }
+    </div>
+  }
+}
