@@ -1,10 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { CreateCategoryRequest } from '../../models/categories.model';
+import { CreateCategoryRequest, Category } from '../../models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
+import { TranslocoService } from '@jsverse/transloco';
+
+export interface CategoryDialogData {
+  category?: Category;
+}
 
 @Component({
   selector: 'app-create-category',
@@ -12,10 +17,10 @@ import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
   imports: [ModalForm, DynamicForm],
   template: `
     <modal-form
-      title="Créer une catégorie"
+      [title]="dialogTitle"
       icon="category"
       iconColor="#fa8e8e"
-      saveLabel="Créer la catégorie"
+      [saveLabel]="saveLabel"
       [saveDisabled]="categoryForm.invalid"
       (save)="onSave()"
       (cancel)="onCancel()">
@@ -25,12 +30,26 @@ import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 })
 export class CreateCategoryComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<CreateCategoryComponent>);
+  private data: CategoryDialogData = inject(MAT_DIALOG_DATA, { optional: true }) ?? {};
   private fb = inject(FormBuilder);
+  private i18n = inject(TranslocoService);
 
   categoryForm!: FormGroup;
   formConfig!: DynamicFormConfig;
+  dialogTitle = '';
+  saveLabel = '';
+
+  get isEditMode(): boolean {
+    return !!this.data.category;
+  }
 
   ngOnInit(): void {
+    this.dialogTitle = this.isEditMode
+      ? this.i18n.translate('pro.categories.edit')
+      : this.i18n.translate('pro.categories.add');
+    this.saveLabel = this.isEditMode
+      ? this.i18n.translate('common.save')
+      : this.i18n.translate('pro.categories.add');
     this.categoryForm = this.fb.group({});
     this.initFormConfig();
   }
@@ -42,13 +61,13 @@ export class CreateCategoryComponent implements OnInit {
           fields: [
             {
               name: 'name',
-              label: 'Nom de la catégorie',
+              label: this.i18n.translate('categories.columns.name'),
               type: 'text',
               placeholder: 'Ex: Soins du visage',
               icon: 'label',
               required: true,
-              minLength: 3,
-              width: 'full'
+              width: 'full',
+              value: this.data.category?.name ?? ''
             }
           ]
         },
@@ -56,12 +75,13 @@ export class CreateCategoryComponent implements OnInit {
           fields: [
             {
               name: 'description',
-              label: 'Description',
+              label: this.i18n.translate('categories.columns.description'),
               type: 'textarea',
-              placeholder: 'Description de la catégorie...',
+              placeholder: '',
               icon: 'description',
               rows: 3,
-              width: 'full'
+              width: 'full',
+              value: this.data.category?.description ?? ''
             }
           ]
         }
