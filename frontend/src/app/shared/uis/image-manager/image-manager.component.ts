@@ -6,11 +6,19 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
-import { CareImage } from '../../../features/cares/models/cares.model';
 
-const MAX_IMAGES = 5;
+const DEFAULT_MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FORMATS = ['image/png', 'image/jpeg', 'image/jpg'];
+
+export interface ManagedImage {
+  id?: string;
+  url: string;
+  name: string;
+  order: number;
+  file?: File;
+  base64Data?: string;
+}
 
 @Component({
   selector: 'image-manager',
@@ -28,14 +36,13 @@ const ACCEPTED_FORMATS = ['image/png', 'image/jpeg', 'image/jpg'];
   styleUrl: './image-manager.component.scss'
 })
 export class ImageManager {
-  images = input<CareImage[]>([]);
-  imagesChange = output<CareImage[]>();
+  images = input<ManagedImage[]>([]);
+  imagesChange = output<ManagedImage[]>();
   readonly = input<boolean>(false);
+  maxImages = input<number>(DEFAULT_MAX_IMAGES);
 
-  localImages = signal<CareImage[]>([]);
+  localImages = signal<ManagedImage[]>([]);
   errorMessage = signal<string | null>(null);
-
-  readonly MAX_IMAGES = MAX_IMAGES;
 
   constructor() {
     effect(() => {
@@ -52,10 +59,10 @@ export class ImageManager {
 
     // Validation: max images
     const currentCount = this.localImages().length;
-    const remainingSlots = MAX_IMAGES - currentCount;
+    const remainingSlots = this.maxImages() - currentCount;
 
     if (remainingSlots <= 0) {
-      this.errorMessage.set(`Vous ne pouvez ajouter que ${MAX_IMAGES} images maximum`);
+      this.errorMessage.set(`Vous ne pouvez ajouter que ${this.maxImages()} images maximum`);
       input.value = '';
       return;
     }
@@ -63,7 +70,7 @@ export class ImageManager {
     const filesToAdd = files.slice(0, remainingSlots);
 
     if (files.length > remainingSlots) {
-      this.errorMessage.set(`Seules ${remainingSlots} image(s) ont été ajoutées (limite: ${MAX_IMAGES})`);
+      this.errorMessage.set(`Seules ${remainingSlots} image(s) ont été ajoutées (limite: ${this.maxImages()})`);
     }
 
     filesToAdd.forEach(file => {
@@ -89,7 +96,7 @@ export class ImageManager {
     const reader = new FileReader();
     reader.onload = (e) => {
       const url = e.target?.result as string;
-      const newImage: CareImage = {
+      const newImage: ManagedImage = {
         id: crypto.randomUUID(),
         url,
         name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
@@ -104,7 +111,7 @@ export class ImageManager {
     reader.readAsDataURL(file);
   }
 
-  onDrop(event: CdkDragDrop<CareImage[]>): void {
+  onDrop(event: CdkDragDrop<ManagedImage[]>): void {
     const images = [...this.localImages()];
     moveItemInArray(images, event.previousIndex, event.currentIndex);
 
@@ -117,7 +124,7 @@ export class ImageManager {
     this.emitChanges(images);
   }
 
-  onNameChange(image: CareImage, newName: string): void {
+  onNameChange(image: ManagedImage, newName: string): void {
     const images = this.localImages().map(img =>
       img.id === image.id ? { ...img, name: newName } : img
     );
@@ -136,15 +143,15 @@ export class ImageManager {
     this.emitChanges(images);
   }
 
-  private emitChanges(images: CareImage[]): void {
+  private emitChanges(images: ManagedImage[]): void {
     this.imagesChange.emit(images);
   }
 
   get canAddMore(): boolean {
-    return this.localImages().length < MAX_IMAGES;
+    return this.localImages().length < this.maxImages();
   }
 
   get remainingSlots(): number {
-    return MAX_IMAGES - this.localImages().length;
+    return this.maxImages() - this.localImages().length;
   }
 }

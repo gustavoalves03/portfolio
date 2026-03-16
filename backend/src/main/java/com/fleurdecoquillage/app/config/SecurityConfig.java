@@ -136,6 +136,7 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Public categories
+                        .requestMatchers(HttpMethod.GET, "/api/salon/**").permitAll() // Public salon storefront
                         // Admin-only endpoints (create, update, delete)
                         .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")

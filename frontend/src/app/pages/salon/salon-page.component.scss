@@ -1,0 +1,81 @@
+.salon-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.salon-header {
+  text-align: center;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+}
+
+.salon-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: block;
+}
+
+.salon-description {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #555;
+  line-height: 1.6;
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: var(--mat-sys-primary, #b4637a);
+    text-decoration: underline;
+  }
+}
+
+.care-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.care-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.care-thumbnail {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.care-info {
+  flex: 1;
+}
+
+.care-name {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.care-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #777;
+}
