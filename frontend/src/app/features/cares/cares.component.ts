@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -86,10 +86,6 @@ export class CaresComponent {
       callback: (care: Care) => this.onDeleteCare(care)
     }
   ]);
-
-  private readonly showErrorSnack = effect(() => {
-
-  });
 
   constructor() {
     this.categoriesStore.getProCategories();
