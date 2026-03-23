@@ -54,6 +54,13 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiredRole: 'PRO'
   },
   {
+    label: 'Calendrier',
+    path: '/pro/calendar',
+    icon: 'calendar_month',
+    requiresAuth: true,
+    requiredRole: 'PRO'
+  },
+  {
     label: 'Mon salon',
     path: '/pro/salon',
     icon: 'storefront',

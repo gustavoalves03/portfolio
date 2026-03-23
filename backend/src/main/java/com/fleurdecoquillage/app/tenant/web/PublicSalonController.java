@@ -1,6 +1,8 @@
 package com.fleurdecoquillage.app.tenant.web;
 
 import com.fleurdecoquillage.app.availability.app.AvailabilityService;
+import com.fleurdecoquillage.app.availability.app.BlockedSlotService;
+import com.fleurdecoquillage.app.availability.web.dto.BlockedSlotResponse;
 import com.fleurdecoquillage.app.availability.web.dto.OpeningHourResponse;
 import com.fleurdecoquillage.app.category.domain.Category;
 import com.fleurdecoquillage.app.category.repo.CategoryRepository;
@@ -22,11 +24,14 @@ public class PublicSalonController {
     private final TenantService tenantService;
     private final CategoryRepository categoryRepository;
     private final AvailabilityService availabilityService;
+    private final BlockedSlotService blockedSlotService;
 
-    public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository, AvailabilityService availabilityService) {
+    public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
+                                 AvailabilityService availabilityService, BlockedSlotService blockedSlotService) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
+        this.blockedSlotService = blockedSlotService;
     }
 
     @GetMapping("/{slug}")
@@ -56,6 +61,22 @@ public class PublicSalonController {
                     TenantContext.setCurrentTenant(tenant.getSlug());
                     try {
                         return ResponseEntity.ok(availabilityService.list());
+                    } finally {
+                        TenantContext.clear();
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{slug}/blocked-slots")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<BlockedSlotResponse>> getBlockedSlots(@PathVariable String slug) {
+        return tenantService.findBySlug(slug)
+                .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
+                .map(tenant -> {
+                    TenantContext.setCurrentTenant(tenant.getSlug());
+                    try {
+                        return ResponseEntity.ok(blockedSlotService.listFuture());
                     } finally {
                         TenantContext.clear();
                     }

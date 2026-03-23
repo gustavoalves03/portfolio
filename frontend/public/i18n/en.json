@@ -181,6 +181,25 @@
         "all": "All services"
       }
     },
+    "calendar": {
+      "title": "My calendar",
+      "today": "Today",
+      "blocked": "Blocked",
+      "available": "Available",
+      "closed": "Closed",
+      "blockSlot": "Block a slot",
+      "unblock": "Unblock",
+      "fullDay": "Full day",
+      "reason": "Reason (optional)",
+      "confirm": "Confirm",
+      "blockSuccess": "Slot blocked",
+      "unblockSuccess": "Slot unblocked",
+      "legend": {
+        "today": "Today",
+        "blocked": "Blocked slot",
+        "closed": "Closed"
+      }
+    },
     "availability": {
       "title": "My availability",
       "closed": "Closed",
