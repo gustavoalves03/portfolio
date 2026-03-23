@@ -7,7 +7,7 @@
   <!-- Liste de navigation -->
   <nav class="flex-1 overflow-y-auto">
     <mat-nav-list class="pt-2">
-      @for (route of routes; track route.path) {
+      @for (route of routes(); track route.path) {
         <a
           mat-list-item
           [routerLink]="route.path"

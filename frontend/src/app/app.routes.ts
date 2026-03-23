@@ -14,8 +14,11 @@ import { RegisterComponent } from './pages/auth/register/register.component';
 import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 import { authGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
+import { Role } from './core/auth/auth.model';
 
 export const routes: Routes = [
+  // Public routes
   { path: '', component: Home },
   { path: 'about', component: About },
   { path: 'login', component: LoginComponent },
@@ -23,14 +26,16 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'video-games', component: ListVideoGames },
-  { path: 'cares', component: CaresComponent },
-  { path: 'categories', component: CategoriesComponent },
-  { path: 'users', component: UsersComponent },
-  { path: 'bookings', component: BookingsComponent },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
   {
+    path: 'salon/:slug',
+    loadComponent: () => import('./pages/salon/salon-page.component').then(m => m.SalonPageComponent),
+  },
+
+  // Protected pro routes
+  {
     path: 'pro',
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(Role.PRO)],
     children: [
       {
         path: 'dashboard',
@@ -40,12 +45,23 @@ export const routes: Routes = [
         path: 'salon',
         loadComponent: () => import('./features/salon-profile/salon-profile.component').then(m => m.SalonProfileComponent),
       },
+      { path: 'cares', component: CaresComponent },
+      { path: 'categories', component: CategoriesComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
+
+  // Protected authenticated routes
   {
-    path: 'salon/:slug',
-    loadComponent: () => import('./pages/salon/salon-page.component').then(m => m.SalonPageComponent),
+    path: 'bookings',
+    canActivate: [authGuard],
+    component: BookingsComponent,
   },
+  {
+    path: 'users',
+    canActivate: [authGuard, roleGuard(Role.ADMIN)],
+    component: UsersComponent,
+  },
+
   { path: '**', component: NotFound },
 ];
