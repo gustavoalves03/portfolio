@@ -200,10 +200,12 @@
     }
   },
   "discover": {
-    "placeholder": "Coming soon",
-    "message": "Discover {{category}} salons",
-    "searchMessage": "Results for '{{query}}'",
-    "defaultMessage": "Explore all beauty salons near you",
+    "title": "Discover salons",
+    "search": "Search for a salon...",
+    "noResults": "No salons found",
+    "noResultsHint": "Try another category",
+    "resultsCount": "{{count}} salon(s) found",
+    "allCategories": "All",
     "backHome": "Back to home"
   },
   "salon": {

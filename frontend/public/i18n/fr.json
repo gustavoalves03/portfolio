@@ -204,10 +204,12 @@
     }
   },
   "discover": {
-    "placeholder": "Bientôt disponible",
-    "message": "Découvrez les salons {{category}}",
-    "searchMessage": "Résultats pour « {{query}} »",
-    "defaultMessage": "Explorez tous les salons de beauté près de chez vous",
+    "title": "Découvrir les salons",
+    "search": "Rechercher un salon...",
+    "noResults": "Aucun salon trouvé",
+    "noResultsHint": "Essayez une autre catégorie",
+    "resultsCount": "{{count}} salon(s) trouvé(s)",
+    "allCategories": "Tous",
     "backHome": "Retour à l'accueil"
   },
   "salon": {
