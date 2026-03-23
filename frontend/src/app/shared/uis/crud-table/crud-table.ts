@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TableColumn, TableAction } from './crud-table.models';
 
@@ -15,7 +16,7 @@ import { TableColumn, TableAction } from './crud-table.models';
   standalone: true,
   styleUrl: 'crud-table.scss',
   templateUrl: 'crud-table.html',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSlideToggleModule, TranslocoPipe],
+  imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSlideToggleModule, CdkDropList, CdkDrag, CdkDragHandle, TranslocoPipe],
 })
 export class CrudTable {
 
@@ -36,9 +37,11 @@ export class CrudTable {
   loadingMessage = input<string>('Chargement des données…');
   errorMessage = input<string | null>(null);
   skeletonRows = input<number>(4);
+  reorderable = input<boolean>(false);
   addItem = output<void>();
   searchChange = output<string>();
   rowClick = output<any>();
+  reorder = output<any[]>();
 
   // Computed: génère les noms de colonnes à partir de la configuration
   protected readonly columnKeys = computed(() => {
@@ -48,9 +51,11 @@ export class CrudTable {
     // Nouveau système avec columns
     if (cols && cols.length > 0) {
       const keys = cols.map(c => c.key);
-      // Ajouter 'actions' si des actions sont définies
       if (this.actions().length > 0) {
         keys.push('actions');
+      }
+      if (this.reorderable()) {
+        keys.unshift('drag');
       }
       return keys;
     }
@@ -118,6 +123,12 @@ export class CrudTable {
 
   onRowClick(row: any) {
     this.rowClick.emit(row);
+  }
+
+  onDrop(event: CdkDragDrop<any[]>) {
+    const data = [...this.dataSource()];
+    moveItemInArray(data, event.previousIndex, event.currentIndex);
+    this.reorder.emit(data);
   }
 
 }

@@ -273,3 +273,33 @@
     transform: scale(0.95);
   }
 }
+
+// Drag & drop reorderable
+.drag-column {
+  width: 40px;
+  padding: 0 4px !important;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #bbb;
+  font-size: 20px;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.cdk-drag-preview {
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}

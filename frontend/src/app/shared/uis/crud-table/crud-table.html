@@ -67,9 +67,17 @@
         </div>
       </div> -->
     } @else if (showTable()) {
-      <table mat-table [dataSource]="dataSource()" class="mat-elevation-z2 demo-table">
+      <table mat-table [dataSource]="dataSource()" class="mat-elevation-z2 demo-table"
+             cdkDropList [cdkDropListDisabled]="!reorderable()" (cdkDropListDropped)="onDrop($event)">
         @for (columnKey of columnKeys(); track columnKey) {
-          @if (columnKey === 'actions') {
+          @if (columnKey === 'drag') {
+            <ng-container matColumnDef="drag">
+              <th mat-header-cell *matHeaderCellDef class="drag-column"></th>
+              <td mat-cell *matCellDef="let element" class="drag-column">
+                <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+              </td>
+            </ng-container>
+          } @else if (columnKey === 'actions') {
             <!-- Colonne d'actions -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef class="actions-column">Actions</th>
@@ -115,7 +123,8 @@
         }
 
         <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
-        <tr mat-row *matRowDef="let row; columns: columnKeys();" (click)="onRowClick(row)" class="clickable-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnKeys();" (click)="onRowClick(row)" class="clickable-row"
+            [cdkDrag]="reorderable()" [cdkDragDisabled]="!reorderable()"></tr>
 
         <!-- État vide: ligne couvrant toutes les colonnes -->
         <tr class="mat-mdc-row" *matNoDataRow>
