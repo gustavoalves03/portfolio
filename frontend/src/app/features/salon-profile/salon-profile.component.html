@@ -9,7 +9,7 @@
     <form (ngSubmit)="onSave()" class="flex flex-col gap-6 max-w-2xl">
 
       <!-- Salon Name -->
-      <mat-form-field appearance="outline">
+      <mat-form-field appearance="fill">
         <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
         <input
           matInput
@@ -39,24 +39,25 @@
         />
       </div>
 
-      <!-- Description (Rich Text) -->
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">{{ 'pro.salon.description' | transloco }}</label>
-        <quill-editor
+      <!-- Description -->
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>{{ 'pro.salon.description' | transloco }}</mat-label>
+        <textarea
+          matInput
+          rows="6"
           [ngModel]="description()"
           (ngModelChange)="description.set($event)"
-          [modules]="quillModules"
-          format="html"
           name="description"
-          class="salon-quill-editor"
-        ></quill-editor>
-        <div class="text-xs text-neutral-400 mt-1 text-right">
+          maxlength="10000"
+          class="salon-description-input"
+        ></textarea>
+        <mat-hint align="end">
           {{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}
           @if (descriptionTextLength() > MAX_DESCRIPTION_LENGTH) {
             <span class="text-red-500 ml-1">{{ 'pro.salon.descriptionLimit' | transloco }}</span>
           }
-        </div>
-      </div>
+        </mat-hint>
+      </mat-form-field>
 
       <!-- Save Button -->
       <div class="flex justify-end">

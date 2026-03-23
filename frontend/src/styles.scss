@@ -45,3 +45,65 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: var(--mat-sys-error);
   color: var(--mat-sys-on-error);
 }
+
+// ===== Pretty Face — Underline minimal input style =====
+// Removes Material default backgrounds and outlines, applies
+// a clean bottom-border-only look with small uppercase floating label.
+
+.mat-mdc-form-field {
+  // Remove filled background
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: transparent !important;
+  }
+
+  // Remove the default ripple/indicator color bar
+  .mdc-line-ripple::before {
+    border-bottom-color: #e0d8d2 !important;
+  }
+
+  .mdc-line-ripple::after {
+    border-bottom-color: #c06 !important;
+  }
+
+  // Floating label — small, uppercase when floated
+  .mat-mdc-floating-label {
+    font-size: 14px;
+    color: #999;
+
+    &.mdc-floating-label--float-above {
+      font-size: 11px !important;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #c06;
+    }
+  }
+
+  // Input text styling
+  .mat-mdc-input-element {
+    font-size: 14px;
+    color: #333;
+  }
+
+  // Remove the filled bottom shape radius
+  .mdc-text-field--filled .mdc-text-field__ripple::before,
+  .mdc-text-field--filled .mdc-text-field__ripple::after {
+    background-color: transparent !important;
+  }
+
+  // Hint and error text
+  .mat-mdc-form-field-hint {
+    font-size: 11px;
+    color: #bbb;
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 11px;
+  }
+}
+
+// Select dropdown styling
+.mat-mdc-select {
+  font-size: 14px;
+  color: #333;
+}

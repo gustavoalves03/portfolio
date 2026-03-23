@@ -36,7 +36,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="login-form">
 
       <!-- Email field -->
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.login.email' | transloco }}</mat-label>
         <input matInput formControlName="email" type="email" autocomplete="email" />
         @if (emailControl?.hasError('required') && emailControl?.touched) {
@@ -48,7 +48,7 @@
       </mat-form-field>
 
       <!-- Password field -->
-      <mat-form-field appearance="outline" class="full-width">
+      <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.login.password' | transloco }}</mat-label>
         <input matInput formControlName="password" type="password" autocomplete="current-password" />
         @if (passwordControl?.hasError('required') && passwordControl?.touched) {

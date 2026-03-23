@@ -24,7 +24,7 @@ export interface ReassignCategoryDialogData {
       <p class="mb-4 text-sm text-neutral-600">
         {{ 'pro.categories.reassign.message' | transloco: { count: data.careCount } }}
       </p>
-      <mat-form-field appearance="outline" class="w-full">
+      <mat-form-field appearance="fill" class="w-full">
         <mat-label>{{ 'pro.categories.reassign.select' | transloco }}</mat-label>
         <mat-select [(value)]="selectedTargetId">
           @for (cat of data.availableCategories; track cat.id) {
