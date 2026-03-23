@@ -9,7 +9,9 @@ import jakarta.validation.Valid;
 import com.fleurdecoquillage.app.care.app.CareService;
 import com.fleurdecoquillage.app.care.web.dto.CareRequest;
 import com.fleurdecoquillage.app.care.web.dto.CareResponse;
+import com.fleurdecoquillage.app.care.web.dto.ReorderRequest;
 import com.fleurdecoquillage.app.care.web.dto.StatusRequest;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/care")
@@ -39,6 +41,12 @@ public class CareController {
     @PutMapping("/{id}")
     public CareResponse update(@PathVariable Long id, @RequestBody @Valid CareRequest req) {
         return service.update(id, req);
+    }
+
+    @PatchMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorder(@RequestBody @Valid ReorderRequest req) {
+        service.reorder(req.orderedIds());
     }
 
     @PatchMapping("/{id}/status")

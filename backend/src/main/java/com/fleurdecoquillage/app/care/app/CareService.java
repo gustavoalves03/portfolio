@@ -200,6 +200,17 @@ public class CareService {
     }
 
     @Transactional
+    public void reorder(java.util.List<Long> orderedIds) {
+        for (int i = 0; i < orderedIds.size(); i++) {
+            final int index = i;
+            Care c = repo.findById(orderedIds.get(i))
+                    .orElseThrow(() -> new IllegalArgumentException("Care not found: " + orderedIds.get(index)));
+            c.setDisplayOrder(index);
+            repo.save(c);
+        }
+    }
+
+    @Transactional
     public CareResponse toggleStatus(Long id, CareStatus status) {
         if (status != CareStatus.ACTIVE && status != CareStatus.INACTIVE) {
             throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
