@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import com.fleurdecoquillage.app.care.app.CareService;
 import com.fleurdecoquillage.app.care.web.dto.CareRequest;
 import com.fleurdecoquillage.app.care.web.dto.CareResponse;
+import com.fleurdecoquillage.app.care.web.dto.StatusRequest;
 
 @RestController
 @RequestMapping("/api/care")
@@ -38,6 +39,11 @@ public class CareController {
     @PutMapping("/{id}")
     public CareResponse update(@PathVariable Long id, @RequestBody @Valid CareRequest req) {
         return service.update(id, req);
+    }
+
+    @PatchMapping("/{id}/status")
+    public CareResponse toggleStatus(@PathVariable Long id, @RequestBody @Valid StatusRequest req) {
+        return service.toggleStatus(id, req.status());
     }
 
     @DeleteMapping("/{id}")

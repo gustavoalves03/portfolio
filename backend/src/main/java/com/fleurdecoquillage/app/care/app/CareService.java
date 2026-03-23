@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import com.fleurdecoquillage.app.care.repo.CareRepository;
 import com.fleurdecoquillage.app.care.domain.Care;
+import com.fleurdecoquillage.app.care.domain.CareStatus;
 import com.fleurdecoquillage.app.care.domain.CareImage;
 import com.fleurdecoquillage.app.care.web.dto.CareImageDto;
 import com.fleurdecoquillage.app.care.web.dto.CareRequest;
@@ -196,6 +197,17 @@ public class CareService {
         logger.info("====== UPDATE CARE END ======");
 
         return CareMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public CareResponse toggleStatus(Long id, CareStatus status) {
+        if (status != CareStatus.ACTIVE && status != CareStatus.INACTIVE) {
+            throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
+        }
+        Care c = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
+        c.setStatus(status);
+        return CareMapper.toResponse(repo.save(c));
     }
 
     @Transactional
