@@ -3,6 +3,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TableColumn, TableAction } from './crud-table.models';
 
@@ -14,7 +15,7 @@ import { TableColumn, TableAction } from './crud-table.models';
   standalone: true,
   styleUrl: 'crud-table.scss',
   templateUrl: 'crud-table.html',
-  imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, TranslocoPipe],
+  imports: [MatTableModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSlideToggleModule, TranslocoPipe],
 })
 export class CrudTable {
 

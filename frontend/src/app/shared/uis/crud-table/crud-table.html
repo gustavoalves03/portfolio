@@ -99,8 +99,16 @@
                   {{ columnKey }}
                 }
               </th>
-              <td mat-cell *matCellDef="let element">
-                {{ resolveCellValue(columnKey, element) }}
+              <td mat-cell *matCellDef="let element" (click)="getColumnConfig(columnKey)?.type === 'toggle' ? $event.stopPropagation() : null">
+                @if (getColumnConfig(columnKey)?.type === 'toggle') {
+                  <mat-slide-toggle
+                    [checked]="!!resolveCellValue(columnKey, element)"
+                    (change)="getColumnConfig(columnKey)?.toggleCallback?.(element, $event.checked)"
+                    (click)="$event.stopPropagation()"
+                  ></mat-slide-toggle>
+                } @else {
+                  {{ resolveCellValue(columnKey, element) }}
+                }
               </td>
             </ng-container>
           }
