@@ -1,156 +1,69 @@
-import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { CaresStore } from '../../features/cares/store/cares.store';
-import { ServiceCardComponent } from '../../shared/uis/service-card/service-card.component';
-import { BookingCalendarComponent } from '../../shared/uis/booking-calendar/booking-calendar.component';
-import { BookingTimesComponent } from '../../shared/uis/booking-times/booking-times.component';
-import { BookingsService } from '../../features/bookings/services/bookings.service';
-import { CareBookingStatus } from '../../features/bookings/models/bookings.model';
-import { AuthService } from '../../core/auth/auth.service';
-import { AuthModalComponent } from '../../shared/modals/auth-modal/auth-modal.component';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
-interface BookingState {
-  selectedDay?: string;
-  selectedTime?: string;
+interface CategoryCard {
+  name: string;
+  slug: string;
+  emoji: string;
+  color: string;
+  count: number;
 }
+
+interface FeaturedSalon {
+  name: string;
+  slug: string;
+  category: string;
+  city: string;
+  rating: number;
+  gradient: string;
+}
+
+const CATEGORIES: CategoryCard[] = [
+  { name: 'Soins visage', slug: 'soins-visage', emoji: '💆', color: '#f4e1d2', count: 12 },
+  { name: 'Ongles', slug: 'ongles', emoji: '💅', color: '#f9d5d3', count: 8 },
+  { name: 'Coiffure', slug: 'coiffure', emoji: '✂️', color: '#dce8d2', count: 15 },
+  { name: 'Épilation', slug: 'epilation', emoji: '🧖', color: '#d5e5f0', count: 6 },
+];
+
+const FEATURED_SALONS: FeaturedSalon[] = [
+  { name: 'Atelier Lumière', slug: 'atelier-lumiere', category: 'Soins visage', city: 'Paris 11', rating: 4.8, gradient: 'linear-gradient(135deg, #e8d5c4, #f0e0d0)' },
+  { name: 'Rose & Thé', slug: 'rose-et-the', category: 'Ongles', city: 'Lyon 6', rating: 4.9, gradient: 'linear-gradient(135deg, #d5e0d2, #e0ead5)' },
+  { name: 'Belle Époque', slug: 'belle-epoque', category: 'Coiffure', city: 'Bordeaux', rating: 4.7, gradient: 'linear-gradient(135deg, #d5d5e8, #e0e0f0)' },
+  { name: 'Douceur de Soi', slug: 'douceur-de-soi', category: 'Épilation', city: 'Nantes', rating: 4.6, gradient: 'linear-gradient(135deg, #e0d5d8, #f0e5e8)' },
+  { name: "Les Mains d'Or", slug: 'les-mains-dor', category: 'Ongles', city: 'Toulouse', rating: 4.8, gradient: 'linear-gradient(135deg, #f0e6cc, #f5ecd5)' },
+];
 
 @Component({
   selector: 'app-home',
-  imports: [
-    ServiceCardComponent,
-    BookingCalendarComponent,
-    BookingTimesComponent,
-    MatButtonModule
-  ],
+  standalone: true,
+  imports: [TranslocoPipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  providers: [CaresStore]
 })
 export class Home {
-  readonly caresStore = inject(CaresStore);
-  private readonly bookingsService = inject(BookingsService);
-  private readonly snackBar = inject(MatSnackBar);
-  private readonly authService = inject(AuthService);
-  private readonly dialog = inject(MatDialog);
+  private router = inject(Router);
 
-  // Track booking state for each care
-  bookingState = new Map<number, BookingState>();
+  readonly categories = CATEGORIES;
+  readonly salons = FEATURED_SALONS;
+  readonly searchQuery = signal('');
 
-  // Handle booking request from service card
-  onBookingRequested(careId: number): void {
-    if (!this.bookingState.has(careId)) {
-      this.bookingState.set(careId, {});
+  onSearch(): void {
+    const q = this.searchQuery().trim();
+    if (q) {
+      this.router.navigate(['/discover'], { queryParams: { q } });
     }
   }
 
-  // Calendar day selection
-  onDaySelected(careId: number, day: string): void {
-    const state = this.bookingState.get(careId) || {};
-    state.selectedDay = day;
-    this.bookingState.set(careId, state);
+  onCategoryClick(slug: string): void {
+    this.router.navigate(['/discover'], { queryParams: { category: slug } });
   }
 
-  // Time selection
-  onTimeSelected(careId: number, time: string): void {
-    const state = this.bookingState.get(careId) || {};
-    state.selectedTime = time;
-    this.bookingState.set(careId, state);
+  onSalonClick(slug: string): void {
+    this.router.navigate(['/salon', slug]);
   }
 
-  // Get selected day for a care
-  getSelectedDay(careId: number): string | undefined {
-    return this.bookingState.get(careId)?.selectedDay;
-  }
-
-  // Get selected time for a care
-  getSelectedTime(careId: number): string | undefined {
-    return this.bookingState.get(careId)?.selectedTime;
-  }
-
-  // Check if day is selected (for mobile two-step flow)
-  hasSelectedDay(careId: number): boolean {
-    return !!this.bookingState.get(careId)?.selectedDay;
-  }
-
-  // Go back to calendar selection (mobile)
-  backToCalendar(careId: number): void {
-    const state = this.bookingState.get(careId);
-    if (state) {
-      state.selectedDay = undefined;
-      state.selectedTime = undefined;
-      this.bookingState.set(careId, state);
-    }
-  }
-
-  // Check if booking can be confirmed
-  canConfirmBooking(careId: number): boolean {
-    const state = this.bookingState.get(careId);
-    return !!(state?.selectedDay && state?.selectedTime);
-  }
-
-  // Confirm booking
-  confirmBooking(careId: number): void {
-    const state = this.bookingState.get(careId);
-    if (!state?.selectedDay || !state?.selectedTime) {
-      return;
-    }
-
-    // Check if user is authenticated
-    if (!this.authService.isAuthenticated()) {
-      // Open authentication modal
-      const dialogRef = this.dialog.open(AuthModalComponent, {
-        width: '500px',
-        disableClose: false
-      });
-
-      dialogRef.afterClosed().subscribe(() => {
-        // After modal closes, check if user is now authenticated
-        if (this.authService.isAuthenticated()) {
-          this.createBooking(careId, state.selectedDay!, state.selectedTime!);
-        }
-      });
-      return;
-    }
-
-    // User is authenticated, proceed with booking
-    this.createBooking(careId, state.selectedDay, state.selectedTime);
-  }
-
-  private createBooking(careId: number, appointmentDate: string, appointmentTime: string): void {
-    const user = this.authService.user();
-    if (!user) {
-      return;
-    }
-
-    const bookingRequest = {
-      userId: user.id,
-      careId: careId,
-      quantity: 1,
-      appointmentDate: appointmentDate,
-      appointmentTime: appointmentTime,
-      status: CareBookingStatus.PENDING
-    };
-
-    this.bookingsService.create(bookingRequest).subscribe({
-      next: (booking) => {
-        console.log('Booking created successfully:', booking);
-        this.snackBar.open('Rendez-vous confirmé !', 'Fermer', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
-        });
-        // Reset booking state after confirmation
-        this.bookingState.delete(careId);
-      },
-      error: (error) => {
-        console.error('Error creating booking:', error);
-        this.snackBar.open('Erreur lors de la confirmation du rendez-vous', 'Fermer', {
-          duration: 5000,
-          panelClass: ['snackbar-error'],
-        });
-      }
-    });
+  onProCta(): void {
+    this.router.navigate(['/register']);
   }
 }

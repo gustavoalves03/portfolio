@@ -1,53 +1,70 @@
-<section class="mb-16 text-center">
-  <h1 class="text-4xl font-light tracking-wide mb-3 text-gray-900">Nos Services</h1>
-  <p class="text-gray-500 font-light text-lg">L'excellence au service de votre beauté</p>
-
-  <!-- DEBUG: Display loading/error state -->
-  <div class="mt-4">
-    @if (caresStore.isPending()) {
-      <p class="text-blue-600">Chargement des soins...</p>
-    }
-    @if (caresStore.error()) {
-      <p class="text-red-600">Erreur: {{ caresStore.error() }}</p>
-    }
-    <p class="text-sm text-gray-600">
-      Total soins: {{ caresStore.cares().length }} |
-      Soins actifs: {{ caresStore.availableCares().length }}
-    </p>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-bg">
+    <svg class="hero-blobs" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="400" cy="200" r="160" fill="#f9d5d3" opacity="0.25"/>
+      <circle cx="200" cy="300" r="120" fill="#dce8d2" opacity="0.25"/>
+      <circle cx="650" cy="120" r="100" fill="#d5e5f0" opacity="0.25"/>
+    </svg>
+  </div>
+  <div class="hero-content">
+    <h1 class="hero-title">{{ 'home.hero.title' | transloco }}</h1>
+    <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
+    <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
+      <span class="hero-search-icon">🔍</span>
+      <input
+        type="text"
+        class="hero-search-input"
+        [placeholder]="'home.hero.search' | transloco"
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value)"
+      />
+    </form>
   </div>
 </section>
 
-<section class="care-collection">
-  @for (care of caresStore.availableCares(); track care.id) {
-    <app-service-card
-      [care]="care"
-      (bookingRequested)="onBookingRequested($event)">
-
-      <!-- Calendar content projection -->
-      <app-booking-calendar
-        calendar
-        [selectedDay]="getSelectedDay(care.id)"
-        [hiddenOnMobile]="hasSelectedDay(care.id)"
-        (daySelected)="onDaySelected(care.id, $event)"
-        (backToCalendar)="backToCalendar(care.id)" />
-
-      <!-- Times content projection -->
-      <app-booking-times
-        times
-        [selectedTime]="getSelectedTime(care.id)"
-        [hiddenOnMobile]="!hasSelectedDay(care.id)"
-        [showBackButton]="hasSelectedDay(care.id)"
-        (timeSelected)="onTimeSelected(care.id, $event)"
-        (backToCalendar)="backToCalendar(care.id)" />
-
-      <!-- Confirm button content projection -->
+<!-- Categories Section -->
+<section class="landing-section">
+  <h2 class="section-title">{{ 'home.categories.title' | transloco }}</h2>
+  <div class="categories-grid">
+    @for (cat of categories; track cat.slug) {
       <button
-        confirmButton
-        class="confirm-button"
-        [disabled]="!canConfirmBooking(care.id)"
-        (click)="confirmBooking(care.id)">
-        Confirmer
+        type="button"
+        class="category-card"
+        [style.background-color]="cat.color"
+        (click)="onCategoryClick(cat.slug)"
+      >
+        <span class="category-emoji">{{ cat.emoji }}</span>
+        <div>
+          <span class="category-name">{{ cat.name }}</span>
+          <span class="category-count">{{ cat.count }} salons</span>
+        </div>
       </button>
-    </app-service-card>
-  }
+    }
+  </div>
+</section>
+
+<!-- Featured Salons Section -->
+<section class="landing-section">
+  <h2 class="section-title">{{ 'home.salons.title' | transloco }}</h2>
+  <div class="salons-carousel">
+    @for (salon of salons; track salon.slug) {
+      <button type="button" class="salon-card" (click)="onSalonClick(salon.slug)">
+        <div class="salon-image" [style.background]="salon.gradient"></div>
+        <div class="salon-info">
+          <span class="salon-name">{{ salon.name }}</span>
+          <span class="salon-category">{{ salon.category }}</span>
+          <span class="salon-meta">⭐ {{ salon.rating }} · {{ salon.city }}</span>
+        </div>
+      </button>
+    }
+  </div>
+</section>
+
+<!-- Pro CTA Section -->
+<section class="pro-cta">
+  <p class="pro-cta-question">{{ 'home.cta.question' | transloco }}</p>
+  <button type="button" class="pro-cta-action" (click)="onProCta()">
+    {{ 'home.cta.action' | transloco }} →
+  </button>
 </section>
