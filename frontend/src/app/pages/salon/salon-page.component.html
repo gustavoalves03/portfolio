@@ -38,7 +38,11 @@
                   @for (care of category.cares; track care.name) {
                     <div class="care-card">
                       @if (care.imageUrls.length > 0) {
-                        <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-thumbnail" />
+                        <div class="care-images">
+                          @for (url of care.imageUrls; track url) {
+                            <img [src]="url" [alt]="care.name" class="care-image" />
+                          }
+                        </div>
                       }
                       <div class="care-info">
                         <span class="care-name">{{ care.name }}</span>
