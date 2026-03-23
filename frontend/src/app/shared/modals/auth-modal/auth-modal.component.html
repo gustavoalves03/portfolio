@@ -1,57 +1,144 @@
 <div class="auth-modal">
-  <h2 mat-dialog-title>{{ 'auth.modal.title' | transloco }}</h2>
+  <button mat-icon-button class="close-btn" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
 
-  <mat-dialog-content>
-    <p class="auth-description">
-      {{ 'auth.modal.description' | transloco }}
-    </p>
+  <mat-tab-group
+    [selectedIndex]="activeTab()"
+    (selectedIndexChange)="activeTab.set($event); errorKey.set(null)"
+  >
+    <!-- Login tab -->
+    <mat-tab [label]="'auth.modal.loginTab' | transloco">
+      <div class="tab-content">
+        <p class="auth-description">{{ 'auth.modal.loginDescription' | transloco }}</p>
 
-    <div class="auth-buttons">
-      <!-- Google Sign-In Button -->
-      <button
-        mat-raised-button
-        class="google-button"
-        (click)="loginWithGoogle()">
-        <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        <span>{{ 'auth.modal.continueWithGoogle' | transloco }}</span>
-      </button>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>{{ 'auth.login.email' | transloco }}</mat-label>
+            <input matInput type="email" formControlName="email" />
+            @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
+              <mat-error>{{ 'auth.errors.emailRequired' | transloco }}</mat-error>
+            }
+            @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
+              <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
+            }
+          </mat-form-field>
 
-      <!-- Facebook Sign-In Button -->
-      <button
-        mat-raised-button
-        class="facebook-button"
-        (click)="loginWithFacebook()">
-        <svg class="facebook-icon" viewBox="0 0 24 24" width="20" height="20">
-          <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-        </svg>
-        <span>{{ 'auth.modal.continueWithFacebook' | transloco }}</span>
-      </button>
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>{{ 'auth.login.password' | transloco }}</mat-label>
+            <input matInput type="password" formControlName="password" />
+            @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+              <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
+            }
+          </mat-form-field>
 
-      <!-- Apple Sign-In Button -->
-      <button
-        mat-raised-button
-        class="apple-button"
-        (click)="loginWithApple()">
-        <svg class="apple-icon" viewBox="0 0 24 24" width="20" height="20">
-          <path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-        </svg>
-        <span>{{ 'auth.modal.continueWithApple' | transloco }}</span>
-      </button>
-    </div>
+          @if (errorKey()) {
+            <div class="error-msg">{{ errorKey()! | transloco }}</div>
+          }
 
-    <p class="auth-terms">
-      {{ 'auth.modal.terms' | transloco }}
-    </p>
-  </mat-dialog-content>
+          <button
+            mat-flat-button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              {{ 'auth.login.submit' | transloco }}
+            }
+          </button>
+        </form>
 
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="close()">
-      {{ 'common.cancel' | transloco }}
-    </button>
-  </mat-dialog-actions>
+        <div class="divider-row">
+          <span class="divider-text">{{ 'auth.login.orDivider' | transloco }}</span>
+        </div>
+
+        <button mat-stroked-button class="google-button" (click)="loginWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          <span>{{ 'auth.modal.continueWithGoogle' | transloco }}</span>
+        </button>
+
+        <p class="switch-link">
+          {{ 'auth.modal.noAccount' | transloco }}
+          <a (click)="switchToRegister()">{{ 'auth.modal.registerLink' | transloco }}</a>
+        </p>
+      </div>
+    </mat-tab>
+
+    <!-- Register tab -->
+    <mat-tab [label]="'auth.modal.registerTab' | transloco">
+      <div class="tab-content">
+        <p class="auth-description">{{ 'auth.modal.registerDescription' | transloco }}</p>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>{{ 'auth.register.name' | transloco }}</mat-label>
+            <input matInput type="text" formControlName="name" />
+            @if (registerForm.get('name')?.hasError('required') && registerForm.get('name')?.touched) {
+              <mat-error>{{ 'auth.errors.nameRequired' | transloco }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>{{ 'auth.register.email' | transloco }}</mat-label>
+            <input matInput type="email" formControlName="email" />
+            @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+              <mat-error>{{ 'auth.errors.emailRequired' | transloco }}</mat-error>
+            }
+            @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
+              <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>
+            <input matInput type="password" formControlName="password" />
+            @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+              <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
+            }
+            @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {
+              <mat-error>{{ 'auth.errors.passwordTooShort' | transloco }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-checkbox formControlName="consent" class="consent-checkbox">
+            <span [innerHTML]="'auth.register.consent' | transloco"></span>
+          </mat-checkbox>
+          @if (registerForm.get('consent')?.hasError('required') && registerForm.get('consent')?.touched) {
+            <div class="consent-error">{{ 'auth.register.consentRequired' | transloco }}</div>
+          }
+
+          @if (errorKey()) {
+            <div class="error-msg">{{ errorKey()! | transloco }}</div>
+          }
+
+          <button
+            mat-flat-button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              {{ 'auth.modal.createAccount' | transloco }}
+            }
+          </button>
+        </form>
+
+        <p class="switch-link">
+          {{ 'auth.modal.hasAccount' | transloco }}
+          <a (click)="switchToLogin()">{{ 'auth.modal.loginLink' | transloco }}</a>
+        </p>
+
+        <p class="auth-terms">{{ 'auth.modal.terms' | transloco }}</p>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

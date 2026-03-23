@@ -26,7 +26,7 @@ export class OAuth2RedirectComponent implements OnInit {
     if (token) {
       this.authService.handleOAuth2Callback(token).subscribe({
         next: () => {
-          this.router.navigate(['/pro/dashboard']);
+          this.authService.navigateByRole();
         },
         error: () => {
           this.router.navigate(['/login']);

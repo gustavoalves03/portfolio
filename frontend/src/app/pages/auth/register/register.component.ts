@@ -62,7 +62,7 @@ export class RegisterComponent {
     this.authService.registerPro(name!, email!, password!).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/pro/dashboard']);
+        this.authService.navigateByRole();
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;

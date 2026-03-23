@@ -69,7 +69,7 @@ export class LoginComponent {
     this.authService.loginWithCredentials(email!, password!).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/pro/dashboard']);
+        this.authService.navigateByRole();
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading = false;

@@ -1,114 +1,137 @@
 .auth-modal {
-  min-width: 420px;
-  max-width: 500px;
-  border-radius: 24px;
+  min-width: 400px;
+  max-width: 480px;
+  position: relative;
 
   @media (max-width: 599px) {
     min-width: 280px;
   }
 }
 
-h2 {
-  color: var(--mat-sys-on-surface);
-  margin-bottom: 0;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 400;
-  font-size: 1.75rem;
-  text-align: center;
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  color: #999;
+}
+
+.tab-content {
+  padding: 20px 24px 24px;
 }
 
 .auth-description {
-  color: var(--mat-sys-on-surface-variant);
-  margin: 1rem 0 2rem 0;
-  line-height: 1.6;
+  color: #888;
+  margin: 0 0 20px;
+  line-height: 1.5;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 13px;
 }
 
-.auth-buttons {
+.full-width {
+  width: 100%;
+}
+
+.error-msg {
+  color: #d32f2f;
+  font-size: 12px;
+  margin: -8px 0 12px;
+  text-align: center;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  color: white !important;
+  border-radius: 24px !important;
+  padding: 10px 0 !important;
+  font-weight: 500 !important;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  justify-content: center;
 
-  button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.875rem;
-    padding: 0.875rem 1.75rem;
-    font-size: 0.95rem;
+  mat-spinner {
+    margin: 0 auto;
+  }
+}
+
+.divider-row {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eee;
+  }
+}
+
+.divider-text {
+  padding: 0 12px;
+  font-size: 12px;
+  color: #bbb;
+}
+
+.google-button {
+  width: 100%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 24px !important;
+  padding: 10px 0 !important;
+  font-size: 13px;
+  border-color: #e0e0e0 !important;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.switch-link {
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  margin-top: 16px;
+
+  a {
+    color: #c06;
+    cursor: pointer;
     font-weight: 500;
-    text-transform: none;
-    letter-spacing: 0.25px;
-    border-radius: 50px;
-    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-height: 48px;
-
-    svg {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-    }
-
-    mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
 
     &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      text-decoration: underline;
     }
   }
+}
 
-  .google-button {
-    background-color: white;
-    color: rgba(0, 0, 0, 0.87);
-    border: 1.5px solid #e0e0e0;
+.consent-checkbox {
+  margin: 4px 0 12px;
+  font-size: 12px;
 
-    &:hover {
-      background-color: #fafafa;
-      border-color: #d0d0d0;
-    }
+  ::ng-deep .mdc-label {
+    font-size: 12px;
+    color: #666;
   }
 
-  .facebook-button {
-    background-color: #1877f2;
-    color: white;
-    border: none;
-
-    &:hover {
-      background-color: #166fe5;
-    }
+  ::ng-deep a {
+    color: #c06;
   }
+}
 
-  .apple-button {
-    background-color: #000000;
-    color: white;
-    border: none;
-
-    &:hover {
-      background-color: #1a1a1a;
-    }
-  }
+.consent-error {
+  color: #d32f2f;
+  font-size: 11px;
+  margin: -8px 0 12px 32px;
 }
 
 .auth-terms {
-  font-size: 0.75rem;
-  color: var(--mat-sys-on-surface-variant);
+  font-size: 11px;
+  color: #bbb;
   text-align: center;
   line-height: 1.4;
-  margin: 0;
-}
-
-mat-dialog-actions {
-  padding: 1rem 1.5rem;
+  margin: 16px 0 0;
 }
