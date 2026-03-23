@@ -267,5 +267,13 @@
       "duration": "Durée",
       "price": "Prix"
     }
+  },
+  "booking": {
+    "book": "Réserver",
+    "dialog": {
+      "title": "Choisir un créneau",
+      "noSlots": "Aucun créneau disponible ce jour",
+      "confirm": "Confirmer"
+    }
   }
 }

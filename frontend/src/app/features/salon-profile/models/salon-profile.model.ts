@@ -14,10 +14,16 @@ export interface UpdateTenantRequest {
 }
 
 export interface PublicCareDto {
+  id: number;
   name: string;
   duration: number;
   price: number;
   imageUrls: string[];
+}
+
+export interface TimeSlot {
+  startTime: string;
+  endTime: string;
 }
 
 export interface PublicCategoryDto {
