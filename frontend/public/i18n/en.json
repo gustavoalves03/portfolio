@@ -180,6 +180,26 @@
       "filter": {
         "all": "All services"
       }
+    },
+    "availability": {
+      "title": "My availability",
+      "closed": "Closed",
+      "addSlot": "Add time slot",
+      "save": "Save",
+      "saveSuccess": "Hours updated",
+      "saveError": "Error saving hours",
+      "clickToOpen": "Click to open",
+      "overlapError": "Time slots overlap",
+      "invalidTime": "End time must be after start time",
+      "days": {
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      }
     }
   },
   "home": {
