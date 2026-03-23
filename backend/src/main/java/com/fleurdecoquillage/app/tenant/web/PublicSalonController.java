@@ -28,6 +28,7 @@ public class PublicSalonController {
     @Transactional(readOnly = true)
     public ResponseEntity<PublicSalonResponse> getSalon(@PathVariable String slug) {
         return tenantService.findBySlug(slug)
+                .filter(tenant -> tenant.getStatus() == com.fleurdecoquillage.app.tenant.domain.TenantStatus.ACTIVE)
                 .map(tenant -> {
                     // Set tenant context to query the correct schema
                     TenantContext.setCurrentTenant(tenant.getSlug());
