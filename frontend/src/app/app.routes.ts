@@ -51,6 +51,10 @@ export const routes: Routes = [
       },
       { path: 'cares', component: CaresComponent },
       { path: 'categories', component: CategoriesComponent },
+      {
+        path: 'availability',
+        loadComponent: () => import('./features/availability/availability.component').then(m => m.AvailabilityComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

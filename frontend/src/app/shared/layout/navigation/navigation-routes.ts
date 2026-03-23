@@ -47,6 +47,13 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiredRole: 'PRO'
   },
   {
+    label: 'Disponibilités',
+    path: '/pro/availability',
+    icon: 'schedule',
+    requiresAuth: true,
+    requiredRole: 'PRO'
+  },
+  {
     label: 'Mon salon',
     path: '/pro/salon',
     icon: 'storefront',

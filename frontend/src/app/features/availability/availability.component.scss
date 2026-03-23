@@ -1,0 +1,164 @@
+.availability-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.week-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &.closed {
+    opacity: 0.5;
+  }
+}
+
+.day-name {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  padding-top: 6px;
+}
+
+.closed-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+
+  .closed-text {
+    font-size: 13px;
+    color: #bbb;
+    font-style: italic;
+  }
+
+  .open-hint {
+    font-size: 11px;
+    color: #ddd;
+    transition: color 150ms ease;
+  }
+
+  &:hover .open-hint {
+    color: #c06;
+  }
+}
+
+.slots-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-input {
+  background: #f7f5f3;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #333;
+  outline: none;
+  width: 110px;
+
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.15);
+  }
+}
+
+.time-separator {
+  font-size: 12px;
+  color: #999;
+}
+
+.remove-slot {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: #c06;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.add-slot-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: #c06;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.save-bar {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #a8385d, #c06);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

@@ -1,0 +1,52 @@
+<div class="availability-page">
+  <h1 class="page-title">{{ 'pro.availability.title' | transloco }}</h1>
+
+  <div class="week-list">
+    @for (dayOfWeek of weekDays; track dayOfWeek) {
+      <div class="day-row" [class.closed]="isDayClosed(dayOfWeek)">
+        <div class="day-name">
+          {{ 'pro.availability.days.' + dayOfWeek | transloco }}
+        </div>
+
+        @if (isDayClosed(dayOfWeek)) {
+          <button type="button" class="closed-label" (click)="openDay(dayOfWeek)">
+            <span class="closed-text">{{ 'pro.availability.closed' | transloco }}</span>
+            <span class="open-hint">{{ 'pro.availability.clickToOpen' | transloco }}</span>
+          </button>
+        } @else {
+          <div class="slots-container">
+            @for (slot of getDaySlots(dayOfWeek); track $index; let i = $index) {
+              <div class="slot-row">
+                <input
+                  type="time"
+                  class="time-input"
+                  [value]="slot.openTime"
+                  (change)="updateSlotTime(dayOfWeek, i, 'openTime', $any($event.target).value)"
+                />
+                <span class="time-separator">→</span>
+                <input
+                  type="time"
+                  class="time-input"
+                  [value]="slot.closeTime"
+                  (change)="updateSlotTime(dayOfWeek, i, 'closeTime', $any($event.target).value)"
+                />
+                <button type="button" class="remove-slot" (click)="removeSlot(dayOfWeek, i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+            <button type="button" class="add-slot-btn" (click)="addSlot(dayOfWeek)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="save-bar">
+    <button type="button" class="save-btn" (click)="onSave()">
+      {{ 'pro.availability.save' | transloco }}
+    </button>
+  </div>
+</div>
