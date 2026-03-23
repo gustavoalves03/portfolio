@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { Role } from './auth.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of, map } from 'rxjs';
@@ -41,7 +42,26 @@ export class AuthService {
    */
   registerPro(name: string, email: string, password: string): Observable<User> {
     return this.http.post<{accessToken: string, user: User}>(
-      `${this.apiBaseUrl}/api/auth/register`,
+      `${this.apiBaseUrl}/api/auth/register/pro`,
+      { name, email, password, consent: true }
+    ).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.currentUser.set(response.user);
+      }),
+      map(response => response.user),
+      catchError(error => {
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Register a new client with email and password
+   */
+  registerClient(name: string, email: string, password: string): Observable<User> {
+    return this.http.post<{accessToken: string, user: User}>(
+      `${this.apiBaseUrl}/api/auth/register/client`,
       { name, email, password, consent: true }
     ).pipe(
       tap(response => {
@@ -145,6 +165,18 @@ export class AuthService {
       localStorage.removeItem(TOKEN_KEY);
     }
     this.router.navigate(['/']);
+  }
+
+  /**
+   * Navigate to the appropriate dashboard based on user role
+   */
+  navigateByRole(): void {
+    const role = this.currentUser()?.role;
+    if (role === Role.PRO || role === Role.ADMIN) {
+      this.router.navigate(['/pro/dashboard']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   /**

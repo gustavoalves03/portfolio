@@ -51,6 +51,22 @@ public class AuthController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return registerWithRole(request, Role.PRO, true);
+    }
+
+    @PostMapping("/register/pro")
+    @Transactional
+    public ResponseEntity<AuthResponse> registerPro(@Valid @RequestBody RegisterRequest request) {
+        return registerWithRole(request, Role.PRO, true);
+    }
+
+    @PostMapping("/register/client")
+    @Transactional
+    public ResponseEntity<AuthResponse> registerClient(@Valid @RequestBody RegisterRequest request) {
+        return registerWithRole(request, Role.USER, false);
+    }
+
+    private ResponseEntity<AuthResponse> registerWithRole(RegisterRequest request, Role role, boolean provisionTenant) {
         if (userRepository.existsByEmail(request.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
@@ -60,14 +76,16 @@ public class AuthController {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
+                .role(role)
                 .emailVerified(false)
                 .consentGivenAt(LocalDateTime.now())
                 .build();
 
         User savedUser = userRepository.save(user);
 
-        tenantProvisioningService.provision(savedUser);
+        if (provisionTenant) {
+            tenantProvisioningService.provision(savedUser);
+        }
         emailService.sendWelcomeEmail(savedUser);
 
         String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());

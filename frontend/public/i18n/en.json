@@ -26,7 +26,16 @@
       "continueWithGoogle": "Continue with Google",
       "continueWithFacebook": "Continue with Facebook",
       "continueWithApple": "Continue with Apple",
-      "terms": "By signing in, you agree to our terms of service and privacy policy."
+      "terms": "By signing in, you agree to our terms of service and privacy policy.",
+      "loginTab": "Sign in",
+      "registerTab": "Create account",
+      "loginDescription": "Sign in to access your account.",
+      "registerDescription": "Create your account to book beauty treatments.",
+      "createAccount": "Create my account",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create one",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
     },
     "login": {
       "title": "Sign In",

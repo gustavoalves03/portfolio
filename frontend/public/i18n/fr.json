@@ -26,7 +26,16 @@
       "continueWithGoogle": "Continuer avec Google",
       "continueWithFacebook": "Continuer avec Facebook",
       "continueWithApple": "Continuer avec Apple",
-      "terms": "En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité."
+      "terms": "En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.",
+      "loginTab": "Connexion",
+      "registerTab": "Créer un compte",
+      "loginDescription": "Connectez-vous pour accéder à votre espace.",
+      "registerDescription": "Créez votre compte pour réserver vos soins beauté.",
+      "createAccount": "Créer mon compte",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "Créer un compte",
+      "hasAccount": "Déjà un compte ?",
+      "loginLink": "Se connecter"
     },
     "login": {
       "title": "Connexion",
