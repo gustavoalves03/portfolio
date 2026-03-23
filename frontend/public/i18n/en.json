@@ -180,6 +180,30 @@
       }
     }
   },
+  "home": {
+    "hero": {
+      "title": "Pretty Face",
+      "subtitle": "Find your next beauty treatment",
+      "search": "Search for a treatment, a salon..."
+    },
+    "categories": {
+      "title": "Categories"
+    },
+    "salons": {
+      "title": "Discover artists near you"
+    },
+    "cta": {
+      "question": "Are you a beauty professional?",
+      "action": "Create your storefront for free"
+    }
+  },
+  "discover": {
+    "placeholder": "Coming soon",
+    "message": "Discover {{category}} salons",
+    "searchMessage": "Results for '{{query}}'",
+    "defaultMessage": "Explore all beauty salons near you",
+    "backHome": "Back to home"
+  },
   "salon": {
     "public": {
       "noCares": "No services available at this time",

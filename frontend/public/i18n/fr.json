@@ -184,6 +184,30 @@
       }
     }
   },
+  "home": {
+    "hero": {
+      "title": "Pretty Face",
+      "subtitle": "Trouve ton prochain soin beauté",
+      "search": "Rechercher un soin, un salon..."
+    },
+    "categories": {
+      "title": "Catégories"
+    },
+    "salons": {
+      "title": "Découvre les artistes près de toi"
+    },
+    "cta": {
+      "question": "Tu es pro de la beauté ?",
+      "action": "Crée ta vitrine gratuitement"
+    }
+  },
+  "discover": {
+    "placeholder": "Bientôt disponible",
+    "message": "Découvrez les salons {{category}}",
+    "searchMessage": "Résultats pour « {{query}} »",
+    "defaultMessage": "Explorez tous les salons de beauté près de chez vous",
+    "backHome": "Retour à l'accueil"
+  },
   "salon": {
     "public": {
       "noCares": "Aucun soin disponible pour le moment",
