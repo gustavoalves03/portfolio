@@ -185,6 +185,25 @@
         "all": "Tous les soins"
       }
     },
+    "calendar": {
+      "title": "Mon calendrier",
+      "today": "Aujourd'hui",
+      "blocked": "Bloqué",
+      "available": "Disponible",
+      "closed": "Fermé",
+      "blockSlot": "Bloquer un créneau",
+      "unblock": "Débloquer",
+      "fullDay": "Journée entière",
+      "reason": "Raison (optionnel)",
+      "confirm": "Confirmer",
+      "blockSuccess": "Créneau bloqué",
+      "unblockSuccess": "Créneau débloqué",
+      "legend": {
+        "today": "Aujourd'hui",
+        "blocked": "Créneau bloqué",
+        "closed": "Fermé"
+      }
+    },
     "availability": {
       "title": "Mes disponibilités",
       "closed": "Fermé",

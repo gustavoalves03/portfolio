@@ -55,6 +55,10 @@ export const routes: Routes = [
         path: 'availability',
         loadComponent: () => import('./features/availability/availability.component').then(m => m.AvailabilityComponent),
       },
+      {
+        path: 'calendar',
+        loadComponent: () => import('./features/calendar/calendar.component').then(m => m.CalendarComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

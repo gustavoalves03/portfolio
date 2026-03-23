@@ -1,0 +1,134 @@
+<div class="calendar-page">
+  <h1 class="page-title">{{ 'pro.calendar.title' | transloco }}</h1>
+
+  <!-- Month navigation -->
+  <div class="month-nav">
+    <button type="button" class="nav-btn" (click)="prevMonth()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="month-label">{{ monthLabel() }}</span>
+    <button type="button" class="nav-btn" (click)="nextMonth()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <!-- Calendar grid -->
+  <div class="calendar-grid">
+    @for (label of weekDayLabels; track label) {
+      <div class="weekday-header">{{ label }}</div>
+    }
+    @for (day of calendarDays(); track day.date.getTime()) {
+      <button
+        type="button"
+        class="day-cell"
+        [class.other-month]="!day.isCurrentMonth"
+        [class.today]="day.isToday"
+        [class.closed]="day.isClosed && day.isCurrentMonth"
+        [class.has-blocks]="day.hasBlocks && day.isCurrentMonth"
+        [class.selected]="isSelected(day)"
+        (click)="selectDay(day)"
+      >
+        {{ day.dayOfMonth }}
+      </button>
+    }
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <span class="legend-dot today-dot"></span>
+      {{ 'pro.calendar.legend.today' | transloco }}
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot blocked-dot"></span>
+      {{ 'pro.calendar.legend.blocked' | transloco }}
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot closed-dot"></span>
+      {{ 'pro.calendar.legend.closed' | transloco }}
+    </div>
+  </div>
+
+  <!-- Day detail panel -->
+  @if (selectedDate()) {
+    <div class="day-detail">
+      <div class="day-detail-title">
+        {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
+      </div>
+
+      @if (isSelectedDayClosed()) {
+        <div class="day-closed-msg">{{ 'pro.calendar.closed' | transloco }}</div>
+      } @else {
+        <!-- Opening hours for this day -->
+        @for (oh of selectedDayOpeningHours(); track oh.id) {
+          <div class="slot-row available">
+            <span class="slot-time">{{ oh.openTime }} – {{ oh.closeTime }}</span>
+            <span class="slot-status available-label">{{ 'pro.calendar.available' | transloco }}</span>
+          </div>
+        }
+      }
+
+      <!-- Blocked slots for this date -->
+      @for (block of selectedDayBlocks(); track block.id) {
+        <div class="slot-row blocked">
+          <div>
+            <span class="slot-time">
+              @if (block.fullDay) {
+                {{ 'pro.calendar.fullDay' | transloco }}
+              } @else {
+                {{ block.startTime }} – {{ block.endTime }}
+              }
+            </span>
+            @if (block.reason) {
+              <span class="slot-reason">{{ block.reason }}</span>
+            }
+          </div>
+          <button type="button" class="unblock-btn" (click)="onUnblock(block)">
+            {{ 'pro.calendar.unblock' | transloco }}
+          </button>
+        </div>
+      }
+
+      <!-- Block form toggle -->
+      @if (!showBlockForm()) {
+        <button type="button" class="add-block-btn" (click)="openBlockForm()">
+          + {{ 'pro.calendar.blockSlot' | transloco }}
+        </button>
+      } @else {
+        <div class="block-form">
+          <div class="block-form-row">
+            <mat-slide-toggle
+              [checked]="blockFullDay()"
+              (change)="blockFullDay.set($event.checked)"
+            >
+              {{ 'pro.calendar.fullDay' | transloco }}
+            </mat-slide-toggle>
+          </div>
+          @if (!blockFullDay()) {
+            <div class="block-form-row">
+              <input type="time" class="time-input" [value]="blockStartTime()"
+                     (change)="blockStartTime.set($any($event.target).value)" />
+              <span class="time-sep">→</span>
+              <input type="time" class="time-input" [value]="blockEndTime()"
+                     (change)="blockEndTime.set($any($event.target).value)" />
+            </div>
+          }
+          <div class="block-form-row">
+            <input type="text" class="reason-input"
+                   [placeholder]="'pro.calendar.reason' | transloco"
+                   [value]="blockReason()"
+                   (input)="blockReason.set($any($event.target).value)" />
+          </div>
+          <div class="block-form-actions">
+            <button type="button" class="cancel-btn" (click)="showBlockForm.set(false)">
+              {{ 'common.cancel' | transloco }}
+            </button>
+            <button type="button" class="confirm-btn" (click)="confirmBlock()">
+              {{ 'pro.calendar.confirm' | transloco }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
