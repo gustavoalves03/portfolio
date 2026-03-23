@@ -42,7 +42,7 @@ export class AuthService {
   registerPro(name: string, email: string, password: string): Observable<User> {
     return this.http.post<{accessToken: string, user: User}>(
       `${this.apiBaseUrl}/api/auth/register`,
-      { name, email, password }
+      { name, email, password, consent: true }
     ).pipe(
       tap(response => {
         this.setToken(response.accessToken);
