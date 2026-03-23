@@ -44,6 +44,12 @@ public class Tenant {
     @Column(name = "logo_path", length = 500)
     private String logoPath;
 
+    @Column(name = "category_names", length = 1000)
+    private String categoryNames;
+
+    @Column(name = "category_slugs", length = 1000)
+    private String categorySlugs;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
