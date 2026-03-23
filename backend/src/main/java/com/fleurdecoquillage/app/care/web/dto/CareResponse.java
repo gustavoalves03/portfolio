@@ -12,5 +12,6 @@ public record CareResponse(
         Integer duration,
         CareStatus status,
         Long categoryId,
+        Integer displayOrder,
         List<CareImageDto> images
 ) {}

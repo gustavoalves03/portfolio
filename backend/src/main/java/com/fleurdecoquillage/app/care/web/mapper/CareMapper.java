@@ -24,6 +24,7 @@ public class CareMapper {
                 c.getDuration(),
                 c.getStatus(),
                 c.getCategory() != null ? c.getCategory().getId() : null,
+                c.getDisplayOrder(),
                 imageDtos
         );
     }

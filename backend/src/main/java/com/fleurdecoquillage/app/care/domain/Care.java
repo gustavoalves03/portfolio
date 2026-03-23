@@ -40,6 +40,9 @@ public class Care {
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false,
                 foreignKey = @ForeignKey(name = "FK_CARE_CATEGORY"))
