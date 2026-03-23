@@ -65,8 +65,16 @@ export class CaresComponent {
     {
       key: 'status',
       headerKey: 'cares.columns.status',
+      type: 'toggle',
       align: 'center',
-      valueGetter: (care: Care) => this.translateStatus(care.status)
+      valueGetter: (care: Care) => care.status === CareStatus.ACTIVE,
+      toggleCallback: (care: Care, checked: boolean) => {
+        this.store.toggleCareStatus({
+          id: care.id,
+          status: checked ? CareStatus.ACTIVE : CareStatus.INACTIVE,
+        });
+        this.snackBar.open(this.i18n.translate('cares.toggleSuccess'), 'OK', { duration: 2000 });
+      },
     },
     { key: 'duration', headerKey: 'cares.columns.duration', align: 'center' }
   ]);
@@ -160,6 +168,12 @@ export class CaresComponent {
       this.selectedCategoryId.set(null);
       this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', { duration: 3000 });
     }
+  }
+
+  onReorder(reorderedCares: Care[]): void {
+    const orderedIds = reorderedCares.map(c => c.id);
+    this.store.reorderCares(orderedIds);
+    this.snackBar.open(this.i18n.translate('cares.reorderSuccess'), 'OK', { duration: 2000 });
   }
 
   onAddCare() {
@@ -259,10 +273,6 @@ export class CaresComponent {
       }
     });
   };
-
-  private translateStatus(status: CareStatus): string {
-    return this.i18n.translate(`cares.status.${status}`) || status;
-  }
 
   private truncateDescription(description: string): string {
     const maxLength = 60;

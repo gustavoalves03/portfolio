@@ -25,6 +25,7 @@ export interface Care {
   duration: number;
   status: CareStatus;
   category: Category;
+  displayOrder?: number;
   images?: CareImage[];
 }
 

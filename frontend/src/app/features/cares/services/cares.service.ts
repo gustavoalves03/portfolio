@@ -2,7 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { map, Observable } from 'rxjs';
 import { BaseCrudService } from '../../../core/data/base-crud.service';
-import { Care, CreateCareRequest, UpdateCareRequest } from '../models/cares.model';
+import { Care, CareStatus, CreateCareRequest, UpdateCareRequest } from '../models/cares.model';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { Page } from '../../../shared/models/page.model';
 
@@ -25,6 +25,28 @@ export class CaresService extends BaseCrudService<Care, CreateCareRequest, Updat
   override get(id: number): Observable<Care> {
     return super.get(id).pipe(
       map(care => this.transformCareImageUrls(care))
+    );
+  }
+
+  toggleStatus(id: number, status: CareStatus): Observable<Care> {
+    return this.http.patch<Care>(
+      `${this.apiBaseUrl}${this.basePath}/${id}/status`,
+      { status }
+    ).pipe(map(care => this.transformCareImageUrls(care)));
+  }
+
+  reorder(orderedIds: number[]): Observable<void> {
+    return this.http.patch<void>(
+      `${this.apiBaseUrl}${this.basePath}/reorder`,
+      { orderedIds }
+    );
+  }
+
+  listOrdered(): Observable<Care[]> {
+    return this.http.get<Care[]>(
+      `${this.apiBaseUrl}${this.basePath}/ordered`
+    ).pipe(
+      map(cares => cares.map(care => this.transformCareImageUrls(care)))
     );
   }
 

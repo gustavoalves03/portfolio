@@ -114,7 +114,9 @@
     "status": {
       "ACTIVE": "Active",
       "INACTIVE": "Inactive"
-    }
+    },
+    "toggleSuccess": "Status updated",
+    "reorderSuccess": "Order updated"
   },
   "categories": {
     "title": "Categories",

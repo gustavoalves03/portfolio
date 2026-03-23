@@ -47,16 +47,15 @@ export const CaresStore = signalStore(
   withState<CaresState>({cares: []}),
   withRequestStatus(),
   withComputed((store) => ({
-    availableCares: computed(() => store.cares().filter((care) => care.status === CareStatus.ACTIVE)
-    ),
+    availableCares: computed(() => store.cares()),
   })),
   withMethods((store, caresGateway = inject(CaresService)) => ({
     getCares: rxMethod<void>(
       pipe(
         tap(() => patchState(store, setPending())),
         switchMap(() =>
-          caresGateway.list().pipe(
-            tap((cares) => patchState(store, { cares: cares.content }, setFulfilled())),
+          caresGateway.listOrdered().pipe(
+            tap((cares) => patchState(store, { cares }, setFulfilled())),
             catchError((err) => {
               patchState(store, setError(extractErrorMessage(err, 'Erreur de chargement des soins')));
               return EMPTY;
@@ -145,6 +144,35 @@ export const CaresStore = signalStore(
             ),
             catchError((err) => {
               patchState(store, setError(extractErrorMessage(err, 'Erreur lors de la suppression du soin')));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    toggleCareStatus: rxMethod<{ id: number; status: CareStatus }>(
+      pipe(
+        exhaustMap(({ id, status }) =>
+          caresGateway.toggleStatus(id, status).pipe(
+            tap((updatedCare) =>
+              patchState(store, {
+                cares: store.cares().map((care) => (care.id === id ? updatedCare : care)),
+              })
+            ),
+            catchError((err) => {
+              patchState(store, setError(extractErrorMessage(err, 'Erreur lors du changement de statut')));
+              return EMPTY;
+            })
+          )
+        )
+      )
+    ),
+    reorderCares: rxMethod<number[]>(
+      pipe(
+        exhaustMap((orderedIds) =>
+          caresGateway.reorder(orderedIds).pipe(
+            catchError((err) => {
+              patchState(store, setError(extractErrorMessage(err, 'Erreur lors du réordonnancement')));
               return EMPTY;
             })
           )

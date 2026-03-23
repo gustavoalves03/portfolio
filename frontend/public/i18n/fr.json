@@ -118,7 +118,9 @@
     "status": {
       "ACTIVE": "Actif",
       "INACTIVE": "Inactif"
-    }
+    },
+    "toggleSuccess": "Statut mis à jour",
+    "reorderSuccess": "Ordre mis à jour"
   },
   "categories": {
     "title": "Catégories",

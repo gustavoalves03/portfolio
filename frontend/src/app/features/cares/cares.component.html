@@ -53,7 +53,9 @@
     [searchPlaceholder]="('table.search.placeholder' | transloco)"
     [loading]="store.isPending()"
     [errorMessage]="store.error()"
+    [reorderable]="true"
     (addItem)="onAddCare()"
     (rowClick)="onViewCareDetails($event)"
+    (reorder)="onReorder($event)"
   ></crud-table>
 </section>
