@@ -263,5 +263,13 @@
       "duration": "Duration",
       "price": "Price"
     }
+  },
+  "booking": {
+    "book": "Book",
+    "dialog": {
+      "title": "Choose a time slot",
+      "noSlots": "No slots available on this day",
+      "confirm": "Confirm"
+    }
   }
 }

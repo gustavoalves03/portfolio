@@ -9,8 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface CareBookingRepository extends JpaRepository<CareBooking, Long> {
+
+    /**
+     * Find bookings for a specific date (for slot availability computation)
+     */
+    List<CareBooking> findByAppointmentDateAndStatusNot(LocalDate date, CareBookingStatus status);
 
     /**
      * Find bookings by status with pagination

@@ -53,6 +53,20 @@
   padding: 0.75rem;
   border-radius: 12px;
   background: #fafafa;
+  align-items: flex-start;
+}
+
+.book-btn {
+  align-self: flex-end;
+  border-color: #c06 !important;
+  color: #c06 !important;
+  border-radius: 20px !important;
+  font-size: 13px;
+  padding: 4px 20px !important;
+
+  &:hover {
+    background: #fdf0f4 !important;
+  }
 }
 
 .care-images {

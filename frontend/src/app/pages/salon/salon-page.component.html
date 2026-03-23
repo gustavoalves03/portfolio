@@ -51,6 +51,9 @@
                           <span>{{ 'salon.public.price' | transloco }}: {{ formatPrice(care.price) }}</span>
                         </div>
                       </div>
+                      <button mat-stroked-button class="book-btn" (click)="onBook(care)">
+                        {{ 'booking.book' | transloco }}
+                      </button>
                     </div>
                   }
                 </div>

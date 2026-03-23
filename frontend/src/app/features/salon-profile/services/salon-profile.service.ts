@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
-import { TenantResponse, UpdateTenantRequest, PublicSalonResponse } from '../models/salon-profile.model';
+import { TenantResponse, UpdateTenantRequest, PublicSalonResponse, TimeSlot } from '../models/salon-profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class SalonProfileService {
@@ -26,6 +26,13 @@ export class SalonProfileService {
   updateProfile(request: UpdateTenantRequest): Observable<TenantResponse> {
     return this.http.put<TenantResponse>(`${this.baseUrl}/api/pro/tenant`, request).pipe(
       map(tenant => this.transformLogoUrl(tenant))
+    );
+  }
+
+  getAvailableSlots(slug: string, careId: number, date: string): Observable<TimeSlot[]> {
+    return this.http.get<TimeSlot[]>(
+      `${this.baseUrl}/api/salon/${slug}/available-slots`,
+      { params: { careId: careId.toString(), date } }
     );
   }
 
