@@ -109,7 +109,7 @@ export class AuthModalComponent {
 
   loginWithGoogle(): void {
     this.dialogRef.close();
-    this.authService.loginWithGoogle();
+    this.authService.loginWithGoogle('client');
   }
 
   switchToRegister(): void {

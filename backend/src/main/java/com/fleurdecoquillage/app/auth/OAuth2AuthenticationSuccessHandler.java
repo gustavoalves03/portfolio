@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import jakarta.servlet.http.Cookie;
+
 import java.io.IOException;
 
 @Component
@@ -39,6 +41,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         clearAuthenticationAttributes(request);
+        // Clear role hint cookie
+        Cookie cookie = new Cookie(OAuth2RoleHintFilter.ROLE_HINT_COOKIE, "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 

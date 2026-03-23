@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import java.util.Optional;
 
 @Service
@@ -33,6 +38,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         this.userRepository = userRepository;
         this.tenantProvisioningService = tenantProvisioningService;
         this.tenantRepository = tenantRepository;
+    }
+
+    private boolean isClientRoleHint() {
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs == null) return false;
+            HttpServletRequest request = attrs.getRequest();
+            if (request.getCookies() == null) return false;
+            for (Cookie cookie : request.getCookies()) {
+                if (OAuth2RoleHintFilter.ROLE_HINT_COOKIE.equals(cookie.getName())) {
+                    return "client".equalsIgnoreCase(cookie.getValue());
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Could not read role hint cookie", e);
+        }
+        return false;
     }
 
     @Override
@@ -85,28 +107,31 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return userRepository.save(existing);
         }
 
-        // New user — create account and provision tenant
-        User newUser = createNewUser(provider, oAuth2UserInfo);
+        // New user — create account; role depends on context (client vs pro)
+        boolean isClient = isClientRoleHint();
+        User newUser = createNewUser(provider, oAuth2UserInfo, isClient ? Role.USER : Role.PRO);
         User savedUser = userRepository.save(newUser);
 
-        // AC: 1 / B3 — Auto-provision tenant for first-time Google login
-        boolean tenantExists = tenantRepository.findByOwnerId(savedUser.getId()).isPresent();
-        if (!tenantExists) {
-            logger.info("Provisioning tenant for new OAuth2 user: {}", savedUser.getEmail());
-            tenantProvisioningService.provision(savedUser);
+        // Only provision tenant for PRO users
+        if (!isClient) {
+            boolean tenantExists = tenantRepository.findByOwnerId(savedUser.getId()).isPresent();
+            if (!tenantExists) {
+                logger.info("Provisioning tenant for new OAuth2 user: {}", savedUser.getEmail());
+                tenantProvisioningService.provision(savedUser);
+            }
         }
 
         return savedUser;
     }
 
-    private User createNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo) {
+    private User createNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo, Role role) {
         return User.builder()
             .name(oAuth2UserInfo.getName())
             .email(oAuth2UserInfo.getEmail())
             .imageUrl(oAuth2UserInfo.getImageUrl())
             .provider(provider)
             .providerId(oAuth2UserInfo.getId())
-            .role(Role.PRO) // B3.3 — OAuth2 pros get PRO role
+            .role(role)
             .emailVerified(true) // OAuth2 providers verify emails
             .build();
     }

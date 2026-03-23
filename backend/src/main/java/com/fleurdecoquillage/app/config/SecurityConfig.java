@@ -4,6 +4,7 @@ import com.fleurdecoquillage.app.auth.CustomOAuth2UserService;
 import com.fleurdecoquillage.app.auth.JwtAuthenticationFilter;
 import com.fleurdecoquillage.app.auth.OAuth2AuthenticationFailureHandler;
 import com.fleurdecoquillage.app.auth.OAuth2AuthenticationSuccessHandler;
+import com.fleurdecoquillage.app.auth.OAuth2RoleHintFilter;
 import com.fleurdecoquillage.app.auth.TokenService;
 import com.fleurdecoquillage.app.common.error.RestAccessDeniedHandler;
 import com.fleurdecoquillage.app.common.error.RestAuthenticationEntryPoint;
@@ -49,6 +50,7 @@ public class SecurityConfig {
     private final TokenService tokenService;
     private final UserRepository userRepository;
     private final TenantFilter tenantFilter;
+    private final OAuth2RoleHintFilter oAuth2RoleHintFilter;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
                           RestAuthenticationEntryPoint authenticationEntryPoint,
@@ -58,7 +60,8 @@ public class SecurityConfig {
                           OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
                           TokenService tokenService,
                           UserRepository userRepository,
-                          TenantFilter tenantFilter) {
+                          TenantFilter tenantFilter,
+                          OAuth2RoleHintFilter oAuth2RoleHintFilter) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
@@ -68,6 +71,7 @@ public class SecurityConfig {
         this.tokenService = tokenService;
         this.userRepository = userRepository;
         this.tenantFilter = tenantFilter;
+        this.oAuth2RoleHintFilter = oAuth2RoleHintFilter;
     }
 
     @Bean
@@ -106,7 +110,8 @@ public class SecurityConfig {
         };
 
         http
-                // Add JWT authentication filter, then tenant resolution filter
+                // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter
+                .addFilterBefore(oAuth2RoleHintFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf

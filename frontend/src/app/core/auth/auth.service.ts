@@ -95,10 +95,12 @@ export class AuthService {
 
   /**
    * Initiate Google OAuth2 login
+   * @param roleHint optional role hint ('client' or 'pro') for new account creation
    */
-  loginWithGoogle(): void {
+  loginWithGoogle(roleHint?: 'client' | 'pro'): void {
     if (isPlatformBrowser(this.platformId)) {
-      window.location.href = `${this.apiBaseUrl}/oauth2/authorization/google`;
+      const hint = roleHint ?? 'pro';
+      window.location.href = `${this.apiBaseUrl}/oauth2/authorization/google?role_hint=${hint}`;
     }
   }
 
