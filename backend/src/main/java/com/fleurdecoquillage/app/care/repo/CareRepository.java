@@ -9,6 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface CareRepository extends JpaRepository<Care, Long> {
 
+    @Query("SELECT c FROM Care c ORDER BY COALESCE(c.displayOrder, 999999) ASC, c.id ASC")
+    java.util.List<Care> findAllOrdered();
+
     long countByCategoryId(Long categoryId);
 
     @Modifying

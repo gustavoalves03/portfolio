@@ -38,6 +38,11 @@ public class CareService {
     }
 
     @Transactional(readOnly = true)
+    public java.util.List<CareResponse> listOrdered() {
+        return repo.findAllOrdered().stream().map(CareMapper::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
     public CareResponse get(Long id) {
         return repo.findById(id).map(CareMapper::toResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));

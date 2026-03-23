@@ -33,6 +33,11 @@ public class CareController {
         return service.create(req);
     }
 
+    @GetMapping("/ordered")
+    public java.util.List<CareResponse> listOrdered() {
+        return service.listOrdered();
+    }
+
     @GetMapping("/{id}")
     public CareResponse get(@PathVariable Long id) {
         return service.get(id);
