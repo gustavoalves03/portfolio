@@ -28,6 +28,10 @@ export const routes: Routes = [
   { path: 'video-games', component: ListVideoGames },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
   {
+    path: 'discover',
+    loadComponent: () => import('./pages/discover/discover-page.component').then(m => m.DiscoverPageComponent),
+  },
+  {
     path: 'salon/:slug',
     loadComponent: () => import('./pages/salon/salon-page.component').then(m => m.SalonPageComponent),
   },
