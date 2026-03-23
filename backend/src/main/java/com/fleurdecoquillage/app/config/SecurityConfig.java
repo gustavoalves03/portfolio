@@ -137,6 +137,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Public categories
                         .requestMatchers(HttpMethod.GET, "/api/salon/**").permitAll() // Public salon storefront
+                        .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // Public discovery
                         // Admin-only endpoints (create, update, delete)
                         .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
