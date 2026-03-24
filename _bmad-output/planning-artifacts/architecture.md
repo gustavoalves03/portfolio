@@ -55,7 +55,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 | Contrainte | Détail |
 |------------|--------|
 | Stack imposée | Angular 20 + Spring Boot 3.5 + Oracle |
-| Code existant | FleurDeCoquillage avec prestations, catégories, booking partiel, OAuth2 Google |
+| Code existant | PrettyFace avec prestations, catégories, booking partiel, OAuth2 Google |
 | Multi-tenant | Schéma Oracle par tenant (décision PRD) |
 | Développeur solo | MVP lean, éviter sur-ingénierie |
 | Intégrations | Google/Facebook/Apple OAuth, Email service, Google Calendar/iCal |
@@ -93,7 +93,7 @@ Full-stack SaaS B2B (Angular + Spring Boot + Oracle) — **Brownfield project**
 
 **Decision: Continue with Existing Codebase**
 
-The existing FleurDeCoquillage codebase provides a solid, well-structured foundation that already implements modern best practices. No starter template migration is needed.
+The existing PrettyFace codebase provides a solid, well-structured foundation that already implements modern best practices. No starter template migration is needed.
 
 ### Existing Architecture Assessment
 

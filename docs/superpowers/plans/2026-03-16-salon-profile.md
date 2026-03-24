@@ -15,7 +15,7 @@
 ### Task 1: Extend Tenant Entity
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/Tenant.java`
+- Modify: `backend/src/main/java/com/prettyface/app/tenant/domain/Tenant.java`
 
 - [ ] **Step 1: Add new fields to Tenant entity**
 
@@ -48,7 +48,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/Tenant.java
+git add backend/src/main/java/com/prettyface/app/tenant/domain/Tenant.java
 git commit -m "feat: extend Tenant entity with description, logoPath, updatedAt"
 ```
 
@@ -57,7 +57,7 @@ git commit -m "feat: extend Tenant entity with description, logoPath, updatedAt"
 ### Task 2: Refactor FileStorageService for Multiple Domains
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/common/storage/FileStorageService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/common/storage/FileStorageService.java`
 
 - [ ] **Step 1: Add generic `saveBase64Image` method with domain parameter**
 
@@ -127,7 +127,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/common/storage/FileStorageService.java
+git add backend/src/main/java/com/prettyface/app/common/storage/FileStorageService.java
 git commit -m "refactor: add domain parameter to FileStorageService for multi-domain uploads"
 ```
 
@@ -136,16 +136,16 @@ git commit -m "refactor: add domain parameter to FileStorageService for multi-do
 ### Task 3: Create Tenant DTOs
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/UpdateTenantRequest.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/TenantResponse.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/PublicSalonResponse.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/PublicCategoryDto.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/PublicCareDto.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/UpdateTenantRequest.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/TenantResponse.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/PublicSalonResponse.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/PublicCategoryDto.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/PublicCareDto.java`
 
 - [ ] **Step 1: Create UpdateTenantRequest**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -160,7 +160,7 @@ public record UpdateTenantRequest(
 - [ ] **Step 2: Create TenantResponse**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 import java.time.LocalDateTime;
 
@@ -177,7 +177,7 @@ public record TenantResponse(
 - [ ] **Step 3: Create PublicCareDto**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 import java.util.List;
 
@@ -192,7 +192,7 @@ public record PublicCareDto(
 - [ ] **Step 4: Create PublicCategoryDto**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 import java.util.List;
 
@@ -205,7 +205,7 @@ public record PublicCategoryDto(
 - [ ] **Step 5: Create PublicSalonResponse**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 import java.util.List;
 
@@ -226,7 +226,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/web/
+git add backend/src/main/java/com/prettyface/app/tenant/web/
 git commit -m "feat: add Tenant DTOs (UpdateTenantRequest, TenantResponse, PublicSalonResponse)"
 ```
 
@@ -235,19 +235,19 @@ git commit -m "feat: add Tenant DTOs (UpdateTenantRequest, TenantResponse, Publi
 ### Task 4: Create Tenant Mapper
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/mapper/TenantMapper.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/mapper/TenantMapper.java`
 
 - [ ] **Step 1: Create TenantMapper with static methods**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.mapper;
+package com.prettyface.app.tenant.web.mapper;
 
-import com.fleurdecoquillage.app.care.domain.Care;
-import com.fleurdecoquillage.app.care.domain.CareImage;
-import com.fleurdecoquillage.app.care.domain.CareStatus;
-import com.fleurdecoquillage.app.category.domain.Category;
-import com.fleurdecoquillage.app.tenant.domain.Tenant;
-import com.fleurdecoquillage.app.tenant.web.dto.*;
+import com.prettyface.app.care.domain.Care;
+import com.prettyface.app.care.domain.CareImage;
+import com.prettyface.app.care.domain.CareStatus;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.web.dto.*;
 
 import java.util.Comparator;
 import java.util.List;
@@ -328,7 +328,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/web/mapper/TenantMapper.java
+git add backend/src/main/java/com/prettyface/app/tenant/web/mapper/TenantMapper.java
 git commit -m "feat: add TenantMapper for entity-to-DTO conversion"
 ```
 
@@ -337,7 +337,7 @@ git commit -m "feat: add TenantMapper for entity-to-DTO conversion"
 ### Task 4b: Add Tenant Image Serving Endpoint
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/common/storage/FileController.java`
+- Modify: `backend/src/main/java/com/prettyface/app/common/storage/FileController.java`
 
 - [ ] **Step 1: Add tenant image serving endpoint**
 
@@ -374,7 +374,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/common/storage/FileController.java
+git add backend/src/main/java/com/prettyface/app/common/storage/FileController.java
 git commit -m "feat: add tenant image serving endpoint at /api/images/tenant/{id}/{filename}"
 ```
 
@@ -385,19 +385,19 @@ git commit -m "feat: add tenant image serving endpoint at /api/images/tenant/{id
 ### Task 5: Extend TenantService with Update Logic
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/tenant/app/TenantService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/tenant/app/TenantService.java`
 
 - [ ] **Step 1: Add update method and HTML sanitization**
 
 ```java
-package com.fleurdecoquillage.app.tenant.app;
+package com.prettyface.app.tenant.app;
 
-import com.fleurdecoquillage.app.common.storage.FileStorageService;
-import com.fleurdecoquillage.app.tenant.domain.Tenant;
-import com.fleurdecoquillage.app.tenant.repo.TenantRepository;
-import com.fleurdecoquillage.app.tenant.web.dto.TenantResponse;
-import com.fleurdecoquillage.app.tenant.web.dto.UpdateTenantRequest;
-import com.fleurdecoquillage.app.tenant.web.mapper.TenantMapper;
+import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.tenant.web.dto.TenantResponse;
+import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
+import com.prettyface.app.tenant.web.mapper.TenantMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -486,7 +486,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/app/TenantService.java
+git add backend/src/main/java/com/prettyface/app/tenant/app/TenantService.java
 git commit -m "feat: add profile update logic to TenantService with HTML sanitization"
 ```
 
@@ -495,17 +495,17 @@ git commit -m "feat: add profile update logic to TenantService with HTML sanitiz
 ### Task 6: Create TenantController
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/TenantController.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/TenantController.java`
 
 - [ ] **Step 1: Create controller with GET and PUT endpoints**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web;
+package com.prettyface.app.tenant.web;
 
-import com.fleurdecoquillage.app.auth.UserPrincipal;
-import com.fleurdecoquillage.app.tenant.web.dto.TenantResponse;
-import com.fleurdecoquillage.app.tenant.web.dto.UpdateTenantRequest;
-import com.fleurdecoquillage.app.tenant.app.TenantService;
+import com.prettyface.app.auth.UserPrincipal;
+import com.prettyface.app.tenant.web.dto.TenantResponse;
+import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
+import com.prettyface.app.tenant.app.TenantService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -542,7 +542,7 @@ Expected: BUILD SUCCESS
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/web/TenantController.java
+git add backend/src/main/java/com/prettyface/app/tenant/web/TenantController.java
 git commit -m "feat: add TenantController with GET/PUT /api/pro/tenant endpoints"
 ```
 
@@ -551,20 +551,20 @@ git commit -m "feat: add TenantController with GET/PUT /api/pro/tenant endpoints
 ### Task 7: Create Public Salon Endpoint
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicSalonController.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/PublicSalonController.java`
+- Modify: `backend/src/main/java/com/prettyface/app/config/SecurityConfig.java`
 
 - [ ] **Step 1: Create PublicSalonController**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web;
+package com.prettyface.app.tenant.web;
 
-import com.fleurdecoquillage.app.category.domain.Category;
-import com.fleurdecoquillage.app.category.repo.CategoryRepository;
-import com.fleurdecoquillage.app.multitenancy.TenantContext;
-import com.fleurdecoquillage.app.tenant.app.TenantService;
-import com.fleurdecoquillage.app.tenant.web.dto.PublicSalonResponse;
-import com.fleurdecoquillage.app.tenant.web.mapper.TenantMapper;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.multitenancy.TenantContext;
+import com.prettyface.app.tenant.app.TenantService;
+import com.prettyface.app.tenant.web.dto.PublicSalonResponse;
+import com.prettyface.app.tenant.web.mapper.TenantMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -618,8 +618,8 @@ Expected: BUILD SUCCESS
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicSalonController.java
-git add backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java
+git add backend/src/main/java/com/prettyface/app/tenant/web/PublicSalonController.java
+git add backend/src/main/java/com/prettyface/app/config/SecurityConfig.java
 git commit -m "feat: add public salon endpoint GET /api/salon/{slug} with permitAll"
 ```
 
@@ -628,19 +628,19 @@ git commit -m "feat: add public salon endpoint GET /api/salon/{slug} with permit
 ### Task 8: Backend Tests
 
 **Files:**
-- Create: `backend/src/test/java/com/fleurdecoquillage/app/tenant/app/TenantServiceTests.java`
-- Create: `backend/src/test/java/com/fleurdecoquillage/app/tenant/web/TenantControllerTests.java`
+- Create: `backend/src/test/java/com/prettyface/app/tenant/app/TenantServiceTests.java`
+- Create: `backend/src/test/java/com/prettyface/app/tenant/web/TenantControllerTests.java`
 
 - [ ] **Step 1: Create TenantServiceTests**
 
 ```java
-package com.fleurdecoquillage.app.tenant.app;
+package com.prettyface.app.tenant.app;
 
-import com.fleurdecoquillage.app.common.storage.FileStorageService;
-import com.fleurdecoquillage.app.tenant.domain.Tenant;
-import com.fleurdecoquillage.app.tenant.repo.TenantRepository;
-import com.fleurdecoquillage.app.tenant.web.dto.TenantResponse;
-import com.fleurdecoquillage.app.tenant.web.dto.UpdateTenantRequest;
+import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.tenant.web.dto.TenantResponse;
+import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -759,13 +759,13 @@ class TenantServiceTests {
 
 - [ ] **Step 2: Run tests to verify they pass**
 
-Run: `cd backend && mvn test -pl . -Dtest="com.fleurdecoquillage.app.tenant.app.TenantServiceTests" -q`
+Run: `cd backend && mvn test -pl . -Dtest="com.prettyface.app.tenant.app.TenantServiceTests" -q`
 Expected: All tests pass
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/test/java/com/fleurdecoquillage/app/tenant/
+git add backend/src/test/java/com/prettyface/app/tenant/
 git commit -m "test: add TenantService unit tests for profile management"
 ```
 

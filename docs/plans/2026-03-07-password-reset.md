@@ -13,7 +13,7 @@
 ### Task 1: Add password reset fields to User entity
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/users/domain/User.java`
+- Modify: `backend/src/main/java/com/prettyface/app/users/domain/User.java`
 
 **Step 1: Add two nullable columns after the `providerId` field**
 
@@ -37,7 +37,7 @@ Expected: BUILD SUCCESS
 ### Task 2: Add `findByPasswordResetToken` to UserRepository
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/users/repo/UserRepository.java`
+- Modify: `backend/src/main/java/com/prettyface/app/users/repo/UserRepository.java`
 
 **Step 1: Add the query method**
 
@@ -55,13 +55,13 @@ Expected: BUILD SUCCESS
 ### Task 3: Create DTOs for password reset requests
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/auth/dto/ForgotPasswordRequest.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/auth/dto/ResetPasswordRequest.java`
+- Create: `backend/src/main/java/com/prettyface/app/auth/dto/ForgotPasswordRequest.java`
+- Create: `backend/src/main/java/com/prettyface/app/auth/dto/ResetPasswordRequest.java`
 
 **Step 1: Create ForgotPasswordRequest**
 
 ```java
-package com.fleurdecoquillage.app.auth.dto;
+package com.prettyface.app.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -74,7 +74,7 @@ public record ForgotPasswordRequest(
 **Step 2: Create ResetPasswordRequest**
 
 ```java
-package com.fleurdecoquillage.app.auth.dto;
+package com.prettyface.app.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -147,7 +147,7 @@ Use the same styling as `welcome-pro.html`. Template variables: `userName`, `res
 ### Task 5: Add `sendPasswordResetEmail` to EmailService
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/notification/app/EmailService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/notification/app/EmailService.java`
 
 **Step 1: Add the method after `sendWelcomeEmail`**
 
@@ -187,7 +187,7 @@ Expected: BUILD SUCCESS
 ### Task 6: Write backend tests for forgot-password and reset-password
 
 **Files:**
-- Modify: `backend/src/test/java/com/fleurdecoquillage/app/auth/AuthControllerTests.java`
+- Modify: `backend/src/test/java/com/prettyface/app/auth/AuthControllerTests.java`
 
 **Step 1: Add forgot-password tests**
 
@@ -325,13 +325,13 @@ Expected: 6 new tests FAIL (404 Not Found)
 ### Task 7: Implement forgot-password and reset-password endpoints
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/auth/AuthController.java`
+- Modify: `backend/src/main/java/com/prettyface/app/auth/AuthController.java`
 
 **Step 1: Add imports**
 
 ```java
-import com.fleurdecoquillage.app.auth.dto.ForgotPasswordRequest;
-import com.fleurdecoquillage.app.auth.dto.ResetPasswordRequest;
+import com.prettyface.app.auth.dto.ForgotPasswordRequest;
+import com.prettyface.app.auth.dto.ResetPasswordRequest;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;

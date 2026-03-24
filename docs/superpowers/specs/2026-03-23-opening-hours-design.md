@@ -24,7 +24,7 @@ OPENING_HOURS
 
 ## Backend — API
 
-New feature package: `com.fleurdecoquillage.app.availability`
+New feature package: `com.prettyface.app.availability`
 
 | Method | URL | Auth | Description |
 |--------|-----|------|-------------|

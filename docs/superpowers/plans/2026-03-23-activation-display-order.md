@@ -17,9 +17,9 @@
 ### Task 1: Add `displayOrder` field to Care entity
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/domain/Care.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/CareResponse.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/web/mapper/CareMapper.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/domain/Care.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/web/dto/CareResponse.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/web/mapper/CareMapper.java`
 
 - [ ] **Step 1: Add displayOrder field to Care entity**
 
@@ -57,9 +57,9 @@ In `CareMapper.java`, update `toResponse()` to include `care.getDisplayOrder()` 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/care/domain/Care.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/CareResponse.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/web/mapper/CareMapper.java
+git add backend/src/main/java/com/prettyface/app/care/domain/Care.java \
+       backend/src/main/java/com/prettyface/app/care/web/dto/CareResponse.java \
+       backend/src/main/java/com/prettyface/app/care/web/mapper/CareMapper.java
 git commit -m "feat: add displayOrder field to Care entity and response DTO"
 ```
 
@@ -68,16 +68,16 @@ git commit -m "feat: add displayOrder field to Care entity and response DTO"
 ### Task 2: Add status toggle endpoint
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/StatusRequest.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/web/CareController.java`
+- Create: `backend/src/main/java/com/prettyface/app/care/web/dto/StatusRequest.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/app/CareService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/web/CareController.java`
 
 - [ ] **Step 1: Create StatusRequest DTO**
 
 ```java
-package com.fleurdecoquillage.app.care.web.dto;
+package com.prettyface.app.care.web.dto;
 
-import com.fleurdecoquillage.app.care.domain.CareStatus;
+import com.prettyface.app.care.domain.CareStatus;
 import jakarta.validation.constraints.NotNull;
 
 public record StatusRequest(@NotNull CareStatus status) {}
@@ -116,9 +116,9 @@ Import `StatusRequest` at the top.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/StatusRequest.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/web/CareController.java
+git add backend/src/main/java/com/prettyface/app/care/web/dto/StatusRequest.java \
+       backend/src/main/java/com/prettyface/app/care/app/CareService.java \
+       backend/src/main/java/com/prettyface/app/care/web/CareController.java
 git commit -m "feat: add PATCH /api/care/{id}/status toggle endpoint"
 ```
 
@@ -127,14 +127,14 @@ git commit -m "feat: add PATCH /api/care/{id}/status toggle endpoint"
 ### Task 3: Add reorder endpoint
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/ReorderRequest.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/web/CareController.java`
+- Create: `backend/src/main/java/com/prettyface/app/care/web/dto/ReorderRequest.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/app/CareService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/web/CareController.java`
 
 - [ ] **Step 1: Create ReorderRequest DTO**
 
 ```java
-package com.fleurdecoquillage.app.care.web.dto;
+package com.prettyface.app.care.web.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
@@ -175,9 +175,9 @@ Import `ReorderRequest` and `ResponseStatus` / `HttpStatus` at the top. **Import
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/care/web/dto/ReorderRequest.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/web/CareController.java
+git add backend/src/main/java/com/prettyface/app/care/web/dto/ReorderRequest.java \
+       backend/src/main/java/com/prettyface/app/care/app/CareService.java \
+       backend/src/main/java/com/prettyface/app/care/web/CareController.java
 git commit -m "feat: add PATCH /api/care/reorder endpoint"
 ```
 
@@ -186,8 +186,8 @@ git commit -m "feat: add PATCH /api/care/reorder endpoint"
 ### Task 4: Update list query to sort by displayOrder
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/repo/CareRepository.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/repo/CareRepository.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/app/CareService.java`
 
 - [ ] **Step 1: Add ordered findAll to CareRepository**
 
@@ -229,9 +229,9 @@ Place BEFORE the `@GetMapping("/{id}")` to avoid path conflict.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/care/repo/CareRepository.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/app/CareService.java \
-       backend/src/main/java/com/fleurdecoquillage/app/care/web/CareController.java
+git add backend/src/main/java/com/prettyface/app/care/repo/CareRepository.java \
+       backend/src/main/java/com/prettyface/app/care/app/CareService.java \
+       backend/src/main/java/com/prettyface/app/care/web/CareController.java
 git commit -m "feat: add ordered care list endpoint sorted by displayOrder"
 ```
 

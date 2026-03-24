@@ -17,13 +17,13 @@
 ### Task 1: Create OpeningHour entity and repository
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/domain/OpeningHour.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/repo/OpeningHourRepository.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/domain/OpeningHour.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/repo/OpeningHourRepository.java`
 
 - [ ] **Step 1: Create entity**
 
 ```java
-package com.fleurdecoquillage.app.availability.domain;
+package com.prettyface.app.availability.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -57,9 +57,9 @@ public class OpeningHour {
 - [ ] **Step 2: Create repository**
 
 ```java
-package com.fleurdecoquillage.app.availability.repo;
+package com.prettyface.app.availability.repo;
 
-import com.fleurdecoquillage.app.availability.domain.OpeningHour;
+import com.prettyface.app.availability.domain.OpeningHour;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -73,7 +73,7 @@ public interface OpeningHourRepository extends JpaRepository<OpeningHour, Long> 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/availability/
+git add backend/src/main/java/com/prettyface/app/availability/
 git commit -m "feat: create OpeningHour entity and repository"
 ```
 
@@ -82,14 +82,14 @@ git commit -m "feat: create OpeningHour entity and repository"
 ### Task 2: Create DTOs and mapper
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/web/dto/OpeningHourRequest.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/web/dto/OpeningHourResponse.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/web/mapper/OpeningHourMapper.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/web/dto/OpeningHourRequest.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/web/dto/OpeningHourResponse.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/web/mapper/OpeningHourMapper.java`
 
 - [ ] **Step 1: Create request DTO**
 
 ```java
-package com.fleurdecoquillage.app.availability.web.dto;
+package com.prettyface.app.availability.web.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -105,7 +105,7 @@ public record OpeningHourRequest(
 - [ ] **Step 2: Create response DTO**
 
 ```java
-package com.fleurdecoquillage.app.availability.web.dto;
+package com.prettyface.app.availability.web.dto;
 
 public record OpeningHourResponse(
         Long id,
@@ -118,11 +118,11 @@ public record OpeningHourResponse(
 - [ ] **Step 3: Create mapper**
 
 ```java
-package com.fleurdecoquillage.app.availability.web.mapper;
+package com.prettyface.app.availability.web.mapper;
 
-import com.fleurdecoquillage.app.availability.domain.OpeningHour;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourRequest;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourResponse;
+import com.prettyface.app.availability.domain.OpeningHour;
+import com.prettyface.app.availability.web.dto.OpeningHourRequest;
+import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 
 import java.time.LocalTime;
 
@@ -150,7 +150,7 @@ public class OpeningHourMapper {
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/availability/web/
+git add backend/src/main/java/com/prettyface/app/availability/web/
 git commit -m "feat: add OpeningHour DTOs and mapper"
 ```
 
@@ -159,18 +159,18 @@ git commit -m "feat: add OpeningHour DTOs and mapper"
 ### Task 3: Create AvailabilityService with validation
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/app/AvailabilityService.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/app/AvailabilityService.java`
 
 - [ ] **Step 1: Create service**
 
 ```java
-package com.fleurdecoquillage.app.availability.app;
+package com.prettyface.app.availability.app;
 
-import com.fleurdecoquillage.app.availability.domain.OpeningHour;
-import com.fleurdecoquillage.app.availability.repo.OpeningHourRepository;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourRequest;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourResponse;
-import com.fleurdecoquillage.app.availability.web.mapper.OpeningHourMapper;
+import com.prettyface.app.availability.domain.OpeningHour;
+import com.prettyface.app.availability.repo.OpeningHourRepository;
+import com.prettyface.app.availability.web.dto.OpeningHourRequest;
+import com.prettyface.app.availability.web.dto.OpeningHourResponse;
+import com.prettyface.app.availability.web.mapper.OpeningHourMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -250,7 +250,7 @@ public class AvailabilityService {
 - [ ] **Step 2: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/availability/app/
+git add backend/src/main/java/com/prettyface/app/availability/app/
 git commit -m "feat: add AvailabilityService with overlap validation"
 ```
 
@@ -259,17 +259,17 @@ git commit -m "feat: add AvailabilityService with overlap validation"
 ### Task 4: Create pro controller and public endpoint
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/availability/web/AvailabilityController.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicSalonController.java`
+- Create: `backend/src/main/java/com/prettyface/app/availability/web/AvailabilityController.java`
+- Modify: `backend/src/main/java/com/prettyface/app/tenant/web/PublicSalonController.java`
 
 - [ ] **Step 1: Create pro controller**
 
 ```java
-package com.fleurdecoquillage.app.availability.web;
+package com.prettyface.app.availability.web;
 
-import com.fleurdecoquillage.app.availability.app.AvailabilityService;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourRequest;
-import com.fleurdecoquillage.app.availability.web.dto.OpeningHourResponse;
+import com.prettyface.app.availability.app.AvailabilityService;
+import com.prettyface.app.availability.web.dto.OpeningHourRequest;
+import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -304,9 +304,9 @@ Add to `PublicSalonController.java` after the existing `getSalon` method:
 ```java
 @GetMapping("/{slug}/opening-hours")
 @Transactional(readOnly = true)
-public ResponseEntity<List<com.fleurdecoquillage.app.availability.web.dto.OpeningHourResponse>> getOpeningHours(@PathVariable String slug) {
+public ResponseEntity<List<com.prettyface.app.availability.web.dto.OpeningHourResponse>> getOpeningHours(@PathVariable String slug) {
     return tenantService.findBySlug(slug)
-            .filter(tenant -> tenant.getStatus() == com.fleurdecoquillage.app.tenant.domain.TenantStatus.ACTIVE)
+            .filter(tenant -> tenant.getStatus() == com.prettyface.app.tenant.domain.TenantStatus.ACTIVE)
             .map(tenant -> {
                 TenantContext.setCurrentTenant(tenant.getSlug());
                 try {
@@ -335,8 +335,8 @@ public PublicSalonController(TenantService tenantService, CategoryRepository cat
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/availability/web/ \
-       backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicSalonController.java
+git add backend/src/main/java/com/prettyface/app/availability/web/ \
+       backend/src/main/java/com/prettyface/app/tenant/web/PublicSalonController.java
 git commit -m "feat: add pro and public opening hours endpoints"
 ```
 

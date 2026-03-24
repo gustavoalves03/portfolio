@@ -105,7 +105,7 @@ frontend/src/app/features/salon-profile/
 ### Form
 
 - **Salon name** — `mat-form-field` input, required, max 100 chars
-- **Slug preview** — displayed as read-only below name (e.g., "Your URL: /salon/fleur-de-coquillage"). Slug is immutable, set at registration.
+- **Slug preview** — displayed as read-only below name (e.g., "Your URL: /salon/pretty-face"). Slug is immutable, set at registration.
 - **Logo** — `ImageManager` component with `maxImages=1` (reorder/name UI hidden)
 - **Description** — `ngx-quill` editor (toolbar: bold, italic, lists, links) with character counter showing remaining chars out of 10000 (counts text content, not HTML)
 - **Save button** — loading state (spinner), success/error snackbar messages

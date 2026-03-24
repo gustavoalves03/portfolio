@@ -23,7 +23,7 @@ Vous devez configurer vos credentials OAuth2 dans Google Cloud Console :
 3. Activez l'API Google+ (Legacy) ou Google Identity Services
 4. Créez des identifiants OAuth 2.0 :
    - **Type** : Application Web
-   - **Nom** : Fleur de Coquillage
+   - **Nom** : Pretty Face
    - **Origines JavaScript autorisées** :
      - `http://localhost:4200`
      - `http://localhost:4300`
@@ -135,7 +135,7 @@ docker compose --profile dev up frontend-dev
 ### Backend (Spring Boot)
 
 **Nouveaux fichiers :**
-- `backend/src/main/java/com/fleurdecoquillage/app/auth/`
+- `backend/src/main/java/com/prettyface/app/auth/`
   - `OAuth2UserInfo.java` - Interface abstraite pour les infos OAuth2
   - `GoogleOAuth2UserInfo.java` - Implémentation Google
   - `OAuth2UserInfoFactory.java` - Factory pour créer les UserInfo
@@ -150,7 +150,7 @@ docker compose --profile dev up frontend-dev
   - `dto/AuthResponse.java` - DTO de réponse d'authentification
   - `dto/UserDto.java` - DTO utilisateur
 
-- `backend/src/main/java/com/fleurdecoquillage/app/users/domain/`
+- `backend/src/main/java/com/prettyface/app/users/domain/`
   - `AuthProvider.java` - Enum des providers (GOOGLE, FACEBOOK, APPLE, LOCAL)
 
 **Fichiers modifiés :**
@@ -306,4 +306,4 @@ Pour toute question ou problème :
 
 ---
 
-**Bonne chance avec votre application Fleur de Coquillage ! 🌸🐚**
+**Bonne chance avec votre application Pretty Face ! 🌸🐚**

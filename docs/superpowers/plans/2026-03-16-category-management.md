@@ -17,12 +17,12 @@
 ### Task 1: Add `@Size` constraints to CategoryRequest DTO
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/category/web/dto/CategoryRequest.java`
+- Modify: `backend/src/main/java/com/prettyface/app/category/web/dto/CategoryRequest.java`
 
 - [ ] **Step 1: Update CategoryRequest with size constraints**
 
 ```java
-package com.fleurdecoquillage.app.category.web.dto;
+package com.prettyface.app.category.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -41,7 +41,7 @@ Expected: All existing tests pass
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/category/web/dto/CategoryRequest.java
+git add backend/src/main/java/com/prettyface/app/category/web/dto/CategoryRequest.java
 git commit -m "feat: add @Size constraints to CategoryRequest DTO"
 ```
 
@@ -50,15 +50,15 @@ git commit -m "feat: add @Size constraints to CategoryRequest DTO"
 ### Task 2: Add CareRepository query methods for count and bulk reassignment
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/care/repo/CareRepository.java`
+- Modify: `backend/src/main/java/com/prettyface/app/care/repo/CareRepository.java`
 
 - [ ] **Step 1: Add count and bulk update methods**
 
 ```java
-package com.fleurdecoquillage.app.care.repo;
+package com.prettyface.app.care.repo;
 
-import com.fleurdecoquillage.app.care.domain.Care;
-import com.fleurdecoquillage.app.category.domain.Category;
+import com.prettyface.app.care.domain.Care;
+import com.prettyface.app.category.domain.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -82,7 +82,7 @@ Expected: All tests pass
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/care/repo/CareRepository.java
+git add backend/src/main/java/com/prettyface/app/care/repo/CareRepository.java
 git commit -m "feat: add countByCategoryId and reassignCategory to CareRepository"
 ```
 
@@ -91,13 +91,13 @@ git commit -m "feat: add countByCategoryId and reassignCategory to CareRepositor
 ### Task 3: Add DeleteCategoryResponse DTO and 409 handler
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/category/web/dto/DeleteCategoryResponse.java`
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/common/error/GlobalExceptionHandler.java`
+- Create: `backend/src/main/java/com/prettyface/app/category/web/dto/DeleteCategoryResponse.java`
+- Modify: `backend/src/main/java/com/prettyface/app/common/error/GlobalExceptionHandler.java`
 
 - [ ] **Step 1: Create DeleteCategoryResponse**
 
 ```java
-package com.fleurdecoquillage.app.category.web.dto;
+package com.prettyface.app.category.web.dto;
 
 public record DeleteCategoryResponse(int reassignedCaresCount) {}
 ```
@@ -122,8 +122,8 @@ Expected: All tests pass
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/category/web/dto/DeleteCategoryResponse.java \
-       backend/src/main/java/com/fleurdecoquillage/app/common/error/GlobalExceptionHandler.java
+git add backend/src/main/java/com/prettyface/app/category/web/dto/DeleteCategoryResponse.java \
+       backend/src/main/java/com/prettyface/app/common/error/GlobalExceptionHandler.java
 git commit -m "feat: add DeleteCategoryResponse DTO and 409 conflict handler"
 ```
 
@@ -132,20 +132,20 @@ git commit -m "feat: add DeleteCategoryResponse DTO and 409 conflict handler"
 ### Task 4: Extend CategoryService with pro methods
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/category/app/CategoryService.java`
-- Create: `backend/src/test/java/com/fleurdecoquillage/app/category/app/CategoryServiceTests.java`
+- Modify: `backend/src/main/java/com/prettyface/app/category/app/CategoryService.java`
+- Create: `backend/src/test/java/com/prettyface/app/category/app/CategoryServiceTests.java`
 
 - [ ] **Step 1: Write tests for the new service methods**
 
 ```java
-package com.fleurdecoquillage.app.category.app;
+package com.prettyface.app.category.app;
 
-import com.fleurdecoquillage.app.care.repo.CareRepository;
-import com.fleurdecoquillage.app.category.domain.Category;
-import com.fleurdecoquillage.app.category.repo.CategoryRepository;
-import com.fleurdecoquillage.app.category.web.dto.CategoryRequest;
-import com.fleurdecoquillage.app.category.web.dto.CategoryResponse;
-import com.fleurdecoquillage.app.category.web.dto.DeleteCategoryResponse;
+import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.category.web.dto.CategoryRequest;
+import com.prettyface.app.category.web.dto.CategoryResponse;
+import com.prettyface.app.category.web.dto.DeleteCategoryResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -286,15 +286,15 @@ Expected: FAIL — methods `listAll` and `deleteWithReassignment` don't exist
 Modify `CategoryService.java` — add `CareRepository` dependency and two new methods:
 
 ```java
-package com.fleurdecoquillage.app.category.app;
+package com.prettyface.app.category.app;
 
-import com.fleurdecoquillage.app.care.repo.CareRepository;
-import com.fleurdecoquillage.app.category.domain.Category;
-import com.fleurdecoquillage.app.category.repo.CategoryRepository;
-import com.fleurdecoquillage.app.category.web.dto.CategoryRequest;
-import com.fleurdecoquillage.app.category.web.dto.CategoryResponse;
-import com.fleurdecoquillage.app.category.web.dto.DeleteCategoryResponse;
-import com.fleurdecoquillage.app.category.web.mapper.CategoryMapper;
+import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.category.web.dto.CategoryRequest;
+import com.prettyface.app.category.web.dto.CategoryResponse;
+import com.prettyface.app.category.web.dto.DeleteCategoryResponse;
+import com.prettyface.app.category.web.mapper.CategoryMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -384,8 +384,8 @@ Expected: All tests pass (the new constructor parameter for `CareRepository` is 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/category/app/CategoryService.java \
-       backend/src/test/java/com/fleurdecoquillage/app/category/app/CategoryServiceTests.java
+git add backend/src/main/java/com/prettyface/app/category/app/CategoryService.java \
+       backend/src/test/java/com/prettyface/app/category/app/CategoryServiceTests.java
 git commit -m "feat: add listAll and deleteWithReassignment to CategoryService"
 ```
 
@@ -394,7 +394,7 @@ git commit -m "feat: add listAll and deleteWithReassignment to CategoryService"
 ### Task 5: Add IllegalStateException handler to GlobalExceptionHandler
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/common/error/GlobalExceptionHandler.java`
+- Modify: `backend/src/main/java/com/prettyface/app/common/error/GlobalExceptionHandler.java`
 
 The `deleteWithReassignment` throws `IllegalStateException` when reassignment is required. This should return 400, not 500.
 
@@ -418,7 +418,7 @@ Expected: All tests pass
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/common/error/GlobalExceptionHandler.java
+git add backend/src/main/java/com/prettyface/app/common/error/GlobalExceptionHandler.java
 git commit -m "feat: add IllegalStateException handler (400 Bad Request)"
 ```
 
@@ -427,24 +427,24 @@ git commit -m "feat: add IllegalStateException handler (400 Bad Request)"
 ### Task 6: Create ProCategoryController
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/category/web/ProCategoryController.java`
-- Create: `backend/src/test/java/com/fleurdecoquillage/app/category/web/ProCategoryControllerTests.java`
+- Create: `backend/src/main/java/com/prettyface/app/category/web/ProCategoryController.java`
+- Create: `backend/src/test/java/com/prettyface/app/category/web/ProCategoryControllerTests.java`
 
 - [ ] **Step 1: Write controller tests**
 
 ```java
-package com.fleurdecoquillage.app.category.web;
+package com.prettyface.app.category.web;
 
-import com.fleurdecoquillage.app.category.app.CategoryService;
-import com.fleurdecoquillage.app.category.web.dto.CategoryResponse;
-import com.fleurdecoquillage.app.category.web.dto.DeleteCategoryResponse;
-import com.fleurdecoquillage.app.config.SecurityConfig;
-import com.fleurdecoquillage.app.auth.TokenService;
-import com.fleurdecoquillage.app.users.repo.UserRepository;
-import com.fleurdecoquillage.app.auth.CustomOAuth2UserService;
-import com.fleurdecoquillage.app.auth.OAuth2AuthenticationSuccessHandler;
-import com.fleurdecoquillage.app.auth.OAuth2AuthenticationFailureHandler;
-import com.fleurdecoquillage.app.multitenancy.TenantFilter;
+import com.prettyface.app.category.app.CategoryService;
+import com.prettyface.app.category.web.dto.CategoryResponse;
+import com.prettyface.app.category.web.dto.DeleteCategoryResponse;
+import com.prettyface.app.config.SecurityConfig;
+import com.prettyface.app.auth.TokenService;
+import com.prettyface.app.users.repo.UserRepository;
+import com.prettyface.app.auth.CustomOAuth2UserService;
+import com.prettyface.app.auth.OAuth2AuthenticationSuccessHandler;
+import com.prettyface.app.auth.OAuth2AuthenticationFailureHandler;
+import com.prettyface.app.multitenancy.TenantFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -577,12 +577,12 @@ Expected: FAIL — `ProCategoryController` class not found
 - [ ] **Step 3: Create the controller**
 
 ```java
-package com.fleurdecoquillage.app.category.web;
+package com.prettyface.app.category.web;
 
-import com.fleurdecoquillage.app.category.app.CategoryService;
-import com.fleurdecoquillage.app.category.web.dto.CategoryRequest;
-import com.fleurdecoquillage.app.category.web.dto.CategoryResponse;
-import com.fleurdecoquillage.app.category.web.dto.DeleteCategoryResponse;
+import com.prettyface.app.category.app.CategoryService;
+import com.prettyface.app.category.web.dto.CategoryRequest;
+import com.prettyface.app.category.web.dto.CategoryResponse;
+import com.prettyface.app.category.web.dto.DeleteCategoryResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -634,8 +634,8 @@ Expected: All tests pass
 - [ ] **Step 6: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/category/web/ProCategoryController.java \
-       backend/src/test/java/com/fleurdecoquillage/app/category/web/ProCategoryControllerTests.java
+git add backend/src/main/java/com/prettyface/app/category/web/ProCategoryController.java \
+       backend/src/test/java/com/prettyface/app/category/web/ProCategoryControllerTests.java
 git commit -m "feat: add ProCategoryController with CRUD endpoints and tests"
 ```
 

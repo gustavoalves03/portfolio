@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { QuillEditorComponent } from 'ngx-quill';
 import { ImageManager, ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
@@ -21,7 +20,6 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     TranslocoPipe,
-    QuillEditorComponent,
     ImageManager,
   ],
   providers: [SalonProfileStore],
@@ -45,10 +43,6 @@ export class SalonProfileComponent {
     const text = this.description()?.replace(/<[^>]*>/g, '') ?? '';
     return text.length;
   });
-
-  readonly quillModules = {
-    toolbar: [['bold', 'italic'], [{ list: 'ordered' }, { list: 'bullet' }], ['link']],
-  };
 
   readonly MAX_DESCRIPTION_LENGTH = 10000;
 

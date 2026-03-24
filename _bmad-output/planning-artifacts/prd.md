@@ -32,9 +32,9 @@ workflowType: 'prd'
 projectType: 'brownfield'
 existingCode:
   location: 'portfolio repo'
-  currentApp: 'FleurDeCoquillage'
+  currentApp: 'PrettyFace'
   features: ['prestations', 'catégories', 'booking partiel']
-  evolution: 'FleurDeCoquillage → Pretty Face (SaaS multi-tenant)'
+  evolution: 'PrettyFace → Pretty Face (SaaS multi-tenant)'
 userContext:
   pilotUser: 'Sœur de Gustavo (esthéticienne, début activité)'
   currentProcess: 'Instagram + téléphone'
@@ -82,7 +82,7 @@ Pretty Face est une plateforme SaaS multi-tenant qui permet aux professionnels d
 | **Type de projet** | SaaS B2B + Web App |
 | **Domaine** | Services / Beauté |
 | **Complexité** | Basse à moyenne |
-| **Contexte** | Brownfield (évolution FleurDeCoquillage → Pretty Face) |
+| **Contexte** | Brownfield (évolution PrettyFace → Pretty Face) |
 | **Multi-tenant** | Oui (chaque salon = un tenant) |
 | **Modèle permissions** | Propriétaire / Employés / Clients |
 | **Stack technique** | Angular 20 + Spring Boot 3.5 + Oracle |
@@ -455,7 +455,7 @@ Pretty Face traite des données personnelles d'utilisateurs européens (prénom,
 
 | Type de risque | Risque identifié | Mitigation |
 |----------------|------------------|------------|
-| **Technique** | Multi-tenant par schéma = complexité | Code existant FleurDeCoquillage comme base, schéma template réutilisable |
+| **Technique** | Multi-tenant par schéma = complexité | Code existant PrettyFace comme base, schéma template réutilisable |
 | **Technique** | 4 providers OAuth = intégration lourde | Commencer par Google (le plus utilisé), ajouter les autres progressivement |
 | **Marché** | Les pros n'adoptent pas | Utilisateur pilote (sœur) pour validation immédiate |
 | **Ressources** | Développeur solo | MVP lean, pas de dashboard admin, features post-MVP clairement définies |

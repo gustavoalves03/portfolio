@@ -341,7 +341,7 @@ class CustomOAuth2UserServiceTests {
 - `app.auth.token.secret` — test JWT secret
 - H2 in-memory datasource
 
-The `FleurDeCoquillageApplicationTests` (full context test) already passes. Do NOT break it.
+The `PrettyFaceApplicationTests` (full context test) already passes. Do NOT break it.
 
 ### 📋 Login Form Design Reference
 
@@ -370,8 +370,8 @@ The login page follows the same visual pattern as the register page (Story 1.1):
 
 ### References
 
-- Existing `CustomOAuth2UserService`: `backend/src/main/java/com/fleurdecoquillage/app/auth/CustomOAuth2UserService.java`
-- Existing `OAuth2AuthenticationSuccessHandler`: `backend/src/main/java/com/fleurdecoquillage/app/auth/OAuth2AuthenticationSuccessHandler.java`
+- Existing `CustomOAuth2UserService`: `backend/src/main/java/com/prettyface/app/auth/CustomOAuth2UserService.java`
+- Existing `OAuth2AuthenticationSuccessHandler`: `backend/src/main/java/com/prettyface/app/auth/OAuth2AuthenticationSuccessHandler.java`
 - Existing `AuthService.loginWithGoogle()`: `frontend/src/app/core/auth/auth.service.ts:79`
 - Existing `AuthService.handleOAuth2Callback()`: `frontend/src/app/core/auth/auth.service.ts:88`
 - Architecture Decision 5 (OAuth2): `_bmad-output/planning-artifacts/architecture.md#Decision-5-OAuth2`
@@ -394,17 +394,17 @@ claude-sonnet-4-6
 - `OAuth2AuthenticationSuccessHandlerTests` uses `ReflectionTestUtils` for `@Value` fields and `Jwts.parser()` to verify JWT claims
 - Frontend Chrome/Karma test runner environment issue (disconnects) — TypeScript compilation verified clean with `npx tsc --noEmit` (0 errors)
 - Old `pages/oauth2-redirect/oauth2-redirect.component.ts` is superseded by new `pages/auth/oauth2-redirect/oauth2-redirect.component.ts`; `app.routes.ts` updated to use new component
-- 17 backend tests pass: 6 AuthControllerTests + 4 CustomOAuth2UserServiceTests + 1 OAuth2AuthenticationSuccessHandlerTests + 5 TenantSchemaManagerTests + 1 FleurDeCoquillageApplicationTests
+- 17 backend tests pass: 6 AuthControllerTests + 4 CustomOAuth2UserServiceTests + 1 OAuth2AuthenticationSuccessHandlerTests + 5 TenantSchemaManagerTests + 1 PrettyFaceApplicationTests
 
 ### File List
 
 **Backend (modified):**
-- `backend/src/main/java/com/fleurdecoquillage/app/auth/CustomOAuth2UserService.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/auth/OAuth2AuthenticationSuccessHandler.java`
+- `backend/src/main/java/com/prettyface/app/auth/CustomOAuth2UserService.java`
+- `backend/src/main/java/com/prettyface/app/auth/OAuth2AuthenticationSuccessHandler.java`
 
 **Backend (new):**
-- `backend/src/test/java/com/fleurdecoquillage/app/auth/CustomOAuth2UserServiceTests.java`
-- `backend/src/test/java/com/fleurdecoquillage/app/auth/OAuth2AuthenticationSuccessHandlerTests.java`
+- `backend/src/test/java/com/prettyface/app/auth/CustomOAuth2UserServiceTests.java`
+- `backend/src/test/java/com/prettyface/app/auth/OAuth2AuthenticationSuccessHandlerTests.java`
 
 **Frontend (modified):**
 - `frontend/public/i18n/fr.json`

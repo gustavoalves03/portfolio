@@ -1,0 +1,88 @@
+package com.prettyface.app.bookings.app;
+
+import com.prettyface.app.bookings.domain.CareBooking;
+import com.prettyface.app.bookings.domain.CareBookingStatus;
+import com.prettyface.app.bookings.repo.CareBookingRepository;
+import com.prettyface.app.bookings.web.dto.CareBookingDetailedResponse;
+import com.prettyface.app.bookings.web.dto.CareBookingRequest;
+import com.prettyface.app.bookings.web.dto.CareBookingResponse;
+import com.prettyface.app.bookings.web.mapper.CareBookingMapper;
+import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+
+@Service
+public class CareBookingService {
+    private final CareBookingRepository repo;
+    private final UserRepository userRepository;
+    private final CareRepository careRepository;
+
+    public CareBookingService(CareBookingRepository repo, UserRepository userRepository, CareRepository careRepository) {
+        this.repo = repo;
+        this.userRepository = userRepository;
+        this.careRepository = careRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CareBookingResponse> list(Pageable pageable) {
+        return repo.findAll(pageable).map(CareBookingMapper::toResponse);
+    }
+
+    /**
+     * List bookings with optional filters and detailed information
+     * @param status Optional status filter (PENDING, CONFIRMED)
+     * @param from Optional start date filter
+     * @param to Optional end date filter
+     * @param userId Optional user ID filter
+     * @param pageable Pagination parameters
+     * @return Page of detailed booking responses
+     */
+    @Transactional(readOnly = true)
+    public Page<CareBookingDetailedResponse> listDetailed(
+            CareBookingStatus status,
+            Instant from,
+            Instant to,
+            Long userId,
+            Pageable pageable
+    ) {
+        return repo.findByFilters(status, from, to, userId, pageable)
+                .map(CareBookingMapper::toDetailedResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public CareBookingResponse get(Long id) {
+        return repo.findById(id).map(CareBookingMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+    }
+
+    @Transactional
+    public CareBookingResponse create(CareBookingRequest req) {
+        var user = userRepository.findById(req.userId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + req.userId()));
+        var care = careRepository.findById(req.careId())
+                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + req.careId()));
+
+        CareBooking b = new CareBooking();
+        b.setUser(user);
+        b.setCare(care);
+        CareBookingMapper.updateEntity(b, req);
+        return CareBookingMapper.toResponse(repo.save(b));
+    }
+
+    @Transactional
+    public CareBookingResponse update(Long id, CareBookingRequest req) {
+        CareBooking b = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+        // Authoritative user/care can stay unchanged; update quantity/status only
+        CareBookingMapper.updateEntity(b, req);
+        return CareBookingMapper.toResponse(repo.save(b));
+    }
+
+    @Transactional
+    public void delete(Long id) { repo.deleteById(id); }
+}
+

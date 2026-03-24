@@ -17,7 +17,7 @@
 ### Task 1: Add categoryNames and categorySlugs to Tenant entity
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/Tenant.java`
+- Modify: `backend/src/main/java/com/prettyface/app/tenant/domain/Tenant.java`
 
 - [ ] **Step 1: Add columns**
 
@@ -34,7 +34,7 @@ private String categorySlugs;
 - [ ] **Step 2: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/Tenant.java
+git add backend/src/main/java/com/prettyface/app/tenant/domain/Tenant.java
 git commit -m "feat: add categoryNames and categorySlugs denormalized fields to Tenant"
 ```
 
@@ -43,25 +43,25 @@ git commit -m "feat: add categoryNames and categorySlugs denormalized fields to 
 ### Task 2: Add sync method to CategoryService
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/category/app/CategoryService.java`
+- Modify: `backend/src/main/java/com/prettyface/app/category/app/CategoryService.java`
 
 - [ ] **Step 1: Add dependencies and sync method**
 
 Update the constructor to inject `TenantRepository` and add a `syncTenantCategories()` method:
 
 ```java
-package com.fleurdecoquillage.app.category.app;
+package com.prettyface.app.category.app;
 
-import com.fleurdecoquillage.app.care.repo.CareRepository;
-import com.fleurdecoquillage.app.category.domain.Category;
-import com.fleurdecoquillage.app.category.repo.CategoryRepository;
-import com.fleurdecoquillage.app.category.web.dto.CategoryRequest;
-import com.fleurdecoquillage.app.category.web.dto.CategoryResponse;
-import com.fleurdecoquillage.app.category.web.dto.DeleteCategoryResponse;
-import com.fleurdecoquillage.app.category.web.mapper.CategoryMapper;
-import com.fleurdecoquillage.app.multitenancy.TenantContext;
-import com.fleurdecoquillage.app.tenant.app.SlugUtils;
-import com.fleurdecoquillage.app.tenant.repo.TenantRepository;
+import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.category.web.dto.CategoryRequest;
+import com.prettyface.app.category.web.dto.CategoryResponse;
+import com.prettyface.app.category.web.dto.DeleteCategoryResponse;
+import com.prettyface.app.category.web.mapper.CategoryMapper;
+import com.prettyface.app.multitenancy.TenantContext;
+import com.prettyface.app.tenant.app.SlugUtils;
+import com.prettyface.app.tenant.repo.TenantRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -116,7 +116,7 @@ Add `syncTenantCategories()` call at the end of:
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/category/app/CategoryService.java
+git add backend/src/main/java/com/prettyface/app/category/app/CategoryService.java
 git commit -m "feat: sync tenant categoryNames/categorySlugs on category CRUD"
 ```
 
@@ -127,15 +127,15 @@ git commit -m "feat: sync tenant categoryNames/categorySlugs on category CRUD"
 ### Task 3: Add repository query methods
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/tenant/repo/TenantRepository.java`
+- Modify: `backend/src/main/java/com/prettyface/app/tenant/repo/TenantRepository.java`
 
 - [ ] **Step 1: Add finder methods**
 
 ```java
-package com.fleurdecoquillage.app.tenant.repo;
+package com.prettyface.app.tenant.repo;
 
-import com.fleurdecoquillage.app.tenant.domain.Tenant;
-import com.fleurdecoquillage.app.tenant.domain.TenantStatus;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.domain.TenantStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -155,7 +155,7 @@ public interface TenantRepository extends JpaRepository<Tenant, Long> {
 - [ ] **Step 2: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/repo/TenantRepository.java
+git add backend/src/main/java/com/prettyface/app/tenant/repo/TenantRepository.java
 git commit -m "feat: add discovery query methods to TenantRepository"
 ```
 
@@ -164,13 +164,13 @@ git commit -m "feat: add discovery query methods to TenantRepository"
 ### Task 4: Create SalonCardResponse DTO and PublicDiscoveryController
 
 **Files:**
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/SalonCardResponse.java`
-- Create: `backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicDiscoveryController.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/dto/SalonCardResponse.java`
+- Create: `backend/src/main/java/com/prettyface/app/tenant/web/PublicDiscoveryController.java`
 
 - [ ] **Step 1: Create DTO**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web.dto;
+package com.prettyface.app.tenant.web.dto;
 
 public record SalonCardResponse(
         String name,
@@ -184,12 +184,12 @@ public record SalonCardResponse(
 - [ ] **Step 2: Create controller**
 
 ```java
-package com.fleurdecoquillage.app.tenant.web;
+package com.prettyface.app.tenant.web;
 
-import com.fleurdecoquillage.app.tenant.domain.Tenant;
-import com.fleurdecoquillage.app.tenant.domain.TenantStatus;
-import com.fleurdecoquillage.app.tenant.repo.TenantRepository;
-import com.fleurdecoquillage.app.tenant.web.dto.SalonCardResponse;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.domain.TenantStatus;
+import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.tenant.web.dto.SalonCardResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -245,8 +245,8 @@ Check that `SecurityConfig` allows unauthenticated access to `/api/public/**`. I
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/tenant/web/dto/SalonCardResponse.java \
-       backend/src/main/java/com/fleurdecoquillage/app/tenant/web/PublicDiscoveryController.java
+git add backend/src/main/java/com/prettyface/app/tenant/web/dto/SalonCardResponse.java \
+       backend/src/main/java/com/prettyface/app/tenant/web/PublicDiscoveryController.java
 git commit -m "feat: add GET /api/public/salons discovery endpoint"
 ```
 
@@ -763,7 +763,7 @@ git commit -m "feat: rewrite DiscoverPage with salon cards, category filters, an
 ### Task 8: Ensure /api/public/** is permitted in SecurityConfig
 
 **Files:**
-- Modify: `backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java` (if needed)
+- Modify: `backend/src/main/java/com/prettyface/app/config/SecurityConfig.java` (if needed)
 
 - [ ] **Step 1: Check SecurityConfig**
 
@@ -772,7 +772,7 @@ Search for `permitAll` or `requestMatchers` in SecurityConfig to verify `/api/pu
 - [ ] **Step 2: Commit if changed**
 
 ```bash
-git add backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java
+git add backend/src/main/java/com/prettyface/app/config/SecurityConfig.java
 git commit -m "fix: permit /api/public/** in SecurityConfig"
 ```
 

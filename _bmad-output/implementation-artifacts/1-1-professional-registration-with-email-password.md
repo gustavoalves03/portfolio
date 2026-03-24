@@ -83,7 +83,7 @@ so that I can access the platform and set up my salon.
   - [x] T1.1: Test happy path — `200` with JWT token returned (story said 201 but implementation returns 200 matching login)
   - [x] T1.2: Test duplicate email → `409 Conflict`
   - [x] T1.3: Test validation errors (empty name, invalid email, short password) → `400 Bad Request` with field errors
-  - [x] T1.4: `AuthControllerTests.java` in `src/test/java/com/fleurdecoquillage/app/auth/` — 5 tests passing
+  - [x] T1.4: `AuthControllerTests.java` in `src/test/java/com/prettyface/app/auth/` — 5 tests passing
 
 - [x] **Task T2**: Backend — unit tests for `TenantSchemaManager`/`SlugUtils` (AC: 1 — NFR10)
   - [x] T2.1: Unit tests for slug generation and schema name conversion
@@ -122,7 +122,7 @@ so that I can access the platform and set up my salon.
 
 ### 🏗️ New Packages to Create
 
-**Backend** (package prefix: `com.fleurdecoquillage.app` → migrate to `com.prettyface.app` is OUT OF SCOPE for this story):
+**Backend** (package prefix: `com.prettyface.app` → migrate to `com.prettyface.app` is OUT OF SCOPE for this story):
 
 ```
 multitenancy/
@@ -221,11 +221,11 @@ readonly form = this.fb.group({
 
 ### Project Structure Notes
 
-**IMPORTANT — Package name mismatch**: The existing codebase uses `com.fleurdecoquillage.app` but the architecture specifies `com.prettyface.app`. **Do NOT migrate package names in this story** — that's a refactoring task outside this epic. Use `com.fleurdecoquillage.app` for all new files.
+**IMPORTANT — Package name mismatch**: The existing codebase uses `com.prettyface.app` but the architecture specifies `com.prettyface.app`. **Do NOT migrate package names in this story** — that's a refactoring task outside this epic. Use `com.prettyface.app` for all new files.
 
 **API_BASE_URL in frontend**: The `auth.service.ts` has a hardcoded `http://localhost:8080`. The architecture specifies using the `API_BASE_URL` injection token from `app.config.ts`. Check `app.config.ts` for the token and update `auth.service.ts` to use it (this is a small fix needed anyway for SSR compatibility).
 
-**Current app.routes.ts**: Contains routes for `video-games`, `cares`, `categories`, `users`, `bookings` — these are legacy FleurDeCoquillage routes. Do NOT remove them in this story (that's a separate refactoring). Just ADD the `/register` route.
+**Current app.routes.ts**: Contains routes for `video-games`, `cares`, `categories`, `users`, `bookings` — these are legacy PrettyFace routes. Do NOT remove them in this story (that's a separate refactoring). Just ADD the `/register` route.
 
 ### References
 
@@ -239,9 +239,9 @@ readonly form = this.fb.group({
 - [Source: `_bmad-output/planning-artifacts/prd.md` — FR1, FR53, FR56] — Registration, schema isolation, auto-provisioning
 - [Source: `_bmad-output/planning-artifacts/prd.md` — NFR6, NFR8, NFR9, NFR10] — Security + multi-tenant NFRs
 - [Source: `_bmad-output/planning-artifacts/prd.md` — RGPD section] — Consentement à l'inscription
-- [Source: `backend/src/main/java/com/fleurdecoquillage/app/auth/AuthController.java`] — Existing auth patterns
-- [Source: `backend/src/main/java/com/fleurdecoquillage/app/users/domain/User.java`] — Existing User entity
-- [Source: `backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java`] — Existing security config
+- [Source: `backend/src/main/java/com/prettyface/app/auth/AuthController.java`] — Existing auth patterns
+- [Source: `backend/src/main/java/com/prettyface/app/users/domain/User.java`] — Existing User entity
+- [Source: `backend/src/main/java/com/prettyface/app/config/SecurityConfig.java`] — Existing security config
 - [Source: `frontend/src/app/core/auth/auth.service.ts`] — Existing AuthService with signals pattern
 
 ## Dev Agent Record
@@ -253,7 +253,7 @@ claude-sonnet-4-6
 ### Debug Log References
 
 - Backend tests failing with 403 → fixed by using `@AutoConfigureMockMvc(addFilters = false)` in `@WebMvcTest`
-- `FleurDeCoquillageApplicationTests` failing → fixed by adding required properties to `src/test/resources/application.properties`
+- `PrettyFaceApplicationTests` failing → fixed by adding required properties to `src/test/resources/application.properties`
 - `@jsverse/transloco` not installed → installed with `npm install @jsverse/transloco@8.0.1 --force`
 - Frontend Chrome test runner disconnects → pre-existing environment limitation (headless Chrome sandbox); build compiles successfully
 - TypeScript type error in `auth.service.ts` → fixed with `map(response => response.user)` and proper type annotations
@@ -278,7 +278,7 @@ claude-sonnet-4-6
 - ✅ **B1** (RGPD): Added `consentGivenAt` field to `User.java`; consent recorded at registration time
 - ✅ **B2** (Multi-tenancy): Created `multitenancy/` package (`TenantContext`, `TenantRoutingDataSource`, `TenantSchemaManager`) and `tenant/` package (`Tenant`, `TenantRepository`, `TenantService`, `TenantProvisioningService`, `SlugUtils`)
 - ✅ **B3** (Email): Created `notification/` package with `EmailService` using `@Async`, Thymeleaf `welcome-pro.html` template; added `spring-boot-starter-mail` + `spring-boot-starter-thymeleaf` to pom.xml; SMTP config in application.properties
-- ✅ **B3** (Async): Added `@EnableAsync` to `FleurDeCoquillageApplication`
+- ✅ **B3** (Async): Added `@EnableAsync` to `PrettyFaceApplication`
 - ✅ **F1-F4** (Frontend): Created standalone `RegisterComponent` with reactive form (name, email, password, consent checkbox), Angular Material, Transloco i18n, validation errors, 409 email conflict handling; added `/register` route; `registerPro()` method in `AuthService`; fixed hardcoded `API_BASE_URL` to use injection token for SSR compatibility
 - ✅ **Tests**: 11 backend tests (5 AuthController + 5 TenantSchemaManager unit + 1 context load), all passing; 8 frontend Jasmine specs compiling successfully
 - ⚠️ **T2 Oracle integration tests**: Schema isolation and < 10s timing tests require live Oracle DB — not runnable in H2 CI; architecture is correct, verification needed in staging environment
@@ -286,28 +286,28 @@ claude-sonnet-4-6
 ### File List
 
 **Backend — New Files:**
-- `backend/src/main/java/com/fleurdecoquillage/app/auth/dto/RegisterRequest.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/multitenancy/TenantContext.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/multitenancy/TenantFilter.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/multitenancy/TenantRoutingDataSource.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/multitenancy/TenantSchemaManager.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/Tenant.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/domain/TenantStatus.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/repo/TenantRepository.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/app/TenantService.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/app/TenantProvisioningService.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/tenant/app/SlugUtils.java`
-- `backend/src/main/java/com/fleurdecoquillage/app/notification/app/EmailService.java`
+- `backend/src/main/java/com/prettyface/app/auth/dto/RegisterRequest.java`
+- `backend/src/main/java/com/prettyface/app/multitenancy/TenantContext.java`
+- `backend/src/main/java/com/prettyface/app/multitenancy/TenantFilter.java`
+- `backend/src/main/java/com/prettyface/app/multitenancy/TenantRoutingDataSource.java`
+- `backend/src/main/java/com/prettyface/app/multitenancy/TenantSchemaManager.java`
+- `backend/src/main/java/com/prettyface/app/tenant/domain/Tenant.java`
+- `backend/src/main/java/com/prettyface/app/tenant/domain/TenantStatus.java`
+- `backend/src/main/java/com/prettyface/app/tenant/repo/TenantRepository.java`
+- `backend/src/main/java/com/prettyface/app/tenant/app/TenantService.java`
+- `backend/src/main/java/com/prettyface/app/tenant/app/TenantProvisioningService.java`
+- `backend/src/main/java/com/prettyface/app/tenant/app/SlugUtils.java`
+- `backend/src/main/java/com/prettyface/app/notification/app/EmailService.java`
 - `backend/src/main/resources/templates/welcome-pro.html`
-- `backend/src/test/java/com/fleurdecoquillage/app/auth/AuthControllerTests.java`
-- `backend/src/test/java/com/fleurdecoquillage/app/multitenancy/TenantSchemaManagerTests.java`
+- `backend/src/test/java/com/prettyface/app/auth/AuthControllerTests.java`
+- `backend/src/test/java/com/prettyface/app/multitenancy/TenantSchemaManagerTests.java`
 
 **Backend — Modified Files:**
-- `backend/src/main/java/com/fleurdecoquillage/app/users/domain/Role.java` — added PRO
-- `backend/src/main/java/com/fleurdecoquillage/app/users/domain/User.java` — added consentGivenAt
-- `backend/src/main/java/com/fleurdecoquillage/app/auth/AuthController.java` — added register endpoint
-- `backend/src/main/java/com/fleurdecoquillage/app/config/SecurityConfig.java` — added PRO role for /api/pro/**
-- `backend/src/main/java/com/fleurdecoquillage/app/FleurDeCoquillageApplication.java` — added @EnableAsync
+- `backend/src/main/java/com/prettyface/app/users/domain/Role.java` — added PRO
+- `backend/src/main/java/com/prettyface/app/users/domain/User.java` — added consentGivenAt
+- `backend/src/main/java/com/prettyface/app/auth/AuthController.java` — added register endpoint
+- `backend/src/main/java/com/prettyface/app/config/SecurityConfig.java` — added PRO role for /api/pro/**
+- `backend/src/main/java/com/prettyface/app/PrettyFaceApplication.java` — added @EnableAsync
 - `backend/src/main/resources/application.properties` — added SMTP config
 - `backend/src/test/resources/application.properties` — added JWT, OAuth2, mail test config
 - `backend/pom.xml` — added spring-boot-starter-mail, spring-boot-starter-thymeleaf

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Fleur de Coquillage** - Beauty salon management application with booking system, care management, and e-commerce features.
+**Pretty Face** - Beauty salon management application with booking system, care management, and e-commerce features.
 
 **Stack:**
 - **Frontend:** Angular 20 (standalone, zoneless, SSR-ready) + Angular Material + Tailwind CSS
@@ -133,7 +133,7 @@ export const CaresStore = signalStore(
 
 **Feature-First with Layered Architecture:**
 ```
-backend/src/main/java/com/fleurdecoquillage/app/
+backend/src/main/java/com/prettyface/app/
 ├── care/
 │   ├── domain/        # JPA entities
 │   ├── repo/          # Spring Data repositories
@@ -243,7 +243,7 @@ backend/src/main/java/com/fleurdecoquillage/app/
 
 ## Domain Context: Beauty Salon Application
 
-**Brand:** Fleur de Coquillage - Esthetics salon
+**Brand:** Pretty Face - Esthetics salon
 **Vision:** Subtle, natural beauty inspired by "Venus rising from a shell"
 **Tone:** Soft, soothing, educational (never aggressive or overly commercial)
 

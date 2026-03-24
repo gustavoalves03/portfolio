@@ -34,10 +34,10 @@
 - Backend profile: `SPRING_PROFILES_ACTIVE=docker`; configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` via env.
 - Frontend may read `API_BASE_URL` from compose for API calls.
 
-## 🐚 Contexte de l’application — Fleur de Coquillage
+## 🐚 Contexte de l’application — Pretty Face
 
 ### Vision & philosophie
-- Marque : Atelier d’esthétique “Fleur de Coquillage”.
+- Marque : Atelier d’esthétique “Pretty Face”.
 - Essence : beauté **subtile, naturelle et authentique**, inspirée par Vénus naissant d’un coquillage.
 - Ton général : **doux, apaisant, pédagogique**, jamais agressif ni commercial à outrance.
 - Objectif produit : simplifier la relation client (prise de RDV, suivi beauté), fluidifier la gestion interne (staff, congés, stock), et offrir un **conseil personnalisé** via IA.

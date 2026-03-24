@@ -98,7 +98,7 @@ NFR11: The architecture supports scaling to 100 simultaneous active salons witho
 ### Additional Requirements
 
 **From Architecture:**
-- Brownfield project — existing FleurDeCoquillage codebase is the starting point (no migration, incremental evolution)
+- Brownfield project — existing PrettyFace codebase is the starting point (no migration, incremental evolution)
 - Multi-tenant infrastructure must be implemented first before any tenant-specific features (TenantContext, AbstractRoutingDataSource, TenantFilter, TenantSchemaManager)
 - Tenant resolution via path prefix (`/salon/{slug}`) for public storefronts and JWT claim for authenticated pro endpoints
 - Email service integration via Hostinger SMTP + Spring Mail with Thymeleaf templates (booking confirmation, J-1 reminder, cancellation)

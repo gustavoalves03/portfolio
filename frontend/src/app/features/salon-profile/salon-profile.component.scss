@@ -2,13 +2,7 @@
   padding: 2rem;
 }
 
-.salon-quill-editor {
-  ::ng-deep .ql-container {
-    min-height: 150px;
-    font-family: inherit;
-  }
-
-  ::ng-deep .ql-editor {
-    min-height: 150px;
-  }
+.salon-description-input {
+  min-height: 150px;
+  resize: vertical;
 }

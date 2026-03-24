@@ -22,7 +22,7 @@ inputDocuments:
 
 ### Project Vision
 
-Pretty Face est un SaaS multi-tenant qui donne aux professionnels de la beauté indépendants une vitrine en ligne professionnelle et un système de réservation 24h/24 — sans le coût prohibitif des solutions existantes. Le produit évolue à partir du code existant FleurDeCoquillage (Angular 20 + Spring Boot + Oracle), qui constitue une base technique solide à faire évoluer plutôt qu'une contrainte.
+Pretty Face est un SaaS multi-tenant qui donne aux professionnels de la beauté indépendants une vitrine en ligne professionnelle et un système de réservation 24h/24 — sans le coût prohibitif des solutions existantes. Le produit évolue à partir du code existant PrettyFace (Angular 20 + Spring Boot + Oracle), qui constitue une base technique solide à faire évoluer plutôt qu'une contrainte.
 
 **Insight clé :** Le moment où un pro de la beauté se lance seul, c'est le moment où il a le plus besoin d'outils — et le moins de moyens pour les payer. Pretty Face résout ce paradoxe.
 
