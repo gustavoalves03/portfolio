@@ -65,7 +65,7 @@ public class PublicSalonController {
                     // Set tenant context to query the correct schema
                     TenantContext.setCurrentTenant(tenant.getSlug());
                     try {
-                        List<Category> categories = categoryRepository.findAll();
+                        List<Category> categories = categoryRepository.findAllWithCares();
                         return ResponseEntity.ok(TenantMapper.toPublicResponse(tenant, categories));
                     } finally {
                         TenantContext.clear();
