@@ -148,6 +148,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/client/**").authenticated()
                         // Pro-only endpoints (salon management)
                         .requestMatchers("/api/pro/**").hasAnyRole("PRO", "ADMIN")
                         // User endpoints (bookings, profile)
