@@ -244,7 +244,8 @@
       "title": "Catégories"
     },
     "salons": {
-      "title": "Découvre les artistes près de toi"
+      "title": "Découvre les artistes près de toi",
+      "empty": "Aucun salon disponible pour le moment"
     },
     "cta": {
       "question": "Tu es pro de la beauté ?",

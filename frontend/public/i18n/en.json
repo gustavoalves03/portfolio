@@ -240,7 +240,8 @@
       "title": "Categories"
     },
     "salons": {
-      "title": "Discover artists near you"
+      "title": "Discover artists near you",
+      "empty": "No salons available yet"
     },
     "cta": {
       "question": "Are you a beauty professional?",

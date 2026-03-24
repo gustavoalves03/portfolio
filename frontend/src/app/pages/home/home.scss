@@ -125,11 +125,6 @@
   color: #333;
 }
 
-.category-count {
-  display: block;
-  font-size: 11px;
-  color: #888;
-}
 
 // ===== Salons Carousel =====
 .salons-carousel {
@@ -166,6 +161,21 @@
 .salon-image {
   height: 80px;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.salon-initial {
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: #999;
+  text-align: center;
 }
 
 .salon-info {
@@ -186,12 +196,6 @@
   margin-top: 2px;
 }
 
-.salon-meta {
-  display: block;
-  font-size: 11px;
-  color: #bbb;
-  margin-top: 4px;
-}
 
 // ===== Pro CTA =====
 .pro-cta {

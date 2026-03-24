@@ -15,9 +15,10 @@ interface CategoryFilter {
 
 const CATEGORIES: CategoryFilter[] = [
   { name: 'Soins visage', slug: 'soins-visage', emoji: '💆', color: '#f4e1d2' },
+  { name: 'Soins corps', slug: 'soins-corps', emoji: '🧖', color: '#d5e5f0' },
   { name: 'Ongles', slug: 'ongles', emoji: '💅', color: '#f9d5d3' },
-  { name: 'Coiffure', slug: 'coiffure', emoji: '✂️', color: '#dce8d2' },
-  { name: 'Épilation', slug: 'epilation', emoji: '🧖', color: '#d5e5f0' },
+  { name: 'Maquillage', slug: 'maquillage', emoji: '💄', color: '#dce8d2' },
+  { name: 'Épilation', slug: 'epilation', emoji: '✨', color: '#e8daf0' },
 ];
 
 const GRADIENTS = [

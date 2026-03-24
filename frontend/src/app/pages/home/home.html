@@ -37,7 +37,6 @@
         <span class="category-emoji">{{ cat.emoji }}</span>
         <div>
           <span class="category-name">{{ cat.name }}</span>
-          <span class="category-count">{{ cat.count }} salons</span>
         </div>
       </button>
     }
@@ -47,18 +46,30 @@
 <!-- Featured Salons Section -->
 <section class="landing-section">
   <h2 class="section-title">{{ 'home.salons.title' | transloco }}</h2>
-  <div class="salons-carousel">
-    @for (salon of salons; track salon.slug) {
-      <button type="button" class="salon-card" (click)="onSalonClick(salon.slug)">
-        <div class="salon-image" [style.background]="salon.gradient"></div>
-        <div class="salon-info">
-          <span class="salon-name">{{ salon.name }}</span>
-          <span class="salon-category">{{ salon.category }}</span>
-          <span class="salon-meta">⭐ {{ salon.rating }} · {{ salon.city }}</span>
-        </div>
-      </button>
-    }
-  </div>
+  @if (salons().length > 0) {
+    <div class="salons-carousel">
+      @for (salon of salons(); track salon.slug; let i = $index) {
+        <button type="button" class="salon-card" (click)="onSalonClick(salon.slug)">
+          <div
+            class="salon-image"
+            [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getGradient(i)"
+          >
+            @if (!salon.logoUrl) {
+              <span class="salon-initial">{{ salon.name.charAt(0) }}</span>
+            }
+          </div>
+          <div class="salon-info">
+            <span class="salon-name">{{ salon.name }}</span>
+            @if (salon.categoryNames) {
+              <span class="salon-category">{{ salon.categoryNames }}</span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  } @else {
+    <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
+  }
 </section>
 
 <!-- Pro CTA Section -->
