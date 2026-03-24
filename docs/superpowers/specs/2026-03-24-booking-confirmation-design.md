@@ -45,31 +45,38 @@ record ClientBookingResponse(
 
 ### Endpoint Logic (in `PublicSalonController`)
 
-1. Resolve tenant by slug (same pattern as existing `GET /{slug}` endpoints)
-2. Verify tenant status is ACTIVE, else 404
-3. Set `TenantContext` to query tenant schema
-4. Extract authenticated user from `SecurityContext` → `UserPrincipal.getId()`
-5. Delegate to new `CareBookingService.createClientBooking(userId, request)` method
-6. Return 201 Created with `ClientBookingResponse`
+**Schema boundary note:** The `User` entity lives in the **public/shared schema**. The `Care` and `CareBooking` entities live in the **tenant schema**. The controller must resolve user and tenant data BEFORE setting `TenantContext`, then pass them to the service.
+
+```
+POST /{slug}/book (authenticated)
+1. Resolve Tenant by slug → 404 if not found or status != ACTIVE
+2. Extract authenticated userId from SecurityContext → UserPrincipal.getId()
+3. Load User from public schema via userRepository.findById(userId) → 404 if not found
+4. Extract salonName = tenant.getName(), ownerId = tenant.getOwnerId()
+5. Load owner (pro User) from public schema via userRepository.findById(ownerId)
+6. Set TenantContext.setCurrentTenant(slug) in try/finally block
+7. Delegate to CareBookingService.createClientBooking(client, owner, salonName, request)
+8. Return 201 Created with ClientBookingResponse
+```
 
 ### New Service Method: `CareBookingService.createClientBooking()`
 
 ```
-createClientBooking(Long userId, ClientBookingRequest req) → ClientBookingResponse
+createClientBooking(User client, User owner, String salonName, ClientBookingRequest req) → ClientBookingResponse
 ```
 
+The method receives already-resolved User objects from the controller (public schema), avoiding cross-schema lookups.
+
 Steps:
-1. Load User by ID (404 if not found)
-2. Load Care by ID (404 if not found or status != ACTIVE)
-3. Parse `appointmentTime` to `LocalTime`
-4. Call `SlotAvailabilityService.getAvailableSlots(date, careId)` — verify the requested slot exists in the returned list. If not → throw 409 Conflict ("Slot no longer available")
-5. Create `CareBooking` entity: user, care, quantity=1, date, time, status=CONFIRMED
-6. `repo.save(booking)` — if `DataIntegrityViolationException` → catch and throw 409 Conflict
-7. Fetch Tenant name from `TenantContext` (or pass it from controller)
-8. Send async emails:
-   - `emailService.sendBookingConfirmationEmail(user, booking, care, salonName)`
-   - Load tenant owner → `emailService.sendNewBookingNotificationEmail(owner, booking, care, user.getName())`
-9. Return `ClientBookingResponse`
+1. Load Care by ID from tenant schema (404 if not found or status != ACTIVE)
+2. Parse `appointmentTime` to `LocalTime`
+3. Call `SlotAvailabilityService.getAvailableSlots(date, careId)` — verify the requested slot exists in the returned list. If not → throw 409 Conflict ("Slot no longer available")
+4. Create `CareBooking` entity: client, care, quantity=1, date, time, status=CONFIRMED
+5. `repo.save(booking)` — if `DataIntegrityViolationException` → catch and throw 409 Conflict
+6. Send async emails (fire-and-forget, no tenant context needed for email sending):
+   - `emailService.sendBookingConfirmationEmail(client, booking, care, salonName)`
+   - `emailService.sendNewBookingNotificationEmail(owner, booking, care, client.getName())`
+7. Return `ClientBookingResponse` (built from care, booking, and salonName)
 
 ### Concurrency Protection
 
@@ -91,6 +98,8 @@ Note: This constraint works because each care occupies its full duration from th
 
 **Refinement:** The unique constraint on `(date, time, care_id)` prevents exact duplicates. The broader overlap check (e.g., a 90-min care blocking the next 30-min slot) is handled by the `SlotAvailabilityService` re-verification. In the rare race condition where two requests pass the app-level check simultaneously, only the exact same start time would collide at DB level — other overlapping slots would both succeed. For a single-practitioner salon at current scale, this is acceptable; the app-level check is the primary defense.
 
+**Known limitation / Future work:** For multi-practitioner salons or high-traffic bookings, replace the app-level check with a `SELECT ... FOR UPDATE` pessimistic lock or SERIALIZABLE transaction isolation to fully prevent overlapping-slot race conditions. Track as a tech-debt item.
+
 ### Security Config Update
 
 Add to `SecurityConfig` the new route:
@@ -99,7 +108,7 @@ Add to `SecurityConfig` the new route:
 POST /api/salon/*/book → authenticated()
 ```
 
-This must be placed before the existing `GET /api/salon/**` permitAll rule.
+Place this before the catch-all `/api/**` authenticated rule. The existing `GET /api/salon/**` permitAll rule is method-scoped (GET only) and does not conflict.
 
 ## Backend — Email Templates
 
@@ -186,7 +195,15 @@ interface AuthModalResult {
 - `onLogin()` success → `dialogRef.close({ authenticated: true, action: 'login' })`
 - `onRegister()` success → `dialogRef.close({ authenticated: true, action: 'register' })`
 
+**Note:** Verify no other component opens `AuthModalComponent` and depends on the boolean close value. If found, update those consumers.
+
+**Known limitation:** Google OAuth login (`loginWithGoogle()`) triggers a full page redirect, losing dialog state. For MVP, this is acceptable. Future improvement: persist booking intent in localStorage before redirect.
+
 ### BookingDialogComponent Changes
+
+New injectable dependencies (add to component):
+- `MatDialog` — to open the auth modal from within the booking dialog
+- `AuthService` — to check `isAuthenticated()` signal
 
 New signals:
 - `submitting = signal(false)` — loading state during booking API call
