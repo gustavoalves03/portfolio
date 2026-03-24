@@ -87,11 +87,11 @@ public class DataInitializer {
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
 
             // ── Clients ──
-            User client1 = createUser(userRepository, passwordEncoder,
+            createUser(userRepository, passwordEncoder,
                     "Marie Leroy", "marie@test.com", DEFAULT_PASSWORD, Role.USER);
-            User client2 = createUser(userRepository, passwordEncoder,
+            createUser(userRepository, passwordEncoder,
                     "Julie Petit", "julie@test.com", DEFAULT_PASSWORD, Role.USER);
-            User client3 = createUser(userRepository, passwordEncoder,
+            createUser(userRepository, passwordEncoder,
                     "Clara Moreau", "clara@test.com", DEFAULT_PASSWORD, Role.USER);
 
             logger.info("=== Seeding complete ===");
