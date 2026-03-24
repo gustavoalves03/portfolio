@@ -23,7 +23,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -59,7 +58,6 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}")
-    @Transactional(readOnly = true)
     public ResponseEntity<PublicSalonResponse> getSalon(@PathVariable String slug) {
         return tenantService.findBySlug(slug)
                 .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
@@ -77,7 +75,6 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}/opening-hours")
-    @Transactional(readOnly = true)
     public ResponseEntity<List<OpeningHourResponse>> getOpeningHours(@PathVariable String slug) {
         return tenantService.findBySlug(slug)
                 .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
@@ -93,7 +90,6 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}/blocked-slots")
-    @Transactional(readOnly = true)
     public ResponseEntity<List<BlockedSlotResponse>> getBlockedSlots(@PathVariable String slug) {
         return tenantService.findBySlug(slug)
                 .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
@@ -109,7 +105,6 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}/available-slots")
-    @Transactional(readOnly = true)
     public ResponseEntity<List<SlotAvailabilityService.TimeSlot>> getAvailableSlots(
             @PathVariable String slug,
             @RequestParam Long careId,
