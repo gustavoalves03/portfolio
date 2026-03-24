@@ -7,8 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../features/salon-profile/services/salon-profile.service';
 import { PublicSalonResponse, PublicCareDto } from '../../features/salon-profile/models/salon-profile.model';
-import { AuthService } from '../../core/auth/auth.service';
-import { AuthModalComponent } from '../../shared/modals/auth-modal/auth-modal.component';
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog/booking-dialog.component';
 
 @Component({
@@ -21,7 +19,6 @@ import { BookingDialogComponent, BookingDialogData } from './booking-dialog/book
 export class SalonPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly salonService = inject(SalonProfileService);
-  private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
 
   protected salon = signal<PublicSalonResponse | null>(null);
@@ -60,20 +57,7 @@ export class SalonPageComponent implements OnInit {
   }
 
   protected onBook(care: PublicCareDto): void {
-    if (!this.authService.isAuthenticated()) {
-      const authRef = this.dialog.open(AuthModalComponent, {
-        width: '480px',
-        disableClose: false,
-      });
-
-      authRef.afterClosed().subscribe((authenticated) => {
-        if (authenticated) {
-          this.openBookingDialog(care);
-        }
-      });
-    } else {
-      this.openBookingDialog(care);
-    }
+    this.openBookingDialog(care);
   }
 
   private openBookingDialog(care: PublicCareDto): void {
