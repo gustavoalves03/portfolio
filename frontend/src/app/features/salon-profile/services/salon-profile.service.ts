@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
-import { TenantResponse, UpdateTenantRequest, PublicSalonResponse, TimeSlot } from '../models/salon-profile.model';
+import { TenantResponse, UpdateTenantRequest, PublicSalonResponse, TimeSlot, ClientBookingRequest, ClientBookingResponse } from '../models/salon-profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class SalonProfileService {
@@ -39,6 +39,12 @@ export class SalonProfileService {
   getPublicSalon(slug: string): Observable<PublicSalonResponse> {
     return this.http.get<PublicSalonResponse>(`${this.baseUrl}/api/salon/${slug}`).pipe(
       map(salon => this.transformPublicUrls(salon))
+    );
+  }
+
+  createBooking(slug: string, request: ClientBookingRequest): Observable<ClientBookingResponse> {
+    return this.http.post<ClientBookingResponse>(
+      `${this.baseUrl}/api/salon/${slug}/book`, request
     );
   }
 

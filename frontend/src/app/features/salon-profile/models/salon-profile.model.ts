@@ -38,3 +38,20 @@ export interface PublicSalonResponse {
   logoUrl: string | null;
   categories: PublicCategoryDto[];
 }
+
+export interface ClientBookingRequest {
+  careId: number;
+  appointmentDate: string;  // "yyyy-MM-dd"
+  appointmentTime: string;  // "HH:mm"
+}
+
+export interface ClientBookingResponse {
+  bookingId: number;
+  careName: string;
+  carePrice: number;
+  careDuration: number;
+  appointmentDate: string;
+  appointmentTime: string;
+  status: string;
+  salonName: string;
+}
