@@ -1,0 +1,66 @@
+<div class="client-bookings-page">
+  <h1 class="page-title">{{ 'clientBookings.title' | transloco }}</h1>
+
+  @if (store.isPending()) {
+    <div class="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+  } @else {
+    <mat-tab-group (selectedIndexChange)="onTabChange($event)">
+      <!-- Upcoming tab -->
+      <mat-tab [label]="'clientBookings.upcoming' | transloco">
+        @if (store.upcoming().length > 0) {
+          <div class="bookings-list">
+            @for (booking of store.upcoming(); track booking.id) {
+              <div class="booking-card" (click)="onSalonClick(booking.tenantSlug)">
+                <div class="booking-header">
+                  <span class="salon-name">{{ booking.salonName }}</span>
+                  <span class="status-badge confirmed">{{ 'clientBookings.status.CONFIRMED' | transloco }}</span>
+                </div>
+                <div class="booking-body">
+                  <p class="care-name">{{ booking.careName }}</p>
+                  <p class="booking-datetime">{{ formatDate(booking.appointmentDate) }} — {{ booking.appointmentTime }}</p>
+                  <p class="booking-meta">{{ formatDuration(booking.careDuration) }} · {{ formatPrice(booking.carePrice) }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p class="empty-text">{{ 'clientBookings.emptyUpcoming' | transloco }}</p>
+            <button mat-flat-button class="discover-btn" (click)="onDiscover()">
+              {{ 'clientBookings.discoverCta' | transloco }}
+            </button>
+          </div>
+        }
+      </mat-tab>
+
+      <!-- Past tab -->
+      <mat-tab [label]="'clientBookings.past' | transloco">
+        @if (store.past().length > 0) {
+          <div class="bookings-list">
+            @for (booking of store.past(); track booking.id) {
+              <div class="booking-card past">
+                <div class="booking-header">
+                  <span class="salon-name">{{ booking.salonName }}</span>
+                  <span class="status-badge" [class.confirmed]="booking.status === 'CONFIRMED'" [class.cancelled]="booking.status === 'CANCELLED'">
+                    {{ 'clientBookings.status.' + booking.status | transloco }}
+                  </span>
+                </div>
+                <div class="booking-body">
+                  <p class="care-name">{{ booking.careName }}</p>
+                  <p class="booking-datetime">{{ formatDate(booking.appointmentDate) }} — {{ booking.appointmentTime }}</p>
+                  <p class="booking-meta">{{ formatDuration(booking.careDuration) }} · {{ formatPrice(booking.carePrice) }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <p class="empty-text">{{ 'clientBookings.emptyPast' | transloco }}</p>
+          </div>
+        }
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>
