@@ -1,10 +1,14 @@
 package com.prettyface.app.tenant.web;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.availability.app.AvailabilityService;
 import com.prettyface.app.availability.app.BlockedSlotService;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
+import com.prettyface.app.bookings.app.CareBookingService;
+import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
+import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.multitenancy.TenantContext;
@@ -12,9 +16,15 @@ import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.web.dto.PublicSalonResponse;
 import com.prettyface.app.tenant.web.mapper.TenantMapper;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,15 +38,20 @@ public class PublicSalonController {
     private final AvailabilityService availabilityService;
     private final BlockedSlotService blockedSlotService;
     private final SlotAvailabilityService slotAvailabilityService;
+    private final CareBookingService careBookingService;
+    private final UserRepository userRepository;
 
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
-                                 SlotAvailabilityService slotAvailabilityService) {
+                                 SlotAvailabilityService slotAvailabilityService,
+                                 CareBookingService careBookingService, UserRepository userRepository) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
         this.blockedSlotService = blockedSlotService;
         this.slotAvailabilityService = slotAvailabilityService;
+        this.careBookingService = careBookingService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/{slug}")
@@ -106,5 +121,29 @@ public class PublicSalonController {
                     }
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{slug}/book")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClientBookingResponse book(@PathVariable String slug,
+                                       @Valid @RequestBody ClientBookingRequest request,
+                                       @AuthenticationPrincipal UserPrincipal principal) {
+        var tenant = tenantService.findBySlug(slug)
+                .filter(t -> t.getStatus() == TenantStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon not found"));
+
+        // Resolve users from public schema BEFORE setting tenant context
+        User client = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User owner = userRepository.findById(tenant.getOwnerId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon owner not found"));
+        String salonName = tenant.getName();
+
+        TenantContext.setCurrentTenant(slug);
+        try {
+            return careBookingService.createClientBooking(client, owner, salonName, request);
+        } finally {
+            TenantContext.clear();
+        }
     }
 }

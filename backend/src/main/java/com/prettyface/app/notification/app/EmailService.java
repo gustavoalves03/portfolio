@@ -1,5 +1,7 @@
 package com.prettyface.app.notification.app;
 
+import com.prettyface.app.bookings.domain.CareBooking;
+import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.users.domain.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -12,6 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @Service
 public class EmailService {
@@ -82,5 +87,85 @@ public class EmailService {
         } catch (MessagingException | java.io.UnsupportedEncodingException e) {
             logger.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage());
         }
+    }
+
+    @Async
+    public void sendBookingConfirmationEmail(User client, CareBooking booking, Care care, String salonName) {
+        try {
+            DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+            DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+
+            Context ctx = new Context();
+            ctx.setVariable("clientName", client.getName());
+            ctx.setVariable("salonName", salonName);
+            ctx.setVariable("careName", care.getName());
+            ctx.setVariable("carePrice", care.getPrice());
+            ctx.setVariable("careDuration", formatDuration(care.getDuration()));
+            ctx.setVariable("appointmentDate", booking.getAppointmentDate().format(dateFmt));
+            ctx.setVariable("appointmentTime", booking.getAppointmentTime().format(timeFmt));
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("dashboardUrl", frontendBaseUrl + "/bookings");
+
+            String htmlContent = templateEngine.process("booking-confirmation", ctx);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress, fromName);
+            helper.setTo(client.getEmail());
+            helper.setSubject("Votre rendez-vous est confirmé / Your appointment is confirmed — " + salonName);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Booking confirmation email sent to {}", client.getEmail());
+
+        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+            logger.error("Failed to send booking confirmation email to {}: {}", client.getEmail(), e.getMessage());
+        }
+    }
+
+    @Async
+    public void sendNewBookingNotificationEmail(User pro, CareBooking booking, Care care, String clientName) {
+        try {
+            DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+            DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+
+            Context ctx = new Context();
+            ctx.setVariable("proName", pro.getName());
+            ctx.setVariable("clientName", clientName);
+            ctx.setVariable("careName", care.getName());
+            ctx.setVariable("carePrice", care.getPrice());
+            ctx.setVariable("careDuration", formatDuration(care.getDuration()));
+            ctx.setVariable("appointmentDate", booking.getAppointmentDate().format(dateFmt));
+            ctx.setVariable("appointmentTime", booking.getAppointmentTime().format(timeFmt));
+            ctx.setVariable("bookingId", booking.getId());
+            ctx.setVariable("dashboardUrl", frontendBaseUrl + "/pro/bookings");
+
+            String htmlContent = templateEngine.process("booking-notification-pro", ctx);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress, fromName);
+            helper.setTo(pro.getEmail());
+            helper.setSubject("Nouveau rendez-vous / New appointment — " + clientName);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Booking notification email sent to pro {}", pro.getEmail());
+
+        } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+            logger.error("Failed to send booking notification email to {}: {}", pro.getEmail(), e.getMessage());
+        }
+    }
+
+    private String formatDuration(int minutes) {
+        if (minutes < 60) {
+            return minutes + " min";
+        }
+        int hours = minutes / 60;
+        int remaining = minutes % 60;
+        if (remaining == 0) {
+            return hours + "h";
+        }
+        return hours + "h" + String.format("%02d", remaining);
     }
 }

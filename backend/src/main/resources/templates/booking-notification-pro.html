@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nouveau rendez-vous — Pretty Face</title>
+    <style>
+        body { font-family: 'Roboto', Arial, sans-serif; background-color: #fdf6f0; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .header { background-color: #e91e63; padding: 32px 40px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 28px; margin: 0; font-weight: 300; letter-spacing: 2px; }
+        .body { padding: 40px; color: #333333; }
+        .body h2 { color: #e91e63; font-size: 22px; font-weight: 400; margin-top: 0; }
+        .body p { line-height: 1.7; font-size: 15px; color: #555555; }
+        .details-box { background-color: #fdf6f0; border-left: 4px solid #e91e63; border-radius: 6px; padding: 20px 24px; margin: 24px 0; }
+        .details-box table { width: 100%; border-collapse: collapse; }
+        .details-box td { padding: 6px 0; font-size: 15px; color: #444444; }
+        .details-box td:first-child { font-weight: 500; color: #333333; width: 40%; }
+        .cta { text-align: center; margin: 32px 0; }
+        .cta a { background-color: #e91e63; color: #ffffff; padding: 14px 32px; border-radius: 50px; text-decoration: none; font-size: 15px; font-weight: 500; }
+        .footer { background-color: #f9f9f9; padding: 24px 40px; text-align: center; font-size: 12px; color: #999999; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Pretty Face</h1>
+    </div>
+    <div class="body">
+        <h2>Nouveau rendez-vous, <span th:text="${proName}">Professionnel</span> !</h2>
+        <p><strong th:text="${clientName}">Client</strong> vient de réserver un rendez-vous dans votre salon. Voici les détails :</p>
+
+        <div class="details-box">
+            <table>
+                <tr>
+                    <td>Client</td>
+                    <td th:text="${clientName}">Nom du client</td>
+                </tr>
+                <tr>
+                    <td>Soin</td>
+                    <td th:text="${careName}">Soin visage</td>
+                </tr>
+                <tr>
+                    <td>Durée</td>
+                    <td th:text="${careDuration}">60 min</td>
+                </tr>
+                <tr>
+                    <td>Prix</td>
+                    <td th:text="${carePrice} + ' €'">60 €</td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td th:text="${appointmentDate}">lundi 1 janvier 2026</td>
+                </tr>
+                <tr>
+                    <td>Heure</td>
+                    <td th:text="${appointmentTime}">10:00</td>
+                </tr>
+                <tr>
+                    <td>Référence</td>
+                    <td th:text="'#' + ${bookingId}">#1</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="cta">
+            <a th:href="${dashboardUrl}">Gérer mes rendez-vous / Manage bookings</a>
+        </div>
+        <p style="font-size:13px;color:#888;">Connectez-vous à votre espace professionnel pour voir tous les détails et gérer votre agenda.</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Pretty Face — Tous droits réservés.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -141,6 +141,7 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Public categories
+                        .requestMatchers(HttpMethod.POST, "/api/salon/*/book").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/salon/**").permitAll() // Public salon storefront
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // Public discovery
                         // Admin-only endpoints (create, update, delete)

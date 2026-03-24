@@ -1,31 +1,48 @@
 package com.prettyface.app.bookings.app;
 
+import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.repo.CareBookingRepository;
 import com.prettyface.app.bookings.web.dto.CareBookingDetailedResponse;
 import com.prettyface.app.bookings.web.dto.CareBookingRequest;
 import com.prettyface.app.bookings.web.dto.CareBookingResponse;
+import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
+import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.bookings.web.mapper.CareBookingMapper;
+import com.prettyface.app.care.domain.Care;
+import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.notification.app.EmailService;
+import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalTime;
 
 @Service
 public class CareBookingService {
     private final CareBookingRepository repo;
     private final UserRepository userRepository;
     private final CareRepository careRepository;
+    private final SlotAvailabilityService slotAvailabilityService;
+    private final EmailService emailService;
 
-    public CareBookingService(CareBookingRepository repo, UserRepository userRepository, CareRepository careRepository) {
+    public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
+                               CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
+                               EmailService emailService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
+        this.slotAvailabilityService = slotAvailabilityService;
+        this.emailService = emailService;
     }
 
     @Transactional(readOnly = true)
@@ -84,5 +101,53 @@ public class CareBookingService {
 
     @Transactional
     public void delete(Long id) { repo.deleteById(id); }
+
+    @Transactional
+    public ClientBookingResponse createClientBooking(User client, User owner, String salonName,
+                                                      ClientBookingRequest req) {
+        Care care = careRepository.findById(req.careId())
+                .filter(c -> c.getStatus() == CareStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Care not found or inactive"));
+
+        LocalTime time = LocalTime.parse(req.appointmentTime());
+
+        // Re-verify slot availability (concurrency protection)
+        boolean slotAvailable = slotAvailabilityService.getAvailableSlots(req.appointmentDate(), req.careId())
+                .stream()
+                .anyMatch(slot -> LocalTime.parse(slot.startTime()).equals(time));
+
+        if (!slotAvailable) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+        }
+
+        CareBooking booking = new CareBooking();
+        booking.setUser(client);
+        booking.setCare(care);
+        booking.setQuantity(1);
+        booking.setAppointmentDate(req.appointmentDate());
+        booking.setAppointmentTime(time);
+        booking.setStatus(CareBookingStatus.CONFIRMED);
+
+        try {
+            booking = repo.save(booking);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+        }
+
+        // Async emails (fire-and-forget)
+        emailService.sendBookingConfirmationEmail(client, booking, care, salonName);
+        emailService.sendNewBookingNotificationEmail(owner, booking, care, client.getName());
+
+        return new ClientBookingResponse(
+                booking.getId(),
+                care.getName(),
+                care.getPrice(),
+                care.getDuration(),
+                booking.getAppointmentDate().toString(),
+                booking.getAppointmentTime().toString(),
+                booking.getStatus().name(),
+                salonName
+        );
+    }
 }
 
