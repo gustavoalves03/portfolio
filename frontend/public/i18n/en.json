@@ -265,6 +265,18 @@
       "price": "Price"
     }
   },
+  "clientBookings": {
+    "title": "My Appointments",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "emptyUpcoming": "No upcoming appointments",
+    "emptyPast": "No past appointments",
+    "discoverCta": "Discover salons",
+    "status": {
+      "CONFIRMED": "Confirmed",
+      "CANCELLED": "Cancelled"
+    }
+  },
   "booking": {
     "book": "Book",
     "dialog": {

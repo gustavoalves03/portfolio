@@ -269,6 +269,18 @@
       "price": "Prix"
     }
   },
+  "clientBookings": {
+    "title": "Mes rendez-vous",
+    "upcoming": "À venir",
+    "past": "Passés",
+    "emptyUpcoming": "Aucun rendez-vous à venir",
+    "emptyPast": "Aucun rendez-vous passé",
+    "discoverCta": "Découvrir les salons",
+    "status": {
+      "CONFIRMED": "Confirmé",
+      "CANCELLED": "Annulé"
+    }
+  },
   "booking": {
     "book": "Réserver",
     "dialog": {
