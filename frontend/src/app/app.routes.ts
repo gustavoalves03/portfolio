@@ -59,6 +59,7 @@ export const routes: Routes = [
         path: 'calendar',
         loadComponent: () => import('./features/calendar/calendar.component').then(m => m.CalendarComponent),
       },
+      { path: 'bookings', component: BookingsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -67,7 +68,7 @@ export const routes: Routes = [
   {
     path: 'bookings',
     canActivate: [authGuard],
-    component: BookingsComponent,
+    loadComponent: () => import('./pages/client-bookings/client-bookings.component').then(m => m.ClientBookingsComponent),
   },
   {
     path: 'users',
