@@ -2,13 +2,13 @@
 
 ## Overview
 
-A client can view all their appointments (across multiple salons) in a single page with "Upcoming" and "Past" tabs. Data is read from a denormalized `CLIENT_BOOKING_HISTORY` table in the public schema (APPUSER), populated as a transactional mirror when bookings are created or their status changes.
+A client can view all their appointments (across multiple salons) in a single page with "Upcoming" and "Past" tabs. Data is read from a denormalized `CLIENT_BOOKING_HISTORY` table in the public schema (APPUSER), populated as a mirror when bookings are created or their status changes.
 
-**Approach:** New `ClientBookingHistory` entity in the public schema. Mirror row written atomically alongside the tenant booking via `ALTER SESSION SET CURRENT_SCHEMA` within the same JDBC transaction. New `GET /api/auth/me/bookings` endpoint. Frontend replaces the admin CRUD `/bookings` page with a client-friendly appointment list.
+**Approach:** New `ClientBookingHistory` entity in the public schema with `@Table(schema = "APPUSER")`. Mirror row written from the controller layer (after TenantContext is cleared) to avoid Hibernate multi-tenant connection corruption. New `GET /api/client/me/bookings` endpoint under a dedicated authenticated path. Frontend replaces the admin CRUD `/bookings` page with a client-friendly appointment list.
 
 ## Backend — Entity
 
-New entity in public schema (APPUSER):
+New entity in public schema (APPUSER), annotated with `@Table(name = "CLIENT_BOOKING_HISTORY", schema = "APPUSER")` to ensure Hibernate always resolves to the public schema regardless of TenantContext state.
 
 ```
 CLIENT_BOOKING_HISTORY
@@ -20,7 +20,7 @@ CLIENT_BOOKING_HISTORY
 ├── care_name       (VARCHAR 255)
 ├── care_price      (INTEGER — cents)
 ├── care_duration   (INTEGER — minutes)
-├── appointment_date (DATE)
+├── appointment_date (DATE — LocalDate)
 ├── appointment_time (TIMESTAMP — LocalTime)
 ├── status          (VARCHAR 20 — CONFIRMED / CANCELLED)
 ├── created_at      (TIMESTAMP — Instant)
@@ -28,7 +28,9 @@ CLIENT_BOOKING_HISTORY
 
 Package: `com.prettyface.app.bookings.domain.ClientBookingHistory`
 
-This table is **not tenant-scoped** — it lives in APPUSER and Hibernate must always query it in the default schema context, never within a tenant schema.
+**DDL strategy:** Hibernate `ddl-auto=update` creates this table in the APPUSER schema at startup (the `schema = "APPUSER"` annotation directs Hibernate). No manual DDL or TenantSchemaManager change needed.
+
+**TenantContext behavior for CLIENT users:** The `TenantFilter` only sets context for PRO users (via `findByOwnerId`). For CLIENT users, `TenantContext` remains null, and `TenantIdentifierResolver` resolves to `APPUSER` (the default). This means queries on `ClientBookingHistory` naturally hit the public schema.
 
 ## Backend — Repository
 
@@ -42,26 +44,42 @@ List<ClientBookingHistory> findByUserIdAndStatusAndAppointmentDateGreaterThanEqu
 // Past: any status, date < today, sorted DESC
 List<ClientBookingHistory> findByUserIdAndAppointmentDateBeforeOrderByAppointmentDateDescAppointmentTimeDesc(
     Long userId, LocalDate beforeDate);
+
+// For status sync (Stories 6.2, 6.6)
+Optional<ClientBookingHistory> findByTenantSlugAndBookingId(String tenantSlug, Long bookingId);
 ```
 
-## Backend — Transactional Mirror Write
+## Backend — Mirror Write Strategy
 
-In `CareBookingService.createClientBooking()`, after saving the `CareBooking` in the tenant schema:
+**Critical constraint:** Do NOT use `ALTER SESSION SET CURRENT_SCHEMA` inside a Hibernate-managed `@Transactional` method. Hibernate's `MultiTenantConnectionProvider` manages the connection's schema state, and manually switching schemas mid-transaction corrupts Hibernate's internal bookkeeping.
 
-1. Use JDBC to `ALTER SESSION SET CURRENT_SCHEMA = "APPUSER"` (switch to public schema)
-2. Save `ClientBookingHistory` via its JPA repository
-3. Use JDBC to `ALTER SESSION SET CURRENT_SCHEMA = "<TENANT>"` (switch back)
-4. All within the same `@Transactional` method — Oracle treats this as a single transaction, so both writes are atomic
+**Approach:** Write the mirror row from `PublicSalonController.book()`, AFTER the tenant booking completes and `TenantContext.clear()` is called in the finally block. At that point, the schema is back to APPUSER.
 
-The `ClientBookingHistory` row is built from the already-resolved `User`, `Care`, `CareBooking`, and `salonName`/`tenantSlug` parameters.
+```
+PublicSalonController.book():
+1. Resolve tenant, client, owner from public schema
+2. TenantContext.setCurrentTenant(slug)
+3. try {
+4.     result = careBookingService.createClientBooking(...)  // writes CARE_BOOKINGS in tenant
+5. } finally {
+6.     TenantContext.clear()  // back to APPUSER
+7. }
+8. clientBookingHistoryService.createMirror(client, result, tenantSlug, salonName)  // writes CLIENT_BOOKING_HISTORY in APPUSER
+9. return 201 Created
+```
+
+**Trade-off:** This is NOT strictly atomic — the tenant booking commits first, then the mirror write happens. If the mirror write fails (extremely unlikely), the booking exists in the tenant but not in the client history. A future reconciliation job can catch discrepancies. This is acceptable because:
+- The tenant booking is the source of truth
+- The mirror is for client convenience
+- Mirror write failure = missing row in history (not data corruption)
 
 **Status sync method** (for future Stories 6.2, 6.6):
 
 ```java
-void updateMirrorStatus(String tenantSlug, Long bookingId, CareBookingStatus newStatus)
+void updateMirrorStatus(String tenantSlug, Long bookingId, String newStatus)
 ```
 
-This updates the `CLIENT_BOOKING_HISTORY.status` column matching `(tenantSlug, bookingId)`. Called whenever a booking status changes in any tenant schema.
+Updates `CLIENT_BOOKING_HISTORY.status` matching `(tenantSlug, bookingId)`. Called from the controller after the tenant status change completes.
 
 ## Backend — Endpoint
 
@@ -69,16 +87,25 @@ New controller: `ClientBookingHistoryController` in `com.prettyface.app.bookings
 
 | Method | URL | Auth | Description |
 |--------|-----|------|-------------|
-| `GET` | `/api/auth/me/bookings` | Authenticated | List current user's bookings |
+| `GET` | `/api/client/me/bookings` | Authenticated | List current user's bookings |
+
+**Security config:** Add new rule before the catch-all:
+```java
+.requestMatchers("/api/client/**").authenticated()
+```
+
+This puts the endpoint under a dedicated authenticated path, not under `/api/auth/**` which is `permitAll()` and CSRF-exempt.
 
 **Query params:**
 - `tab` (optional): `upcoming` (default) or `past`
 
 **Logic:**
 1. Extract userId from `@AuthenticationPrincipal`
-2. No TenantContext needed — query runs on public schema
-3. If `tab=upcoming`: query CONFIRMED bookings where date >= today, sorted ASC
-4. If `tab=past`: query all bookings where date < today, sorted DESC
+2. No TenantContext needed — query runs on public schema (APPUSER)
+3. If `tab=upcoming`: query CONFIRMED bookings where date >= today, sorted date ASC then time ASC
+4. If `tab=past`: query all bookings where date < today, sorted date DESC then time DESC
+
+**Date boundary:** Today's bookings always appear in "upcoming" regardless of their time. This is intentional — date-level granularity keeps the queries simple and matches user expectations (you see today's appointments until the day is over).
 
 **Response DTO:** `ClientBookingHistoryResponse`
 
@@ -98,16 +125,16 @@ record ClientBookingHistoryResponse(
 ) {}
 ```
 
-**Security:** The endpoint is under `/api/auth/**` which is already `permitAll()` in SecurityConfig, but it requires `@AuthenticationPrincipal` to resolve the user. Since it reads from the public schema (no tenant context), no tenant-related security is needed.
-
-**Note:** This endpoint should be moved to a dedicated path like `/api/client/bookings` in a future refactor if more client-specific endpoints emerge. For now `/api/auth/me/bookings` keeps it simple and consistent with the existing `/api/auth/me` endpoint.
-
 ## Frontend — Page "Mes rendez-vous"
 
 ### Route change
 
-- `/bookings` → client appointment history (protected by `authGuard`, no role restriction)
+- `/bookings` → `ClientBookingsComponent` (protected by `authGuard`, no role restriction)
 - Move existing admin CRUD bookings component to `/pro/bookings` (protected by `authGuard` + `roleGuard(PRO)`)
+
+### Bookings drawer
+
+The header bookings drawer currently uses `BookingsService.listDetailed()` which is a tenant-scoped PRO endpoint. For CLIENT users it would fail. Hide the drawer for CLIENT users (only show for PRO/ADMIN).
 
 ### New component: `ClientBookingsComponent`
 
@@ -132,25 +159,32 @@ Location: `frontend/src/app/pages/client-bookings/`
 
 ### Service
 
-New `ClientBookingHistoryService` or method in existing service:
+New `ClientBookingHistoryService` in `frontend/src/app/features/client-bookings/`:
 
 ```typescript
 getMyBookings(tab: 'upcoming' | 'past'): Observable<ClientBookingHistoryResponse[]> {
   return this.http.get<ClientBookingHistoryResponse[]>(
-    `${this.apiBaseUrl}/api/auth/me/bookings`, { params: { tab } }
+    `${this.apiBaseUrl}/api/client/me/bookings`, { params: { tab } }
   );
 }
 ```
 
 ### Store
 
-Simple signal-based state (no NgRx SignalStore needed for a read-only list):
+NgRx SignalStore for consistency with project patterns:
 
 ```typescript
-readonly upcomingBookings = signal<ClientBookingHistoryResponse[]>([]);
-readonly pastBookings = signal<ClientBookingHistoryResponse[]>([]);
-readonly activeTab = signal<'upcoming' | 'past'>('upcoming');
-readonly loading = signal(false);
+export const ClientBookingsStore = signalStore(
+  withState<{ upcoming: ClientBookingHistoryResponse[]; past: ClientBookingHistoryResponse[] }>({
+    upcoming: [], past: []
+  }),
+  withRequestStatus(),
+  withMethods((store, service = inject(ClientBookingHistoryService)) => ({
+    loadUpcoming: rxMethod<void>(...),
+    loadPast: rxMethod<void>(...),
+  })),
+  withHooks({ onInit(store) { store.loadUpcoming(); } })
+);
 ```
 
 ## i18n Keys
@@ -158,35 +192,40 @@ readonly loading = signal(false);
 Add to both `fr.json` and `en.json`:
 
 ```
-clientBookings.title          → "Mes rendez-vous" / "My Appointments"
-clientBookings.upcoming       → "À venir" / "Upcoming"
-clientBookings.past           → "Passés" / "Past"
-clientBookings.emptyUpcoming  → "Aucun rendez-vous à venir" / "No upcoming appointments"
-clientBookings.emptyPast      → "Aucun rendez-vous passé" / "No past appointments"
-clientBookings.discoverCta    → "Découvrir les salons" / "Discover salons"
-clientBookings.status.CONFIRMED → "Confirmé" / "Confirmed"
-clientBookings.status.CANCELLED → "Annulé" / "Cancelled"
+clientBookings.title              → "Mes rendez-vous" / "My Appointments"
+clientBookings.upcoming           → "À venir" / "Upcoming"
+clientBookings.past               → "Passés" / "Past"
+clientBookings.emptyUpcoming      → "Aucun rendez-vous à venir" / "No upcoming appointments"
+clientBookings.emptyPast          → "Aucun rendez-vous passé" / "No past appointments"
+clientBookings.discoverCta        → "Découvrir les salons" / "Discover salons"
+clientBookings.status.CONFIRMED   → "Confirmé" / "Confirmed"
+clientBookings.status.CANCELLED   → "Annulé" / "Cancelled"
 ```
 
 ## Files Changed Summary
 
 ### Backend — New Files
-- `bookings/domain/ClientBookingHistory.java` — JPA entity (public schema)
+- `bookings/domain/ClientBookingHistory.java` — JPA entity with `@Table(schema = "APPUSER")`
 - `bookings/repo/ClientBookingHistoryRepository.java` — Spring Data repository
+- `bookings/app/ClientBookingHistoryService.java` — mirror write + status sync logic
 - `bookings/web/ClientBookingHistoryController.java` — GET endpoint
 - `bookings/web/dto/ClientBookingHistoryResponse.java` — Response DTO
 
 ### Backend — Modified Files
-- `bookings/app/CareBookingService.java` — add mirror write in `createClientBooking()`, add `updateMirrorStatus()` method
-- `config/DataSourceConfig.java` — may need helper for schema switching within a transaction
+- `tenant/web/PublicSalonController.java` — add mirror write call after tenant booking
+- `config/SecurityConfig.java` — add `/api/client/**` authenticated rule
 
 ### Frontend — New Files
 - `pages/client-bookings/client-bookings.component.ts` — appointment history page
 - `pages/client-bookings/client-bookings.component.html` — template with tabs and cards
 - `pages/client-bookings/client-bookings.component.scss` — styles
+- `features/client-bookings/client-bookings.service.ts` — HTTP service
+- `features/client-bookings/client-bookings.store.ts` — NgRx SignalStore
+- `features/client-bookings/client-bookings.model.ts` — TypeScript interfaces
 
 ### Frontend — Modified Files
 - `app.routes.ts` — change `/bookings` to ClientBookingsComponent, add `/pro/bookings` for admin CRUD
+- `shared/layout/header/bookings-drawer/` — hide drawer for CLIENT users
+- `shared/layout/navigation/navigation-routes.ts` — update bookings link
 - `public/i18n/fr.json` — add clientBookings keys
 - `public/i18n/en.json` — add clientBookings keys
-- Navigation routes — update links
