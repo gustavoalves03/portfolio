@@ -13,7 +13,12 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "CARE_BOOKINGS")
+@Table(name = "CARE_BOOKINGS", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "UK_BOOKING_SLOT",
+                columnNames = {"appointment_date", "appointment_time", "care_id"}
+        )
+})
 public class CareBooking {
 
     @Id
