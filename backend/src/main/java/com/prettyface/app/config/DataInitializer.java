@@ -8,8 +8,10 @@ import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.multitenancy.TenantContext;
-import com.prettyface.app.tenant.app.TenantProvisioningService;
+import com.prettyface.app.multitenancy.TenantSchemaManager;
+import com.prettyface.app.tenant.app.SlugUtils;
 import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
@@ -17,6 +19,7 @@ import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,11 +36,12 @@ public class DataInitializer {
     private static final String DEFAULT_PASSWORD = "Password1!";
 
     @Bean
+    @ConditionalOnProperty(name = "app.seed.demo-data", havingValue = "true")
     CommandLineRunner initDatabase(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            TenantProvisioningService provisioningService,
             TenantRepository tenantRepository,
+            TenantSchemaManager tenantSchemaManager,
             CategoryRepository categoryRepository,
             CareRepository careRepository,
             OpeningHourRepository openingHourRepository
@@ -57,26 +61,28 @@ public class DataInitializer {
             // ── Pro 1: Sophie's salon ──
             User sophie = createUser(userRepository, passwordEncoder,
                     "Sophie Martin", "sophie@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
-            Tenant salonSophie = provisioningService.provision(sophie);
+            Tenant salonSophie = createTenant(tenantRepository, sophie);
             salonSophie.setName("L'Atelier de Sophie");
             salonSophie.setDescription("Institut de beauté spécialisé dans les soins du visage et le bien-être. " +
                     "Venez découvrir nos soins personnalisés dans un cadre chaleureux.");
             salonSophie.setCategoryNames("Soins visage,Soins corps,Épilation");
             salonSophie.setCategorySlugs("soins-visage,soins-corps,epilation");
             tenantRepository.save(salonSophie);
+            tenantSchemaManager.provisionSchema(salonSophie.getSlug());
             seedSalonSophie(salonSophie.getSlug(), categoryRepository, careRepository, openingHourRepository);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonSophie.getName(), salonSophie.getSlug(), sophie.getEmail());
 
             // ── Pro 2: Camille's salon ──
             User camille = createUser(userRepository, passwordEncoder,
                     "Camille Dubois", "camille@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
-            Tenant salonCamille = provisioningService.provision(camille);
+            Tenant salonCamille = createTenant(tenantRepository, camille);
             salonCamille.setName("Beauté by Camille");
             salonCamille.setDescription("Espace dédié à la beauté des ongles et au maquillage professionnel. " +
                     "Nail art, pose de vernis semi-permanent et maquillage événementiel.");
             salonCamille.setCategoryNames("Ongles,Maquillage");
             salonCamille.setCategorySlugs("ongles,maquillage");
             tenantRepository.save(salonCamille);
+            tenantSchemaManager.provisionSchema(salonCamille.getSlug());
             seedSalonCamille(salonCamille.getSlug(), categoryRepository, careRepository, openingHourRepository);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
 
@@ -107,6 +113,28 @@ public class DataInitializer {
                 .build();
         User saved = repo.save(user);
         logger.info("  → User created: {} ({}) [{}]", name, email, role);
+        return saved;
+    }
+
+    private Tenant createTenant(TenantRepository tenantRepository, User owner) {
+        String baseSlug = SlugUtils.toSlug(owner.getName());
+        String slug = baseSlug;
+        int counter = 2;
+
+        while (tenantRepository.existsBySlug(slug)) {
+            slug = baseSlug + "-" + counter;
+            counter++;
+        }
+
+        Tenant tenant = Tenant.builder()
+                .slug(slug)
+                .name(owner.getName())
+                .ownerId(owner.getId())
+                .status(TenantStatus.ACTIVE)
+                .build();
+
+        Tenant saved = tenantRepository.save(tenant);
+        logger.info("  → Demo tenant created: {} ({})", saved.getName(), saved.getSlug());
         return saved;
     }
 
