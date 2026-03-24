@@ -275,6 +275,15 @@
       "title": "Choisir un créneau",
       "noSlots": "Aucun créneau disponible ce jour",
       "confirm": "Confirmer"
+    },
+    "confirm": {
+      "success": "Votre rendez-vous est confirmé !",
+      "close": "Fermer",
+      "registerDone": "Compte créé ! Vous pouvez maintenant confirmer."
+    },
+    "errors": {
+      "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
+      "generic": "Une erreur est survenue. Veuillez réessayer."
     }
   }
 }

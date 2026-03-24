@@ -271,6 +271,15 @@
       "title": "Choose a time slot",
       "noSlots": "No slots available on this day",
       "confirm": "Confirm"
+    },
+    "confirm": {
+      "success": "Your appointment is confirmed!",
+      "close": "Close",
+      "registerDone": "Account created! You can now confirm."
+    },
+    "errors": {
+      "slotTaken": "This slot was just booked. Please choose another.",
+      "generic": "An error occurred. Please try again."
     }
   }
 }
