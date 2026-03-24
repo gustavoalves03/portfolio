@@ -124,7 +124,7 @@
 
         <tr mat-header-row *matHeaderRowDef="columnKeys()"></tr>
         <tr mat-row *matRowDef="let row; columns: columnKeys();" (click)="onRowClick(row)" class="clickable-row"
-            [cdkDrag]="reorderable()" [cdkDragDisabled]="!reorderable()"></tr>
+            cdkDrag [cdkDragDisabled]="!reorderable()"></tr>
 
         <!-- État vide: ligne couvrant toutes les colonnes -->
         <tr class="mat-mdc-row" *matNoDataRow>

@@ -106,7 +106,7 @@ export class CrudTable {
     return this.columns().find(c => c.key === key);
   }
 
-  protected resolveCellValue(columnKey: string, row: any): string | number | null | undefined {
+  protected resolveCellValue(columnKey: string, row: any): string | number | boolean | null | undefined {
     const column = this.getColumnConfig(columnKey);
     if (!column) {
       return row?.[columnKey];
