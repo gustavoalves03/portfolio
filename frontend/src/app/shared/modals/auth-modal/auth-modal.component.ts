@@ -12,6 +12,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
 
+export interface AuthModalResult {
+  authenticated: boolean;
+  action: 'login' | 'register';
+}
+
 @Component({
   selector: 'app-auth-modal',
   standalone: true,
@@ -65,7 +70,7 @@ export class AuthModalComponent {
     this.authService.loginWithCredentials(email!, password!).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.dialogRef.close(true);
+        this.dialogRef.close({ authenticated: true, action: 'login' } as AuthModalResult);
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
@@ -94,7 +99,7 @@ export class AuthModalComponent {
     this.authService.registerClient(name!, email!, password!).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.dialogRef.close(true);
+        this.dialogRef.close({ authenticated: true, action: 'register' } as AuthModalResult);
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
