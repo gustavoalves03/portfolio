@@ -7,6 +7,7 @@ import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import com.prettyface.app.bookings.app.CareBookingService;
+import com.prettyface.app.bookings.app.ClientBookingHistoryService;
 import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
 import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.category.domain.Category;
@@ -40,11 +41,13 @@ public class PublicSalonController {
     private final SlotAvailabilityService slotAvailabilityService;
     private final CareBookingService careBookingService;
     private final UserRepository userRepository;
+    private final ClientBookingHistoryService clientBookingHistoryService;
 
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
                                  SlotAvailabilityService slotAvailabilityService,
-                                 CareBookingService careBookingService, UserRepository userRepository) {
+                                 CareBookingService careBookingService, UserRepository userRepository,
+                                 ClientBookingHistoryService clientBookingHistoryService) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
@@ -52,6 +55,7 @@ public class PublicSalonController {
         this.slotAvailabilityService = slotAvailabilityService;
         this.careBookingService = careBookingService;
         this.userRepository = userRepository;
+        this.clientBookingHistoryService = clientBookingHistoryService;
     }
 
     @GetMapping("/{slug}")
@@ -139,11 +143,17 @@ public class PublicSalonController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon owner not found"));
         String salonName = tenant.getName();
 
+        ClientBookingResponse result;
         TenantContext.setCurrentTenant(slug);
         try {
-            return careBookingService.createClientBooking(client, owner, salonName, request);
+            result = careBookingService.createClientBooking(client, owner, salonName, request);
         } finally {
             TenantContext.clear();
         }
+
+        // Mirror write in public schema (after TenantContext cleared → APPUSER)
+        clientBookingHistoryService.createMirror(client, result, slug, salonName);
+
+        return result;
     }
 }
