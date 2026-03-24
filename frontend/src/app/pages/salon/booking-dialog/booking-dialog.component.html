@@ -3,83 +3,117 @@
     <mat-icon>close</mat-icon>
   </button>
 
-  <h2 class="dialog-title">{{ 'booking.dialog.title' | transloco }}</h2>
-
-  <!-- Care summary -->
-  <div class="care-summary">
-    <span class="care-name">{{ care.name }}</span>
-    <span class="care-meta">{{ formatDuration(care.duration) }}</span>
-  </div>
-
-  <!-- Calendar -->
-  <div class="month-nav">
-    <button type="button" class="nav-btn" (click)="prevMonth()">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    <span class="month-label">{{ monthLabel() }}</span>
-    <button type="button" class="nav-btn" (click)="nextMonth()">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
-  </div>
-
-  <div class="calendar-grid">
-    @for (label of weekDayLabels; track label) {
-      <div class="weekday-header">{{ label }}</div>
-    }
-    @for (day of calendarDays(); track day.date.getTime()) {
-      <button
-        type="button"
-        class="day-cell"
-        [class.other-month]="!day.isCurrentMonth"
-        [class.today]="day.isToday"
-        [class.past]="day.isPast && day.isCurrentMonth"
-        [class.selected]="isSelectedDate(day.date)"
-        [disabled]="!day.isCurrentMonth || day.isPast"
-        (click)="selectDay(day)"
-      >
-        {{ day.dayOfMonth }}
+  @if (bookingSuccess()) {
+    <!-- Success view -->
+    <div class="success-view">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h2 class="success-title">{{ 'booking.confirm.success' | transloco }}</h2>
+      <div class="success-details">
+        <p class="success-care">{{ care.name }}</p>
+        <p class="success-datetime">
+          {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
+          — {{ selectedSlot()!.startTime }}
+        </p>
+      </div>
+      <button mat-flat-button class="confirm-btn" (click)="close()">
+        {{ 'booking.confirm.close' | transloco }}
       </button>
-    }
-  </div>
+    </div>
+  } @else {
+    <!-- Booking flow -->
+    <h2 class="dialog-title">{{ 'booking.dialog.title' | transloco }}</h2>
 
-  <!-- Slot selection -->
-  @if (selectedDate()) {
-    <div class="slots-section">
-      <h3 class="slots-title">
-        {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
-      </h3>
+    <!-- Care summary -->
+    <div class="care-summary">
+      <span class="care-name">{{ care.name }}</span>
+      <span class="care-meta">{{ formatDuration(care.duration) }}</span>
+    </div>
 
-      @if (loadingSlots()) {
-        <div class="slots-loading">
-          <mat-spinner diameter="24"></mat-spinner>
-        </div>
-      } @else if (slots().length === 0) {
-        <p class="no-slots">{{ 'booking.dialog.noSlots' | transloco }}</p>
-      } @else {
-        <div class="slots-grid">
-          @for (slot of slots(); track slot.startTime) {
-            <button
-              type="button"
-              class="slot-btn"
-              [class.selected]="selectedSlot()?.startTime === slot.startTime"
-              (click)="selectSlot(slot)"
-            >
-              {{ slot.startTime }}
-            </button>
-          }
-        </div>
+    <!-- Calendar -->
+    <div class="month-nav">
+      <button type="button" class="nav-btn" (click)="prevMonth()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="month-label">{{ monthLabel() }}</span>
+      <button type="button" class="nav-btn" (click)="nextMonth()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <div class="calendar-grid">
+      @for (label of weekDayLabels; track label) {
+        <div class="weekday-header">{{ label }}</div>
+      }
+      @for (day of calendarDays(); track day.date.getTime()) {
+        <button
+          type="button"
+          class="day-cell"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.past]="day.isPast && day.isCurrentMonth"
+          [class.selected]="isSelectedDate(day.date)"
+          [disabled]="!day.isCurrentMonth || day.isPast"
+          (click)="selectDay(day)"
+        >
+          {{ day.dayOfMonth }}
+        </button>
       }
     </div>
-  }
 
-  <!-- Confirm button -->
-  @if (selectedSlot()) {
-    <button
-      mat-flat-button
-      class="confirm-btn"
-      (click)="confirm()"
-    >
-      {{ 'booking.dialog.confirm' | transloco }} — {{ selectedSlot()!.startTime }}
-    </button>
+    <!-- Slot selection -->
+    @if (selectedDate()) {
+      <div class="slots-section">
+        <h3 class="slots-title">
+          {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
+        </h3>
+
+        @if (loadingSlots()) {
+          <div class="slots-loading">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+        } @else if (slots().length === 0) {
+          <p class="no-slots">{{ 'booking.dialog.noSlots' | transloco }}</p>
+        } @else {
+          <div class="slots-grid">
+            @for (slot of slots(); track slot.startTime) {
+              <button
+                type="button"
+                class="slot-btn"
+                [class.selected]="selectedSlot()?.startTime === slot.startTime"
+                (click)="selectSlot(slot)"
+              >
+                {{ slot.startTime }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error message -->
+    @if (bookingError()) {
+      <p class="booking-error">{{ bookingError()! | transloco }}</p>
+    }
+
+    <!-- Register success hint -->
+    @if (registerJustCompleted()) {
+      <p class="register-hint">{{ 'booking.confirm.registerDone' | transloco }}</p>
+    }
+
+    <!-- Confirm button -->
+    @if (selectedSlot()) {
+      <button
+        mat-flat-button
+        class="confirm-btn"
+        [disabled]="submitting()"
+        (click)="confirm()"
+      >
+        @if (submitting()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          {{ 'booking.dialog.confirm' | transloco }} — {{ selectedSlot()!.startTime }}
+        }
+      </button>
+    }
   }
 </div>

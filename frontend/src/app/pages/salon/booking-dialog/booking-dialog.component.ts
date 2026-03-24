@@ -1,21 +1,17 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
-import { PublicCareDto, TimeSlot } from '../../../features/salon-profile/models/salon-profile.model';
+import { PublicCareDto, TimeSlot, ClientBookingRequest } from '../../../features/salon-profile/models/salon-profile.model';
+import { AuthService } from '../../../core/auth/auth.service';
+import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
 
 export interface BookingDialogData {
   slug: string;
   care: PublicCareDto;
-}
-
-export interface BookingDialogResult {
-  careId: number;
-  date: string;
-  startTime: string;
 }
 
 @Component({
@@ -35,6 +31,8 @@ export class BookingDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<BookingDialogComponent>);
   private readonly data = inject<BookingDialogData>(MAT_DIALOG_DATA);
   private readonly salonService = inject(SalonProfileService);
+  private readonly authService = inject(AuthService);
+  private readonly matDialog = inject(MatDialog);
 
   readonly care = this.data.care;
   readonly slug = this.data.slug;
@@ -44,6 +42,10 @@ export class BookingDialogComponent {
   readonly slots = signal<TimeSlot[]>([]);
   readonly loadingSlots = signal(false);
   readonly selectedSlot = signal<TimeSlot | null>(null);
+  readonly submitting = signal(false);
+  readonly bookingSuccess = signal(false);
+  readonly bookingError = signal<string | null>(null);
+  readonly registerJustCompleted = signal(false);
 
   readonly weekDayLabels = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
 
@@ -125,12 +127,53 @@ export class BookingDialogComponent {
     const slot = this.selectedSlot();
     if (!date || !slot) return;
 
-    const result: BookingDialogResult = {
+    if (!this.authService.isAuthenticated()) {
+      this.openAuthAndMaybeSubmit();
+      return;
+    }
+
+    this.submitBooking();
+  }
+
+  private openAuthAndMaybeSubmit(): void {
+    const authRef = this.matDialog.open(AuthModalComponent, { width: '480px' });
+    authRef.afterClosed().subscribe((result: AuthModalResult) => {
+      if (!result?.authenticated) return;
+      if (result.action === 'login') {
+        this.submitBooking();
+      } else {
+        this.registerJustCompleted.set(true);
+      }
+    });
+  }
+
+  private submitBooking(): void {
+    this.submitting.set(true);
+    this.bookingError.set(null);
+    this.registerJustCompleted.set(false);
+
+    const request: ClientBookingRequest = {
       careId: this.care.id,
-      date: this.formatDate(date),
-      startTime: slot.startTime,
+      appointmentDate: this.formatDate(this.selectedDate()!),
+      appointmentTime: this.selectedSlot()!.startTime,
     };
-    this.dialogRef.close(result);
+
+    this.salonService.createBooking(this.slug, request).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        this.bookingSuccess.set(true);
+      },
+      error: (err) => {
+        this.submitting.set(false);
+        if (err.status === 409) {
+          this.bookingError.set('booking.errors.slotTaken');
+          this.loadSlots(this.selectedDate()!);
+          this.selectedSlot.set(null);
+        } else {
+          this.bookingError.set('booking.errors.generic');
+        }
+      },
+    });
   }
 
   close(): void {
