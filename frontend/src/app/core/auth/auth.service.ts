@@ -40,19 +40,22 @@ export class AuthService {
   /**
    * Register a new beauty professional with email and password
    */
-  registerPro(name: string, email: string, password: string): Observable<User> {
+  registerPro(data: {
+    name: string; email: string; password: string;
+    salonName: string; phone: string;
+    addressStreet: string; addressPostalCode: string; addressCity: string;
+    siret: string; plan: string;
+  }): Observable<User> {
     return this.http.post<{accessToken: string, user: User}>(
       `${this.apiBaseUrl}/api/auth/register/pro`,
-      { name, email, password, consent: true }
+      { ...data, consent: true }
     ).pipe(
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
       }),
       map(response => response.user),
-      catchError(error => {
-        throw error;
-      })
+      catchError(error => { throw error; })
     );
   }
 

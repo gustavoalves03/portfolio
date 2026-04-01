@@ -21,6 +21,10 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'about', component: About },
   { path: 'login', component: LoginComponent },
+  {
+    path: 'register/pro',
+    loadComponent: () => import('./pages/auth/register-pro/register-pro.component').then(m => m.RegisterProComponent),
+  },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },

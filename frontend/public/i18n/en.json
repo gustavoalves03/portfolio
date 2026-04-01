@@ -17,7 +17,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "loading": "Loading...",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "back": "Back"
   },
   "auth": {
     "modal": {
@@ -315,6 +316,39 @@
     "status": {
       "CONFIRMED": "Confirmed",
       "CANCELLED": "Cancelled"
+    }
+  },
+  "register": {
+    "pro": {
+      "pricingTitle": "Choose your plan",
+      "pricingSubtitle": "Start free, scale at your own pace",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "free": "Free",
+      "month": "month",
+      "startFree": "Get started",
+      "choose": "Choose",
+      "alreadyAccount": "Already have an account?",
+      "login": "Log in",
+      "accountTitle": "Your account",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "continue": "Continue",
+      "businessTitle": "Your salon",
+      "salonName": "Salon name",
+      "phone": "Phone",
+      "addressStreet": "Address",
+      "addressPostalCode": "Postal code",
+      "addressCity": "City",
+      "siret": "SIRET",
+      "consent": "I accept the terms and conditions",
+      "createSalon": "Create my salon"
+    },
+    "errors": {
+      "emailConflict": "This email is already in use",
+      "generic": "An error occurred, please try again"
     }
   },
   "booking": {

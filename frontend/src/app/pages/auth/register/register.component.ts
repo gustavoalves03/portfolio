@@ -59,7 +59,7 @@ export class RegisterComponent {
 
     const { name, email, password } = this.form.value;
 
-    this.authService.registerPro(name!, email!, password!).subscribe({
+    this.authService.registerClient(name!, email!, password!).subscribe({
       next: () => {
         this.isLoading = false;
         this.authService.navigateByRole();

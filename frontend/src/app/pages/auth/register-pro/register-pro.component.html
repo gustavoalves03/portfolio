@@ -1,0 +1,181 @@
+<div class="register-pro-page">
+  @switch (step()) {
+    @case ('pricing') {
+      <!-- Pricing -->
+      <div class="pricing-section">
+        <h1 class="pricing-title">{{ 'register.pro.pricingTitle' | transloco }}</h1>
+        <p class="pricing-subtitle">{{ 'register.pro.pricingSubtitle' | transloco }}</p>
+
+        <!-- Toggle -->
+        <div class="billing-toggle">
+          <button type="button" class="toggle-btn" [class.active]="!isYearly()" (click)="isYearly.set(false)">
+            {{ 'register.pro.monthly' | transloco }}
+          </button>
+          <button type="button" class="toggle-btn" [class.active]="isYearly()" (click)="isYearly.set(true)">
+            {{ 'register.pro.yearly' | transloco }}
+            <span class="discount-badge">-20%</span>
+          </button>
+        </div>
+
+        <!-- Plans -->
+        <div class="plans-grid">
+          @for (plan of plans; track plan.id) {
+            <div class="plan-card" [class.highlighted]="plan.highlighted">
+              @if (plan.badge) {
+                <div class="plan-badge">{{ plan.badge }}</div>
+              }
+              <div class="plan-name">{{ plan.name }}</div>
+              <div class="plan-price">
+                @if (getPrice(plan) === 0) {
+                  <span class="price-amount">{{ 'register.pro.free' | transloco }}</span>
+                } @else {
+                  <span class="price-amount">{{ getPrice(plan) }}€</span>
+                  <span class="price-period">/{{ 'register.pro.month' | transloco }}</span>
+                }
+              </div>
+              <div class="plan-features">
+                @for (feature of plan.features; track feature) {
+                  <div class="feature">✓ {{ feature }}</div>
+                }
+              </div>
+              <button
+                type="button"
+                class="plan-btn"
+                [class.primary]="plan.highlighted"
+                (click)="selectPlan(plan.id)"
+              >
+                @if (plan.id === 'free') {
+                  {{ 'register.pro.startFree' | transloco }}
+                } @else {
+                  {{ 'register.pro.choose' | transloco }}
+                }
+              </button>
+            </div>
+          }
+        </div>
+
+        <p class="login-link">
+          {{ 'register.pro.alreadyAccount' | transloco }}
+          <a routerLink="/login">{{ 'register.pro.login' | transloco }}</a>
+        </p>
+      </div>
+    }
+
+    @case ('account') {
+      <!-- Step 1: Account -->
+      <div class="step-section">
+        <div class="plan-badge-top">{{ selectedPlan() | uppercase }}</div>
+        <div class="step-indicator">
+          <div class="step-dot active">1</div>
+          <div class="step-line active"></div>
+          <div class="step-dot">2</div>
+        </div>
+
+        <div class="step-card">
+          <h2 class="step-title">{{ 'register.pro.accountTitle' | transloco }}</h2>
+
+          @if (error()) {
+            <p class="error-msg">{{ error()! | transloco }}</p>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.name' | transloco }}</mat-label>
+            <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" required />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.email' | transloco }}</mat-label>
+            <input matInput [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" type="email" required />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.password' | transloco }}</mat-label>
+            <input matInput [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" type="password" required />
+            <mat-hint>{{ 'register.pro.passwordHint' | transloco }}</mat-hint>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-stroked-button type="button" (click)="goToStep('pricing')">
+              {{ 'common.back' | transloco }}
+            </button>
+            <button mat-raised-button color="primary" class="next-btn"
+                    [disabled]="!isAccountValid()"
+                    (click)="continueToBusinessStep()">
+              {{ 'register.pro.continue' | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @case ('business') {
+      <!-- Step 2: Business -->
+      <div class="step-section">
+        <div class="plan-badge-top">{{ selectedPlan() | uppercase }}</div>
+        <div class="step-indicator">
+          <div class="step-dot done">✓</div>
+          <div class="step-line active"></div>
+          <div class="step-dot active">2</div>
+        </div>
+
+        <div class="step-card">
+          <h2 class="step-title">{{ 'register.pro.businessTitle' | transloco }}</h2>
+
+          @if (error()) {
+            <p class="error-msg">{{ error()! | transloco }}</p>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.salonName' | transloco }}</mat-label>
+            <input matInput [ngModel]="salonName()" (ngModelChange)="salonName.set($event)" name="salonName" required />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.phone' | transloco }}</mat-label>
+            <input matInput [ngModel]="phone()" (ngModelChange)="phone.set($event)" name="phone" type="tel" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.addressStreet' | transloco }}</mat-label>
+            <input matInput [ngModel]="addressStreet()" (ngModelChange)="addressStreet.set($event)" name="addressStreet" />
+          </mat-form-field>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-small">
+              <mat-label>{{ 'register.pro.addressPostalCode' | transloco }}</mat-label>
+              <input matInput [ngModel]="addressPostalCode()" (ngModelChange)="addressPostalCode.set($event)" name="addressPostalCode" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-grow">
+              <mat-label>{{ 'register.pro.addressCity' | transloco }}</mat-label>
+              <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" name="addressCity" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'register.pro.siret' | transloco }}</mat-label>
+            <input matInput [ngModel]="siret()" (ngModelChange)="siret.set($event)" name="siret" />
+          </mat-form-field>
+
+          <mat-checkbox [ngModel]="consent()" (ngModelChange)="consent.set($event)" name="consent" color="primary">
+            {{ 'register.pro.consent' | transloco }}
+          </mat-checkbox>
+
+          <div class="step-actions">
+            <button mat-stroked-button type="button" (click)="goToStep('account')">
+              {{ 'common.back' | transloco }}
+            </button>
+            <button mat-raised-button color="primary" class="next-btn"
+                    [disabled]="!isBusinessValid() || isLoading()"
+                    (click)="submit()">
+              @if (isLoading()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                {{ 'register.pro.createSalon' | transloco }}
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

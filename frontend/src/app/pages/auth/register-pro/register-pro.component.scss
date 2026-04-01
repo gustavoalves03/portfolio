@@ -1,0 +1,302 @@
+.register-pro-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+// Pricing
+.pricing-section {
+  text-align: center;
+}
+
+.pricing-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.pricing-subtitle {
+  font-size: 13px;
+  color: #999;
+  margin: 6px 0 20px;
+}
+
+.billing-toggle {
+  display: inline-flex;
+  background: #f0e8ec;
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 24px;
+}
+
+.toggle-btn {
+  padding: 7px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  background: transparent;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &.active {
+    background: white;
+    color: #c06;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.discount-badge {
+  font-size: 9px;
+  color: #16a34a;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.plans-grid {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.plan-card {
+  flex: 1;
+  max-width: 240px;
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1.5px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: box-shadow 150ms ease;
+
+  &.highlighted {
+    border-color: #c06;
+    box-shadow: 0 2px 16px rgba(192, 102, 102, 0.15);
+    flex: 1.1;
+  }
+
+  @media (max-width: 640px) {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+.plan-badge {
+  position: absolute;
+  top: -10px;
+  background: #c06;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 12px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+.plan-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-top: 4px;
+}
+
+.plan-price {
+  margin: 10px 0;
+}
+
+.price-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+}
+
+.price-period {
+  font-size: 12px;
+  color: #999;
+}
+
+.plan-features {
+  width: 100%;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.feature {
+  font-size: 11px;
+  color: #666;
+  padding: 3px 0;
+}
+
+.plan-btn {
+  width: 100%;
+  padding: 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid #c06;
+  background: white;
+  color: #c06;
+  transition: all 150ms ease;
+
+  &.primary {
+    background: linear-gradient(135deg, #a8385d, #c06);
+    color: white;
+    border: none;
+  }
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+.login-link {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #999;
+
+  a {
+    color: #c06;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Step sections
+.step-section {
+  max-width: 460px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.plan-badge-top {
+  font-size: 11px;
+  background: #f0e8ec;
+  color: #c06;
+  padding: 4px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 20px;
+}
+
+.step-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+
+  &.active {
+    background: #c06;
+    color: white;
+  }
+
+  &.done {
+    background: #16a34a;
+    color: white;
+  }
+}
+
+.step-line {
+  width: 50px;
+  height: 2px;
+  background: #e0e0e0;
+
+  &.active {
+    background: #c06;
+  }
+}
+
+.step-card {
+  width: 100%;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.field-small {
+  width: 120px;
+  flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+}
+
+.field-grow {
+  flex: 1;
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.next-btn {
+  flex: 1;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  color: white !important;
+}
+
+.error-msg {
+  color: #d32f2f;
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}

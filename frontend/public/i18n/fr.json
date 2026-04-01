@@ -17,7 +17,8 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "loading": "Chargement...",
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt disponible",
+    "back": "Retour"
   },
   "auth": {
     "modal": {
@@ -319,6 +320,39 @@
     "status": {
       "CONFIRMED": "Confirmé",
       "CANCELLED": "Annulé"
+    }
+  },
+  "register": {
+    "pro": {
+      "pricingTitle": "Choisissez votre formule",
+      "pricingSubtitle": "Commencez gratuitement, évoluez à votre rythme",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "free": "Gratuit",
+      "month": "mois",
+      "startFree": "Commencer",
+      "choose": "Choisir",
+      "alreadyAccount": "Déjà un compte ?",
+      "login": "Se connecter",
+      "accountTitle": "Votre compte",
+      "name": "Nom complet",
+      "email": "Email",
+      "password": "Mot de passe",
+      "passwordHint": "8 caractères minimum",
+      "continue": "Continuer",
+      "businessTitle": "Votre salon",
+      "salonName": "Nom du salon",
+      "phone": "Téléphone",
+      "addressStreet": "Adresse",
+      "addressPostalCode": "Code postal",
+      "addressCity": "Ville",
+      "siret": "SIRET",
+      "consent": "J'accepte les conditions générales d'utilisation",
+      "createSalon": "Créer mon salon"
+    },
+    "errors": {
+      "emailConflict": "Cet email est déjà utilisé",
+      "generic": "Une erreur est survenue, veuillez réessayer"
     }
   },
   "booking": {
