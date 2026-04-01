@@ -195,7 +195,16 @@
       "slugPreview": "Votre URL",
       "nameRequired": "Le nom du salon est requis",
       "descriptionLimit": "Limite de caractères atteinte",
-      "logoError": "Erreur lors du téléchargement du logo"
+      "logoError": "Erreur lors du téléchargement du logo",
+      "addressSection": "Adresse",
+      "addressStreet": "Rue",
+      "addressPostalCode": "Code postal",
+      "addressCity": "Ville",
+      "contactSection": "Contact",
+      "phone": "Téléphone",
+      "contactEmail": "Email de contact",
+      "businessSection": "Informations entreprise",
+      "siret": "SIRET"
     },
     "categories": {
       "add": "Ajouter une catégorie",

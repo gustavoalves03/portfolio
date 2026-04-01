@@ -35,6 +35,12 @@ export class SalonProfileComponent {
   protected description = signal('');
   protected logoImages = signal<ManagedImage[]>([]);
   protected slug = signal('');
+  protected addressStreet = signal('');
+  protected addressPostalCode = signal('');
+  protected addressCity = signal('');
+  protected phone = signal('');
+  protected contactEmail = signal('');
+  protected siret = signal('');
 
   // Track if logo changed (to decide null vs base64 in request)
   private logoChanged = false;
@@ -54,6 +60,12 @@ export class SalonProfileComponent {
         this.name.set(tenant.name);
         this.slug.set(tenant.slug);
         this.description.set(tenant.description ?? '');
+        this.addressStreet.set(tenant.addressStreet ?? '');
+        this.addressPostalCode.set(tenant.addressPostalCode ?? '');
+        this.addressCity.set(tenant.addressCity ?? '');
+        this.phone.set(tenant.phone ?? '');
+        this.contactEmail.set(tenant.contactEmail ?? '');
+        this.siret.set(tenant.siret ?? '');
         if (tenant.logoUrl) {
           this.logoImages.set([{
             id: 'existing-logo',
@@ -117,6 +129,12 @@ export class SalonProfileComponent {
       name: this.name().trim(),
       description: this.description() || null,
       logo,
+      addressStreet: this.addressStreet() || null,
+      addressPostalCode: this.addressPostalCode() || null,
+      addressCity: this.addressCity() || null,
+      phone: this.phone() || null,
+      contactEmail: this.contactEmail() || null,
+      siret: this.siret() || null,
     };
 
     this.store.updateProfile(request);

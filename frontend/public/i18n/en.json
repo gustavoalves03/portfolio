@@ -191,7 +191,16 @@
       "slugPreview": "Your URL",
       "nameRequired": "Salon name is required",
       "descriptionLimit": "Character limit reached",
-      "logoError": "Error uploading logo"
+      "logoError": "Error uploading logo",
+      "addressSection": "Address",
+      "addressStreet": "Street",
+      "addressPostalCode": "Postal code",
+      "addressCity": "City",
+      "contactSection": "Contact",
+      "phone": "Phone",
+      "contactEmail": "Contact email",
+      "businessSection": "Business information",
+      "siret": "SIRET"
     },
     "categories": {
       "add": "Add category",

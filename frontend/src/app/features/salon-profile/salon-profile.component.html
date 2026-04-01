@@ -59,6 +59,49 @@
         </mat-hint>
       </mat-form-field>
 
+      <!-- Address -->
+      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.addressSection' | transloco }}</h2>
+
+      <mat-form-field appearance="fill">
+        <mat-label>{{ 'pro.salon.addressStreet' | transloco }}</mat-label>
+        <input matInput [ngModel]="addressStreet()" (ngModelChange)="addressStreet.set($event)" maxlength="255" name="addressStreet" />
+      </mat-form-field>
+
+      <div class="flex gap-4">
+        <mat-form-field appearance="fill" class="w-1/3">
+          <mat-label>{{ 'pro.salon.addressPostalCode' | transloco }}</mat-label>
+          <input matInput [ngModel]="addressPostalCode()" (ngModelChange)="addressPostalCode.set($event)" maxlength="10" name="addressPostalCode" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="flex-1">
+          <mat-label>{{ 'pro.salon.addressCity' | transloco }}</mat-label>
+          <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" maxlength="100" name="addressCity" />
+        </mat-form-field>
+      </div>
+
+      <!-- Contact -->
+      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.contactSection' | transloco }}</h2>
+
+      <div class="flex gap-4">
+        <mat-form-field appearance="fill" class="flex-1">
+          <mat-label>{{ 'pro.salon.phone' | transloco }}</mat-label>
+          <input matInput [ngModel]="phone()" (ngModelChange)="phone.set($event)" maxlength="20" name="phone" type="tel" />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="flex-1">
+          <mat-label>{{ 'pro.salon.contactEmail' | transloco }}</mat-label>
+          <input matInput [ngModel]="contactEmail()" (ngModelChange)="contactEmail.set($event)" maxlength="255" name="contactEmail" type="email" />
+        </mat-form-field>
+      </div>
+
+      <!-- Business info -->
+      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.businessSection' | transloco }}</h2>
+
+      <mat-form-field appearance="fill">
+        <mat-label>{{ 'pro.salon.siret' | transloco }}</mat-label>
+        <input matInput [ngModel]="siret()" (ngModelChange)="siret.set($event)" maxlength="14" name="siret" />
+      </mat-form-field>
+
       <!-- Save Button -->
       <div class="flex justify-end">
         <button

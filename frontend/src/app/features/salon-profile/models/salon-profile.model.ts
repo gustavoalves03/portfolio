@@ -4,6 +4,12 @@ export interface TenantResponse {
   slug: string;
   description: string | null;
   logoUrl: string | null;
+  addressStreet: string | null;
+  addressPostalCode: string | null;
+  addressCity: string | null;
+  phone: string | null;
+  contactEmail: string | null;
+  siret: string | null;
   updatedAt: string | null;
 }
 
@@ -11,6 +17,12 @@ export interface UpdateTenantRequest {
   name: string;
   description: string | null;
   logo: string | null; // base64 or null (no change) or "" (remove)
+  addressStreet: string | null;
+  addressPostalCode: string | null;
+  addressCity: string | null;
+  phone: string | null;
+  contactEmail: string | null;
+  siret: string | null;
 }
 
 export interface PublicCareDto {
