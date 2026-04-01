@@ -49,6 +49,30 @@
               <textarea matInput rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" maxlength="10000"></textarea>
               <mat-hint align="end">{{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}</mat-hint>
             </mat-form-field>
+
+            <!-- Hero image -->
+            <div class="hero-section">
+              <label class="hero-label">{{ 'pro.salon.heroImage' | transloco }}</label>
+              @if (heroImageUrl()) {
+                <div class="hero-preview">
+                  <img [src]="heroImageUrl()!" alt="Hero" class="hero-img" />
+                  <div class="hero-overlay">
+                    <button mat-icon-button class="hero-action" (click)="triggerHeroUpload()">
+                      <mat-icon>photo_camera</mat-icon>
+                    </button>
+                    <button mat-icon-button class="hero-action delete" (click)="removeHero()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <button type="button" class="hero-upload-zone" (click)="triggerHeroUpload()">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  <span>{{ 'pro.salon.addHeroImage' | transloco }}</span>
+                </button>
+              }
+              <input #heroInput type="file" accept="image/*" hidden (change)="onHeroFileSelected($event)" />
+            </div>
           </div>
         </mat-tab>
 

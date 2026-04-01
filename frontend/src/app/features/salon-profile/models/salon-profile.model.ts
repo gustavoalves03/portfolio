@@ -5,6 +5,7 @@ export interface TenantResponse {
   status?: string;
   description: string | null;
   logoUrl: string | null;
+  heroImageUrl: string | null;
   addressStreet: string | null;
   addressPostalCode: string | null;
   addressCity: string | null;
@@ -18,6 +19,7 @@ export interface UpdateTenantRequest {
   name: string;
   description: string | null;
   logo: string | null; // base64 or null (no change) or "" (remove)
+  heroImage: string | null;
   addressStreet: string | null;
   addressPostalCode: string | null;
   addressCity: string | null;
@@ -50,6 +52,7 @@ export interface PublicSalonResponse {
   slug: string;
   description: string | null;
   logoUrl: string | null;
+  heroImageUrl: string | null;
   categories: PublicCategoryDto[];
 }
 

@@ -193,6 +193,8 @@
       "descriptionLimit": "Character limit reached",
       "logoError": "Error uploading logo",
       "changeLogo": "Change",
+      "heroImage": "Hero image",
+      "addHeroImage": "Add a hero image",
       "addressSection": "Address",
       "addressStreet": "Street",
       "addressPostalCode": "Postal code",

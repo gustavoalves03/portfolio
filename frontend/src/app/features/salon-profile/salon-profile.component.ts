@@ -37,6 +37,8 @@ export class SalonProfileComponent {
   protected name = signal('');
   protected description = signal('');
   protected logoImages = signal<ManagedImage[]>([]);
+  protected heroImageUrl = signal<string | null>(null);
+  private heroChanged = false;
   protected slug = signal('');
   protected status = computed(() => this.store.tenant()?.status ?? '');
   protected addressStreet = signal('');
@@ -81,6 +83,8 @@ export class SalonProfileComponent {
           this.logoImages.set([]);
         }
         this.logoChanged = false;
+        this.heroImageUrl.set(tenant.heroImageUrl ?? null);
+        this.heroChanged = false;
       }
     });
 
@@ -110,6 +114,7 @@ export class SalonProfileComponent {
   }
 
   @ViewChild('logoInput') logoInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('heroInput') heroInput!: ElementRef<HTMLInputElement>;
 
   protected onLogoChange(images: ManagedImage[]): void {
     this.logoImages.set(images);
@@ -140,10 +145,42 @@ export class SalonProfileComponent {
     this.logoChanged = true;
   }
 
+  protected triggerHeroUpload(): void {
+    this.heroInput.nativeElement.click();
+  }
+
+  protected onHeroFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.heroImageUrl.set(reader.result as string);
+      this.heroChanged = true;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  protected removeHero(): void {
+    this.heroImageUrl.set(null);
+    this.heroChanged = true;
+  }
+
   protected onSave(): void {
     if (!this.name().trim()) return;
 
     let logo: string | null = null;
+    let heroImage: string | null = null;
+
+    if (this.heroChanged) {
+      if (!this.heroImageUrl()) {
+        heroImage = ''; // Remove
+      } else {
+        heroImage = this.heroImageUrl()!;
+      }
+    }
 
     if (this.logoChanged) {
       const images = this.logoImages();
@@ -159,6 +196,7 @@ export class SalonProfileComponent {
       name: this.name().trim(),
       description: this.description() || null,
       logo,
+      heroImage,
       addressStreet: this.addressStreet() || null,
       addressPostalCode: this.addressPostalCode() || null,
       addressCity: this.addressCity() || null,

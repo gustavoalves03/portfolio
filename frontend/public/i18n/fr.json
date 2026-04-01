@@ -197,6 +197,8 @@
       "descriptionLimit": "Limite de caractères atteinte",
       "logoError": "Erreur lors du téléchargement du logo",
       "changeLogo": "Modifier",
+      "heroImage": "Image d'accueil",
+      "addHeroImage": "Ajouter une image d'accueil",
       "addressSection": "Adresse",
       "addressStreet": "Rue",
       "addressPostalCode": "Code postal",
