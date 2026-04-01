@@ -192,6 +192,7 @@
       "nameRequired": "Salon name is required",
       "descriptionLimit": "Character limit reached",
       "logoError": "Error uploading logo",
+      "changeLogo": "Change",
       "addressSection": "Address",
       "addressStreet": "Street",
       "addressPostalCode": "Postal code",

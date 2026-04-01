@@ -1,13 +1,14 @@
-import { Component, inject, signal, effect, computed } from '@angular/core';
+import { Component, inject, signal, effect, computed, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { ImageManager, ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
+import { ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
 
@@ -21,8 +22,8 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    MatTabsModule,
     TranslocoPipe,
-    ImageManager,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',
@@ -108,8 +109,34 @@ export class SalonProfileComponent {
     });
   }
 
+  @ViewChild('logoInput') logoInput!: ElementRef<HTMLInputElement>;
+
   protected onLogoChange(images: ManagedImage[]): void {
     this.logoImages.set(images);
+    this.logoChanged = true;
+  }
+
+  protected triggerLogoUpload(): void {
+    this.logoInput.nativeElement.click();
+  }
+
+  protected onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.logoImages.set([{ id: 'new-logo', url: dataUrl, name: file.name, order: 0, file }]);
+      this.logoChanged = true;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  protected removeLogo(): void {
+    this.logoImages.set([]);
     this.logoChanged = true;
   }
 

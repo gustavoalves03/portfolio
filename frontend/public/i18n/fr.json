@@ -196,6 +196,7 @@
       "nameRequired": "Le nom du salon est requis",
       "descriptionLimit": "Limite de caractères atteinte",
       "logoError": "Erreur lors du téléchargement du logo",
+      "changeLogo": "Modifier",
       "addressSection": "Adresse",
       "addressStreet": "Rue",
       "addressPostalCode": "Code postal",
