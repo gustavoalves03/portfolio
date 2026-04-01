@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,11 +33,20 @@ interface Plan {
   templateUrl: './register-pro.component.html',
   styleUrl: './register-pro.component.scss',
 })
-export class RegisterProComponent {
+export class RegisterProComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly step = signal<'pricing' | 'account' | 'business'>('pricing');
+
+  ngOnInit(): void {
+    const plan = this.route.snapshot.queryParamMap.get('plan');
+    if (plan && ['free', 'pro', 'premium'].includes(plan)) {
+      this.selectedPlan.set(plan);
+      this.step.set('account');
+    }
+  }
   readonly isYearly = signal(false);
   readonly selectedPlan = signal<string>('pro');
   readonly isLoading = signal(false);
@@ -91,7 +100,13 @@ export class RegisterProComponent {
 
   selectPlan(planId: string): void {
     this.selectedPlan.set(planId);
-    this.step.set('account');
+    // If we're on /pricing, navigate to /register/pro with plan param
+    // If we're already on /register/pro, just advance the step
+    if (this.router.url.startsWith('/pricing')) {
+      this.router.navigate(['/register/pro'], { queryParams: { plan: planId } });
+    } else {
+      this.step.set('account');
+    }
   }
 
   goToStep(s: 'pricing' | 'account' | 'business'): void {

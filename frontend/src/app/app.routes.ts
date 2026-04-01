@@ -22,6 +22,10 @@ export const routes: Routes = [
   { path: 'about', component: About },
   { path: 'login', component: LoginComponent },
   {
+    path: 'pricing',
+    loadComponent: () => import('./pages/auth/register-pro/register-pro.component').then(m => m.RegisterProComponent),
+  },
+  {
     path: 'register/pro',
     loadComponent: () => import('./pages/auth/register-pro/register-pro.component').then(m => m.RegisterProComponent),
   },
