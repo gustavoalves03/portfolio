@@ -4,7 +4,6 @@
   </button>
 
   @if (bookingSuccess()) {
-    <!-- Success view -->
     <div class="success-view">
       <mat-icon class="success-icon">check_circle</mat-icon>
       <h2 class="success-title">{{ 'booking.confirm.success' | transloco }}</h2>
@@ -20,53 +19,23 @@
       </button>
     </div>
   } @else {
-    <!-- Booking flow -->
     <h2 class="dialog-title">{{ 'booking.dialog.title' | transloco }}</h2>
 
-    <!-- Care summary -->
     <div class="care-summary">
       <span class="care-name">{{ care.name }}</span>
-      <span class="care-meta">{{ formatDuration(care.duration) }}</span>
+      <span class="care-meta">{{ formatDuration(care.duration) }} · {{ formatPrice(care.price) }}</span>
     </div>
 
-    <!-- Calendar -->
-    <div class="month-nav">
-      <button type="button" class="nav-btn" (click)="prevMonth()">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-      <span class="month-label">{{ monthLabel() }}</span>
-      <button type="button" class="nav-btn" (click)="nextMonth()">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
-    </div>
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-label>{{ 'booking.dialog.selectDate' | transloco }}</mat-label>
+      <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="minDate"
+             [value]="selectedDate()" (dateChange)="onDateChange($event.value)" readonly>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
 
-    <div class="calendar-grid">
-      @for (label of weekDayLabels; track label) {
-        <div class="weekday-header">{{ label }}</div>
-      }
-      @for (day of calendarDays(); track day.date.getTime()) {
-        <button
-          type="button"
-          class="day-cell"
-          [class.other-month]="!day.isCurrentMonth"
-          [class.today]="day.isToday"
-          [class.past]="day.isPast && day.isCurrentMonth"
-          [class.selected]="isSelectedDate(day.date)"
-          [disabled]="!day.isCurrentMonth || day.isPast"
-          (click)="selectDay(day)"
-        >
-          {{ day.dayOfMonth }}
-        </button>
-      }
-    </div>
-
-    <!-- Slot selection -->
     @if (selectedDate()) {
       <div class="slots-section">
-        <h3 class="slots-title">
-          {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
-        </h3>
-
         @if (loadingSlots()) {
           <div class="slots-loading">
             <mat-spinner diameter="24"></mat-spinner>
@@ -90,17 +59,14 @@
       </div>
     }
 
-    <!-- Error message -->
     @if (bookingError()) {
       <p class="booking-error">{{ bookingError()! | transloco }}</p>
     }
 
-    <!-- Register success hint -->
     @if (registerJustCompleted()) {
       <p class="register-hint">{{ 'booking.confirm.registerDone' | transloco }}</p>
     }
 
-    <!-- Confirm button -->
     @if (selectedSlot()) {
       <button
         mat-flat-button

@@ -65,7 +65,7 @@ export class SalonPageComponent implements OnInit {
     if (!slug) return;
 
     this.dialog.open(BookingDialogComponent, {
-      width: '480px',
+      width: '360px',
       disableClose: false,
       data: { slug, care } as BookingDialogData,
     });

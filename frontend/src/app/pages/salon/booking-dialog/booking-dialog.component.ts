@@ -1,10 +1,15 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
+import { AvailabilityService } from '../../../features/availability/availability.service';
 import { PublicCareDto, TimeSlot, ClientBookingRequest } from '../../../features/salon-profile/models/salon-profile.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
@@ -22,8 +27,12 @@ export interface BookingDialogData {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
     TranslocoPipe,
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './booking-dialog.component.html',
   styleUrl: './booking-dialog.component.scss',
 })
@@ -31,13 +40,15 @@ export class BookingDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<BookingDialogComponent>);
   private readonly data = inject<BookingDialogData>(MAT_DIALOG_DATA);
   private readonly salonService = inject(SalonProfileService);
+  private readonly availabilityService = inject(AvailabilityService);
   private readonly authService = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
 
   readonly care = this.data.care;
   readonly slug = this.data.slug;
 
-  readonly currentMonth = signal(new Date());
+  readonly minDate = new Date();
+  readonly openDays = signal<Set<number>>(new Set());
   readonly selectedDate = signal<Date | null>(null);
   readonly slots = signal<TimeSlot[]>([]);
   readonly loadingSlots = signal(false);
@@ -47,75 +58,25 @@ export class BookingDialogComponent {
   readonly bookingError = signal<string | null>(null);
   readonly registerJustCompleted = signal(false);
 
-  readonly weekDayLabels = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
-
-  readonly monthLabel = computed(() => {
-    const d = this.currentMonth();
-    return d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  });
-
-  readonly calendarDays = computed(() => {
-    const month = this.currentMonth();
-    const year = month.getFullYear();
-    const m = month.getMonth();
-    const firstDay = new Date(year, m, 1);
-    const lastDay = new Date(year, m + 1, 0);
-
-    let startDow = firstDay.getDay() - 1;
-    if (startDow < 0) startDow = 6;
-
+  readonly dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    if (date < today) return false;
+    const dow = date.getDay() === 0 ? 7 : date.getDay();
+    return this.openDays().has(dow);
+  };
 
-    const days: { date: Date; dayOfMonth: number; isCurrentMonth: boolean; isToday: boolean; isPast: boolean }[] = [];
-
-    for (let i = startDow - 1; i >= 0; i--) {
-      const d = new Date(year, m, -i);
-      days.push({ date: d, dayOfMonth: d.getDate(), isCurrentMonth: false, isToday: false, isPast: true });
-    }
-
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      const d = new Date(year, m, i);
-      d.setHours(0, 0, 0, 0);
-      days.push({
-        date: d,
-        dayOfMonth: i,
-        isCurrentMonth: true,
-        isToday: d.getTime() === today.getTime(),
-        isPast: d < today,
-      });
-    }
-
-    const remaining = 42 - days.length;
-    for (let i = 1; i <= remaining; i++) {
-      const d = new Date(year, m + 1, i);
-      days.push({ date: d, dayOfMonth: d.getDate(), isCurrentMonth: false, isToday: false, isPast: false });
-    }
-
-    return days;
-  });
-
-  isSelectedDate(date: Date): boolean {
-    const sel = this.selectedDate();
-    if (!sel) return false;
-    return this.formatDate(date) === this.formatDate(sel);
+  constructor() {
+    this.loadOpeningHours();
   }
 
-  prevMonth(): void {
-    const d = this.currentMonth();
-    this.currentMonth.set(new Date(d.getFullYear(), d.getMonth() - 1, 1));
-  }
-
-  nextMonth(): void {
-    const d = this.currentMonth();
-    this.currentMonth.set(new Date(d.getFullYear(), d.getMonth() + 1, 1));
-  }
-
-  selectDay(day: { date: Date; isCurrentMonth: boolean; isPast: boolean }): void {
-    if (!day.isCurrentMonth || day.isPast) return;
-    this.selectedDate.set(day.date);
+  onDateChange(date: Date | null): void {
+    this.selectedDate.set(date);
     this.selectedSlot.set(null);
-    this.loadSlots(day.date);
+    if (date) {
+      this.loadSlots(date);
+    }
   }
 
   selectSlot(slot: TimeSlot): void {
@@ -133,6 +94,49 @@ export class BookingDialogComponent {
     }
 
     this.submitBooking();
+  }
+
+  close(): void {
+    this.dialogRef.close();
+  }
+
+  formatDuration(minutes: number): string {
+    if (minutes < 60) return `${minutes} min`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${h}h`;
+  }
+
+  formatPrice(cents: number): string {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC';
+  }
+
+  private loadOpeningHours(): void {
+    this.availabilityService.loadPublicHours(this.slug).subscribe({
+      next: (hours) => {
+        const days = new Set(hours.map((h) => h.dayOfWeek));
+        this.openDays.set(days);
+      },
+      error: () => {
+        this.openDays.set(new Set([1, 2, 3, 4, 5, 6, 7]));
+      },
+    });
+  }
+
+  private loadSlots(date: Date): void {
+    this.loadingSlots.set(true);
+    this.slots.set([]);
+
+    this.salonService.getAvailableSlots(this.slug, this.care.id, this.formatDate(date)).subscribe({
+      next: (slots) => {
+        this.slots.set(slots);
+        this.loadingSlots.set(false);
+      },
+      error: () => {
+        this.slots.set([]);
+        this.loadingSlots.set(false);
+      },
+    });
   }
 
   private openAuthAndMaybeSubmit(): void {
@@ -172,33 +176,6 @@ export class BookingDialogComponent {
         } else {
           this.bookingError.set('booking.errors.generic');
         }
-      },
-    });
-  }
-
-  close(): void {
-    this.dialogRef.close();
-  }
-
-  formatDuration(minutes: number): string {
-    if (minutes < 60) return `${minutes} min`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${h}h`;
-  }
-
-  private loadSlots(date: Date): void {
-    this.loadingSlots.set(true);
-    this.slots.set([]);
-
-    this.salonService.getAvailableSlots(this.slug, this.care.id, this.formatDate(date)).subscribe({
-      next: (slots) => {
-        this.slots.set(slots);
-        this.loadingSlots.set(false);
-      },
-      error: () => {
-        this.slots.set([]);
-        this.loadingSlots.set(false);
       },
     });
   }
