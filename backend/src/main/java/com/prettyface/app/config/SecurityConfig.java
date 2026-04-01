@@ -144,10 +144,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/salon/*/book").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/salon/**").permitAll() // Public salon storefront
                         .requestMatchers(HttpMethod.GET, "/api/public/**").permitAll() // Public discovery
-                        // Admin-only endpoints (create, update, delete)
-                        .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/care/**", "/api/categories/**", "/api/users/**").hasRole("ADMIN")
+                        // Care & category management (PRO manages their own via tenant schema)
+                        .requestMatchers(HttpMethod.POST, "/api/care/**", "/api/categories/**").hasAnyRole("PRO", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**").hasAnyRole("PRO", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/care/**", "/api/categories/**").hasAnyRole("PRO", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/care/**").hasAnyRole("PRO", "ADMIN")
+                        // Admin-only user management
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/client/**").authenticated()
                         // Pro-only endpoints (salon management)
                         .requestMatchers("/api/pro/**").hasAnyRole("PRO", "ADMIN")
