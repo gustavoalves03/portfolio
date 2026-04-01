@@ -59,6 +59,7 @@ export class SalonProfileService {
     return {
       ...salon,
       logoUrl: salon.logoUrl ? (salon.logoUrl.startsWith('http') ? salon.logoUrl : `${this.baseUrl}${salon.logoUrl}`) : null,
+      heroImageUrl: salon.heroImageUrl ? (salon.heroImageUrl.startsWith('http') ? salon.heroImageUrl : `${this.baseUrl}${salon.heroImageUrl}`) : null,
       categories: salon.categories.map(cat => ({
         ...cat,
         cares: cat.cares.map(care => ({

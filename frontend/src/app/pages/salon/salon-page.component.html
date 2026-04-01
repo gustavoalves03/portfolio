@@ -11,20 +11,30 @@
 } @else if (salon()) {
   @if (salon(); as salon) {
     <div class="salon-page">
-      <!-- Salon Header -->
-      <section class="salon-header">
-        @if (salon.logoUrl) {
-          <img [src]="salon.logoUrl" [alt]="salon.name" class="salon-logo" />
+      <!-- Hero Banner -->
+      <section class="salon-hero" [class.has-image]="!!salon.heroImageUrl">
+        @if (salon.heroImageUrl) {
+          <img [src]="salon.heroImageUrl" [alt]="salon.name" class="hero-bg" />
         }
-        <h1 class="text-3xl font-medium text-neutral-900 mt-4">{{ salon.name }}</h1>
-        @if (salon.description) {
-          <div class="salon-description mt-4" [innerHTML]="salon.description"></div>
-        }
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+          <div class="hero-info">
+            @if (salon.logoUrl) {
+              <img [src]="salon.logoUrl" [alt]="salon.name" class="salon-logo" />
+            }
+            <div>
+              <h1 class="hero-name">{{ salon.name }}</h1>
+              @if (salon.description) {
+                <p class="hero-description">{{ salon.description }}</p>
+              }
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Cares by Category (Accordion) -->
       @if (salon.categories.length > 0) {
-        <section class="mt-8">
+        <section class="cares-section mt-6">
           <mat-accordion multi>
             @for (category of salon.categories; track category.name) {
               <mat-expansion-panel [expanded]="true">
