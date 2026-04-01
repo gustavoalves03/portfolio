@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -9,6 +9,8 @@ import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { BookingsDrawerComponent } from './bookings-drawer/bookings-drawer.component';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Role } from '../../../core/auth/auth.model';
+import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 
 @Component({
   selector: 'app-header',
@@ -22,6 +24,27 @@ export class Header {
   protected readonly authService = inject(AuthService);
   protected readonly dialog = inject(MatDialog);
   protected readonly bookingsDrawer = viewChild.required(BookingsDrawerComponent);
+
+  protected readonly isPro = computed(() => {
+    const role = this.authService.user()?.role;
+    return role === Role.PRO || role === Role.ADMIN;
+  });
+
+  protected readonly salonName = signal('');
+  private readonly salonService = inject(SalonProfileService);
+
+  constructor() {
+    effect(() => {
+      if (this.isPro() && this.authService.isAuthenticated()) {
+        this.salonService.getProfile().subscribe({
+          next: (tenant) => this.salonName.set(tenant.name),
+          error: () => this.salonName.set(''),
+        });
+      } else {
+        this.salonName.set('');
+      }
+    });
+  }
 
   protected toggleSidenav(): void {
     this.sidenavService.toggle();

@@ -7,7 +7,7 @@
 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
   <div class="mx-auto max-w-[1440px] px-6">
     <div class="h-20 grid grid-cols-3 items-center">
-      <!-- Left: burger + About (discret) -->
+      <!-- Left: burger + About (hidden for PRO) -->
       <div class="flex items-center gap-4">
         <button
           type="button"
@@ -19,14 +19,22 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
           </svg>
         </button>
-        <a routerLink="/about" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">Sur nous</a>
+        @if (!isPro()) {
+          <a routerLink="/about" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">Sur nous</a>
+        }
       </div>
 
-      <!-- Center: marque -->
+      <!-- Center: salon name (PRO) or Pretty Face (public) -->
       <div class="justify-self-center">
-        <a routerLink="/" class="select-none text-neutral-900 tracking-[0.25em] uppercase text-sm md:text-base font-medium">
-          Beauté du regard
-        </a>
+        @if (isPro() && salonName()) {
+          <a routerLink="/pro/dashboard" class="salon-brand">
+            {{ salonName() }}
+          </a>
+        } @else {
+          <a routerLink="/" class="select-none text-neutral-900 tracking-[0.25em] uppercase text-sm md:text-base font-medium">
+            Pretty Face
+          </a>
+        }
       </div>
 
       <!-- Right: actions rapides -->

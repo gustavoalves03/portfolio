@@ -12,6 +12,25 @@ header a {
   -webkit-tap-highlight-color: transparent;
 }
 
+// Salon brand name in header (PRO mode)
+.salon-brand {
+  display: block;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+  max-width: 200px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  line-height: 1.2;
+
+  @media (min-width: 768px) {
+    font-size: 17px;
+    max-width: 300px;
+  }
+}
+
 .lang-switcher {
   backdrop-filter: blur(6px);
 }

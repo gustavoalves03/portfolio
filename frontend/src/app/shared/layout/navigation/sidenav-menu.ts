@@ -28,17 +28,19 @@ export class SidenavMenu {
   ];
 
   protected readonly routes = computed<NavigationRoute[]>(() => {
-    const base = [...NAVIGATION_ROUTES];
     const user = this.authService.user();
+    const isPro = user?.role === Role.PRO || user?.role === Role.ADMIN;
 
-    if (user?.role === Role.PRO || user?.role === Role.ADMIN) {
-      base.push(...PRO_NAVIGATION_ROUTES);
+    // PRO: only show pro routes (no public Accueil/À propos)
+    if (isPro) {
+      return [...PRO_NAVIGATION_ROUTES];
     }
 
+    // Public/Client: show public routes + client routes if authenticated
+    const base = [...NAVIGATION_ROUTES];
     if (user) {
       base.push(...CLIENT_NAVIGATION_ROUTES);
     }
-
     return base;
   });
 
