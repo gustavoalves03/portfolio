@@ -58,6 +58,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     border-color: #e0e0e0 !important;
   }
 
+  .mdc-notched-outline__notch {
+    border-left: none !important;
+    border-right: none !important;
+  }
+
   .mdc-notched-outline__leading {
     border-radius: 12px 0 0 12px !important;
     width: 12px !important;
@@ -73,6 +78,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   &.mat-focused .mdc-notched-outline__trailing {
     border-color: #c06 !important;
     border-width: 1.5px !important;
+  }
+
+  &.mat-focused .mdc-notched-outline__notch {
+    border-left: none !important;
+    border-right: none !important;
   }
 
   &.mat-focused {
