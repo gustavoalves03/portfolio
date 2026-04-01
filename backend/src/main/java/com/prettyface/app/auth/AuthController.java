@@ -3,16 +3,20 @@ package com.prettyface.app.auth;
 import com.prettyface.app.auth.dto.AuthResponse;
 import com.prettyface.app.auth.dto.ForgotPasswordRequest;
 import com.prettyface.app.auth.dto.LoginRequest;
+import com.prettyface.app.auth.dto.ProRegisterRequest;
 import com.prettyface.app.auth.dto.RegisterRequest;
 import com.prettyface.app.auth.dto.ResetPasswordRequest;
 import com.prettyface.app.auth.dto.UserDto;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.app.TenantProvisioningService;
+import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,18 +37,23 @@ import java.util.UUID;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final TenantProvisioningService tenantProvisioningService;
+    private final TenantRepository tenantRepository;
     private final EmailService emailService;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService,
-                          TenantProvisioningService tenantProvisioningService, EmailService emailService) {
+                          TenantProvisioningService tenantProvisioningService, TenantRepository tenantRepository,
+                          EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.tenantProvisioningService = tenantProvisioningService;
+        this.tenantRepository = tenantRepository;
         this.emailService = emailService;
     }
 
@@ -56,8 +65,8 @@ public class AuthController {
 
     @PostMapping("/register/pro")
     @Transactional
-    public ResponseEntity<AuthResponse> registerPro(@Valid @RequestBody RegisterRequest request) {
-        return registerWithRole(request, Role.PRO, true);
+    public ResponseEntity<AuthResponse> registerPro(@Valid @RequestBody ProRegisterRequest request) {
+        return registerProWithSalonInfo(request);
     }
 
     @PostMapping("/register/client")
@@ -100,6 +109,52 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(new AuthResponse(token, userDto));
+    }
+
+    private ResponseEntity<AuthResponse> registerProWithSalonInfo(ProRegisterRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
+        }
+
+        User user = User.builder()
+                .name(request.name())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .role(Role.PRO)
+                .provider(AuthProvider.LOCAL)
+                .emailVerified(false)
+                .consentGivenAt(LocalDateTime.now())
+                .build();
+        User savedUser = userRepository.save(user);
+
+        // Provision tenant with salon info
+        var tenant = tenantProvisioningService.provision(savedUser);
+        tenant.setName(request.salonName());
+        tenant.setPhone(request.phone());
+        tenant.setAddressStreet(request.addressStreet());
+        tenant.setAddressPostalCode(request.addressPostalCode());
+        tenant.setAddressCity(request.addressCity());
+        tenant.setSiret(request.siret());
+        tenantRepository.save(tenant);
+
+        try {
+            emailService.sendWelcomeEmail(savedUser);
+        } catch (Exception e) {
+            logger.warn("Failed to send welcome email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
+
+        String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());
+
+        UserDto userDto = UserDto.builder()
+                .id(savedUser.getId())
+                .name(savedUser.getName())
+                .email(savedUser.getEmail())
+                .imageUrl(savedUser.getImageUrl())
+                .provider(savedUser.getProvider())
+                .role(savedUser.getRole())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token, userDto));
     }
 
     @PostMapping("/login")
