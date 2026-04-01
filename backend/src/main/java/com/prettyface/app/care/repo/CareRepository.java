@@ -14,6 +14,8 @@ public interface CareRepository extends JpaRepository<Care, Long> {
 
     long countByCategoryId(Long categoryId);
 
+    long countByStatus(com.prettyface.app.care.domain.CareStatus status);
+
     @Modifying
     @Query("UPDATE Care c SET c.category = :target WHERE c.category.id = :sourceId")
     int reassignCategory(@Param("sourceId") Long sourceId, @Param("target") Category target);
