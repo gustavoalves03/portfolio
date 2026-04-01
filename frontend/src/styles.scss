@@ -46,26 +46,43 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   color: var(--mat-sys-on-error);
 }
 
-// ===== Pretty Face — Underline minimal input style =====
-// Removes Material default backgrounds and outlines, applies
-// a clean bottom-border-only look with small uppercase floating label.
+// ===== Pretty Face — Floating label input style =====
+// Rounded 12px border, label floats small+rose when filled/focused,
+// subtle rose focus ring. Works with appearance="outline".
 
 .mat-mdc-form-field {
-  // Remove filled background
-  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-    background-color: transparent !important;
+  // Outline border — rounded 12px
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #e0e0e0 !important;
   }
 
-  // Remove the default ripple/indicator color bar
-  .mdc-line-ripple::before {
-    border-bottom-color: #e0d8d2 !important;
+  .mdc-notched-outline__leading {
+    border-radius: 12px 0 0 12px !important;
+    width: 12px !important;
   }
 
-  .mdc-line-ripple::after {
-    border-bottom-color: #c06 !important;
+  .mdc-notched-outline__trailing {
+    border-radius: 0 12px 12px 0 !important;
   }
 
-  // Floating label — small, uppercase when floated
+  // Focus state — rose border + subtle glow
+  &.mat-focused .mdc-notched-outline__leading,
+  &.mat-focused .mdc-notched-outline__notch,
+  &.mat-focused .mdc-notched-outline__trailing {
+    border-color: #c06 !important;
+    border-width: 1.5px !important;
+  }
+
+  &.mat-focused {
+    .mdc-text-field--outlined {
+      box-shadow: 0 0 0 3px rgba(192, 102, 102, 0.08);
+      border-radius: 12px;
+    }
+  }
+
+  // Floating label
   .mat-mdc-floating-label {
     font-size: 14px;
     color: #999;
@@ -73,22 +90,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     &.mdc-floating-label--float-above {
       font-size: 11px !important;
       font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: #c06;
+      color: #c06 !important;
     }
   }
 
-  // Input text styling
+  // Input text
   .mat-mdc-input-element {
     font-size: 14px;
     color: #333;
   }
 
-  // Remove the filled bottom shape radius
-  .mdc-text-field--filled .mdc-text-field__ripple::before,
-  .mdc-text-field--filled .mdc-text-field__ripple::after {
+  // Also support filled appearance (fallback) — same rounded look
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background-color: transparent !important;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+  }
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled):focus-within {
+    border-color: #c06;
+    box-shadow: 0 0 0 3px rgba(192, 102, 102, 0.08);
+  }
+
+  .mdc-line-ripple::before,
+  .mdc-line-ripple::after {
+    border-bottom-color: transparent !important;
   }
 
   // Hint and error text
@@ -102,7 +128,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
-// Select dropdown styling
+// Select dropdown
 .mat-mdc-select {
   font-size: 14px;
   color: #333;
