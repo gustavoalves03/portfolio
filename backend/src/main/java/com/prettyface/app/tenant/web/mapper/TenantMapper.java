@@ -68,7 +68,7 @@ public class TenantMapper {
                     .toList()
                 : List.of();
 
-        return new PublicCareDto(care.getId(), care.getName(), care.getDuration(), care.getPrice(), imageUrls);
+        return new PublicCareDto(care.getId(), care.getName(), care.getDescription(), care.getDuration(), care.getPrice(), imageUrls);
     }
 
     private static String extractFilename(String filePath) {
