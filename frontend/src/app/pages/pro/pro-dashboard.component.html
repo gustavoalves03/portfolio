@@ -1,0 +1,124 @@
+<div class="dashboard-container p-6 max-w-3xl mx-auto">
+  @if (store.isPending()) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (store.readiness()) {
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+      <h1 class="text-2xl font-medium text-neutral-800">
+        {{ 'pro.dashboard.title' | transloco }}
+      </h1>
+      @if (store.isDraft()) {
+        <span class="mat-mdc-chip draft-chip">{{ 'pro.dashboard.draft' | transloco }}</span>
+      } @else if (store.isActive()) {
+        <span class="mat-mdc-chip active-chip">{{ 'pro.dashboard.active' | transloco }}</span>
+      }
+    </div>
+
+    @if (store.isDraft()) {
+      <!-- DRAFT: Checklist -->
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>{{ 'pro.dashboard.checklist.title' | transloco }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-nav-list>
+            <a mat-list-item routerLink="/pro/salon">
+              <mat-icon matListItemIcon [class.done]="store.readiness()!.name">
+                {{ store.readiness()!.name ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span matListItemTitle>{{ 'pro.dashboard.checklist.name' | transloco }}</span>
+              <mat-icon matListItemMeta>chevron_right</mat-icon>
+            </a>
+            <a mat-list-item routerLink="/pro/categories">
+              <mat-icon matListItemIcon [class.done]="store.readiness()!.hasCategory">
+                {{ store.readiness()!.hasCategory ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span matListItemTitle>{{ 'pro.dashboard.checklist.categories' | transloco }}</span>
+              <mat-icon matListItemMeta>chevron_right</mat-icon>
+            </a>
+            <a mat-list-item routerLink="/pro/cares">
+              <mat-icon matListItemIcon [class.done]="store.readiness()!.hasActiveCare">
+                {{ store.readiness()!.hasActiveCare ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span matListItemTitle>{{ 'pro.dashboard.checklist.cares' | transloco }}</span>
+              <mat-icon matListItemMeta>chevron_right</mat-icon>
+            </a>
+            <a mat-list-item routerLink="/pro/availability">
+              <mat-icon matListItemIcon [class.done]="store.readiness()!.hasOpeningHours">
+                {{ store.readiness()!.hasOpeningHours ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span matListItemTitle>{{ 'pro.dashboard.checklist.openingHours' | transloco }}</span>
+              <mat-icon matListItemMeta>chevron_right</mat-icon>
+            </a>
+          </mat-nav-list>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="publish-section text-center">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!store.canPublish()"
+          (click)="onPublish()"
+        >
+          {{ 'pro.dashboard.publish' | transloco }}
+        </button>
+        @if (!store.canPublish()) {
+          <p class="text-sm text-neutral-500 mt-2">
+            {{ 'pro.dashboard.publishDisabledHint' | transloco }}
+          </p>
+        }
+      </div>
+    } @else if (store.isActive()) {
+      <!-- ACTIVE: Activity summary -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <mat-card>
+          <mat-card-content class="text-center py-4">
+            <p class="text-3xl font-bold text-primary">{{ store.todayCount() }}</p>
+            <p class="text-sm text-neutral-500">{{ 'pro.dashboard.todayBookings' | transloco }}</p>
+          </mat-card-content>
+        </mat-card>
+        <mat-card>
+          <mat-card-content class="text-center py-4">
+            <p class="text-3xl font-bold text-primary">{{ store.weekCount() }}</p>
+            <p class="text-sm text-neutral-500">{{ 'pro.dashboard.weekBookings' | transloco }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="mb-6">
+        <mat-card-header>
+          <mat-card-title>{{ 'pro.dashboard.recentBookings' | transloco }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (store.recentBookings().length === 0) {
+            <p class="text-neutral-500 py-4">{{ 'pro.dashboard.noBookings' | transloco }}</p>
+          } @else {
+            <mat-list>
+              @for (booking of store.recentBookings(); track booking.id) {
+                <mat-list-item>
+                  <span matListItemTitle>{{ booking.care.name }}</span>
+                  <span matListItemLine>
+                    {{ booking.appointmentDate }} · {{ booking.appointmentTime | slice:0:5 }}
+                    · {{ booking.user.name }}
+                  </span>
+                </mat-list-item>
+              }
+            </mat-list>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <div class="flex gap-3">
+        <a mat-raised-button color="primary" [href]="salonUrl()" target="_blank">
+          {{ 'pro.dashboard.viewSalon' | transloco }}
+        </a>
+        <button mat-stroked-button color="warn" (click)="onUnpublish()">
+          {{ 'pro.dashboard.unpublish' | transloco }}
+        </button>
+      </div>
+    }
+  }
+</div>
