@@ -50,6 +50,24 @@ public class Tenant {
     @Column(name = "category_slugs", length = 1000)
     private String categorySlugs;
 
+    @Column(name = "address_street", length = 255)
+    private String addressStreet;
+
+    @Column(name = "address_postal_code", length = 10)
+    private String addressPostalCode;
+
+    @Column(name = "address_city", length = 100)
+    private String addressCity;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "contact_email", length = 255)
+    private String contactEmail;
+
+    @Column(name = "siret", length = 14)
+    private String siret;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

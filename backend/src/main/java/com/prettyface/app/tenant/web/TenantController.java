@@ -14,7 +14,6 @@ import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,27 +57,28 @@ public class TenantController {
     }
 
     @PutMapping("/publish")
-    @Transactional
     public ResponseEntity<?> publish(@AuthenticationPrincipal UserPrincipal principal) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        var missing = java.util.List.<String>of();
         TenantContext.setCurrentTenant(tenant.getSlug());
         try {
-            var missing = readinessService.getMissingConditions(tenant);
-            if (!missing.isEmpty()) {
-                return ResponseEntity.unprocessableEntity()
-                        .body(new PublishErrorResponse("Salon cannot be published", missing));
-            }
-            tenant.setStatus(TenantStatus.ACTIVE);
-            tenantRepository.save(tenant);
-            return ResponseEntity.ok().build();
+            missing = readinessService.getMissingConditions(tenant);
         } finally {
             TenantContext.clear();
         }
+
+        if (!missing.isEmpty()) {
+            return ResponseEntity.unprocessableEntity()
+                    .body(new PublishErrorResponse("Salon cannot be published", missing));
+        }
+
+        tenant.setStatus(TenantStatus.ACTIVE);
+        tenantRepository.save(tenant);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/unpublish")
-    @Transactional
     public ResponseEntity<Void> unpublish(@AuthenticationPrincipal UserPrincipal principal) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));

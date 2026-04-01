@@ -5,6 +5,12 @@ import jakarta.validation.constraints.Size;
 
 public record UpdateTenantRequest(
         @NotBlank @Size(max = 100) String name,
-        @Size(max = 50000) String description, // HTML can be ~5x text content; text limit enforced in frontend (10000 chars)
-        String logo // base64 nullable: null=no change, ""=remove
+        @Size(max = 50000) String description,
+        String logo,
+        @Size(max = 255) String addressStreet,
+        @Size(max = 10) String addressPostalCode,
+        @Size(max = 100) String addressCity,
+        @Size(max = 20) String phone,
+        @Size(max = 255) String contactEmail,
+        @Size(max = 14) String siret
 ) {}

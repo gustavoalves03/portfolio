@@ -8,5 +8,11 @@ public record TenantResponse(
         String slug,
         String description,
         String logoUrl,
+        String addressStreet,
+        String addressPostalCode,
+        String addressCity,
+        String phone,
+        String contactEmail,
+        String siret,
         LocalDateTime updatedAt
 ) {}

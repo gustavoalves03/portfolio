@@ -25,6 +25,12 @@ public class TenantMapper {
                 tenant.getSlug(),
                 tenant.getDescription(),
                 logoUrl,
+                tenant.getAddressStreet(),
+                tenant.getAddressPostalCode(),
+                tenant.getAddressCity(),
+                tenant.getPhone(),
+                tenant.getContactEmail(),
+                tenant.getSiret(),
                 tenant.getUpdatedAt()
         );
     }

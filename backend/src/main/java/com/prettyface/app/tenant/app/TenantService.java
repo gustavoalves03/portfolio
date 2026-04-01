@@ -68,6 +68,14 @@ public class TenantService {
             }
         }
 
+        // Business info
+        tenant.setAddressStreet(request.addressStreet());
+        tenant.setAddressPostalCode(request.addressPostalCode());
+        tenant.setAddressCity(request.addressCity());
+        tenant.setPhone(request.phone());
+        tenant.setContactEmail(request.contactEmail());
+        tenant.setSiret(request.siret());
+
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);
     }
