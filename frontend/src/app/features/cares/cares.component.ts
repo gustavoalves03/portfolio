@@ -3,10 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormsModule } from '@angular/forms';
 import { CaresStore } from './store/cares.store';
 import { CategoriesStore } from '../categories/store/categories.store';
-import { CrudTable } from '../../shared/uis/crud-table/crud-table';
-import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CreateCare } from './modals/create/create-care.component';
 import { Care, CareStatus } from './models/cares.model';
@@ -30,10 +33,20 @@ const CATEGORY_COLORS = [
 @Component({
   selector: 'app-cares',
   standalone: true,
-  imports: [CrudTable, TranslocoPipe, MatSnackBarModule, MatIconModule, MatMenuModule],
+  imports: [
+    TranslocoPipe,
+    MatSnackBarModule,
+    MatIconModule,
+    MatMenuModule,
+    MatCardModule,
+    MatButtonModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+  ],
   templateUrl: './cares.component.html',
   styleUrl: './cares.component.scss',
-  providers: [CaresStore, CategoriesStore]
+  providers: [CaresStore, CategoriesStore],
 })
 export class CaresComponent {
   readonly store = inject(CaresStore);
@@ -46,54 +59,32 @@ export class CaresComponent {
   // Category filtering
   selectedCategoryId = signal<number | null>(null);
 
+  // Search query
+  searchQuery = signal('');
+
   filteredCares = computed(() => {
     const selectedId = this.selectedCategoryId();
-    const cares = this.store.availableCares();
-    return selectedId ? cares.filter(c => c.category.id === selectedId) : cares;
+    const query = this.searchQuery().toLowerCase().trim();
+    let cares = this.store.availableCares();
+    if (selectedId) {
+      cares = cares.filter(c => c.category.id === selectedId);
+    }
+    if (query) {
+      cares = cares.filter(
+        c =>
+          c.name.toLowerCase().includes(query) ||
+          c.description?.toLowerCase().includes(query),
+      );
+    }
+    return cares;
   });
 
-  // Configuration des colonnes avec traduction (en signal)
-  readonly columns = signal<TableColumn[]>([
-    { key: 'name', headerKey: 'cares.columns.name', align: 'left' },
-    {
-      key: 'description',
-      headerKey: 'cares.columns.description',
-      align: 'left',
-      valueGetter: (care: Care) => this.truncateDescription(care.description)
-    },
-    { key: 'price', headerKey: 'cares.columns.price', type: 'currency', align: 'right' },
-    {
-      key: 'status',
-      headerKey: 'cares.columns.status',
-      type: 'toggle',
-      align: 'center',
-      valueGetter: (care: Care) => care.status === CareStatus.ACTIVE,
-      toggleCallback: (care: Care, checked: boolean) => {
-        this.store.toggleCareStatus({
-          id: care.id,
-          status: checked ? CareStatus.ACTIVE : CareStatus.INACTIVE,
-        });
-        this.snackBar.open(this.i18n.translate('cares.toggleSuccess'), 'OK', { duration: 2000 });
-      },
-    },
-    { key: 'duration', headerKey: 'cares.columns.duration', align: 'center' }
-  ]);
-
-  // Configuration des actions (modifier, supprimer) (en signal)
-  readonly actions = signal<TableAction[]>([
-    {
-      icon: 'edit',
-      tooltipKey: 'actions.edit',
-      color: 'primary',
-      callback: (care: Care) => this.onEditCare(care)
-    },
-    {
-      icon: 'delete',
-      tooltipKey: 'actions.delete',
-      color: 'warn',
-      callback: (care: Care) => this.onDeleteCare(care)
-    }
-  ]);
+  private readonly fallbackGradients = [
+    'linear-gradient(135deg, #f3d5c0, #e8c4b0)',
+    'linear-gradient(135deg, #d4b5d0, #c8a0c0)',
+    'linear-gradient(135deg, #b5d4c0, #a0c8b0)',
+    'linear-gradient(135deg, #c0d4f3, #b0c4e8)',
+  ];
 
   constructor() {
     this.categoriesStore.getProCategories();
@@ -103,23 +94,46 @@ export class CaresComponent {
     return CATEGORY_COLORS[categoryId % CATEGORY_COLORS.length];
   }
 
+  fallbackGradient(index: number): string {
+    return this.fallbackGradients[index % this.fallbackGradients.length];
+  }
+
+  formatDuration(minutes: number): string {
+    if (minutes < 60) return `${minutes} min`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${h}h`;
+  }
+
+  formatPrice(cents: number): string {
+    return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC';
+  }
+
+  onToggleStatus(care: Care, checked: boolean): void {
+    this.store.toggleCareStatus({
+      id: care.id,
+      status: checked ? CareStatus.ACTIVE : CareStatus.INACTIVE,
+    });
+    this.snackBar.open(this.i18n.translate('cares.toggleSuccess'), 'OK', { duration: 2000 });
+  }
+
   onSelectCategory(categoryId: number): void {
-    this.selectedCategoryId.update(current =>
-      current === categoryId ? null : categoryId
-    );
+    this.selectedCategoryId.update(current => (current === categoryId ? null : categoryId));
   }
 
   onAddCategory(): void {
     const dialogRef = this.dialog.open(CreateCategoryComponent, {
       width: '500px',
       disableClose: false,
-      autoFocus: true
+      autoFocus: true,
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.categoriesStore.createProCategory(result);
-        this.snackBar.open(this.i18n.translate('pro.categories.createSuccess'), 'OK', { duration: 3000 });
+        this.snackBar.open(this.i18n.translate('pro.categories.createSuccess'), 'OK', {
+          duration: 3000,
+        });
       }
     });
   }
@@ -129,13 +143,15 @@ export class CaresComponent {
       width: '500px',
       disableClose: false,
       autoFocus: true,
-      data: { category }
+      data: { category },
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.categoriesStore.updateProCategory({ id: category.id, payload: result });
-        this.snackBar.open(this.i18n.translate('pro.categories.updateSuccess'), 'OK', { duration: 3000 });
+        this.snackBar.open(this.i18n.translate('pro.categories.updateSuccess'), 'OK', {
+          duration: 3000,
+        });
       }
     });
   }
@@ -151,8 +167,8 @@ export class CaresComponent {
           categoryId: category.id,
           categoryName: category.name,
           careCount: caresInCategory.length,
-          availableCategories: this.categoriesStore.categories()
-        }
+          availableCategories: this.categoriesStore.categories(),
+        },
       });
 
       dialogRef.afterClosed().subscribe(targetId => {
@@ -160,13 +176,17 @@ export class CaresComponent {
           this.categoriesStore.deleteProCategory({ id: category.id, reassignTo: targetId });
           this.selectedCategoryId.set(null);
           this.store.getCares();
-          this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', { duration: 3000 });
+          this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', {
+            duration: 3000,
+          });
         }
       });
     } else {
       this.categoriesStore.deleteProCategory({ id: category.id });
       this.selectedCategoryId.set(null);
-      this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', { duration: 3000 });
+      this.snackBar.open(this.i18n.translate('pro.categories.deleteSuccess'), 'OK', {
+        duration: 3000,
+      });
     }
   }
 
@@ -182,8 +202,8 @@ export class CaresComponent {
       disableClose: false,
       autoFocus: true,
       data: {
-        categories: this.categoriesStore.categories()
-      }
+        categories: this.categoriesStore.categories(),
+      },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -196,7 +216,7 @@ export class CaresComponent {
   onEditCare(care: Care) {
     // Fetch fresh care details from backend to ensure images are up to date
     this.caresService.get(care.id).subscribe({
-      next: (freshCare) => {
+      next: freshCare => {
         console.log('[CaresComponent] Fresh care loaded for edit:', freshCare);
         console.log('[CaresComponent] Images:', freshCare.images);
 
@@ -206,26 +226,26 @@ export class CaresComponent {
           autoFocus: true,
           data: {
             categories: this.categoriesStore.categories(),
-            care: freshCare
-          }
+            care: freshCare,
+          },
         });
 
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
             const payload = {
               ...result,
-              categoryId: Number(result.categoryId ?? freshCare.category.id)
+              categoryId: Number(result.categoryId ?? freshCare.category.id),
             };
             this.store.updateCare({ id: freshCare.id, payload });
           }
         });
       },
-      error: (err) => {
+      error: err => {
         console.error('Error loading care for edit:', err);
         this.snackBar.open('Erreur lors du chargement du soin', 'Fermer', {
-          duration: 3000
+          duration: 3000,
         });
-      }
+      },
     });
   }
 
@@ -235,8 +255,8 @@ export class CaresComponent {
       disableClose: true,
       autoFocus: false,
       data: {
-        careName: care.name
-      }
+        careName: care.name,
+      },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -249,7 +269,7 @@ export class CaresComponent {
   readonly onViewCareDetails = (care: Care) => {
     // Fetch fresh care details from backend to ensure images are up to date
     this.caresService.get(care.id).subscribe({
-      next: (freshCare) => {
+      next: freshCare => {
         console.log('[CaresComponent] Fresh care loaded:', freshCare);
         console.log('[CaresComponent] Images:', freshCare.images);
 
@@ -261,24 +281,16 @@ export class CaresComponent {
           data: {
             care: freshCare,
             categories: this.categoriesStore.categories(),
-            viewOnly: true
-          }
+            viewOnly: true,
+          },
         });
       },
-      error: (err) => {
+      error: err => {
         console.error('Error loading care details:', err);
         this.snackBar.open('Erreur lors du chargement des détails', 'Fermer', {
-          duration: 3000
+          duration: 3000,
         });
-      }
+      },
     });
   };
-
-  private truncateDescription(description: string): string {
-    const maxLength = 60;
-    if (!description || description.length <= maxLength) {
-      return description;
-    }
-    return description.substring(0, maxLength) + '...';
-  }
 }

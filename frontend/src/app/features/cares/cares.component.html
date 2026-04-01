@@ -1,7 +1,5 @@
-<section class="content-center justify-center">
-  <h2 class="sr-only">{{ 'cares.title' | transloco }}</h2>
-
-  <!-- Category chips -->
+<section class="cares-page">
+  <!-- Category chips (kept as-is) -->
   <div class="flex flex-wrap items-center gap-2 mb-4 px-1">
     @for (category of categoriesStore.categories(); track category.id) {
       <div class="category-chip-wrapper">
@@ -44,18 +42,85 @@
     </button>
   </div>
 
-  <crud-table
-    [dataSource]="filteredCares()"
-    [columns]="columns()"
-    [actions]="actions()"
-    [title]="('cares.title' | transloco)"
-    [emptyMessage]="('table.empty' | transloco)"
-    [searchPlaceholder]="('table.search.placeholder' | transloco)"
-    [loading]="store.isPending()"
-    [errorMessage]="store.error()"
-    [reorderable]="true"
-    (addItem)="onAddCare()"
-    (rowClick)="onViewCareDetails($event)"
-    (reorder)="onReorder($event)"
-  ></crud-table>
+  <!-- Search + Add bar -->
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      [placeholder]="'table.search.placeholder' | transloco"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+    />
+    <button mat-raised-button color="primary" class="add-btn" (click)="onAddCare()">
+      <mat-icon>add</mat-icon>
+      {{ 'cares.title' | transloco }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (store.isPending() && store.availableCares().length === 0) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <!-- Care cards -->
+  @if (filteredCares().length === 0 && !store.isPending()) {
+    <div class="empty-state">
+      <mat-icon>spa</mat-icon>
+      <p>{{ 'table.empty' | transloco }}</p>
+    </div>
+  } @else {
+    <div class="care-grid">
+      @for (care of filteredCares(); track care.id; let i = $index) {
+        <div class="care-card" (click)="onViewCareDetails(care)">
+          <!-- Image -->
+          <div class="care-image-wrapper"
+               [style.background]="care.images && care.images.length > 0 ? 'none' : fallbackGradient(i)">
+            @if (care.images && care.images.length > 0) {
+              <img [src]="care.images[0].url" [alt]="care.name" class="care-image" />
+            }
+          </div>
+
+          <!-- Content -->
+          <div class="care-content">
+            <div class="care-header">
+              <div class="care-name">{{ care.name }}</div>
+              <mat-slide-toggle
+                [checked]="care.status === 'ACTIVE'"
+                (change)="onToggleStatus(care, $event.checked)"
+                (click)="$event.stopPropagation()"
+                color="primary"
+              ></mat-slide-toggle>
+            </div>
+
+            @if (care.description) {
+              <div class="care-description">{{ care.description }}</div>
+            }
+
+            <div class="care-bottom">
+              <div class="care-meta">
+                <span class="care-duration">{{ formatDuration(care.duration) }}</span>
+                <span class="care-separator">·</span>
+                <span class="care-price">{{ formatPrice(care.price) }}</span>
+              </div>
+              <div class="care-actions" (click)="$event.stopPropagation()">
+                <button mat-icon-button (click)="onEditCare(care)" class="action-btn">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="onDeleteCare(care)" class="action-btn delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 </section>
