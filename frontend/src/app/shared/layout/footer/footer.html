@@ -7,7 +7,11 @@
       </p>
     } @else {
       <p>&copy; {{ year }} Pretty Face</p>
-      <p>Conçu avec Angular, Material & Tailwind</p>
+      @if (!isLoggedIn()) {
+        <p>
+          <a routerLink="/pricing" class="text-neutral-500 hover:text-neutral-900 hover:underline underline-offset-4">Vous êtes professionnel ? Créez votre vitrine</a>
+        </p>
+      }
     }
   </div>
 </footer>

@@ -17,4 +17,5 @@ export class Footer {
     const role = this.authService.user()?.role;
     return role === Role.PRO || role === Role.ADMIN;
   });
+  readonly isLoggedIn = this.authService.isAuthenticated;
 }
