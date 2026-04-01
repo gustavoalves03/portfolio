@@ -8,6 +8,7 @@ public record TenantResponse(
         String slug,
         String description,
         String logoUrl,
+        String heroImageUrl,
         String addressStreet,
         String addressPostalCode,
         String addressCity,

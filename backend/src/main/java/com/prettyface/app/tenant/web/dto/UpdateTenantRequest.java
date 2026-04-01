@@ -7,6 +7,7 @@ public record UpdateTenantRequest(
         @NotBlank @Size(max = 100) String name,
         @Size(max = 50000) String description,
         String logo,
+        String heroImage,
         @Size(max = 255) String addressStreet,
         @Size(max = 10) String addressPostalCode,
         @Size(max = 100) String addressCity,

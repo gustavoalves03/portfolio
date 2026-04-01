@@ -7,5 +7,6 @@ public record PublicSalonResponse(
         String slug,
         String description,
         String logoUrl,
+        String heroImageUrl,
         List<PublicCategoryDto> categories
 ) {}

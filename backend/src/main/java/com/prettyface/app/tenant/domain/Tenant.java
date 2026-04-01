@@ -44,6 +44,9 @@ public class Tenant {
     @Column(name = "logo_path", length = 500)
     private String logoPath;
 
+    @Column(name = "hero_image_path", length = 500)
+    private String heroImagePath;
+
     @Column(name = "category_names", length = 1000)
     private String categoryNames;
 

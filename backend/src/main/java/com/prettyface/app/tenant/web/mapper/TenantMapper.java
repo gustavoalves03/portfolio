@@ -18,6 +18,9 @@ public class TenantMapper {
         String logoUrl = tenant.getLogoPath() != null
                 ? "/api/images/tenant/" + tenant.getId() + "/" + extractFilename(tenant.getLogoPath())
                 : null;
+        String heroImageUrl = tenant.getHeroImagePath() != null
+                ? "/api/images/tenant/" + tenant.getId() + "/" + extractFilename(tenant.getHeroImagePath())
+                : null;
 
         return new TenantResponse(
                 tenant.getId(),
@@ -25,6 +28,7 @@ public class TenantMapper {
                 tenant.getSlug(),
                 tenant.getDescription(),
                 logoUrl,
+                heroImageUrl,
                 tenant.getAddressStreet(),
                 tenant.getAddressPostalCode(),
                 tenant.getAddressCity(),
@@ -39,6 +43,9 @@ public class TenantMapper {
         String logoUrl = tenant.getLogoPath() != null
                 ? "/api/images/tenant/" + tenant.getId() + "/" + extractFilename(tenant.getLogoPath())
                 : null;
+        String heroImageUrl = tenant.getHeroImagePath() != null
+                ? "/api/images/tenant/" + tenant.getId() + "/" + extractFilename(tenant.getHeroImagePath())
+                : null;
 
         List<PublicCategoryDto> categoryDtos = categories.stream()
                 .filter(cat -> cat.getCares() != null && cat.getCares().stream()
@@ -52,6 +59,7 @@ public class TenantMapper {
                 tenant.getSlug(),
                 tenant.getDescription(),
                 logoUrl,
+                heroImageUrl,
                 categoryDtos
         );
     }

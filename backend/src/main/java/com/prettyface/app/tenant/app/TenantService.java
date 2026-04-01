@@ -68,6 +68,22 @@ public class TenantService {
             }
         }
 
+        // Handle hero image: null=no change, ""=remove, base64=new
+        if (request.heroImage() != null) {
+            if (request.heroImage().isEmpty()) {
+                if (tenant.getHeroImagePath() != null) {
+                    fileStorageService.deleteFile(tenant.getHeroImagePath());
+                    tenant.setHeroImagePath(null);
+                }
+            } else {
+                if (tenant.getHeroImagePath() != null) {
+                    fileStorageService.deleteFile(tenant.getHeroImagePath());
+                }
+                String heroPath = fileStorageService.saveBase64Image(request.heroImage(), "tenant-hero", tenant.getId());
+                tenant.setHeroImagePath(heroPath);
+            }
+        }
+
         // Business info
         tenant.setAddressStreet(request.addressStreet());
         tenant.setAddressPostalCode(request.addressPostalCode());
