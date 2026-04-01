@@ -159,7 +159,30 @@
   },
   "pro": {
     "dashboard": {
-      "title": "Tableau de bord"
+      "title": "Tableau de bord",
+      "draft": "Brouillon",
+      "active": "En ligne",
+      "checklist": {
+        "title": "Configurez votre salon",
+        "name": "Nom du salon",
+        "categories": "Au moins une catégorie",
+        "cares": "Au moins un soin actif",
+        "openingHours": "Horaires d'ouverture"
+      },
+      "publish": "Publier mon salon",
+      "publishDisabledHint": "Complétez les étapes ci-dessus pour publier votre salon",
+      "publishSuccess": "Votre salon est en ligne !",
+      "publishError": "Impossible de publier le salon",
+      "unpublish": "Dépublier",
+      "unpublishConfirmTitle": "Dépublier votre salon ?",
+      "unpublishConfirmBody": "Votre salon ne sera plus visible sur la plateforme. Les rendez-vous existants seront maintenus.",
+      "unpublishConfirmAction": "Dépublier",
+      "unpublishSuccess": "Votre salon a été dépublié",
+      "todayBookings": "RDV aujourd'hui",
+      "weekBookings": "RDV cette semaine",
+      "recentBookings": "Dernières réservations",
+      "noBookings": "Aucune réservation pour le moment",
+      "viewSalon": "Voir mon salon"
     },
     "salon": {
       "title": "Mon salon",

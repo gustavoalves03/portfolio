@@ -155,7 +155,30 @@
   },
   "pro": {
     "dashboard": {
-      "title": "Dashboard"
+      "title": "Dashboard",
+      "draft": "Draft",
+      "active": "Online",
+      "checklist": {
+        "title": "Set up your salon",
+        "name": "Salon name",
+        "categories": "At least one category",
+        "cares": "At least one active care",
+        "openingHours": "Opening hours"
+      },
+      "publish": "Publish my salon",
+      "publishDisabledHint": "Complete the steps above to publish your salon",
+      "publishSuccess": "Your salon is now online!",
+      "publishError": "Unable to publish salon",
+      "unpublish": "Unpublish",
+      "unpublishConfirmTitle": "Unpublish your salon?",
+      "unpublishConfirmBody": "Your salon will no longer be visible on the platform. Existing appointments will be kept.",
+      "unpublishConfirmAction": "Unpublish",
+      "unpublishSuccess": "Your salon has been unpublished",
+      "todayBookings": "Today's appointments",
+      "weekBookings": "This week's appointments",
+      "recentBookings": "Recent bookings",
+      "noBookings": "No bookings yet",
+      "viewSalon": "View my salon"
     },
     "salon": {
       "title": "My salon",
