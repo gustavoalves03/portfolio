@@ -10,4 +10,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.cares WHERE c.cares IS NOT EMPTY")
     List<Category> findAllWithCares();
+
+    @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.cares care LEFT JOIN FETCH care.images WHERE c.cares IS NOT EMPTY")
+    List<Category> findAllWithCaresFull();
 }
