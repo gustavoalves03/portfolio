@@ -28,6 +28,18 @@ export class CaresService extends BaseCrudService<Care, CreateCareRequest, Updat
     );
   }
 
+  override create(payload: CreateCareRequest): Observable<Care> {
+    return super.create(payload).pipe(
+      map(care => this.transformCareImageUrls(care))
+    );
+  }
+
+  override update(id: number, payload: UpdateCareRequest): Observable<Care> {
+    return super.update(id, payload).pipe(
+      map(care => this.transformCareImageUrls(care))
+    );
+  }
+
   toggleStatus(id: number, status: CareStatus): Observable<Care> {
     return this.http.patch<Care>(
       `${this.apiBaseUrl}${this.basePath}/${id}/status`,

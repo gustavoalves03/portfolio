@@ -79,7 +79,7 @@ public class TenantService {
                 if (tenant.getHeroImagePath() != null) {
                     fileStorageService.deleteFile(tenant.getHeroImagePath());
                 }
-                String heroPath = fileStorageService.saveBase64Image(request.heroImage(), "tenant-hero", tenant.getId());
+                String heroPath = fileStorageService.saveBase64Image(request.heroImage(), "tenant", tenant.getId());
                 tenant.setHeroImagePath(heroPath);
             }
         }

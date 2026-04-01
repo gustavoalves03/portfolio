@@ -49,9 +49,14 @@ export class SalonProfileService {
   }
 
   private transformLogoUrl(tenant: TenantResponse): TenantResponse {
-    if (!tenant.logoUrl || !this.isBrowser) return tenant;
-    const url = tenant.logoUrl.startsWith('http') ? tenant.logoUrl : `${this.baseUrl}${tenant.logoUrl}`;
-    return { ...tenant, logoUrl: url };
+    if (!this.isBrowser) return tenant;
+    const transformUrl = (u: string | null) =>
+      u ? (u.startsWith('http') || u.startsWith('data:') ? u : `${this.baseUrl}${u}`) : null;
+    return {
+      ...tenant,
+      logoUrl: transformUrl(tenant.logoUrl),
+      heroImageUrl: transformUrl(tenant.heroImageUrl),
+    };
   }
 
   private transformPublicUrls(salon: PublicSalonResponse): PublicSalonResponse {
