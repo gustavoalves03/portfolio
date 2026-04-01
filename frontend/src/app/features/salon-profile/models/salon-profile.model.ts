@@ -16,6 +16,7 @@ export interface UpdateTenantRequest {
 export interface PublicCareDto {
   id: number;
   name: string;
+  description: string;
   duration: number;
   price: number;
   imageUrls: string[];

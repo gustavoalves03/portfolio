@@ -304,6 +304,7 @@
     "book": "Book",
     "dialog": {
       "title": "Choose a time slot",
+      "selectDate": "Select a date",
       "noSlots": "No slots available on this day",
       "confirm": "Confirm"
     },

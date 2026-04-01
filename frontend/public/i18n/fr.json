@@ -308,6 +308,7 @@
     "book": "Réserver",
     "dialog": {
       "title": "Choisir un créneau",
+      "selectDate": "Choisir une date",
       "noSlots": "Aucun créneau disponible ce jour",
       "confirm": "Confirmer"
     },
