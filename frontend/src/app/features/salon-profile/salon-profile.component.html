@@ -1,122 +1,116 @@
-<div class="salon-profile-container">
-  <h1 class="text-2xl font-medium text-neutral-800 mb-6">{{ 'pro.salon.title' | transloco }}</h1>
-
-  @if (store.isPending() && !store.tenant()) {
-    <div class="flex justify-center py-12">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
-  } @else if (store.tenant()) {
-    <form (ngSubmit)="onSave()" class="flex flex-col gap-6 max-w-2xl">
-
-      <!-- Salon Name -->
-      <mat-form-field appearance="fill">
-        <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
-        <input
-          matInput
-          [ngModel]="name()"
-          (ngModelChange)="name.set($event)"
-          required
-          maxlength="100"
-          name="salonName"
-        />
-        @if (!name().trim()) {
-          <mat-error>{{ 'pro.salon.nameRequired' | transloco }}</mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Slug Preview (read-only) -->
-      <div class="text-sm text-neutral-500">
-        {{ 'pro.salon.slugPreview' | transloco }}: <span class="font-mono">/salon/{{ slug() }}</span>
+@if (store.isPending() && !store.tenant()) {
+  <div class="flex justify-center py-12">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+} @else if (store.tenant()) {
+  <div class="salon-profile">
+    <!-- Header card: Logo + Name + Status -->
+    <div class="profile-card header-card">
+      <div class="header-row">
+        <div class="logo-wrapper">
+          @if (logoImages().length > 0) {
+            <img [src]="logoImages()[0].url" alt="Logo" class="logo-img" />
+          } @else {
+            <mat-icon class="logo-placeholder">add_a_photo</mat-icon>
+          }
+        </div>
+        <div class="header-info">
+          <h1 class="salon-name">{{ name() || ('pro.salon.name' | transloco) }}</h1>
+          <div class="salon-slug">/salon/{{ slug() }}</div>
+        </div>
       </div>
-
-      <!-- Logo -->
-      <div>
-        <label class="block text-sm font-medium text-neutral-700 mb-2">{{ 'pro.salon.logo' | transloco }}</label>
+      <div class="logo-actions">
         <image-manager
           [images]="logoImages()"
           [maxImages]="1"
           (imagesChange)="onLogoChange($event)"
         />
       </div>
+    </div>
 
-      <!-- Description -->
-      <mat-form-field appearance="fill" class="w-full">
-        <mat-label>{{ 'pro.salon.description' | transloco }}</mat-label>
-        <textarea
-          matInput
-          rows="6"
-          [ngModel]="description()"
-          (ngModelChange)="description.set($event)"
-          name="description"
-          maxlength="10000"
-          class="salon-description-input"
-        ></textarea>
-        <mat-hint align="end">
-          {{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}
-          @if (descriptionTextLength() > MAX_DESCRIPTION_LENGTH) {
-            <span class="text-red-500 ml-1">{{ 'pro.salon.descriptionLimit' | transloco }}</span>
-          }
-        </mat-hint>
-      </mat-form-field>
+    <form (ngSubmit)="onSave()">
+      <!-- Informations card -->
+      <div class="profile-card">
+        <div class="card-section-title">
+          <mat-icon>info</mat-icon>
+          {{ 'pro.salon.title' | transloco }}
+        </div>
 
-      <!-- Address -->
-      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.addressSection' | transloco }}</h2>
-
-      <mat-form-field appearance="fill">
-        <mat-label>{{ 'pro.salon.addressStreet' | transloco }}</mat-label>
-        <input matInput [ngModel]="addressStreet()" (ngModelChange)="addressStreet.set($event)" maxlength="255" name="addressStreet" />
-      </mat-form-field>
-
-      <div class="flex gap-4">
-        <mat-form-field appearance="fill" class="w-1/3">
-          <mat-label>{{ 'pro.salon.addressPostalCode' | transloco }}</mat-label>
-          <input matInput [ngModel]="addressPostalCode()" (ngModelChange)="addressPostalCode.set($event)" maxlength="10" name="addressPostalCode" />
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
+          <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required maxlength="100" name="salonName" />
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>{{ 'pro.salon.addressCity' | transloco }}</mat-label>
-          <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" maxlength="100" name="addressCity" />
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'pro.salon.description' | transloco }}</mat-label>
+          <textarea matInput rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" maxlength="10000"></textarea>
+          <mat-hint align="end">{{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}</mat-hint>
         </mat-form-field>
       </div>
 
-      <!-- Contact -->
-      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.contactSection' | transloco }}</h2>
+      <!-- Address card -->
+      <div class="profile-card">
+        <div class="card-section-title">
+          <mat-icon>location_on</mat-icon>
+          {{ 'pro.salon.addressSection' | transloco }}
+        </div>
 
-      <div class="flex gap-4">
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>{{ 'pro.salon.phone' | transloco }}</mat-label>
-          <input matInput [ngModel]="phone()" (ngModelChange)="phone.set($event)" maxlength="20" name="phone" type="tel" />
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'pro.salon.addressStreet' | transloco }}</mat-label>
+          <input matInput [ngModel]="addressStreet()" (ngModelChange)="addressStreet.set($event)" maxlength="255" name="addressStreet" />
         </mat-form-field>
 
-        <mat-form-field appearance="fill" class="flex-1">
-          <mat-label>{{ 'pro.salon.contactEmail' | transloco }}</mat-label>
-          <input matInput [ngModel]="contactEmail()" (ngModelChange)="contactEmail.set($event)" maxlength="255" name="contactEmail" type="email" />
+        <div class="field-row">
+          <mat-form-field appearance="outline" class="field-small">
+            <mat-label>{{ 'pro.salon.addressPostalCode' | transloco }}</mat-label>
+            <input matInput [ngModel]="addressPostalCode()" (ngModelChange)="addressPostalCode.set($event)" maxlength="10" name="addressPostalCode" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>{{ 'pro.salon.addressCity' | transloco }}</mat-label>
+            <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" maxlength="100" name="addressCity" />
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Contact & Business card -->
+      <div class="profile-card">
+        <div class="card-section-title">
+          <mat-icon>phone</mat-icon>
+          {{ 'pro.salon.contactSection' | transloco }}
+        </div>
+
+        <div class="field-row">
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>{{ 'pro.salon.phone' | transloco }}</mat-label>
+            <input matInput [ngModel]="phone()" (ngModelChange)="phone.set($event)" maxlength="20" name="phone" type="tel" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-grow">
+            <mat-label>{{ 'pro.salon.contactEmail' | transloco }}</mat-label>
+            <input matInput [ngModel]="contactEmail()" (ngModelChange)="contactEmail.set($event)" maxlength="255" name="contactEmail" type="email" />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'pro.salon.siret' | transloco }}</mat-label>
+          <input matInput [ngModel]="siret()" (ngModelChange)="siret.set($event)" maxlength="14" name="siret" />
         </mat-form-field>
       </div>
 
-      <!-- Business info -->
-      <h2 class="text-lg font-medium text-neutral-700 mt-4">{{ 'pro.salon.businessSection' | transloco }}</h2>
-
-      <mat-form-field appearance="fill">
-        <mat-label>{{ 'pro.salon.siret' | transloco }}</mat-label>
-        <input matInput [ngModel]="siret()" (ngModelChange)="siret.set($event)" maxlength="14" name="siret" />
-      </mat-form-field>
-
-      <!-- Save Button -->
-      <div class="flex justify-end">
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="store.isPending() || !name().trim() || descriptionTextLength() > MAX_DESCRIPTION_LENGTH"
-        >
-          @if (store.isPending()) {
-            <mat-spinner diameter="20" class="inline-block mr-2"></mat-spinner>
-          }
-          {{ 'pro.salon.save' | transloco }}
-        </button>
-      </div>
-
+      <!-- Save button -->
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        class="save-btn"
+        [disabled]="store.isPending() || !name().trim() || descriptionTextLength() > MAX_DESCRIPTION_LENGTH"
+      >
+        @if (store.isPending()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+        {{ 'pro.salon.save' | transloco }}
+      </button>
     </form>
-  }
-</div>
+  </div>
+}

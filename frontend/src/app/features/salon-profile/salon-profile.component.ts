@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ImageManager, ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
@@ -19,6 +20,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatIconModule,
     TranslocoPipe,
     ImageManager,
   ],
@@ -35,6 +37,7 @@ export class SalonProfileComponent {
   protected description = signal('');
   protected logoImages = signal<ManagedImage[]>([]);
   protected slug = signal('');
+  protected status = computed(() => this.store.tenant()?.status ?? '');
   protected addressStreet = signal('');
   protected addressPostalCode = signal('');
   protected addressCity = signal('');

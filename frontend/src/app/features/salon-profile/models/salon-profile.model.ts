@@ -2,6 +2,7 @@ export interface TenantResponse {
   id: number;
   name: string;
   slug: string;
+  status?: string;
   description: string | null;
   logoUrl: string | null;
   addressStreet: string | null;
