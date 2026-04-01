@@ -93,6 +93,7 @@ export class DynamicForm implements OnInit {
   }
 
   private getDefaultValue(field: FormFieldConfig): any {
+    if (field.value !== undefined && field.value !== null) return field.value;
     if (field.type === 'number') return 0;
     if (field.type === 'select' && field.options?.length) return field.options[0].value;
     return '';
