@@ -40,13 +40,6 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiredRole: 'PRO'
   },
   {
-    label: 'Catégories',
-    path: '/pro/categories',
-    icon: 'category',
-    requiresAuth: true,
-    requiredRole: 'PRO'
-  },
-  {
     label: 'Disponibilités',
     path: '/pro/availability',
     icon: 'schedule',

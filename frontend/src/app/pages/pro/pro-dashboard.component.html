@@ -31,13 +31,6 @@
               <span matListItemTitle>{{ 'pro.dashboard.checklist.name' | transloco }}</span>
               <mat-icon matListItemMeta>chevron_right</mat-icon>
             </a>
-            <a mat-list-item routerLink="/pro/categories">
-              <mat-icon matListItemIcon [class.done]="store.readiness()!.hasCategory">
-                {{ store.readiness()!.hasCategory ? 'check_circle' : 'radio_button_unchecked' }}
-              </mat-icon>
-              <span matListItemTitle>{{ 'pro.dashboard.checklist.categories' | transloco }}</span>
-              <mat-icon matListItemMeta>chevron_right</mat-icon>
-            </a>
             <a mat-list-item routerLink="/pro/cares">
               <mat-icon matListItemIcon [class.done]="store.readiness()!.hasActiveCare">
                 {{ store.readiness()!.hasActiveCare ? 'check_circle' : 'radio_button_unchecked' }}

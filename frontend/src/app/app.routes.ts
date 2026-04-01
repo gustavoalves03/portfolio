@@ -5,7 +5,6 @@ import { Home } from './pages/home/home';
 import { NotFound } from './pages/not-found/not-found';
 import { About } from './pages/about/about';
 import { CaresComponent } from './features/cares/cares.component';
-import { CategoriesComponent } from './features/categories/categories.component';
 import { UsersComponent } from './features/users/users.component';
 import { BookingsComponent } from './features/bookings/bookings.component';
 import { LoginComponent } from './pages/auth/login/login.component';
@@ -50,7 +49,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/salon-profile/salon-profile.component').then(m => m.SalonProfileComponent),
       },
       { path: 'cares', component: CaresComponent },
-      { path: 'categories', component: CategoriesComponent },
       {
         path: 'availability',
         loadComponent: () => import('./features/availability/availability.component').then(m => m.AvailabilityComponent),

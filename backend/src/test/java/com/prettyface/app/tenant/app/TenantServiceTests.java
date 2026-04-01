@@ -66,7 +66,7 @@ class TenantServiceTests {
         when(tenantRepository.findByOwnerId(42L)).thenReturn(Optional.of(tenant));
         when(tenantRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UpdateTenantRequest request = new UpdateTenantRequest("New Name", "<p>Hello</p>", null);
+        UpdateTenantRequest request = new UpdateTenantRequest("New Name", "<p>Hello</p>", null, null, null, null, null, null, null);
         TenantResponse response = tenantService.updateProfile(42L, request);
 
         assertThat(response.name()).isEqualTo("New Name");
@@ -79,7 +79,7 @@ class TenantServiceTests {
         when(tenantRepository.findByOwnerId(42L)).thenReturn(Optional.of(tenant));
         when(tenantRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UpdateTenantRequest request = new UpdateTenantRequest("My Salon", null, "");
+        UpdateTenantRequest request = new UpdateTenantRequest("My Salon", null, "", null, null, null, null, null, null);
         tenantService.updateProfile(42L, request);
 
         verify(fileStorageService).deleteFile("uploads/tenant/1/old.png");
@@ -94,7 +94,7 @@ class TenantServiceTests {
         when(fileStorageService.saveBase64Image(anyString(), eq("tenant"), eq(1L)))
                 .thenReturn("uploads/tenant/1/new.png");
 
-        UpdateTenantRequest request = new UpdateTenantRequest("My Salon", null, "data:image/png;base64,abc123");
+        UpdateTenantRequest request = new UpdateTenantRequest("My Salon", null, "data:image/png;base64,abc123", null, null, null, null, null, null);
         tenantService.updateProfile(42L, request);
 
         verify(fileStorageService).deleteFile("uploads/tenant/1/old.png");

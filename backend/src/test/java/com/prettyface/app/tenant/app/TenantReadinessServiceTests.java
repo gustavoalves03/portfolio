@@ -3,7 +3,6 @@ package com.prettyface.app.tenant.app;
 import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
-import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.web.dto.TenantReadinessResponse;
@@ -19,7 +18,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TenantReadinessServiceTests {
 
-    @Mock private CategoryRepository categoryRepository;
     @Mock private CareRepository careRepository;
     @Mock private OpeningHourRepository openingHourRepository;
 
@@ -27,13 +25,12 @@ class TenantReadinessServiceTests {
 
     @BeforeEach
     void setUp() {
-        service = new TenantReadinessService(categoryRepository, careRepository, openingHourRepository);
+        service = new TenantReadinessService(careRepository, openingHourRepository);
     }
 
     @Test
     void getReadiness_allConditionsMet_canPublish() {
         var tenant = Tenant.builder().slug("mon-salon").name("Mon Salon").status(TenantStatus.DRAFT).build();
-        when(categoryRepository.count()).thenReturn(2L);
         when(careRepository.countByStatus(CareStatus.ACTIVE)).thenReturn(3L);
         when(openingHourRepository.count()).thenReturn(5L);
 
@@ -51,7 +48,6 @@ class TenantReadinessServiceTests {
     @Test
     void getReadiness_missingCare_cannotPublish() {
         var tenant = Tenant.builder().slug("mon-salon").name("Mon Salon").status(TenantStatus.DRAFT).build();
-        when(categoryRepository.count()).thenReturn(1L);
         when(careRepository.countByStatus(CareStatus.ACTIVE)).thenReturn(0L);
         when(openingHourRepository.count()).thenReturn(3L);
 
@@ -64,7 +60,6 @@ class TenantReadinessServiceTests {
     @Test
     void getReadiness_blankName_cannotPublish() {
         var tenant = Tenant.builder().slug("mon-salon").name("  ").status(TenantStatus.ACTIVE).build();
-        when(categoryRepository.count()).thenReturn(1L);
         when(careRepository.countByStatus(CareStatus.ACTIVE)).thenReturn(1L);
         when(openingHourRepository.count()).thenReturn(1L);
 
@@ -77,12 +72,11 @@ class TenantReadinessServiceTests {
     @Test
     void getMissingConditions_returnsList() {
         var tenant = Tenant.builder().slug("mon-salon").name("Salon").status(TenantStatus.DRAFT).build();
-        when(categoryRepository.count()).thenReturn(0L);
         when(careRepository.countByStatus(CareStatus.ACTIVE)).thenReturn(0L);
         when(openingHourRepository.count()).thenReturn(0L);
 
         var missing = service.getMissingConditions(tenant);
 
-        assertThat(missing).containsExactly("hasCategory", "hasActiveCare", "hasOpeningHours");
+        assertThat(missing).containsExactly("hasActiveCare", "hasOpeningHours");
     }
 }
