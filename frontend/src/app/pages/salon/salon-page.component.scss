@@ -43,78 +43,101 @@
 .care-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .care-card {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.75rem;
   border-radius: 12px;
-  background: #fafafa;
-  align-items: flex-start;
-}
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  min-height: 120px;
 
-.book-btn {
-  align-self: flex-end;
-  border-color: #c06 !important;
-  color: #c06 !important;
-  border-radius: 20px !important;
-  font-size: 13px;
-  padding: 4px 20px !important;
-
-  &:hover {
-    background: #fdf0f4 !important;
+  @media (max-width: 480px) {
+    flex-direction: column;
   }
 }
 
-.care-images {
+.care-image-wrapper {
+  width: 130px;
+  min-width: 130px;
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
 
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
+  @media (max-width: 480px) {
+    width: 100%;
+    min-width: unset;
+    height: 140px;
   }
 }
 
 .care-image {
-  flex: 0 0 auto;
-  width: 140px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 10px;
-  scroll-snap-align: start;
-  transition: opacity 150ms ease;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  @media (min-width: 768px) {
-    width: 180px;
-    height: 120px;
-  }
 }
 
-.care-info {
+.care-content {
   flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .care-name {
-  font-weight: 500;
-  display: block;
-  margin-bottom: 0.25rem;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
-.care-details {
+.care-description {
+  font-size: 11px;
+  color: #888;
+  margin-top: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.care-bottom {
   display: flex;
-  gap: 1rem;
-  font-size: 0.875rem;
-  color: #777;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.care-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.care-duration {
+  font-size: 11px;
+  color: #888;
+}
+
+.care-separator {
+  font-size: 11px;
+  color: #888;
+}
+
+.care-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c06;
+}
+
+.book-btn {
+  border-radius: 16px !important;
+  font-size: 11px !important;
+  padding: 4px 16px !important;
+  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  color: white !important;
+  line-height: 1.5 !important;
 }

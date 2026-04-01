@@ -37,23 +37,28 @@
                 <div class="care-list">
                   @for (care of category.cares; track care.name) {
                     <div class="care-card">
-                      @if (care.imageUrls.length > 0) {
-                        <div class="care-images">
-                          @for (url of care.imageUrls; track url) {
-                            <img [src]="url" [alt]="care.name" class="care-image" />
-                          }
-                        </div>
-                      }
-                      <div class="care-info">
-                        <span class="care-name">{{ care.name }}</span>
-                        <div class="care-details">
-                          <span>{{ 'salon.public.duration' | transloco }}: {{ formatDuration(care.duration) }}</span>
-                          <span>{{ 'salon.public.price' | transloco }}: {{ formatPrice(care.price) }}</span>
+                      <div class="care-image-wrapper"
+                           [style.background]="care.imageUrls.length > 0 ? 'none' : fallbackGradient($index)">
+                        @if (care.imageUrls.length > 0) {
+                          <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-image" />
+                        }
+                      </div>
+                      <div class="care-content">
+                        <div class="care-name">{{ care.name }}</div>
+                        @if (care.description) {
+                          <div class="care-description">{{ care.description }}</div>
+                        }
+                        <div class="care-bottom">
+                          <div class="care-meta">
+                            <span class="care-duration">{{ formatDuration(care.duration) }}</span>
+                            <span class="care-separator">·</span>
+                            <span class="care-price">{{ formatPrice(care.price) }}</span>
+                          </div>
+                          <button mat-flat-button class="book-btn" (click)="onBook(care)">
+                            {{ 'booking.book' | transloco }}
+                          </button>
                         </div>
                       </div>
-                      <button mat-stroked-button class="book-btn" (click)="onBook(care)">
-                        {{ 'booking.book' | transloco }}
-                      </button>
                     </div>
                   }
                 </div>

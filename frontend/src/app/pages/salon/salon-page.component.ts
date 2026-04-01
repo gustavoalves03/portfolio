@@ -56,6 +56,17 @@ export class SalonPageComponent implements OnInit {
     return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC';
   }
 
+  private readonly fallbackGradients = [
+    'linear-gradient(135deg, #f3d5c0, #e8c4b0)',
+    'linear-gradient(135deg, #d4b5d0, #c8a0c0)',
+    'linear-gradient(135deg, #b5d4c0, #a0c8b0)',
+    'linear-gradient(135deg, #c0d4f3, #b0c4e8)',
+  ];
+
+  protected fallbackGradient(index: number): string {
+    return this.fallbackGradients[index % this.fallbackGradients.length];
+  }
+
   protected onBook(care: PublicCareDto): void {
     this.openBookingDialog(care);
   }
