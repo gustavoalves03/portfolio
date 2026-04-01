@@ -245,6 +245,11 @@
         "closed": "Fermé"
       }
     },
+    "planning": {
+      "title": "Mon planning",
+      "openingHours": "Horaires d'ouverture",
+      "blockedSlots": "Créneaux bloqués"
+    },
     "availability": {
       "title": "Mes disponibilités",
       "closed": "Fermé",

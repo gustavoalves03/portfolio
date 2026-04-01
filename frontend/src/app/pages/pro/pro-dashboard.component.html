@@ -38,7 +38,7 @@
               <span matListItemTitle>{{ 'pro.dashboard.checklist.cares' | transloco }}</span>
               <mat-icon matListItemMeta>chevron_right</mat-icon>
             </a>
-            <a mat-list-item routerLink="/pro/availability">
+            <a mat-list-item routerLink="/pro/planning">
               <mat-icon matListItemIcon [class.done]="store.readiness()!.hasOpeningHours">
                 {{ store.readiness()!.hasOpeningHours ? 'check_circle' : 'radio_button_unchecked' }}
               </mat-icon>

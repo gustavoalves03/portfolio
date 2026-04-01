@@ -241,6 +241,11 @@
         "closed": "Closed"
       }
     },
+    "planning": {
+      "title": "My schedule",
+      "openingHours": "Opening hours",
+      "blockedSlots": "Blocked slots"
+    },
     "availability": {
       "title": "My availability",
       "closed": "Closed",

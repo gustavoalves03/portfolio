@@ -50,12 +50,8 @@ export const routes: Routes = [
       },
       { path: 'cares', component: CaresComponent },
       {
-        path: 'availability',
-        loadComponent: () => import('./features/availability/availability.component').then(m => m.AvailabilityComponent),
-      },
-      {
-        path: 'calendar',
-        loadComponent: () => import('./features/calendar/calendar.component').then(m => m.CalendarComponent),
+        path: 'planning',
+        loadComponent: () => import('./pages/pro/pro-planning.component').then(m => m.ProPlanningComponent),
       },
       { path: 'bookings', component: BookingsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
