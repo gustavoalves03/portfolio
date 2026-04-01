@@ -2,8 +2,8 @@ package com.prettyface.app.bookings.web.dto;
 
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record CareBookingResponse(
@@ -14,6 +14,6 @@ public record CareBookingResponse(
         LocalDate appointmentDate,
         LocalTime appointmentTime,
         CareBookingStatus status,
-        Instant createdAt
+        LocalDateTime createdAt
 ) {}
 

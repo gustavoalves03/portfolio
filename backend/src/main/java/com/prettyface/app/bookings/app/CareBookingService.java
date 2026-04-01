@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Service
@@ -62,8 +62,8 @@ public class CareBookingService {
     @Transactional(readOnly = true)
     public Page<CareBookingDetailedResponse> listDetailed(
             CareBookingStatus status,
-            Instant from,
-            Instant to,
+            LocalDateTime from,
+            LocalDateTime to,
             Long userId,
             Pageable pageable
     ) {

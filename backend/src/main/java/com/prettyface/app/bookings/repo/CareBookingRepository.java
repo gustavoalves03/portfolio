@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CareBookingRepository extends JpaRepository<CareBooking, Long> {
@@ -27,15 +27,15 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
     /**
      * Find bookings within a date range with pagination
      */
-    Page<CareBooking> findByCreatedAtBetween(Instant from, Instant to, Pageable pageable);
+    Page<CareBooking> findByCreatedAtBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     /**
      * Find bookings by status and date range with pagination
      */
     Page<CareBooking> findByStatusAndCreatedAtBetween(
         CareBookingStatus status,
-        Instant from,
-        Instant to,
+        LocalDateTime from,
+        LocalDateTime to,
         Pageable pageable
     );
 
@@ -60,8 +60,8 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
         """)
     Page<CareBooking> findByFilters(
         @Param("status") CareBookingStatus status,
-        @Param("from") Instant from,
-        @Param("to") Instant to,
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to,
         @Param("userId") Long userId,
         Pageable pageable
     );
