@@ -296,7 +296,10 @@
       "noHistory": "No processed requests",
       "reviewedAt": "Processed on",
       "approveSuccess": "Request approved",
-      "rejectSuccess": "Request rejected"
+      "rejectSuccess": "Request rejected",
+      "days": "days",
+      "day": "day",
+      "document": "Attached document"
     },
     "availability": {
       "title": "My availability",

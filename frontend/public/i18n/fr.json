@@ -300,7 +300,10 @@
       "noHistory": "Aucune demande traitée",
       "reviewedAt": "Traité le",
       "approveSuccess": "Demande approuvée",
-      "rejectSuccess": "Demande refusée"
+      "rejectSuccess": "Demande refusée",
+      "days": "jours",
+      "day": "jour",
+      "document": "Document joint"
     },
     "availability": {
       "title": "Mes disponibilités",

@@ -1,10 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LeavesStore } from './leaves.store';
 import { LeaveResponse, LeaveStatus, LeaveType } from './leaves.model';
@@ -17,14 +15,7 @@ import {
 @Component({
   selector: 'app-leaves',
   standalone: true,
-  imports: [
-    DatePipe,
-    TranslocoPipe,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-  ],
+  imports: [DatePipe, TranslocoPipe, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './leaves.component.html',
   styleUrl: './leaves.component.scss',
   providers: [LeavesStore],
@@ -33,15 +24,17 @@ export class LeavesComponent {
   readonly store = inject(LeavesStore);
   private readonly dialog = inject(MatDialog);
 
-  readonly historyTypeFilter = signal<LeaveType | undefined>(undefined);
-  readonly historyStatusFilter = signal<LeaveStatus | undefined>(undefined);
-  private historyLoaded = false;
+  readonly activeView = signal<'pending' | 'history'>('pending');
+  readonly typeFilter = signal<LeaveType | undefined>(undefined);
+  readonly statusFilter = signal<LeaveStatus | undefined>(undefined);
 
   readonly filteredHistory = computed(() => {
-    const leaves = this.store.historyLeaves();
-    const statusFilter = this.historyStatusFilter();
-    if (!statusFilter) return leaves;
-    return leaves.filter((l) => l.status === statusFilter);
+    let leaves = this.store.historyLeaves();
+    const status = this.statusFilter();
+    if (status) {
+      leaves = leaves.filter((l) => l.status === status);
+    }
+    return leaves;
   });
 
   getTypeKey(leave: LeaveResponse): string {
@@ -59,20 +52,27 @@ export class LeavesComponent {
     }
   }
 
-  onTabChange(index: number): void {
-    if (index === 1 && !this.historyLoaded) {
-      this.historyLoaded = true;
-      this.store.loadHistory(this.historyTypeFilter());
+  getDayCount(leave: LeaveResponse): number {
+    const start = new Date(leave.startDate);
+    const end = new Date(leave.endDate);
+    const diff = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(diff, 1);
+  }
+
+  switchView(view: 'pending' | 'history'): void {
+    this.activeView.set(view);
+    if (view === 'history') {
+      this.store.loadHistory(this.typeFilter());
     }
   }
 
   setTypeFilter(type: LeaveType | undefined): void {
-    this.historyTypeFilter.set(type);
+    this.typeFilter.set(type);
     this.store.loadHistory(type);
   }
 
   setStatusFilter(status: LeaveStatus | undefined): void {
-    this.historyStatusFilter.set(status);
+    this.statusFilter.set(status);
   }
 
   onApprove(leave: LeaveResponse): void {

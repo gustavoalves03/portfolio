@@ -1,183 +1,206 @@
 <section class="leaves-section">
-  <mat-tab-group (selectedIndexChange)="onTabChange($event)" animationDuration="200ms">
-    <!-- Tab 1: Pending requests -->
-    <mat-tab [label]="'pro.leaves.pendingTab' | transloco">
-      <div class="tab-content">
-        <!-- Loading -->
-        @if (store.isPending() && store.pendingLeaves().length === 0) {
-          <div class="flex justify-center py-12">
-            <mat-spinner diameter="40"></mat-spinner>
+  <!-- Segmented toggle -->
+  <div class="seg-toggle">
+    <button
+      class="seg-btn"
+      [class.active]="activeView() === 'pending'"
+      (click)="switchView('pending')"
+    >
+      {{ 'pro.leaves.pendingTab' | transloco }}
+      <span class="seg-count">{{ store.pendingLeaves().length }}</span>
+    </button>
+    <button
+      class="seg-btn"
+      [class.active]="activeView() === 'history'"
+      (click)="switchView('history')"
+    >
+      {{ 'pro.leaves.historyTab' | transloco }}
+    </button>
+  </div>
+
+  <!-- Filter row (history only) -->
+  @if (activeView() === 'history') {
+    <div class="filter-row">
+      <button
+        class="filter-chip"
+        [class.active]="typeFilter() === undefined"
+        (click)="setTypeFilter(undefined)"
+      >
+        {{ 'pro.leaves.filterAll' | transloco }}
+      </button>
+      <button
+        class="filter-chip"
+        [class.active]="typeFilter() === 'VACATION'"
+        (click)="setTypeFilter('VACATION')"
+      >
+        {{ 'pro.leaves.filterVacation' | transloco }}
+      </button>
+      <button
+        class="filter-chip"
+        [class.active]="typeFilter() === 'SICKNESS'"
+        (click)="setTypeFilter('SICKNESS')"
+      >
+        {{ 'pro.leaves.filterSickness' | transloco }}
+      </button>
+
+      <span class="filter-spacer"></span>
+
+      <button
+        class="filter-chip"
+        [class.active]="statusFilter() === undefined"
+        (click)="setStatusFilter(undefined)"
+      >
+        {{ 'pro.leaves.filterAll' | transloco }}
+      </button>
+      <button
+        class="filter-chip"
+        [class.active]="statusFilter() === 'APPROVED'"
+        (click)="setStatusFilter('APPROVED')"
+      >
+        {{ 'pro.leaves.filterApproved' | transloco }}
+      </button>
+      <button
+        class="filter-chip"
+        [class.active]="statusFilter() === 'REJECTED'"
+        (click)="setStatusFilter('REJECTED')"
+      >
+        {{ 'pro.leaves.filterRejected' | transloco }}
+      </button>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (store.isPending() && ((activeView() === 'pending' && store.pendingLeaves().length === 0) || (activeView() === 'history' && store.historyLeaves().length === 0))) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <!-- Pending view -->
+  @if (activeView() === 'pending') {
+    @if (store.pendingLeaves().length === 0 && !store.isPending()) {
+      <div class="empty-state">
+        <mat-icon>event_available</mat-icon>
+        <p>{{ 'pro.leaves.noLeaves' | transloco }}</p>
+      </div>
+    } @else {
+      <div class="leaves-list">
+        @for (leave of store.pendingLeaves(); track leave.id) {
+          <div class="leave-card is-pending">
+            <div class="card-top">
+              <div class="card-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="card-info">
+                <div class="card-name">{{ leave.employeeName }}</div>
+                <div class="card-dates">
+                  {{ leave.startDate | date: 'dd/MM/yyyy' }} — {{ leave.endDate | date: 'dd/MM/yyyy' }}
+                  · {{ getDayCount(leave) }}
+                  {{ getDayCount(leave) > 1 ? ('pro.leaves.days' | transloco) : ('pro.leaves.day' | transloco) }}
+                </div>
+              </div>
+              <div class="card-badges">
+                <span
+                  class="badge"
+                  [class.type-vacation]="leave.type === 'VACATION'"
+                  [class.type-sickness]="leave.type === 'SICKNESS'"
+                >
+                  {{ getTypeKey(leave) | transloco }}
+                </span>
+                <span class="badge status-pending">
+                  {{ 'pro.leaves.pending' | transloco }}
+                </span>
+              </div>
+            </div>
+
+            @if (leave.reason) {
+              <div class="card-reason">{{ leave.reason }}</div>
+            }
+
+            @if (leave.hasDocument) {
+              <div class="card-doc">{{ 'pro.leaves.document' | transloco }}</div>
+            }
+
+            <div class="card-actions">
+              <button class="approve-btn" (click)="onApprove(leave)">
+                {{ 'pro.leaves.approve' | transloco }}
+              </button>
+              <button class="reject-btn" (click)="onReject(leave)">
+                {{ 'pro.leaves.reject' | transloco }}
+              </button>
+            </div>
           </div>
         }
+      </div>
+    }
+  }
 
-        <!-- Error -->
-        @if (store.error()) {
-          <div class="error-banner">{{ store.error() }}</div>
-        }
+  <!-- History view -->
+  @if (activeView() === 'history') {
+    @if (filteredHistory().length === 0 && !store.isPending()) {
+      <div class="empty-state">
+        <mat-icon>history</mat-icon>
+        <p>{{ 'pro.leaves.noHistory' | transloco }}</p>
+      </div>
+    } @else {
+      <div class="leaves-list">
+        @for (leave of filteredHistory(); track leave.id) {
+          <div class="leave-card">
+            <div class="card-top">
+              <div class="card-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="card-info">
+                <div class="card-name">{{ leave.employeeName }}</div>
+                <div class="card-dates">
+                  {{ leave.startDate | date: 'dd/MM/yyyy' }} — {{ leave.endDate | date: 'dd/MM/yyyy' }}
+                  · {{ getDayCount(leave) }}
+                  {{ getDayCount(leave) > 1 ? ('pro.leaves.days' | transloco) : ('pro.leaves.day' | transloco) }}
+                </div>
+              </div>
+              <div class="card-badges">
+                <span
+                  class="badge"
+                  [class.type-vacation]="leave.type === 'VACATION'"
+                  [class.type-sickness]="leave.type === 'SICKNESS'"
+                >
+                  {{ getTypeKey(leave) | transloco }}
+                </span>
+                <span
+                  class="badge"
+                  [class.status-approved]="leave.status === 'APPROVED'"
+                  [class.status-rejected]="leave.status === 'REJECTED'"
+                >
+                  {{ getStatusKey(leave) | transloco }}
+                </span>
+              </div>
+            </div>
 
-        <!-- Empty state -->
-        @if (store.pendingLeaves().length === 0 && !store.isPending()) {
-          <div class="empty-state">
-            <mat-icon>event_available</mat-icon>
-            <p>{{ 'pro.leaves.noLeaves' | transloco }}</p>
-          </div>
-        } @else {
-          <div class="leaves-list">
-            @for (leave of store.pendingLeaves(); track leave.id) {
-              <div class="leave-card">
-                <div class="leave-info">
-                  <div class="leave-header">
-                    <span class="leave-employee">{{ leave.employeeName }}</span>
-                    <span
-                      class="leave-type"
-                      [class.vacation]="leave.type === 'VACATION'"
-                      [class.sickness]="leave.type === 'SICKNESS'"
-                    >
-                      {{ getTypeKey(leave) | transloco }}
-                    </span>
-                  </div>
-                  <div class="leave-dates">
-                    {{ leave.startDate | date: 'dd/MM/yyyy' }} —
-                    {{ leave.endDate | date: 'dd/MM/yyyy' }}
-                  </div>
-                  @if (leave.reason) {
-                    <div class="leave-reason">
-                      <span class="reason-label">{{ 'pro.leaves.reason' | transloco }}:</span>
-                      {{ leave.reason }}
-                    </div>
-                  }
-                </div>
-                <div class="leave-actions">
-                  <button mat-raised-button class="approve-btn" (click)="onApprove(leave)">
-                    {{ 'pro.leaves.approve' | transloco }}
-                  </button>
-                  <button mat-stroked-button class="reject-btn" (click)="onReject(leave)">
-                    {{ 'pro.leaves.reject' | transloco }}
-                  </button>
-                </div>
+            @if (leave.reason) {
+              <div class="card-reason">{{ leave.reason }}</div>
+            }
+
+            @if (leave.hasDocument) {
+              <div class="card-doc">{{ 'pro.leaves.document' | transloco }}</div>
+            }
+
+            @if (leave.reviewerNote) {
+              <div class="card-note">{{ leave.reviewerNote }}</div>
+            }
+
+            @if (leave.reviewedAt) {
+              <div class="card-reviewed">
+                {{ 'pro.leaves.reviewedAt' | transloco }} {{ leave.reviewedAt | date: 'dd/MM/yyyy' }}
               </div>
             }
           </div>
         }
       </div>
-    </mat-tab>
-
-    <!-- Tab 2: History -->
-    <mat-tab [label]="'pro.leaves.historyTab' | transloco">
-      <div class="tab-content">
-        <!-- Type filter chips -->
-        <div class="filter-row">
-          <div class="filter-chips">
-            <button
-              class="filter-chip"
-              [class.active]="historyTypeFilter() === undefined"
-              (click)="setTypeFilter(undefined)"
-            >
-              {{ 'pro.leaves.filterAll' | transloco }}
-            </button>
-            <button
-              class="filter-chip"
-              [class.active]="historyTypeFilter() === 'VACATION'"
-              (click)="setTypeFilter('VACATION')"
-            >
-              {{ 'pro.leaves.filterVacation' | transloco }}
-            </button>
-            <button
-              class="filter-chip"
-              [class.active]="historyTypeFilter() === 'SICKNESS'"
-              (click)="setTypeFilter('SICKNESS')"
-            >
-              {{ 'pro.leaves.filterSickness' | transloco }}
-            </button>
-          </div>
-          <div class="filter-chips">
-            <button
-              class="filter-chip"
-              [class.active]="historyStatusFilter() === undefined"
-              (click)="setStatusFilter(undefined)"
-            >
-              {{ 'pro.leaves.filterAll' | transloco }}
-            </button>
-            <button
-              class="filter-chip status-approved"
-              [class.active]="historyStatusFilter() === 'APPROVED'"
-              (click)="setStatusFilter('APPROVED')"
-            >
-              {{ 'pro.leaves.filterApproved' | transloco }}
-            </button>
-            <button
-              class="filter-chip status-rejected"
-              [class.active]="historyStatusFilter() === 'REJECTED'"
-              (click)="setStatusFilter('REJECTED')"
-            >
-              {{ 'pro.leaves.filterRejected' | transloco }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading -->
-        @if (store.isPending() && store.historyLeaves().length === 0) {
-          <div class="flex justify-center py-12">
-            <mat-spinner diameter="40"></mat-spinner>
-          </div>
-        }
-
-        <!-- Empty state -->
-        @if (filteredHistory().length === 0 && !store.isPending()) {
-          <div class="empty-state">
-            <mat-icon>history</mat-icon>
-            <p>{{ 'pro.leaves.noHistory' | transloco }}</p>
-          </div>
-        } @else {
-          <div class="leaves-list">
-            @for (leave of filteredHistory(); track leave.id) {
-              <div class="leave-card history-card">
-                <div class="leave-info">
-                  <div class="leave-header">
-                    <span class="leave-employee">{{ leave.employeeName }}</span>
-                    <span
-                      class="leave-type"
-                      [class.vacation]="leave.type === 'VACATION'"
-                      [class.sickness]="leave.type === 'SICKNESS'"
-                    >
-                      {{ getTypeKey(leave) | transloco }}
-                    </span>
-                    <span
-                      class="status-badge"
-                      [class.approved]="leave.status === 'APPROVED'"
-                      [class.rejected]="leave.status === 'REJECTED'"
-                    >
-                      {{ getStatusKey(leave) | transloco }}
-                    </span>
-                  </div>
-                  <div class="leave-dates">
-                    {{ leave.startDate | date: 'dd/MM/yyyy' }} —
-                    {{ leave.endDate | date: 'dd/MM/yyyy' }}
-                  </div>
-                  @if (leave.reason) {
-                    <div class="leave-reason">
-                      <span class="reason-label">{{ 'pro.leaves.reason' | transloco }}:</span>
-                      {{ leave.reason }}
-                    </div>
-                  }
-                  @if (leave.reviewerNote) {
-                    <div class="reviewer-note">
-                      <span class="reason-label">{{ 'pro.leaves.reviewerNote' | transloco }}:</span>
-                      {{ leave.reviewerNote }}
-                    </div>
-                  }
-                  @if (leave.reviewedAt) {
-                    <div class="reviewed-at">
-                      {{ 'pro.leaves.reviewedAt' | transloco }}
-                      {{ leave.reviewedAt | date: 'dd/MM/yyyy' }}
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </mat-tab>
-  </mat-tab-group>
+    }
+  }
 </section>

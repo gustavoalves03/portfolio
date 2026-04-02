@@ -2,10 +2,90 @@
   padding: 0.5rem 0;
 }
 
-.tab-content {
-  padding: 16px 0;
+// ── Segmented toggle ──
+.seg-toggle {
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 3px;
+  margin-bottom: 16px;
+  width: fit-content;
 }
 
+.seg-btn {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 10px;
+  font-family: Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #888;
+  background: transparent;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &.active {
+    background: #fff;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.seg-count {
+  background: #c06;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+
+  .seg-btn:not(.active) & {
+    background: #ccc;
+  }
+}
+
+// ── Filter row ──
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-spacer {
+  width: 16px;
+}
+
+.filter-chip {
+  padding: 5px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  background: #fff;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    border-color: #c06;
+    color: #c06;
+  }
+
+  &.active {
+    background: #c06;
+    color: #fff;
+    border-color: #c06;
+  }
+}
+
+// ── Error banner ──
 .error-banner {
   margin: 16px 0;
   padding: 12px 16px;
@@ -15,6 +95,7 @@
   font-weight: 500;
 }
 
+// ── Empty state ──
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -35,184 +116,178 @@
   }
 }
 
-// Filter row
-.filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.filter-chips {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 14px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  background: white;
-  color: #666;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 150ms ease;
-
-  &:hover {
-    border-color: #cc0066;
-    color: #cc0066;
-  }
-
-  &.active {
-    background: #cc0066;
-    border-color: #cc0066;
-    color: white;
-  }
-
-  &.status-approved.active {
-    background: #2e7d32;
-    border-color: #2e7d32;
-  }
-
-  &.status-rejected.active {
-    background: #999;
-    border-color: #999;
-  }
-}
-
-// Cards
+// ── Card list ──
 .leaves-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .leave-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
+  background: #fff;
   border-radius: 14px;
-  background: white;
+  padding: 16px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 150ms ease;
 
-  @media (max-width: 480px) {
-    flex-direction: column;
-    align-items: stretch;
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  &.is-pending {
+    border-left: 3px solid #f57f17;
   }
 }
 
-.history-card {
-  // History cards don't have action buttons, so no special flex needed
-  display: block;
+// ── Card top row ──
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.leave-info {
+.card-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #999;
+  }
+}
+
+.card-info {
   flex: 1;
   min-width: 0;
 }
 
-.leave-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  flex-wrap: wrap;
-}
-
-.leave-employee {
+.card-name {
   font-size: 14px;
   font-weight: 600;
   color: #333;
 }
 
-.leave-type {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 10px;
-
-  &.vacation {
-    background-color: #e3f2fd;
-    color: #1565c0;
-  }
-
-  &.sickness {
-    background-color: #fff3e0;
-    color: #e65100;
-  }
-}
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 2px 8px;
-  border-radius: 10px;
-
-  &.approved {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-  }
-
-  &.rejected {
-    background-color: #fafafa;
-    color: #999;
-  }
-}
-
-.leave-dates {
+.card-dates {
   font-size: 12px;
   color: #888;
+  margin-top: 2px;
 }
 
-.leave-reason {
+.card-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+// ── Badges ──
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.type-vacation {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.type-sickness {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-pending {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.status-approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-rejected {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+// ── Card body sections ──
+.card-reason {
   font-size: 12px;
   color: #666;
-  margin-top: 4px;
+  margin-top: 10px;
 }
 
-.reviewer-note {
+.card-doc {
+  font-size: 12px;
+  color: #888;
+  margin-top: 6px;
+}
+
+.card-note {
   font-size: 12px;
   color: #555;
-  margin-top: 4px;
   font-style: italic;
+  margin-top: 6px;
 }
 
-.reviewed-at {
+.card-reviewed {
   font-size: 11px;
   color: #aaa;
   margin-top: 6px;
 }
 
-.reason-label {
-  font-weight: 500;
-  color: #555;
-}
-
-.leave-actions {
+// ── Action buttons ──
+.card-actions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
-
-  @media (max-width: 480px) {
-    justify-content: flex-end;
-  }
+  margin-top: 12px;
 }
 
 .approve-btn {
-  border-radius: 10px !important;
-  font-size: 13px !important;
-  background: linear-gradient(135deg, #cc0066, #e91e90) !important;
-  color: white !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #a8385d, #c06);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
 
 .reject-btn {
-  border-radius: 10px !important;
-  font-size: 13px !important;
-  color: #999 !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  color: #999;
+  border: 1px solid #ddd;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    border-color: #999;
+    color: #666;
+  }
 }
