@@ -365,12 +365,37 @@
     "backHome": "Retour à l'accueil"
   },
   "salon": {
+    "caresTab": "Soins",
+    "postsTab": "Posts",
     "public": {
       "noCares": "Aucun soin disponible pour le moment",
       "notFound": "Salon introuvable",
       "duration": "Durée",
       "price": "Prix"
     }
+  },
+  "posts": {
+    "share": "Partager",
+    "book": "Réserver",
+    "empty": "Aucun post pour le moment",
+    "publish": "Publier un post",
+    "createTitle": "Nouveau post",
+    "typeBeforeAfter": "Avant / Après",
+    "typePhoto": "Photo",
+    "typeCarousel": "Carrousel",
+    "uploadBefore": "Photo AVANT",
+    "uploadAfter": "Photo APRÈS",
+    "uploadPhoto": "Ajouter une photo",
+    "uploadMore": "Ajouter une photo",
+    "caption": "Description",
+    "captionPlaceholder": "Décrivez le résultat...",
+    "selectCare": "Soin associé",
+    "noCare": "Aucun",
+    "publishBtn": "Publier",
+    "deleteConfirm": "Supprimer ce post ?",
+    "shareSuccess": "Lien copié !",
+    "before": "Avant",
+    "after": "Après"
   },
   "clientBookings": {
     "title": "Mes rendez-vous",

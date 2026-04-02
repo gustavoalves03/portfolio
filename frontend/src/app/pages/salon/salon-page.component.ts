@@ -3,16 +3,25 @@ import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../features/salon-profile/services/salon-profile.service';
 import { PublicSalonResponse, PublicCareDto } from '../../features/salon-profile/models/salon-profile.model';
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog/booking-dialog.component';
+import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
 
 @Component({
   selector: 'app-salon-page',
   standalone: true,
-  imports: [MatExpansionModule, MatProgressSpinnerModule, MatButtonModule, TranslocoPipe],
+  imports: [
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslocoPipe,
+    SalonPostsViewerComponent,
+  ],
   templateUrl: './salon-page.component.html',
   styleUrl: './salon-page.component.scss',
 })
@@ -24,6 +33,7 @@ export class SalonPageComponent implements OnInit {
   protected salon = signal<PublicSalonResponse | null>(null);
   protected loading = signal(true);
   protected notFound = signal(false);
+  protected readonly activeTab = signal<'cares' | 'posts'>('cares');
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug');
@@ -69,6 +79,22 @@ export class SalonPageComponent implements OnInit {
 
   protected onBook(care: PublicCareDto): void {
     this.openBookingDialog(care);
+  }
+
+  protected onBookFromPost(careId: number): void {
+    const salon = this.salon();
+    if (!salon) return;
+    for (const cat of salon.categories) {
+      const care = cat.cares.find((c) => c.id === careId);
+      if (care) {
+        this.openBookingDialog(care);
+        return;
+      }
+    }
+  }
+
+  protected get slug(): string {
+    return this.route.snapshot.paramMap.get('slug') ?? '';
   }
 
   private openBookingDialog(care: PublicCareDto): void {

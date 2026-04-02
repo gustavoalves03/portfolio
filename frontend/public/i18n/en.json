@@ -361,12 +361,37 @@
     "backHome": "Back to home"
   },
   "salon": {
+    "caresTab": "Services",
+    "postsTab": "Posts",
     "public": {
       "noCares": "No services available at this time",
       "notFound": "Salon not found",
       "duration": "Duration",
       "price": "Price"
     }
+  },
+  "posts": {
+    "share": "Share",
+    "book": "Book",
+    "empty": "No posts yet",
+    "publish": "Publish a post",
+    "createTitle": "New post",
+    "typeBeforeAfter": "Before / After",
+    "typePhoto": "Photo",
+    "typeCarousel": "Carousel",
+    "uploadBefore": "BEFORE photo",
+    "uploadAfter": "AFTER photo",
+    "uploadPhoto": "Add a photo",
+    "uploadMore": "Add a photo",
+    "caption": "Description",
+    "captionPlaceholder": "Describe the result...",
+    "selectCare": "Related service",
+    "noCare": "None",
+    "publishBtn": "Publish",
+    "deleteConfirm": "Delete this post?",
+    "shareSuccess": "Link copied!",
+    "before": "Before",
+    "after": "After"
   },
   "clientBookings": {
     "title": "My Appointments",

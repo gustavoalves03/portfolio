@@ -32,53 +32,69 @@
         </div>
       </section>
 
-      <!-- Cares by Category (Accordion) -->
-      @if (salon.categories.length > 0) {
-        <section class="cares-section mt-6">
-          <mat-accordion multi>
-            @for (category of salon.categories; track category.name) {
-              <mat-expansion-panel [expanded]="true">
-                <mat-expansion-panel-header>
-                  <mat-panel-title class="font-medium">
-                    {{ category.name }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
+      <!-- Section toggle -->
+      <div class="section-toggle">
+        <button class="toggle-btn" [class.active]="activeTab() === 'cares'" (click)="activeTab.set('cares')">
+          <mat-icon>spa</mat-icon> {{ 'salon.caresTab' | transloco }}
+        </button>
+        <button class="toggle-btn" [class.active]="activeTab() === 'posts'" (click)="activeTab.set('posts')">
+          <mat-icon>photo_library</mat-icon> {{ 'salon.postsTab' | transloco }}
+        </button>
+      </div>
 
-                <div class="care-list">
-                  @for (care of category.cares; track care.name) {
-                    <div class="care-card">
-                      <div class="care-image-wrapper"
-                           [style.background]="care.imageUrls.length > 0 ? 'none' : fallbackGradient($index)">
-                        @if (care.imageUrls.length > 0) {
-                          <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-image" />
-                        }
-                      </div>
-                      <div class="care-content">
-                        <div class="care-name">{{ care.name }}</div>
-                        @if (care.description) {
-                          <div class="care-description">{{ care.description }}</div>
-                        }
-                        <div class="care-bottom">
-                          <div class="care-meta">
-                            <span class="care-duration">{{ formatDuration(care.duration) }}</span>
-                            <span class="care-separator">·</span>
-                            <span class="care-price">{{ formatPrice(care.price) }}</span>
+      @if (activeTab() === 'cares') {
+        <!-- Cares by Category (Accordion) -->
+        @if (salon.categories.length > 0) {
+          <section class="cares-section mt-6">
+            <mat-accordion multi>
+              @for (category of salon.categories; track category.name) {
+                <mat-expansion-panel [expanded]="true">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title class="font-medium">
+                      {{ category.name }}
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+
+                  <div class="care-list">
+                    @for (care of category.cares; track care.name) {
+                      <div class="care-card">
+                        <div class="care-image-wrapper"
+                             [style.background]="care.imageUrls.length > 0 ? 'none' : fallbackGradient($index)">
+                          @if (care.imageUrls.length > 0) {
+                            <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-image" />
+                          }
+                        </div>
+                        <div class="care-content">
+                          <div class="care-name">{{ care.name }}</div>
+                          @if (care.description) {
+                            <div class="care-description">{{ care.description }}</div>
+                          }
+                          <div class="care-bottom">
+                            <div class="care-meta">
+                              <span class="care-duration">{{ formatDuration(care.duration) }}</span>
+                              <span class="care-separator">·</span>
+                              <span class="care-price">{{ formatPrice(care.price) }}</span>
+                            </div>
+                            <button mat-flat-button class="book-btn" (click)="onBook(care)">
+                              {{ 'booking.book' | transloco }}
+                            </button>
                           </div>
-                          <button mat-flat-button class="book-btn" (click)="onBook(care)">
-                            {{ 'booking.book' | transloco }}
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  }
-                </div>
-              </mat-expansion-panel>
-            }
-          </mat-accordion>
-        </section>
+                    }
+                  </div>
+                </mat-expansion-panel>
+              }
+            </mat-accordion>
+          </section>
+        } @else {
+          <div class="text-center py-12 text-neutral-500">
+            {{ 'salon.public.noCares' | transloco }}
+          </div>
+        }
       } @else {
-        <div class="text-center py-12 text-neutral-500">
-          {{ 'salon.public.noCares' | transloco }}
+        <div class="posts-tab-content">
+          <app-salon-posts-viewer [slug]="slug" (bookCare)="onBookFromPost($event)" />
         </div>
       }
     </div>
