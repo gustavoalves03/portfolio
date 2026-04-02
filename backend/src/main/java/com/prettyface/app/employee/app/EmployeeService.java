@@ -8,11 +8,14 @@ import com.prettyface.app.employee.web.dto.CreateEmployeeRequest;
 import com.prettyface.app.employee.web.dto.EmployeeResponse;
 import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.employee.web.dto.UpdateEmployeeRequest;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +26,24 @@ import java.util.List;
 @Service
 public class EmployeeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
     private final CareRepository careRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
 
     public EmployeeService(EmployeeRepository employeeRepository,
                            UserRepository userRepository,
                            CareRepository careRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           ApplicationSchemaExecutor applicationSchemaExecutor) {
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
         this.passwordEncoder = passwordEncoder;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
     }
 
     // -----------------------------------------------------------------------
@@ -69,21 +77,27 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeResponse create(CreateEmployeeRequest req) {
-        if (userRepository.existsByEmail(req.email())) {
+        String tenantSlug = TenantContext.getCurrentTenant();
+        if (tenantSlug == null || tenantSlug.isBlank()) {
+            throw new IllegalStateException("Tenant context is required to create an employee");
+        }
+
+        if (Boolean.TRUE.equals(applicationSchemaExecutor.call(() -> userRepository.existsByEmail(req.email())))) {
             throw new IllegalArgumentException("Email already in use: " + req.email());
         }
 
-        User user = User.builder()
-                .name(req.name())
-                .email(req.email())
-                .password(passwordEncoder.encode(req.password()))
-                .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
-                .emailVerified(false)
-                .build();
-        User savedUser = userRepository.save(user);
-        savedUser.setTenantSlug(TenantContext.getCurrentTenant());
-        savedUser = userRepository.save(savedUser);
+        User savedUser = applicationSchemaExecutor.call(() -> userRepository.save(
+                User.builder()
+                        .name(req.name())
+                        .email(req.email())
+                        .password(passwordEncoder.encode(req.password()))
+                        .provider(AuthProvider.LOCAL)
+                        .role(Role.EMPLOYEE)
+                        .emailVerified(false)
+                        .consentGivenAt(java.time.LocalDateTime.now())
+                        .tenantSlug(tenantSlug)
+                        .build()
+        ));
 
         Employee employee = new Employee();
         employee.setUserId(savedUser.getId());
@@ -97,8 +111,13 @@ public class EmployeeService {
             employee.setAssignedCares(new HashSet<>(cares));
         }
 
-        Employee saved = employeeRepository.save(employee);
-        return toResponse(saved);
+        try {
+            Employee saved = employeeRepository.save(employee);
+            return toResponse(saved);
+        } catch (RuntimeException ex) {
+            rollbackSharedUser(savedUser.getId(), ex);
+            throw ex;
+        }
     }
 
     @Transactional
@@ -149,5 +168,14 @@ public class EmployeeService {
                 careRefs,
                 e.getCreatedAt()
         );
+    }
+
+    private void rollbackSharedUser(Long userId, RuntimeException originalException) {
+        try {
+            applicationSchemaExecutor.run(() -> userRepository.deleteById(userId));
+        } catch (RuntimeException cleanupException) {
+            logger.error("Failed to clean up shared user {} after employee creation failure", userId, cleanupException);
+            originalException.addSuppressed(cleanupException);
+        }
     }
 }
