@@ -26,9 +26,9 @@
 
       <!-- Center: salon name (PRO) or Pretty Face (public) -->
       <div class="justify-self-center">
-        @if (isPro() && salonName()) {
-          <a [routerLink]="salonSlug() ? ['/salon', salonSlug()] : ['/pro/dashboard']" class="salon-brand">
-            {{ salonName() }}
+        @if (headerBrand(); as brand) {
+          <a [routerLink]="brand.isPro ? ['/salon', brand.slug] : ['/salon', brand.slug]" class="salon-brand">
+            {{ brand.name }}
           </a>
         } @else {
           <a routerLink="/" class="select-none text-neutral-900 tracking-[0.25em] uppercase text-sm md:text-base font-medium">

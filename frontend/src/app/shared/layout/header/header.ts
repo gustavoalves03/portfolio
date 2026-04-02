@@ -1,5 +1,6 @@
 import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, NavigationEnd, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -33,8 +34,26 @@ export class Header {
   protected readonly salonName = signal('');
   protected readonly salonSlug = signal('');
   private readonly salonService = inject(SalonProfileService);
+  private readonly router = inject(Router);
+
+  // Salon name shown when visiting /salon/:slug as a client
+  protected readonly visitingSalonName = signal('');
+  protected readonly visitingSalonSlug = signal('');
+
+  protected readonly headerBrand = computed(() => {
+    // PRO/EMPLOYEE/ADMIN: show their own salon name
+    if (this.isPro() && this.salonName()) {
+      return { name: this.salonName(), slug: this.salonSlug(), isPro: true };
+    }
+    // Client visiting a salon page: show that salon's name
+    if (this.visitingSalonName()) {
+      return { name: this.visitingSalonName(), slug: this.visitingSalonSlug(), isPro: false };
+    }
+    return null;
+  });
 
   constructor() {
+    // Load PRO salon info
     effect(() => {
       if (this.isPro() && this.authService.isAuthenticated()) {
         this.salonService.getProfile().subscribe({
@@ -50,6 +69,24 @@ export class Header {
       } else {
         this.salonName.set('');
         this.salonSlug.set('');
+      }
+    });
+
+    // Detect /salon/:slug route to show visiting salon name
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((e) => {
+      const match = e.urlAfterRedirects.match(/^\/salon\/([^/?]+)/);
+      if (match) {
+        const slug = match[1];
+        this.visitingSalonSlug.set(slug);
+        this.salonService.getPublicSalon(slug).subscribe({
+          next: (salon) => this.visitingSalonName.set(salon.name),
+          error: () => this.visitingSalonName.set(''),
+        });
+      } else {
+        this.visitingSalonName.set('');
+        this.visitingSalonSlug.set('');
       }
     });
   }
