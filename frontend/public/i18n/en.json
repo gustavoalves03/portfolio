@@ -305,7 +305,11 @@
       "title": "Settings",
       "features": "Features",
       "employeesLabel": "Employee management",
-      "employeesDesc": "Enable to manage your team, leaves, and documents"
+      "employeesDesc": "Enable to manage your team, leaves, and documents",
+      "leaveSection": "Leave policy",
+      "annualLeaveDaysLabel": "Annual leave days",
+      "annualLeaveDaysDesc": "Number of leave days per year for each employee",
+      "daysUnit": "days"
     },
     "availability": {
       "title": "My availability",
@@ -469,7 +473,9 @@
       "currentTab": "Current",
       "historyTab": "History",
       "noCurrentLeaves": "No current requests",
-      "noHistoryLeaves": "No history"
+      "noHistoryLeaves": "No history",
+      "balance": "Leave balance",
+      "daysRemaining": "days remaining this year"
     },
     "documents": {
       "title": "My documents",

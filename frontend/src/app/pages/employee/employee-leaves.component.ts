@@ -1,5 +1,4 @@
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { EmployeeLeaveService } from '../../features/employee-leaves/employee-leave.service';
+import { EmployeeMeService } from '../../features/employee-profile/employee-me.service';
 import { LeaveResponse, LeaveStatus } from '../../features/leaves/leaves.model';
 
 interface CalDay {
@@ -23,7 +23,6 @@ interface CalDay {
     selector: 'app-employee-leaves',
     standalone: true,
     imports: [
-        FormsModule,
         MatCardModule,
         MatFormFieldModule,
         MatInputModule,
@@ -45,8 +44,8 @@ interface CalDay {
                             <button
                                 type="button"
                                 class="type-chip"
-                                [class.selected]="leaveType === 'VACATION'"
-                                (click)="leaveType = 'VACATION'"
+                                [class.selected]="leaveType() === 'VACATION'"
+                                (click)="leaveType.set('VACATION')"
                             >
                                 <mat-icon>beach_access</mat-icon>
                                 {{ 'employee.leaves.vacation' | transloco }}
@@ -54,8 +53,8 @@ interface CalDay {
                             <button
                                 type="button"
                                 class="type-chip"
-                                [class.selected]="leaveType === 'SICKNESS'"
-                                (click)="leaveType = 'SICKNESS'"
+                                [class.selected]="leaveType() === 'SICKNESS'"
+                                (click)="leaveType.set('SICKNESS')"
                             >
                                 <mat-icon>local_hospital</mat-icon>
                                 {{ 'employee.leaves.sickness' | transloco }}
@@ -63,7 +62,7 @@ interface CalDay {
                         </div>
 
                         <!-- Document upload for sickness -->
-                        @if (leaveType === 'SICKNESS') {
+                        @if (leaveType() === 'SICKNESS') {
                             <div class="doc-section">
                                 <div class="doc-label">
                                     <mat-icon>description</mat-icon>
@@ -160,8 +159,8 @@ interface CalDay {
                         <!-- Reason textarea -->
                         <textarea
                             class="reason-area"
-                            [(ngModel)]="reason"
-                            name="reason"
+                            [value]="reason()"
+                            (input)="reason.set($any($event.target).value)"
                             rows="2"
                             [placeholder]="'employee.leaves.reason' | transloco"
                         ></textarea>
@@ -173,7 +172,7 @@ interface CalDay {
                                 type="submit"
                                 class="submit-btn"
                                 [disabled]="
-                                    submitting() || !leaveType || !startDate || !endDate
+                                    submitting() || !leaveType() || !startDate() || !endDate()
                                 "
                             >
                                 @if (submitting()) {
@@ -188,6 +187,17 @@ interface CalDay {
 
                 <!-- RIGHT: Leave list -->
                 <div class="list-col">
+                    <!-- Leave balance card -->
+                    <div class="balance-card">
+                        <div class="balance-label">{{ 'employee.leaves.balance' | transloco }}</div>
+                        <div class="balance-numbers">
+                            <span class="balance-remaining">{{ annualLeaveDays() - daysUsedThisYear() }}</span>
+                            <span class="balance-sep">/</span>
+                            <span class="balance-total">{{ annualLeaveDays() }}</span>
+                        </div>
+                        <div class="balance-sub">{{ 'employee.leaves.daysRemaining' | transloco }}</div>
+                    </div>
+
                     <!-- Segmented toggle -->
                     <div class="seg-toggle">
                         <button
@@ -625,6 +635,49 @@ interface CalDay {
                 font-size: 13px;
             }
 
+            /* ── Leave balance card ── */
+            .balance-card {
+                background: linear-gradient(135deg, #a8385d, #c06);
+                border-radius: 12px;
+                padding: 14px 16px;
+                color: #fff;
+                margin-bottom: 12px;
+            }
+
+            .balance-label {
+                font-size: 11px;
+                opacity: 0.8;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .balance-numbers {
+                display: flex;
+                align-items: baseline;
+                gap: 2px;
+                margin: 4px 0;
+            }
+
+            .balance-remaining {
+                font-size: 28px;
+                font-weight: 700;
+            }
+
+            .balance-sep {
+                font-size: 16px;
+                opacity: 0.5;
+            }
+
+            .balance-total {
+                font-size: 16px;
+                opacity: 0.7;
+            }
+
+            .balance-sub {
+                font-size: 11px;
+                opacity: 0.7;
+            }
+
             /* ── Segmented toggle ── */
             .seg-toggle {
                 display: flex;
@@ -798,6 +851,7 @@ interface CalDay {
 })
 export class EmployeeLeavesComponent implements OnInit {
     private leaveService = inject(EmployeeLeaveService);
+    private employeeMeService = inject(EmployeeMeService);
     private snackBar = inject(MatSnackBar);
     private transloco = inject(TranslocoService);
 
@@ -828,10 +882,24 @@ export class EmployeeLeavesComponent implements OnInit {
 
     readonly pendingCount = computed(() => this.currentLeaves().length);
 
-    leaveType = '';
-    startDate = '';
-    endDate = '';
-    reason = '';
+    readonly leaveType = signal('');
+    readonly startDate = signal('');
+    readonly endDate = signal('');
+    readonly reason = signal('');
+    readonly annualLeaveDays = signal(25);
+
+    readonly daysUsedThisYear = computed(() => {
+        const currentYear = new Date().getFullYear();
+        return this.leaves()
+            .filter(l => l.type === 'VACATION' && l.status === 'APPROVED')
+            .filter(l => new Date(l.startDate).getFullYear() === currentYear)
+            .reduce((total, l) => {
+                const start = new Date(l.startDate);
+                const end = new Date(l.endDate);
+                const days = Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+                return total + days;
+            }, 0);
+    });
 
     readonly monthLabel = computed(() => {
         const d = this.calendarMonth();
@@ -888,6 +956,9 @@ export class EmployeeLeavesComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadLeaves();
+        this.employeeMeService.getSettings().subscribe({
+            next: (s) => this.annualLeaveDays.set(s.annualLeaveDays ?? 25),
+        });
     }
 
     onDayClick(day: CalDay): void {
@@ -909,10 +980,10 @@ export class EmployeeLeavesComponent implements OnInit {
             }
         }
         // Update the string fields for form submission
-        this.startDate = this.formatDate(this.rangeStart()!);
-        this.endDate = this.rangeEnd()
+        this.startDate.set(this.formatDate(this.rangeStart()!));
+        this.endDate.set(this.rangeEnd()
             ? this.formatDate(this.rangeEnd()!)
-            : this.startDate;
+            : this.startDate());
     }
 
     isInRange(day: CalDay): boolean {
@@ -965,25 +1036,25 @@ export class EmployeeLeavesComponent implements OnInit {
     }
 
     onSubmit(): void {
-        if (!this.leaveType || !this.startDate || !this.endDate) return;
+        if (!this.leaveType() || !this.startDate() || !this.endDate()) return;
 
         this.submitting.set(true);
         const dto: { type: string; startDate: string; endDate: string; reason?: string } = {
-            type: this.leaveType,
-            startDate: this.startDate,
-            endDate: this.endDate,
+            type: this.leaveType(),
+            startDate: this.startDate(),
+            endDate: this.endDate(),
         };
-        if (this.reason) {
-            dto.reason = this.reason;
+        if (this.reason()) {
+            dto.reason = this.reason();
         }
 
         this.leaveService.createLeave(dto).subscribe({
             next: () => {
                 this.submitting.set(false);
-                this.leaveType = '';
-                this.startDate = '';
-                this.endDate = '';
-                this.reason = '';
+                this.leaveType.set('');
+                this.startDate.set('');
+                this.endDate.set('');
+                this.reason.set('');
                 this.rangeStart.set(null);
                 this.rangeEnd.set(null);
                 this.selectedFile.set(null);

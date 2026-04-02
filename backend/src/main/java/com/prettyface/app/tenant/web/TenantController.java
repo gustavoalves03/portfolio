@@ -12,9 +12,11 @@ import com.prettyface.app.tenant.web.dto.TenantReadinessResponse;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -87,6 +89,21 @@ public class TenantController {
         tenant.setStatus(TenantStatus.DRAFT);
         tenantRepository.save(tenant);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/settings/annual-leave-days")
+    public Map<String, Integer> setAnnualLeaveDays(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody Map<String, Integer> body) {
+        Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        Integer days = body.get("days");
+        if (days == null || days < 0 || days > 365) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid number of days");
+        }
+        tenant.setAnnualLeaveDays(days);
+        tenantRepository.save(tenant);
+        return Map.of("annualLeaveDays", days);
     }
 
     @PutMapping("/settings/employees")

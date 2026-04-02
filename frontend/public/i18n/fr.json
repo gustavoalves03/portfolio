@@ -309,7 +309,11 @@
       "title": "Paramètres",
       "features": "Fonctionnalités",
       "employeesLabel": "Gestion des employés",
-      "employeesDesc": "Activez pour gérer votre équipe, les congés et les documents"
+      "employeesDesc": "Activez pour gérer votre équipe, les congés et les documents",
+      "leaveSection": "Congés",
+      "annualLeaveDaysLabel": "Jours de congés annuels",
+      "annualLeaveDaysDesc": "Nombre de jours de congés par an pour chaque employé",
+      "daysUnit": "jours"
     },
     "availability": {
       "title": "Mes disponibilités",
@@ -473,7 +477,9 @@
       "currentTab": "En cours",
       "historyTab": "Historique",
       "noCurrentLeaves": "Aucune demande en cours",
-      "noHistoryLeaves": "Aucun historique"
+      "noHistoryLeaves": "Aucun historique",
+      "balance": "Solde congés",
+      "daysRemaining": "jours restants cette année"
     },
     "documents": {
       "title": "Mes documents",

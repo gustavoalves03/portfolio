@@ -8,5 +8,6 @@ public record TenantReadinessResponse(
     boolean hasOpeningHours,
     boolean canPublish,
     String status,
-    boolean employeesEnabled
+    boolean employeesEnabled,
+    int annualLeaveDays
 ) {}

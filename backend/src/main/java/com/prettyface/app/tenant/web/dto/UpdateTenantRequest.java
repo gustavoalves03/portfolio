@@ -14,5 +14,6 @@ public record UpdateTenantRequest(
         @Size(max = 20) String phone,
         @Size(max = 255) String contactEmail,
         @Size(max = 14) String siret,
-        Boolean employeesEnabled
+        Boolean employeesEnabled,
+        Integer annualLeaveDays
 ) {}

@@ -36,7 +36,8 @@ public class TenantMapper {
                 tenant.getContactEmail(),
                 tenant.getSiret(),
                 tenant.getUpdatedAt(),
-                tenant.getEmployeesEnabled()
+                tenant.getEmployeesEnabled(),
+                tenant.getAnnualLeaveDays()
         );
     }
 

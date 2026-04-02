@@ -96,6 +96,9 @@ public class TenantService {
         if (request.employeesEnabled() != null) {
             tenant.setEmployeesEnabled(request.employeesEnabled());
         }
+        if (request.annualLeaveDays() != null) {
+            tenant.setAnnualLeaveDays(request.annualLeaveDays());
+        }
 
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);

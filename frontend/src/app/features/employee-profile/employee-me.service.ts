@@ -12,4 +12,8 @@ export class EmployeeMeService {
     getProfile(): Observable<Employee> {
         return this.http.get<Employee>(`${this.apiBaseUrl}/api/employee/me`);
     }
+
+    getSettings(): Observable<{ annualLeaveDays: number }> {
+        return this.http.get<{ annualLeaveDays: number }>(`${this.apiBaseUrl}/api/employee/me/settings`);
+    }
 }

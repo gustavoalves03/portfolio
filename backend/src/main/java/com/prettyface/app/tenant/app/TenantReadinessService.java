@@ -28,11 +28,14 @@ public class TenantReadinessService {
         boolean hasOpeningHours = openingHourRepository.count() > 0;
         boolean canPublish = name && hasActiveCare && hasOpeningHours;
 
+        int annualLeaveDays = tenant.getAnnualLeaveDays() != null ? tenant.getAnnualLeaveDays() : 25;
+
         return new TenantReadinessResponse(
             tenant.getSlug(),
             name, true, hasActiveCare, hasOpeningHours,
             canPublish, tenant.getStatus().name(),
-            Boolean.TRUE.equals(tenant.getEmployeesEnabled())
+            Boolean.TRUE.equals(tenant.getEmployeesEnabled()),
+            annualLeaveDays
         );
     }
 

@@ -75,6 +75,10 @@ public class Tenant {
     @Column(name = "employees_enabled")
     private Boolean employeesEnabled = false;
 
+    @Builder.Default
+    @Column(name = "annual_leave_days")
+    private Integer annualLeaveDays = 25;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
