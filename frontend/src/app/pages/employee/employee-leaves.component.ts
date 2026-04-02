@@ -36,17 +36,12 @@ interface CalDay {
         <div class="leaves-page">
             <h1 class="page-title">{{ 'employee.leaves.title' | transloco }}</h1>
 
-            <!-- Create leave request form -->
-            <mat-card class="form-card">
-                <mat-card-header>
-                    <mat-card-title class="form-title">
-                        {{ 'employee.leaves.createTitle' | transloco }}
-                    </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
+            <div class="leaves-layout">
+                <!-- LEFT: Form -->
+                <div class="form-col">
                     <form class="leave-form" (ngSubmit)="onSubmit()">
-                        <!-- Type selector chips -->
-                        <div class="type-selector">
+                        <!-- Type chips -->
+                        <div class="type-chips">
                             <button
                                 type="button"
                                 class="type-chip"
@@ -98,85 +93,80 @@ interface CalDay {
                             </div>
                         }
 
-                        <!-- Inline calendar range picker -->
-                        <div class="cal-section">
-                            <div class="cal-label">
-                                {{ 'employee.leaves.period' | transloco }}
+                        <!-- Date summary bar -->
+                        @if (datesSummary()) {
+                            <div class="date-bar">
+                                <mat-icon>calendar_today</mat-icon>
+                                <span class="date-value">
+                                    {{ formatDisplayDate(datesSummary()!.start) }}
+                                </span>
+                                <span class="arrow">→</span>
+                                <span class="date-value">
+                                    {{ formatDisplayDate(datesSummary()!.end) }}
+                                </span>
+                                <span class="day-count">
+                                    {{ datesSummary()!.dayCount }}
+                                    {{
+                                        datesSummary()!.dayCount > 1
+                                            ? ('employee.leaves.days' | transloco)
+                                            : ('employee.leaves.day' | transloco)
+                                    }}
+                                </span>
+                            </div>
+                        }
+
+                        <!-- Mini calendar -->
+                        <div class="mini-cal">
+                            <div class="mc-nav">
+                                <button
+                                    type="button"
+                                    class="mc-nav-btn"
+                                    (click)="prevMonth()"
+                                >
+                                    <mat-icon>chevron_left</mat-icon>
+                                </button>
+                                <span class="mc-month">{{ monthLabel() }}</span>
+                                <button
+                                    type="button"
+                                    class="mc-nav-btn"
+                                    (click)="nextMonth()"
+                                >
+                                    <mat-icon>chevron_right</mat-icon>
+                                </button>
                             </div>
 
-                            @if (datesSummary()) {
-                                <div class="date-summary">
-                                    <mat-icon>calendar_today</mat-icon>
-                                    <span class="date-value">
-                                        {{ formatDisplayDate(datesSummary()!.start) }}
-                                    </span>
-                                    <span class="arrow">→</span>
-                                    <span class="date-value">
-                                        {{ formatDisplayDate(datesSummary()!.end) }}
-                                    </span>
-                                    <span class="day-count">
-                                        {{ datesSummary()!.dayCount }}
-                                        {{
-                                            datesSummary()!.dayCount > 1
-                                                ? ('employee.leaves.days' | transloco)
-                                                : ('employee.leaves.day' | transloco)
-                                        }}
-                                    </span>
-                                </div>
-                            }
-
-                            <div class="cal-wrapper">
-                                <div class="cal-nav">
+                            <div class="mc-grid">
+                                @for (wd of weekDayLabels; track wd) {
+                                    <div class="mc-wd">{{ wd }}</div>
+                                }
+                                @for (day of calendarDays(); track day.date.getTime()) {
                                     <button
                                         type="button"
-                                        class="cal-nav-btn"
-                                        (click)="prevMonth()"
+                                        class="mc-day"
+                                        [class.other]="!day.isCurrentMonth"
+                                        [class.disabled]="day.isPast && day.isCurrentMonth"
+                                        [class.today]="day.isToday"
+                                        [class.range-start]="isRangeStart(day)"
+                                        [class.range-end]="isRangeEnd(day)"
+                                        [class.in-range]="isInRange(day)"
+                                        (click)="onDayClick(day)"
                                     >
-                                        <mat-icon>chevron_left</mat-icon>
+                                        {{ day.dayOfMonth }}
                                     </button>
-                                    <span class="cal-month">{{ monthLabel() }}</span>
-                                    <button
-                                        type="button"
-                                        class="cal-nav-btn"
-                                        (click)="nextMonth()"
-                                    >
-                                        <mat-icon>chevron_right</mat-icon>
-                                    </button>
-                                </div>
-
-                                <div class="cal-grid">
-                                    @for (wd of weekDayLabels; track wd) {
-                                        <div class="cal-weekday">{{ wd }}</div>
-                                    }
-                                    @for (day of calendarDays(); track day.date.getTime()) {
-                                        <button
-                                            type="button"
-                                            class="cal-day"
-                                            [class.other]="!day.isCurrentMonth"
-                                            [class.disabled]="day.isPast && day.isCurrentMonth"
-                                            [class.today]="day.isToday"
-                                            [class.range-start]="isRangeStart(day)"
-                                            [class.range-end]="isRangeEnd(day)"
-                                            [class.in-range]="isInRange(day)"
-                                            (click)="onDayClick(day)"
-                                        >
-                                            {{ day.dayOfMonth }}
-                                        </button>
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
 
-                        <mat-form-field appearance="outline" class="field-full reason-field">
-                            <mat-label>{{ 'employee.leaves.reason' | transloco }}</mat-label>
-                            <textarea
-                                matInput
-                                [(ngModel)]="reason"
-                                name="reason"
-                                rows="3"
-                            ></textarea>
-                        </mat-form-field>
+                        <!-- Reason textarea -->
+                        <textarea
+                            class="reason-area"
+                            [(ngModel)]="reason"
+                            name="reason"
+                            rows="2"
+                            [placeholder]="'employee.leaves.reason' | transloco"
+                        ></textarea>
 
+                        <!-- Submit button -->
                         <div class="form-actions">
                             <button
                                 mat-flat-button
@@ -194,94 +184,124 @@ interface CalDay {
                             </button>
                         </div>
                     </form>
-                </mat-card-content>
-            </mat-card>
+                </div>
 
-            <!-- Leave requests list -->
-            <div class="leaves-list-section">
-                <h2 class="section-title">
-                    {{ 'employee.leaves.myLeaves' | transloco }}
-                </h2>
+                <!-- RIGHT: Leave list -->
+                <div class="list-col">
+                    <!-- Segmented toggle -->
+                    <div class="seg-toggle">
+                        <button
+                            type="button"
+                            class="seg-btn"
+                            [class.active]="listView() === 'current'"
+                            (click)="listView.set('current')"
+                        >
+                            {{ 'employee.leaves.currentTab' | transloco }}
+                            <span class="seg-count">{{ pendingCount() }}</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="seg-btn"
+                            [class.active]="listView() === 'history'"
+                            (click)="listView.set('history')"
+                        >
+                            {{ 'employee.leaves.historyTab' | transloco }}
+                            <span class="seg-count">{{ historyLeaves().length }}</span>
+                        </button>
+                    </div>
 
-                @if (loadingLeaves()) {
-                    <div class="loading-wrapper">
-                        <mat-spinner diameter="32"></mat-spinner>
-                    </div>
-                } @else if (leaves().length === 0) {
-                    <div class="empty-state">
-                        <mat-icon class="empty-icon">beach_access</mat-icon>
-                        <p>{{ 'employee.leaves.empty' | transloco }}</p>
-                    </div>
-                } @else {
-                    <div class="leaves-list">
-                        @for (leave of leaves(); track leave.id) {
-                            <mat-card class="leave-card">
-                                <mat-card-content>
-                                    <div class="leave-header">
-                                        <span
-                                            class="leave-type-badge"
-                                            [class]="
-                                                'type-' + leave.type.toLowerCase()
-                                            "
-                                        >
-                                            @if (leave.type === 'VACATION') {
-                                                {{
-                                                    'employee.leaves.vacation'
-                                                        | transloco
-                                                }}
-                                            } @else {
-                                                {{
-                                                    'employee.leaves.sickness'
-                                                        | transloco
-                                                }}
-                                            }
-                                        </span>
-                                        <span
-                                            class="leave-status-badge"
-                                            [class]="
-                                                'status-' +
-                                                leave.status.toLowerCase()
-                                            "
-                                        >
-                                            {{
-                                                statusLabel(leave.status)
-                                                    | transloco
-                                            }}
-                                        </span>
-                                    </div>
-                                    <div class="leave-dates">
-                                        <mat-icon class="date-icon"
-                                            >date_range</mat-icon
-                                        >
-                                        <span>{{ leave.startDate }}</span>
-                                        <span class="date-sep">→</span>
-                                        <span>{{ leave.endDate }}</span>
-                                    </div>
-                                    @if (leave.reason) {
-                                        <p class="leave-reason">
-                                            {{ leave.reason }}
-                                        </p>
-                                    }
-                                    @if (leave.reviewerNote) {
-                                        <p class="reviewer-note">
-                                            <mat-icon class="note-icon"
-                                                >comment</mat-icon
+                    @if (loadingLeaves()) {
+                        <div class="loading-wrapper">
+                            <mat-spinner diameter="28"></mat-spinner>
+                        </div>
+                    } @else {
+                        @if (listView() === 'current') {
+                            @if (currentLeaves().length === 0) {
+                                <div class="empty-state">
+                                    <mat-icon class="empty-icon">hourglass_empty</mat-icon>
+                                    <p>{{ 'employee.leaves.noCurrentLeaves' | transloco }}</p>
+                                </div>
+                            } @else {
+                                <div class="leaves-list">
+                                    @for (leave of currentLeaves(); track leave.id) {
+                                        <div class="leave-item">
+                                            <span
+                                                class="leave-type-badge"
+                                                [class.type-vacation]="leave.type === 'VACATION'"
+                                                [class.type-sickness]="leave.type === 'SICKNESS'"
                                             >
-                                            {{ leave.reviewerNote }}
-                                        </p>
+                                                @if (leave.type === 'VACATION') {
+                                                    {{ 'employee.leaves.vacation' | transloco }}
+                                                } @else {
+                                                    {{ 'employee.leaves.sickness' | transloco }}
+                                                }
+                                            </span>
+                                            <span class="leave-dates-compact">
+                                                {{ formatCompactDate(leave.startDate) }}
+                                                →
+                                                {{ formatCompactDate(leave.endDate) }}
+                                            </span>
+                                            <span class="leave-status-badge status-pending">
+                                                {{ statusLabel(leave.status) | transloco }}
+                                            </span>
+                                        </div>
                                     }
-                                </mat-card-content>
-                            </mat-card>
+                                </div>
+                            }
+                        } @else {
+                            @if (historyLeaves().length === 0) {
+                                <div class="empty-state">
+                                    <mat-icon class="empty-icon">history</mat-icon>
+                                    <p>{{ 'employee.leaves.noHistoryLeaves' | transloco }}</p>
+                                </div>
+                            } @else {
+                                <div class="leaves-list">
+                                    @for (leave of historyLeaves(); track leave.id) {
+                                        <div class="leave-item-history">
+                                            <div class="leave-item-row">
+                                                <span
+                                                    class="leave-type-badge"
+                                                    [class.type-vacation]="leave.type === 'VACATION'"
+                                                    [class.type-sickness]="leave.type === 'SICKNESS'"
+                                                >
+                                                    @if (leave.type === 'VACATION') {
+                                                        {{ 'employee.leaves.vacation' | transloco }}
+                                                    } @else {
+                                                        {{ 'employee.leaves.sickness' | transloco }}
+                                                    }
+                                                </span>
+                                                <span class="leave-dates-compact">
+                                                    {{ formatCompactDate(leave.startDate) }}
+                                                    →
+                                                    {{ formatCompactDate(leave.endDate) }}
+                                                </span>
+                                                <span
+                                                    class="leave-status-badge"
+                                                    [class.status-approved]="leave.status === 'APPROVED'"
+                                                    [class.status-rejected]="leave.status === 'REJECTED'"
+                                                >
+                                                    {{ statusLabel(leave.status) | transloco }}
+                                                </span>
+                                            </div>
+                                            @if (leave.reviewerNote) {
+                                                <p class="reviewer-note">
+                                                    {{ leave.reviewerNote }}
+                                                </p>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            }
                         }
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     `,
     styles: [
         `
             .leaves-page {
-                max-width: 800px;
+                max-width: 960px;
                 margin: 0 auto;
                 padding: 1.5rem;
             }
@@ -290,66 +310,51 @@ interface CalDay {
                 font-size: 20px;
                 font-weight: 600;
                 color: #333;
-                margin: 0 0 1.5rem;
+                margin: 0 0 1.2rem;
             }
 
-            .form-card {
-                border-radius: 12px !important;
-                margin-bottom: 2rem;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            /* ── Side-by-side layout ── */
+            .leaves-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                align-items: start;
             }
 
-            .form-title {
-                font-size: 16px !important;
-                font-weight: 600 !important;
-                color: #333 !important;
+            .form-col {
+                background: #fff;
+                border-radius: 14px;
+                padding: 16px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            }
+
+            .list-col {
+                min-height: 200px;
             }
 
             .leave-form {
                 display: flex;
                 flex-direction: column;
                 gap: 0;
-                padding-top: 0.5rem;
             }
 
-            .field-full {
-                width: 100%;
-            }
-
-            .reason-field {
-                margin-top: 4px;
-            }
-
-            .form-actions {
+            /* ── Type chips (compact) ── */
+            .type-chips {
                 display: flex;
-                justify-content: flex-end;
-                margin-top: 0.5rem;
-            }
-
-            .submit-btn {
-                background-color: #cc0066 !important;
-                color: white !important;
-                border-radius: 8px !important;
-                min-width: 160px;
-            }
-
-            /* ── Type selector chips ── */
-            .type-selector {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
+                gap: 8px;
+                margin-bottom: 12px;
             }
 
             .type-chip {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                padding: 10px 20px;
+                gap: 6px;
+                padding: 8px 16px;
                 border: 1.5px solid #e0e0e0;
-                border-radius: 12px;
+                border-radius: 10px;
                 background: #fff;
                 font-family: Roboto, sans-serif;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 500;
                 color: #666;
                 cursor: pointer;
@@ -368,17 +373,17 @@ interface CalDay {
             }
 
             .type-chip mat-icon {
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
             }
 
-            /* ── Document upload for sickness ── */
+            /* ── Document upload (compact) ── */
             .doc-section {
-                margin-bottom: 16px;
-                padding: 14px;
+                margin-bottom: 10px;
+                padding: 10px 12px;
                 background: #fff8e1;
-                border-radius: 12px;
+                border-radius: 10px;
                 border: 1px dashed #ffc107;
             }
 
@@ -386,116 +391,105 @@ interface CalDay {
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 500;
                 color: #f57f17;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
 
             .doc-label mat-icon {
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
             }
 
             .upload-btn {
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                padding: 8px 16px;
+                padding: 6px 12px;
                 border: 1px solid #ffc107;
-                border-radius: 10px;
+                border-radius: 8px;
                 background: #fff;
-                font-size: 12px;
+                font-size: 11px;
                 color: #f57f17;
                 cursor: pointer;
                 font-family: Roboto, sans-serif;
             }
 
             .upload-btn mat-icon {
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
             }
 
             .file-attached {
                 display: flex;
                 align-items: center;
                 gap: 4px;
-                font-size: 12px;
+                font-size: 11px;
                 color: #4caf50;
-                margin-top: 8px;
+                margin-top: 6px;
             }
 
             .file-attached mat-icon {
-                font-size: 16px;
-                width: 16px;
-                height: 16px;
+                font-size: 14px;
+                width: 14px;
+                height: 14px;
             }
 
-            /* ── Inline calendar range picker ── */
-            .cal-section {
-                margin-bottom: 16px;
-            }
-
-            .cal-label {
-                font-size: 12px;
-                font-weight: 500;
-                color: #999;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 8px;
-            }
-
-            .date-summary {
+            /* ── Date summary bar (compact) ── */
+            .date-bar {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 10px 14px;
+                gap: 8px;
+                padding: 8px 12px;
                 background: #f7f5f3;
-                border-radius: 10px;
-                margin-bottom: 12px;
-                font-size: 13px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                font-size: 12px;
                 color: #555;
             }
 
-            .date-summary mat-icon {
-                font-size: 18px;
-                width: 18px;
-                height: 18px;
+            .date-bar mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
                 color: #c06;
             }
 
-            .date-summary .date-value {
+            .date-bar .date-value {
                 font-weight: 500;
                 color: #333;
             }
 
-            .date-summary .arrow {
+            .date-bar .arrow {
                 color: #ccc;
             }
 
-            .date-summary .day-count {
+            .date-bar .day-count {
                 margin-left: auto;
-                font-size: 12px;
+                font-size: 11px;
                 color: #c06;
                 font-weight: 500;
             }
 
-            .cal-wrapper {
+            /* ── Mini calendar ── */
+            .mini-cal {
                 border: 1px solid #f0f0f0;
-                border-radius: 14px;
-                padding: 14px;
+                border-radius: 10px;
+                padding: 10px;
+                margin-bottom: 10px;
             }
 
-            .cal-nav {
+            .mc-nav {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin-bottom: 12px;
+                margin-bottom: 8px;
             }
 
-            .cal-nav-btn {
+            .mc-nav-btn {
                 background: none;
                 border: none;
                 cursor: pointer;
@@ -503,103 +497,182 @@ interface CalDay {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 32px;
-                height: 32px;
+                width: 24px;
+                height: 24px;
                 border-radius: 50%;
-                transition: color 150ms;
             }
 
-            .cal-nav-btn:hover {
+            .mc-nav-btn:hover {
                 color: #c06;
             }
 
-            .cal-month {
-                font-size: 14px;
+            .mc-nav-btn mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            .mc-month {
+                font-size: 12px;
                 font-weight: 500;
                 color: #333;
                 text-transform: capitalize;
             }
 
-            .cal-grid {
+            .mc-grid {
                 display: grid;
                 grid-template-columns: repeat(7, 1fr);
-                gap: 2px;
+                gap: 1px;
             }
 
-            .cal-weekday {
+            .mc-wd {
                 text-align: center;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 600;
-                color: #999;
+                color: #bbb;
                 text-transform: uppercase;
-                padding: 6px 0;
+                padding: 3px 0;
             }
 
-            .cal-day {
+            .mc-day {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 34px;
+                height: 26px;
                 border: none;
                 background: transparent;
                 border-radius: 0;
-                font-size: 13px;
+                font-size: 11px;
                 color: #333;
                 cursor: pointer;
-                transition: all 100ms;
+                transition: all 80ms ease;
                 font-family: Roboto, sans-serif;
             }
 
-            .cal-day:hover:not(.other):not(.disabled):not(.range-start):not(.range-end) {
+            .mc-day:hover:not(.other):not(.disabled) {
                 background: #f0e8ec;
                 border-radius: 50%;
             }
 
-            .cal-day.other {
+            .mc-day.other {
                 color: #ddd;
                 cursor: default;
             }
 
-            .cal-day.disabled {
+            .mc-day.disabled {
                 color: #ddd;
                 cursor: not-allowed;
             }
 
-            .cal-day.today {
-                font-weight: 600;
+            .mc-day.today {
+                font-weight: 700;
             }
 
-            .cal-day.range-start {
+            .mc-day.range-start {
                 background: #c06;
                 color: #fff;
                 font-weight: 600;
                 border-radius: 50% 0 0 50%;
             }
 
-            .cal-day.range-end {
+            .mc-day.range-end {
                 background: #c06;
                 color: #fff;
                 font-weight: 600;
                 border-radius: 0 50% 50% 0;
             }
 
-            .cal-day.range-start.range-end {
+            .mc-day.range-start.range-end {
                 border-radius: 50%;
             }
 
-            .cal-day.in-range {
+            .mc-day.in-range {
                 background: #fef2f2;
                 color: #a8385d;
             }
 
-            /* ── Existing leave list styles ── */
-            .section-title {
-                font-size: 16px;
-                font-weight: 600;
+            /* ── Reason textarea (compact) ── */
+            .reason-area {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1.5px solid #e0e0e0;
+                border-radius: 10px;
+                font-family: Roboto, sans-serif;
+                font-size: 12px;
                 color: #333;
-                margin: 0 0 1rem;
+                resize: none;
+                min-height: 40px;
+                outline: none;
+                margin-bottom: 10px;
+                box-sizing: border-box;
             }
 
+            .reason-area:focus {
+                border-color: #c06;
+                box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.08);
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            .submit-btn {
+                background-color: #cc0066 !important;
+                color: white !important;
+                border-radius: 8px !important;
+                min-width: 140px;
+                font-size: 13px;
+            }
+
+            /* ── Segmented toggle ── */
+            .seg-toggle {
+                display: flex;
+                background: #f0f0f0;
+                border-radius: 10px;
+                padding: 2px;
+                margin-bottom: 12px;
+                width: fit-content;
+            }
+
+            .seg-btn {
+                padding: 6px 18px;
+                border: none;
+                border-radius: 8px;
+                font-family: Roboto, sans-serif;
+                font-size: 12px;
+                font-weight: 500;
+                color: #888;
+                background: transparent;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: all 150ms ease;
+            }
+
+            .seg-btn.active {
+                background: #fff;
+                color: #333;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .seg-count {
+                background: #c06;
+                color: #fff;
+                font-size: 9px;
+                font-weight: 700;
+                padding: 1px 5px;
+                border-radius: 6px;
+                min-width: 14px;
+                text-align: center;
+            }
+
+            .seg-btn:not(.active) .seg-count {
+                background: #ccc;
+            }
+
+            /* ── Leave items (compact rows) ── */
             .loading-wrapper {
                 display: flex;
                 justify-content: center;
@@ -610,46 +683,65 @@ interface CalDay {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding: 2.5rem;
+                padding: 2rem;
                 color: #aaa;
             }
 
             .empty-icon {
-                font-size: 40px;
-                width: 40px;
-                height: 40px;
+                font-size: 36px;
+                width: 36px;
+                height: 36px;
                 color: #ddd;
                 margin-bottom: 0.5rem;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+                margin: 0;
             }
 
             .leaves-list {
                 display: flex;
                 flex-direction: column;
-                gap: 0.75rem;
+                gap: 0;
             }
 
-            .leave-card {
-                border-radius: 10px !important;
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07) !important;
-            }
-
-            .leave-header {
+            .leave-item {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                margin-bottom: 8px;
+                gap: 10px;
+                padding: 10px 14px;
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                margin-bottom: 6px;
+            }
+
+            .leave-item-history {
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                margin-bottom: 6px;
+                padding: 10px 14px;
+            }
+
+            .leave-item-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
             }
 
             .leave-type-badge {
-                padding: 2px 10px;
-                border-radius: 12px;
-                font-size: 12px;
+                padding: 2px 8px;
+                border-radius: 8px;
+                font-size: 11px;
                 font-weight: 600;
+                white-space: nowrap;
             }
 
             .type-vacation {
-                background: #e8f5e9;
-                color: #2e7d32;
+                background: #e3f2fd;
+                color: #1565c0;
             }
 
             .type-sickness {
@@ -657,12 +749,19 @@ interface CalDay {
                 color: #e65100;
             }
 
-            .leave-status-badge {
-                padding: 2px 10px;
-                border-radius: 12px;
+            .leave-dates-compact {
                 font-size: 12px;
+                color: #555;
+                flex: 1;
+                white-space: nowrap;
+            }
+
+            .leave-status-badge {
+                padding: 2px 8px;
+                border-radius: 8px;
+                font-size: 10px;
                 font-weight: 600;
-                margin-left: auto;
+                white-space: nowrap;
             }
 
             .status-pending {
@@ -680,47 +779,19 @@ interface CalDay {
                 color: #c62828;
             }
 
-            .leave-dates {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                font-size: 14px;
-                color: #555;
-            }
-
-            .date-icon {
-                font-size: 16px;
-                width: 16px;
-                height: 16px;
-                color: #cc0066;
-            }
-
-            .date-sep {
-                color: #aaa;
-            }
-
-            .leave-reason {
-                font-size: 13px;
-                color: #777;
-                margin: 6px 0 0;
-            }
-
             .reviewer-note {
-                display: flex;
-                align-items: flex-start;
-                gap: 4px;
-                font-size: 13px;
-                color: #555;
-                margin: 6px 0 0;
+                font-size: 11px;
+                color: #888;
                 font-style: italic;
+                margin: 4px 0 0;
+                padding-left: 2px;
             }
 
-            .note-icon {
-                font-size: 14px;
-                width: 14px;
-                height: 14px;
-                margin-top: 2px;
-                color: #cc0066;
+            /* ── Mobile: stack vertically ── */
+            @media (max-width: 767px) {
+                .leaves-layout {
+                    grid-template-columns: 1fr;
+                }
             }
         `,
     ],
@@ -733,6 +804,7 @@ export class EmployeeLeavesComponent implements OnInit {
     readonly leaves = signal<LeaveResponse[]>([]);
     readonly loadingLeaves = signal(true);
     readonly submitting = signal(false);
+    readonly listView = signal<'current' | 'history'>('current');
 
     // Calendar range picker state
     readonly calendarMonth = signal(new Date());
@@ -741,6 +813,20 @@ export class EmployeeLeavesComponent implements OnInit {
     readonly selectedFile = signal<File | null>(null);
 
     readonly weekDayLabels = ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'];
+
+    readonly currentLeaves = computed(() => {
+        return this.leaves()
+            .filter(l => l.status === 'PENDING')
+            .sort((a, b) => a.startDate.localeCompare(b.startDate));
+    });
+
+    readonly historyLeaves = computed(() => {
+        return this.leaves()
+            .filter(l => l.status !== 'PENDING')
+            .sort((a, b) => b.startDate.localeCompare(a.startDate));
+    });
+
+    readonly pendingCount = computed(() => this.currentLeaves().length);
 
     leaveType = '';
     startDate = '';
@@ -871,6 +957,11 @@ export class EmployeeLeavesComponent implements OnInit {
             day: 'numeric',
             month: 'short',
         });
+    }
+
+    formatCompactDate(dateStr: string): string {
+        const parts = dateStr.split('-');
+        return `${parts[2]}/${parts[1]}`;
     }
 
     onSubmit(): void {

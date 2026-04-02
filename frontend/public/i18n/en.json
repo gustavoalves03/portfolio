@@ -465,7 +465,11 @@
       "medicalCert": "Medical certificate",
       "attachDoc": "Attach a document",
       "days": "days",
-      "day": "day"
+      "day": "day",
+      "currentTab": "Current",
+      "historyTab": "History",
+      "noCurrentLeaves": "No current requests",
+      "noHistoryLeaves": "No history"
     },
     "documents": {
       "title": "My documents",

@@ -469,7 +469,11 @@
       "medicalCert": "Certificat médical",
       "attachDoc": "Joindre un document",
       "days": "jours",
-      "day": "jour"
+      "day": "jour",
+      "currentTab": "En cours",
+      "historyTab": "Historique",
+      "noCurrentLeaves": "Aucune demande en cours",
+      "noHistoryLeaves": "Aucun historique"
     },
     "documents": {
       "title": "Mes documents",
