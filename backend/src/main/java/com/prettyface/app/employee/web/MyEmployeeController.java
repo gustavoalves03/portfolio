@@ -1,6 +1,8 @@
 package com.prettyface.app.employee.web;
 
+import com.prettyface.app.employee.app.EmployeeDocumentService;
 import com.prettyface.app.employee.app.LeaveRequestService;
+import com.prettyface.app.employee.domain.DocumentType;
 import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.repo.EmployeeRepository;
 import com.prettyface.app.employee.web.dto.*;
@@ -9,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,10 +21,13 @@ public class MyEmployeeController {
 
     private final EmployeeRepository employeeRepo;
     private final LeaveRequestService leaveService;
+    private final EmployeeDocumentService documentService;
 
-    public MyEmployeeController(EmployeeRepository employeeRepo, LeaveRequestService leaveService) {
+    public MyEmployeeController(EmployeeRepository employeeRepo, LeaveRequestService leaveService,
+                                EmployeeDocumentService documentService) {
         this.employeeRepo = employeeRepo;
         this.leaveService = leaveService;
+        this.documentService = documentService;
     }
 
     @GetMapping
@@ -45,6 +51,22 @@ public class MyEmployeeController {
                                      @RequestBody @Valid LeaveRequestDto dto) {
         Employee emp = resolveEmployee(principal.getId());
         return leaveService.createLeave(emp.getId(), dto);
+    }
+
+    @GetMapping("/documents")
+    public List<DocumentResponse> myDocuments(@AuthenticationPrincipal UserPrincipal principal) {
+        Employee emp = resolveEmployee(principal.getId());
+        return documentService.listByEmployee(emp.getId());
+    }
+
+    @PostMapping("/documents")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DocumentResponse uploadDocument(@AuthenticationPrincipal UserPrincipal principal,
+                                           @RequestParam("file") MultipartFile file,
+                                           @RequestParam("type") DocumentType type,
+                                           @RequestParam("title") String title) {
+        Employee emp = resolveEmployee(principal.getId());
+        return documentService.upload(emp.getId(), type, title, file, principal.getId());
     }
 
     private Employee resolveEmployee(Long userId) {
