@@ -2,6 +2,8 @@ package com.prettyface.app.multitenancy;
 
 import com.prettyface.app.auth.TokenService;
 import com.prettyface.app.tenant.app.TenantService;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,9 +28,11 @@ public class TenantFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(TenantFilter.class);
 
     private final TenantService tenantService;
+    private final UserRepository userRepository;
 
-    public TenantFilter(TenantService tenantService) {
+    public TenantFilter(TenantService tenantService, UserRepository userRepository) {
         this.tenantService = tenantService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -38,10 +42,21 @@ public class TenantFilter extends OncePerRequestFilter {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof com.prettyface.app.auth.UserPrincipal principal) {
-                tenantService.findByOwnerId(principal.getId()).ifPresent(tenant -> {
-                    TenantContext.setCurrentTenant(tenant.getSlug());
-                    logger.debug("TenantContext set to {} for user {}", tenant.getSlug(), principal.getId());
-                });
+                boolean tenantSet = tenantService.findByOwnerId(principal.getId())
+                        .map(tenant -> {
+                            TenantContext.setCurrentTenant(tenant.getSlug());
+                            logger.debug("TenantContext set to {} for user {}", tenant.getSlug(), principal.getId());
+                            return true;
+                        })
+                        .orElse(false);
+
+                if (!tenantSet) {
+                    User user = userRepository.findById(principal.getId()).orElse(null);
+                    if (user != null && user.getTenantSlug() != null) {
+                        TenantContext.setCurrentTenant(user.getTenantSlug());
+                        logger.debug("TenantContext set to {} for employee user {}", user.getTenantSlug(), principal.getId());
+                    }
+                }
             }
             filterChain.doFilter(request, response);
         } finally {

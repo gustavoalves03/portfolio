@@ -71,6 +71,9 @@ public class User {
     @Column(name = "consent_given_at")
     private LocalDateTime consentGivenAt;
 
+    @Column(name = "tenant_slug")
+    private String tenantSlug;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

@@ -8,6 +8,7 @@ import com.prettyface.app.employee.web.dto.CreateEmployeeRequest;
 import com.prettyface.app.employee.web.dto.EmployeeResponse;
 import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.employee.web.dto.UpdateEmployeeRequest;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
@@ -81,6 +82,8 @@ public class EmployeeService {
                 .emailVerified(false)
                 .build();
         User savedUser = userRepository.save(user);
+        savedUser.setTenantSlug(TenantContext.getCurrentTenant());
+        savedUser = userRepository.save(savedUser);
 
         Employee employee = new Employee();
         employee.setUserId(savedUser.getId());

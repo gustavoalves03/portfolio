@@ -12,6 +12,8 @@ import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
 import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.employee.app.EmployeeService;
+import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.tenant.domain.TenantStatus;
@@ -41,12 +43,14 @@ public class PublicSalonController {
     private final CareBookingService careBookingService;
     private final UserRepository userRepository;
     private final ClientBookingHistoryService clientBookingHistoryService;
+    private final EmployeeService employeeService;
 
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
                                  SlotAvailabilityService slotAvailabilityService,
                                  CareBookingService careBookingService, UserRepository userRepository,
-                                 ClientBookingHistoryService clientBookingHistoryService) {
+                                 ClientBookingHistoryService clientBookingHistoryService,
+                                 EmployeeService employeeService) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
@@ -55,6 +59,7 @@ public class PublicSalonController {
         this.careBookingService = careBookingService;
         this.userRepository = userRepository;
         this.clientBookingHistoryService = clientBookingHistoryService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/{slug}")
@@ -122,6 +127,20 @@ public class PublicSalonController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{slug}/employees")
+    public List<EmployeeSlimResponse> listEmployeesForCare(
+            @PathVariable String slug,
+            @RequestParam Long careId) {
+        // Resolve tenant to verify it exists
+        tenantService.findBySlug(slug);
+        TenantContext.setCurrentTenant(slug);
+        try {
+            return employeeService.listForCare(careId);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
     @PostMapping("/{slug}/book")
     @ResponseStatus(HttpStatus.CREATED)
     public ClientBookingResponse book(@PathVariable String slug,
@@ -146,7 +165,7 @@ public class PublicSalonController {
             TenantContext.clear();
         }
 
-        // Mirror write in public schema (after TenantContext cleared → APPUSER)
+        // Mirror write in the shared application schema after TenantContext is cleared.
         clientBookingHistoryService.createMirror(client, result, slug, salonName);
 
         return result;
