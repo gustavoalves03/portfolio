@@ -19,6 +19,7 @@ import { PostsService } from '../posts.service';
 import { PostResponse } from '../posts.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
+import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { CreatePostModalComponent } from '../create-post-modal/create-post-modal.component';
 
 @Component({
@@ -62,11 +63,11 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
                         (touchend)="onBaDragEnd(post.id)"
                       >
                         @if (post.afterImageUrl) {
-                          <img [src]="post.afterImageUrl" class="ba-img ba-after" alt="After" />
+                          <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" />
                         }
                         @if (post.beforeImageUrl) {
                           <img
-                            [src]="post.beforeImageUrl"
+                            [src]="imgUrl(post.beforeImageUrl)"
                             class="ba-img ba-before"
                             [style.clip-path]="
                               'inset(0 ' + (100 - getBaSplit(post.id)) + '% 0 0)'
@@ -94,9 +95,9 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
                     }
                     @case ('PHOTO') {
                       @if (post.beforeImageUrl) {
-                        <img [src]="post.beforeImageUrl" class="photo-img" [alt]="post.caption || 'Photo'" />
+                        <img [src]="imgUrl(post.beforeImageUrl)" class="photo-img" [alt]="post.caption || 'Photo'" />
                       } @else if (post.carouselImageUrls.length > 0) {
-                        <img [src]="post.carouselImageUrls[0]" class="photo-img" [alt]="post.caption || 'Photo'" />
+                        <img [src]="imgUrl(post.carouselImageUrls[0])" class="photo-img" [alt]="post.caption || 'Photo'" />
                       }
                     }
                     @case ('CAROUSEL') {
@@ -112,7 +113,7 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
                             track url;
                             let ci = $index
                           ) {
-                            <img [src]="url" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" />
+                            <img [src]="imgUrl(url)" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" />
                           }
                         </div>
                         <div
@@ -610,6 +611,7 @@ export class SalonPostsViewerComponent {
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly dialog = inject(MatDialog);
   private readonly translocoService = inject(TranslocoService);
 
@@ -759,6 +761,12 @@ export class SalonPostsViewerComponent {
         this.posts.update((list) => [created, ...list]);
       }
     });
+  }
+
+  imgUrl(path: string | null): string {
+    if (!path) return '';
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    return path.startsWith('http') ? path : base + path;
   }
 
   formatDate(isoString: string): string {

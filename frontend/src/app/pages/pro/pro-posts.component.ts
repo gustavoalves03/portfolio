@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PostsService } from '../../features/posts/posts.service';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PostResponse, PostType } from '../../features/posts/posts.model';
 import { CaresService } from '../../features/cares/services/cares.service';
 
@@ -30,6 +31,7 @@ interface ImagePreview {
 })
 export class ProPostsComponent implements OnInit {
   private readonly postsService = inject(PostsService);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly caresService = inject(CaresService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
@@ -232,14 +234,21 @@ export class ProPostsComponent implements OnInit {
   }
 
   getThumbnail(post: PostResponse): string {
+    let path: string;
     switch (post.type) {
       case 'BEFORE_AFTER':
-        return post.afterImageUrl ?? post.beforeImageUrl ?? '';
+        path = post.afterImageUrl ?? post.beforeImageUrl ?? '';
+        break;
       case 'PHOTO':
-        return post.beforeImageUrl ?? (post.carouselImageUrls.length > 0 ? post.carouselImageUrls[0] : '');
+        path = post.beforeImageUrl ?? (post.carouselImageUrls.length > 0 ? post.carouselImageUrls[0] : '');
+        break;
       case 'CAROUSEL':
-        return post.carouselImageUrls.length > 0 ? post.carouselImageUrls[0] : '';
+        path = post.carouselImageUrls.length > 0 ? post.carouselImageUrls[0] : '';
+        break;
     }
+    if (!path) return '';
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    return path.startsWith('http') ? path : base + path;
   }
 
   formatDate(isoString: string): string {
