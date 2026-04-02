@@ -163,8 +163,8 @@ public class TenantSchemaManager {
                 "ALTER TABLE CARE_BOOKINGS ADD (EMPLOYEE_ID NUMBER(19))"
         };
 
-        // Use application dataSource (not provisioning) — app user has grants on tenant schemas
-        try (Connection conn = dataSource.getConnection();
+        // Use provisioning connection (Oracle admin) — app user lacks CREATE TABLE privilege
+        try (Connection conn = getProvisioningConnection();
              Statement stmt = conn.createStatement()) {
 
             setCurrentSchema(stmt, schemaName);
@@ -196,6 +196,7 @@ public class TenantSchemaManager {
             }
 
             setCurrentSchema(stmt, applicationSchemaName);
+            grantTenantTablePrivileges(stmt, schemaName);
             logger.info("Oracle schema {} migrated successfully", schemaName);
 
         } catch (SQLException e) {
