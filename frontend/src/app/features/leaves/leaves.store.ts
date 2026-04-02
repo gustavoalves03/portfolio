@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, exhaustMap, pipe, switchMap, tap } from 'rxjs';
-import { LeaveResponse, LeaveReviewDto } from './leaves.model';
+import { LeaveResponse, LeaveReviewDto, LeaveType } from './leaves.model';
 import { LeavesService } from './leaves.service';
 import {
   setError,
@@ -13,10 +13,11 @@ import {
 
 type LeavesState = {
   pendingLeaves: LeaveResponse[];
+  historyLeaves: LeaveResponse[];
 };
 
 export const LeavesStore = signalStore(
-  withState<LeavesState>({ pendingLeaves: [] }),
+  withState<LeavesState>({ pendingLeaves: [], historyLeaves: [] }),
   withRequestStatus(),
   withMethods((store, service = inject(LeavesService)) => ({
     loadPending: rxMethod<void>(
@@ -27,6 +28,20 @@ export const LeavesStore = signalStore(
             tap((leaves) => patchState(store, { pendingLeaves: leaves }, setFulfilled())),
             catchError((err) => {
               patchState(store, setError(err?.message ?? 'Error loading leaves'));
+              return EMPTY;
+            }),
+          ),
+        ),
+      ),
+    ),
+    loadHistory: rxMethod<LeaveType | undefined>(
+      pipe(
+        tap(() => patchState(store, setPending())),
+        switchMap((type) =>
+          service.listHistory(type).pipe(
+            tap((leaves) => patchState(store, { historyLeaves: leaves }, setFulfilled())),
+            catchError((err) => {
+              patchState(store, setError(err?.message ?? 'Error loading history'));
               return EMPTY;
             }),
           ),

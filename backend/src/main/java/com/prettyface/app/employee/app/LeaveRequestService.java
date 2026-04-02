@@ -3,6 +3,7 @@ package com.prettyface.app.employee.app;
 import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.LeaveRequest;
 import com.prettyface.app.employee.domain.LeaveStatus;
+import com.prettyface.app.employee.domain.LeaveType;
 import com.prettyface.app.employee.repo.EmployeeRepository;
 import com.prettyface.app.employee.repo.LeaveRequestRepository;
 import com.prettyface.app.employee.web.dto.LeaveRequestDto;
@@ -69,6 +70,18 @@ public class LeaveRequestService {
     public List<LeaveResponse> listPending() {
         return leaveRequestRepository.findByStatusOrderByCreatedAtAsc(LeaveStatus.PENDING)
                 .stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveResponse> listReviewed(LeaveType typeFilter) {
+        List<LeaveStatus> reviewedStatuses = List.of(LeaveStatus.APPROVED, LeaveStatus.REJECTED);
+        List<LeaveRequest> results;
+        if (typeFilter != null) {
+            results = leaveRequestRepository.findByStatusInAndTypeOrderByReviewedAtDesc(reviewedStatuses, typeFilter);
+        } else {
+            results = leaveRequestRepository.findByStatusInOrderByReviewedAtDesc(reviewedStatuses);
+        }
+        return results.stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.prettyface.app.employee.web;
 
 import com.prettyface.app.employee.app.LeaveRequestService;
+import com.prettyface.app.employee.domain.LeaveType;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
 import jakarta.validation.Valid;
@@ -16,6 +17,11 @@ public class EmployeeLeaveController {
 
     public EmployeeLeaveController(LeaveRequestService service) {
         this.service = service;
+    }
+
+    @GetMapping("/history")
+    public List<LeaveResponse> listHistory(@RequestParam(required = false) LeaveType type) {
+        return service.listReviewed(type);
     }
 
     @GetMapping("/pending")

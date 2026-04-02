@@ -285,7 +285,22 @@
       "pending": "En attente",
       "noLeaves": "Aucune demande en attente",
       "reason": "Motif",
-      "dates": "Du {{start}} au {{end}}"
+      "dates": "Du {{start}} au {{end}}",
+      "historyTab": "Historique",
+      "pendingTab": "Demandes en attente",
+      "approveTitle": "Approuver la demande",
+      "rejectTitle": "Refuser la demande",
+      "reviewerNote": "Message",
+      "reviewerNotePlaceholder": "Ajoutez un commentaire (optionnel)",
+      "filterAll": "Tous",
+      "filterVacation": "Congés",
+      "filterSickness": "Maladie",
+      "filterApproved": "Approuvés",
+      "filterRejected": "Refusés",
+      "noHistory": "Aucune demande traitée",
+      "reviewedAt": "Traité le",
+      "approveSuccess": "Demande approuvée",
+      "rejectSuccess": "Demande refusée"
     },
     "availability": {
       "title": "Mes disponibilités",

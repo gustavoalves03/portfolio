@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
-import { LeaveResponse, LeaveReviewDto } from './leaves.model';
+import { LeaveResponse, LeaveReviewDto, LeaveType } from './leaves.model';
 
 @Injectable({ providedIn: 'root' })
 export class LeavesService {
@@ -17,6 +17,12 @@ export class LeavesService {
 
   listPending(): Observable<LeaveResponse[]> {
     return this.http.get<LeaveResponse[]>(`${this.baseUrl}/pending`);
+  }
+
+  listHistory(type?: LeaveType): Observable<LeaveResponse[]> {
+    const params: Record<string, string> = {};
+    if (type) params['type'] = type;
+    return this.http.get<LeaveResponse[]>(`${this.baseUrl}/history`, { params });
   }
 
   listByEmployee(employeeId: number): Observable<LeaveResponse[]> {

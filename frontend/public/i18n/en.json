@@ -281,7 +281,22 @@
       "pending": "Pending",
       "noLeaves": "No pending requests",
       "reason": "Reason",
-      "dates": "From {{start}} to {{end}}"
+      "dates": "From {{start}} to {{end}}",
+      "historyTab": "History",
+      "pendingTab": "Pending requests",
+      "approveTitle": "Approve request",
+      "rejectTitle": "Reject request",
+      "reviewerNote": "Message",
+      "reviewerNotePlaceholder": "Add a comment (optional)",
+      "filterAll": "All",
+      "filterVacation": "Vacation",
+      "filterSickness": "Sickness",
+      "filterApproved": "Approved",
+      "filterRejected": "Rejected",
+      "noHistory": "No processed requests",
+      "reviewedAt": "Processed on",
+      "approveSuccess": "Request approved",
+      "rejectSuccess": "Request rejected"
     },
     "availability": {
       "title": "My availability",

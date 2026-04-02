@@ -14,11 +14,14 @@ import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -83,21 +86,26 @@ public class EmployeeService {
         }
 
         if (Boolean.TRUE.equals(applicationSchemaExecutor.call(() -> userRepository.existsByEmail(req.email())))) {
-            throw new IllegalArgumentException("Email already in use: " + req.email());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
 
-        User savedUser = applicationSchemaExecutor.call(() -> userRepository.save(
-                User.builder()
-                        .name(req.name())
-                        .email(req.email())
-                        .password(passwordEncoder.encode(req.password()))
-                        .provider(AuthProvider.LOCAL)
-                        .role(Role.EMPLOYEE)
-                        .emailVerified(false)
-                        .consentGivenAt(java.time.LocalDateTime.now())
-                        .tenantSlug(tenantSlug)
-                        .build()
-        ));
+        User savedUser;
+        try {
+            savedUser = applicationSchemaExecutor.call(() -> userRepository.save(
+                    User.builder()
+                            .name(req.name())
+                            .email(req.email())
+                            .password(passwordEncoder.encode(req.password()))
+                            .provider(AuthProvider.LOCAL)
+                            .role(Role.EMPLOYEE)
+                            .emailVerified(false)
+                            .consentGivenAt(java.time.LocalDateTime.now())
+                            .tenantSlug(tenantSlug)
+                            .build()
+            ));
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use", ex);
+        }
 
         Employee employee = new Employee();
         employee.setUserId(savedUser.getId());
