@@ -72,7 +72,7 @@ public class Tenant {
     private String siret;
 
     @Builder.Default
-    @Column(name = "employees_enabled", nullable = false)
+    @Column(name = "employees_enabled")
     private Boolean employeesEnabled = false;
 
     @Column(name = "updated_at")
