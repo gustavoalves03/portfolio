@@ -402,5 +402,43 @@
       "slotTaken": "This slot was just booked. Please choose another.",
       "generic": "An error occurred. Please try again."
     }
+  },
+  "employee": {
+    "dashboard": {
+      "title": "My space",
+      "welcome": "Welcome, {{name}}",
+      "assignedCares": "Assigned services",
+      "quickLinks": "Quick links"
+    },
+    "planning": {
+      "title": "My schedule",
+      "openingHours": "Opening hours",
+      "blockedSlots": "Blocked slots"
+    },
+    "bookings": {
+      "title": "My bookings",
+      "empty": "Your bookings will appear here"
+    },
+    "leaves": {
+      "title": "My leaves",
+      "createTitle": "New request",
+      "type": "Type",
+      "vacation": "Vacation",
+      "sickness": "Sickness",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "reason": "Reason (optional)",
+      "submit": "Submit request",
+      "myLeaves": "My requests",
+      "empty": "No leave requests",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "success": "Request submitted"
+    },
+    "documents": {
+      "title": "My documents",
+      "empty": "Your documents will appear here"
+    }
   }
 }

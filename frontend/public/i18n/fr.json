@@ -406,5 +406,43 @@
       "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
       "generic": "Une erreur est survenue. Veuillez réessayer."
     }
+  },
+  "employee": {
+    "dashboard": {
+      "title": "Mon espace",
+      "welcome": "Bienvenue, {{name}}",
+      "assignedCares": "Prestations assignées",
+      "quickLinks": "Accès rapides"
+    },
+    "planning": {
+      "title": "Mon planning",
+      "openingHours": "Horaires d'ouverture",
+      "blockedSlots": "Créneaux bloqués"
+    },
+    "bookings": {
+      "title": "Mes réservations",
+      "empty": "Vos réservations apparaîtront ici"
+    },
+    "leaves": {
+      "title": "Mes congés",
+      "createTitle": "Nouvelle demande",
+      "type": "Type",
+      "vacation": "Congé",
+      "sickness": "Maladie",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "reason": "Motif (optionnel)",
+      "submit": "Envoyer la demande",
+      "myLeaves": "Mes demandes",
+      "empty": "Aucune demande de congé",
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "rejected": "Refusé",
+      "success": "Demande envoyée"
+    },
+    "documents": {
+      "title": "Mes documents",
+      "empty": "Vos documents apparaîtront ici"
+    }
   }
 }
