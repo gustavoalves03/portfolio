@@ -71,6 +71,10 @@ public class Tenant {
     @Column(name = "siret", length = 14)
     private String siret;
 
+    @Builder.Default
+    @Column(name = "employees_enabled", nullable = false)
+    private Boolean employeesEnabled = false;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

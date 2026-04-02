@@ -31,7 +31,8 @@ public class TenantReadinessService {
         return new TenantReadinessResponse(
             tenant.getSlug(),
             name, true, hasActiveCare, hasOpeningHours,
-            canPublish, tenant.getStatus().name()
+            canPublish, tenant.getStatus().name(),
+            Boolean.TRUE.equals(tenant.getEmployeesEnabled())
         );
     }
 

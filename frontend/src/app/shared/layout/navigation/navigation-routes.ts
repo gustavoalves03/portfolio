@@ -59,7 +59,14 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'groups',
     requiresAuth: true,
     requiredRole: 'PRO',
-  }
+  },
+  {
+    label: 'nav.pro.settings',
+    path: '/pro/settings',
+    icon: 'settings',
+    requiresAuth: true,
+    requiredRole: 'PRO',
+  },
 ];
 
 export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
@@ -72,18 +79,6 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
 ];
 
 export const EMPLOYEE_NAVIGATION_ROUTES: NavigationRoute[] = [
-  {
-    label: 'nav.employee.dashboard',
-    path: '/employee/dashboard',
-    icon: 'dashboard',
-    requiresAuth: true,
-  },
-  {
-    label: 'nav.employee.planning',
-    path: '/employee/planning',
-    icon: 'calendar_month',
-    requiresAuth: true,
-  },
   {
     label: 'nav.employee.bookings',
     path: '/employee/bookings',

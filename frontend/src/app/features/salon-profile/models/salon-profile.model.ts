@@ -13,6 +13,7 @@ export interface TenantResponse {
   contactEmail: string | null;
   siret: string | null;
   updatedAt: string | null;
+  employeesEnabled: boolean | null;
 }
 
 export interface UpdateTenantRequest {
@@ -26,6 +27,7 @@ export interface UpdateTenantRequest {
   phone: string | null;
   contactEmail: string | null;
   siret: string | null;
+  employeesEnabled?: boolean | null;
 }
 
 export interface PublicCareDto {

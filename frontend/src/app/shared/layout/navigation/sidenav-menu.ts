@@ -13,6 +13,7 @@ import {
 import { LangService } from '../../../i18n/lang.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
+import { TenantFeaturesService } from '../../../core/tenant/tenant-features.service';
 
 @Component({
   selector: 'app-sidenav-menu',
@@ -24,6 +25,7 @@ import { Role } from '../../../core/auth/auth.model';
 export class SidenavMenu {
   protected readonly authService = inject(AuthService);
   protected readonly langService = inject(LangService);
+  protected readonly featuresService = inject(TenantFeaturesService);
   protected readonly languages = [
     { code: 'fr', label: 'Français', flag: '🇫🇷' },
     { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -36,8 +38,12 @@ export class SidenavMenu {
     const isEmployee = role === Role.EMPLOYEE;
 
     // PRO: only show pro routes (no public Accueil/À propos)
+    // Filter out the employees route when the feature is disabled
     if (isPro) {
-      return [...PRO_NAVIGATION_ROUTES];
+      const employeesEnabled = this.featuresService.employeesEnabled();
+      return PRO_NAVIGATION_ROUTES.filter(
+        (r) => r.path !== '/pro/employees' || employeesEnabled
+      );
     }
 
     // EMPLOYEE: only show employee routes

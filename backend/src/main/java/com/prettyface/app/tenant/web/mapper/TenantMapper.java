@@ -35,7 +35,8 @@ public class TenantMapper {
                 tenant.getPhone(),
                 tenant.getContactEmail(),
                 tenant.getSiret(),
-                tenant.getUpdatedAt()
+                tenant.getUpdatedAt(),
+                tenant.getEmployeesEnabled()
         );
     }
 

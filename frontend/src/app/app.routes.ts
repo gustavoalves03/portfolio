@@ -69,6 +69,13 @@ export const routes: Routes = [
             (m) => m.ProEmployeesComponent
           ),
       },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/pro/pro-settings.component').then(
+            (m) => m.ProSettingsComponent
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -78,20 +85,6 @@ export const routes: Routes = [
     path: 'employee',
     canActivate: [authGuard, roleGuard(Role.EMPLOYEE)],
     children: [
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./pages/employee/employee-dashboard.component').then(
-            (m) => m.EmployeeDashboardComponent
-          ),
-      },
-      {
-        path: 'planning',
-        loadComponent: () =>
-          import('./pages/employee/employee-planning.component').then(
-            (m) => m.EmployeePlanningComponent
-          ),
-      },
       {
         path: 'bookings',
         loadComponent: () =>
@@ -113,7 +106,7 @@ export const routes: Routes = [
             (m) => m.EmployeeDocumentsComponent
           ),
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: 'bookings', pathMatch: 'full' },
     ],
   },
 

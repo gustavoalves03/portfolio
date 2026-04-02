@@ -15,5 +15,6 @@ public record TenantResponse(
         String phone,
         String contactEmail,
         String siret,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        Boolean employeesEnabled
 ) {}

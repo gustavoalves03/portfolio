@@ -13,5 +13,6 @@ public record UpdateTenantRequest(
         @Size(max = 100) String addressCity,
         @Size(max = 20) String phone,
         @Size(max = 255) String contactEmail,
-        @Size(max = 14) String siret
+        @Size(max = 14) String siret,
+        Boolean employeesEnabled
 ) {}

@@ -180,7 +180,7 @@ export class AuthService {
     if (role === Role.PRO || role === Role.ADMIN) {
       this.router.navigate(['/pro/dashboard']);
     } else if (role === Role.EMPLOYEE) {
-      this.router.navigate(['/employee/dashboard']);
+      this.router.navigate(['/employee/bookings']);
     } else {
       this.router.navigate(['/']);
     }

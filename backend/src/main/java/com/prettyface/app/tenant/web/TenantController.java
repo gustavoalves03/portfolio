@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/pro/tenant")
 public class TenantController {
@@ -85,5 +87,17 @@ public class TenantController {
         tenant.setStatus(TenantStatus.DRAFT);
         tenantRepository.save(tenant);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/settings/employees")
+    public Map<String, Boolean> toggleEmployees(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody Map<String, Boolean> body) {
+        Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
+        tenant.setEmployeesEnabled(enabled);
+        tenantRepository.save(tenant);
+        return Map.of("enabled", enabled);
     }
 }

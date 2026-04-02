@@ -305,6 +305,12 @@
       "day": "jour",
       "document": "Document joint"
     },
+    "settings": {
+      "title": "Paramètres",
+      "features": "Fonctionnalités",
+      "employeesLabel": "Gestion des employés",
+      "employeesDesc": "Activez pour gérer votre équipe, les congés et les documents"
+    },
     "availability": {
       "title": "Mes disponibilités",
       "closed": "Fermé",
@@ -458,7 +464,12 @@
       "pending": "En attente",
       "approved": "Approuvé",
       "rejected": "Refusé",
-      "success": "Demande envoyée"
+      "success": "Demande envoyée",
+      "period": "Période",
+      "medicalCert": "Certificat médical",
+      "attachDoc": "Joindre un document",
+      "days": "jours",
+      "day": "jour"
     },
     "documents": {
       "title": "Mes documents",
@@ -474,7 +485,8 @@
       "cares": "Soins",
       "planning": "Planning",
       "salon": "Mon salon",
-      "employees": "Équipe"
+      "employees": "Équipe",
+      "settings": "Paramètres"
     },
     "client": {
       "bookings": "Mes rendez-vous"

@@ -92,6 +92,11 @@ public class TenantService {
         tenant.setContactEmail(request.contactEmail());
         tenant.setSiret(request.siret());
 
+        // Feature flags
+        if (request.employeesEnabled() != null) {
+            tenant.setEmployeesEnabled(request.employeesEnabled());
+        }
+
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);
     }

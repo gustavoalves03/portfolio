@@ -301,6 +301,12 @@
       "day": "day",
       "document": "Attached document"
     },
+    "settings": {
+      "title": "Settings",
+      "features": "Features",
+      "employeesLabel": "Employee management",
+      "employeesDesc": "Enable to manage your team, leaves, and documents"
+    },
     "availability": {
       "title": "My availability",
       "closed": "Closed",
@@ -454,7 +460,12 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "success": "Request submitted"
+      "success": "Request submitted",
+      "period": "Period",
+      "medicalCert": "Medical certificate",
+      "attachDoc": "Attach a document",
+      "days": "days",
+      "day": "day"
     },
     "documents": {
       "title": "My documents",
@@ -470,7 +481,8 @@
       "cares": "Services",
       "planning": "Schedule",
       "salon": "My salon",
-      "employees": "Team"
+      "employees": "Team",
+      "settings": "Settings"
     },
     "client": {
       "bookings": "My bookings"
