@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface BlockedSlotRepository extends JpaRepository<BlockedSlot, Long> {
     List<BlockedSlot> findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(LocalDate date);
+
+    List<BlockedSlot> findByEmployeeIdAndDateGreaterThanEqualOrderByDateAscStartTimeAsc(Long employeeId, LocalDate date);
 }

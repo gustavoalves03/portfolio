@@ -26,4 +26,7 @@ public class OpeningHour {
 
     @Column(name = "close_time", nullable = false)
     private LocalTime closeTime;
+
+    @Column(name = "employee_id")
+    private Long employeeId; // null = salon-wide
 }

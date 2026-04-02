@@ -20,6 +20,11 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
     List<CareBooking> findByAppointmentDateAndStatusNot(LocalDate date, CareBookingStatus status);
 
     /**
+     * Find bookings for a specific date and employee (for per-employee availability)
+     */
+    List<CareBooking> findByAppointmentDateAndEmployeeIdAndStatusNot(LocalDate date, Long employeeId, CareBookingStatus status);
+
+    /**
      * Find bookings by status with pagination
      */
     Page<CareBooking> findByStatus(CareBookingStatus status, Pageable pageable);

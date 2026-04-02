@@ -6,5 +6,6 @@ import java.time.LocalDate;
 public record ClientBookingRequest(
         @NotNull Long careId,
         @NotNull LocalDate appointmentDate,
-        @NotNull String appointmentTime  // "HH:mm" format
+        @NotNull String appointmentTime,  // "HH:mm" format
+        Long employeeId  // null = no preference / unassigned
 ) {}

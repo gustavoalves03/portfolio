@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface OpeningHourRepository extends JpaRepository<OpeningHour, Long> {
     List<OpeningHour> findAllByOrderByDayOfWeekAscOpenTimeAsc();
+
+    List<OpeningHour> findByEmployeeIdOrderByDayOfWeekAscOpenTimeAsc(Long employeeId);
+
+    List<OpeningHour> findByEmployeeIdIsNullOrderByDayOfWeekAscOpenTimeAsc();
 }

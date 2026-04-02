@@ -33,4 +33,7 @@ public class BlockedSlot {
 
     @Column(name = "reason", length = 500)
     private String reason;
+
+    @Column(name = "employee_id")
+    private Long employeeId; // null = salon-wide
 }

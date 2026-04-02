@@ -48,6 +48,9 @@ public class CareBooking {
     @Column(name = "status", nullable = false)
     private CareBookingStatus status = CareBookingStatus.PENDING;
 
+    @Column(name = "employee_id")
+    private Long employeeId; // null = unassigned
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

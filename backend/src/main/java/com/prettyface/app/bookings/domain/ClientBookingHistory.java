@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "CLIENT_BOOKING_HISTORY", schema = "APPUSER")
+@Table(name = "CLIENT_BOOKING_HISTORY")
 public class ClientBookingHistory {
 
     @Id

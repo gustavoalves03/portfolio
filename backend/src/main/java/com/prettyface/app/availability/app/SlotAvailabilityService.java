@@ -9,6 +9,7 @@ import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.repo.CareBookingRepository;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.employee.app.LeaveRequestService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class SlotAvailabilityService {
@@ -26,15 +28,18 @@ public class SlotAvailabilityService {
     private final BlockedSlotRepository blockedSlotRepo;
     private final CareBookingRepository bookingRepo;
     private final CareRepository careRepo;
+    private final LeaveRequestService leaveRequestService;
 
     public SlotAvailabilityService(OpeningHourRepository openingHourRepo,
                                    BlockedSlotRepository blockedSlotRepo,
                                    CareBookingRepository bookingRepo,
-                                   CareRepository careRepo) {
+                                   CareRepository careRepo,
+                                   LeaveRequestService leaveRequestService) {
         this.openingHourRepo = openingHourRepo;
         this.blockedSlotRepo = blockedSlotRepo;
         this.bookingRepo = bookingRepo;
         this.careRepo = careRepo;
+        this.leaveRequestService = leaveRequestService;
     }
 
     /**
@@ -101,6 +106,113 @@ public class SlotAvailabilityService {
         }
 
         return availableSlots;
+    }
+
+    /**
+     * Compute available time slots for a given date, care service, and specific employee.
+     * Takes into account the employee's personal opening hours (or salon-wide fallback),
+     * employee-specific and salon-wide blocked slots, employee leave, and existing bookings.
+     */
+    @Transactional(readOnly = true)
+    public List<TimeSlot> getAvailableSlots(LocalDate date, Long careId, Long employeeId) {
+        if (date.isBefore(LocalDate.now())) {
+            return List.of();
+        }
+
+        Care care = careRepo.findById(careId)
+                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + careId));
+        int durationMinutes = care.getDuration();
+
+        // Get day of week (Monday=1..Sunday=7)
+        int dow = date.getDayOfWeek().getValue();
+
+        // Get employee's personal opening hours; fallback to salon-wide if none
+        List<OpeningHour> employeeHours = openingHourRepo
+                .findByEmployeeIdOrderByDayOfWeekAscOpenTimeAsc(employeeId);
+        List<OpeningHour> openingHours;
+        if (employeeHours.isEmpty()) {
+            openingHours = openingHourRepo.findByEmployeeIdIsNullOrderByDayOfWeekAscOpenTimeAsc()
+                    .stream()
+                    .filter(oh -> oh.getDayOfWeek() == dow)
+                    .toList();
+        } else {
+            openingHours = employeeHours.stream()
+                    .filter(oh -> oh.getDayOfWeek() == dow)
+                    .toList();
+        }
+
+        if (openingHours.isEmpty()) {
+            return List.of(); // Closed day
+        }
+
+        // Check if employee is on approved leave
+        if (leaveRequestService.isOnLeave(employeeId, date)) {
+            return List.of();
+        }
+
+        // Get employee-specific blocked slots AND salon-wide blocked slots for this date
+        List<BlockedSlot> employeeBlocks = blockedSlotRepo
+                .findByEmployeeIdAndDateGreaterThanEqualOrderByDateAscStartTimeAsc(employeeId, date)
+                .stream()
+                .filter(bs -> bs.getDate().equals(date))
+                .toList();
+        List<BlockedSlot> salonBlocks = blockedSlotRepo
+                .findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(date)
+                .stream()
+                .filter(bs -> bs.getDate().equals(date) && bs.getEmployeeId() == null)
+                .toList();
+        List<BlockedSlot> allBlocks = Stream.concat(employeeBlocks.stream(), salonBlocks.stream()).toList();
+
+        // Check if full day is blocked
+        boolean fullDayBlocked = allBlocks.stream().anyMatch(BlockedSlot::isFullDay);
+        if (fullDayBlocked) {
+            return List.of();
+        }
+
+        // Get existing bookings for this date and employee (exclude cancelled)
+        List<CareBooking> existingBookings = bookingRepo
+                .findByAppointmentDateAndEmployeeIdAndStatusNot(date, employeeId, CareBookingStatus.CANCELLED);
+
+        // Generate candidate slots from opening hours
+        List<TimeSlot> availableSlots = new ArrayList<>();
+
+        for (OpeningHour oh : openingHours) {
+            LocalTime cursor = oh.getOpenTime();
+            LocalTime windowEnd = oh.getCloseTime();
+
+            while (cursor.plusMinutes(durationMinutes).compareTo(windowEnd) <= 0) {
+                LocalTime slotEnd = cursor.plusMinutes(durationMinutes);
+
+                if (!isBlockedAt(cursor, slotEnd, allBlocks)
+                        && !isBookedAt(cursor, slotEnd, existingBookings)) {
+                    availableSlots.add(new TimeSlot(cursor.toString(), slotEnd.toString()));
+                }
+
+                cursor = cursor.plusMinutes(SLOT_INTERVAL_MINUTES);
+            }
+        }
+
+        return availableSlots;
+    }
+
+    /**
+     * Find the first available employee for a specific time slot from a list of candidates.
+     * Returns the employee ID of the first available employee, or null if none are available.
+     */
+    @Transactional(readOnly = true)
+    public Long findFirstAvailableEmployee(LocalDate date, Long careId, String timeStr,
+                                           List<Long> candidateEmployeeIds) {
+        LocalTime requestedTime = LocalTime.parse(timeStr);
+
+        for (Long employeeId : candidateEmployeeIds) {
+            List<TimeSlot> slots = getAvailableSlots(date, careId, employeeId);
+            boolean available = slots.stream()
+                    .anyMatch(slot -> LocalTime.parse(slot.startTime()).equals(requestedTime));
+            if (available) {
+                return employeeId;
+            }
+        }
+        return null;
     }
 
     private boolean isBlockedAt(LocalTime start, LocalTime end, List<BlockedSlot> blockedSlots) {
