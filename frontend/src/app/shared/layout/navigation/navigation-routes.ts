@@ -13,12 +13,12 @@ export interface NavigationRoute {
  */
 export const NAVIGATION_ROUTES: NavigationRoute[] = [
   {
-    label: 'Accueil',
+    label: 'nav.home',
     path: '/',
     icon: 'home'
   },
   {
-    label: 'À propos',
+    label: 'nav.about',
     path: '/about',
     icon: 'info'
   }
@@ -26,35 +26,35 @@ export const NAVIGATION_ROUTES: NavigationRoute[] = [
 
 export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
   {
-    label: 'Dashboard',
+    label: 'nav.pro.dashboard',
     path: '/pro/dashboard',
     icon: 'dashboard',
     requiresAuth: true,
     requiredRole: 'PRO'
   },
   {
-    label: 'Soins',
+    label: 'nav.pro.cares',
     path: '/pro/cares',
     icon: 'spa',
     requiresAuth: true,
     requiredRole: 'PRO'
   },
   {
-    label: 'Planning',
+    label: 'nav.pro.planning',
     path: '/pro/planning',
     icon: 'calendar_month',
     requiresAuth: true,
     requiredRole: 'PRO'
   },
   {
-    label: 'Mon salon',
+    label: 'nav.pro.salon',
     path: '/pro/salon',
     icon: 'storefront',
     requiresAuth: true,
     requiredRole: 'PRO'
   },
   {
-    label: 'Équipe',
+    label: 'nav.pro.employees',
     path: '/pro/employees',
     icon: 'groups',
     requiresAuth: true,
@@ -64,7 +64,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
 
 export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
   {
-    label: 'Mes rendez-vous',
+    label: 'nav.client.bookings',
     path: '/bookings',
     icon: 'calendar_month',
     requiresAuth: true
@@ -73,31 +73,31 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
 
 export const EMPLOYEE_NAVIGATION_ROUTES: NavigationRoute[] = [
   {
-    label: 'Dashboard',
+    label: 'nav.employee.dashboard',
     path: '/employee/dashboard',
     icon: 'dashboard',
     requiresAuth: true,
   },
   {
-    label: 'Planning',
+    label: 'nav.employee.planning',
     path: '/employee/planning',
     icon: 'calendar_month',
     requiresAuth: true,
   },
   {
-    label: 'Réservations',
+    label: 'nav.employee.bookings',
     path: '/employee/bookings',
     icon: 'event',
     requiresAuth: true,
   },
   {
-    label: 'Congés',
+    label: 'nav.employee.leaves',
     path: '/employee/leaves',
     icon: 'beach_access',
     requiresAuth: true,
   },
   {
-    label: 'Documents',
+    label: 'nav.employee.documents',
     path: '/employee/documents',
     icon: 'folder',
     requiresAuth: true,

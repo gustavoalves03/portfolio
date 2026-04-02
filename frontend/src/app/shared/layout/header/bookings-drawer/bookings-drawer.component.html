@@ -3,8 +3,8 @@
     <div class="drawer-content">
       <!-- Header -->
       <div class="drawer-header">
-        <h2 class="drawer-title">Mes rendez-vous</h2>
-        <button mat-icon-button (click)="close()" aria-label="Fermer">
+        <h2 class="drawer-title">{{ 'drawer.title' | transloco }}</h2>
+        <button mat-icon-button (click)="close()" [attr.aria-label]="'actions.close' | transloco">
           <mat-icon>close</mat-icon>
         </button>
       </div>
@@ -13,56 +13,56 @@
       <div class="filters-section">
         <!-- Status filters -->
         <div class="filter-group">
-          <span class="filter-label">Statut:</span>
+          <span class="filter-label">{{ 'drawer.status' | transloco }}</span>
           <mat-chip-listbox class="chip-list" aria-label="Filtrer par statut">
             <mat-chip-option
               [selected]="selectedStatus() === undefined"
               (click)="setStatusFilter(undefined)"
             >
-              Tous
+              {{ 'drawer.all' | transloco }}
             </mat-chip-option>
             <mat-chip-option
               [selected]="selectedStatus() === CareBookingStatus.PENDING"
               (click)="setStatusFilter(CareBookingStatus.PENDING)"
             >
-              En attente
+              {{ 'drawer.pending' | transloco }}
             </mat-chip-option>
             <mat-chip-option
               [selected]="selectedStatus() === CareBookingStatus.CONFIRMED"
               (click)="setStatusFilter(CareBookingStatus.CONFIRMED)"
             >
-              Confirmés
+              {{ 'drawer.confirmed' | transloco }}
             </mat-chip-option>
           </mat-chip-listbox>
         </div>
 
         <!-- Date filters -->
         <div class="filter-group">
-          <span class="filter-label">Période:</span>
+          <span class="filter-label">{{ 'drawer.period' | transloco }}</span>
           <mat-chip-listbox class="chip-list" aria-label="Filtrer par période">
             <mat-chip-option
               [selected]="selectedDateFilter() === 'all'"
               (click)="setDateFilter('all')"
             >
-              Tout
+              {{ 'drawer.allTime' | transloco }}
             </mat-chip-option>
             <mat-chip-option
               [selected]="selectedDateFilter() === 'today'"
               (click)="setDateFilter('today')"
             >
-              Aujourd'hui
+              {{ 'drawer.today' | transloco }}
             </mat-chip-option>
             <mat-chip-option
               [selected]="selectedDateFilter() === 'week'"
               (click)="setDateFilter('week')"
             >
-              Cette semaine
+              {{ 'drawer.thisWeek' | transloco }}
             </mat-chip-option>
             <mat-chip-option
               [selected]="selectedDateFilter() === 'month'"
               (click)="setDateFilter('month')"
             >
-              Ce mois
+              {{ 'drawer.thisMonth' | transloco }}
             </mat-chip-option>
           </mat-chip-listbox>
         </div>
@@ -81,9 +81,9 @@
           @if (bookings().length === 0) {
             <div class="empty-state">
               <mat-icon class="empty-icon">event_busy</mat-icon>
-              <p class="empty-text">Aucun rendez-vous trouvé</p>
+              <p class="empty-text">{{ 'drawer.empty' | transloco }}</p>
               <a routerLink="/bookings" class="link-button" (click)="close()">
-                Prendre un rendez-vous
+                {{ 'drawer.bookNow' | transloco }}
               </a>
             </div>
           } @else {
@@ -114,7 +114,7 @@
                   @if (booking.quantity > 1) {
                     <div class="booking-quantity">
                       <mat-icon class="quantity-icon">groups</mat-icon>
-                      <span>{{ booking.quantity }} personne(s)</span>
+                      <span>{{ booking.quantity }} {{ 'drawer.persons' | transloco }}</span>
                     </div>
                   }
                 </mat-card-content>
@@ -133,7 +133,7 @@
             [pageIndex]="pageIndex()"
             [pageSizeOptions]="[5, 10, 20]"
             (page)="onPageChange($event)"
-            aria-label="Sélectionner la page"
+            [attr.aria-label]="'drawer.selectPage' | transloco"
           ></mat-paginator>
         </div>
       }
@@ -141,7 +141,7 @@
       <!-- Footer link -->
       <div class="drawer-footer">
         <a routerLink="/bookings" class="view-all-link" (click)="close()">
-          Voir tous les rendez-vous
+          {{ 'drawer.viewAll' | transloco }}
           <mat-icon class="link-icon">arrow_forward</mat-icon>
         </a>
       </div>

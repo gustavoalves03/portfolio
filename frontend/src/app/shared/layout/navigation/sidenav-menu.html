@@ -1,7 +1,7 @@
 <div class="sidenav-container">
   <!-- Header du menu -->
   <div class="p-6 border-b border-neutral-200">
-    <h2 class="text-lg font-medium tracking-wide text-neutral-900">Menu</h2>
+    <h2 class="text-lg font-medium tracking-wide text-neutral-900">{{ 'nav.menu' | transloco }}</h2>
   </div>
 
   <!-- Liste de navigation -->
@@ -20,7 +20,7 @@
             <mat-icon matListItemIcon class="text-neutral-600">{{ route.icon }}</mat-icon>
           }
           <span matListItemTitle class="text-neutral-900 font-light tracking-wide">
-            {{ route.label }}
+            {{ route.label | transloco }}
           </span>
         </a>
       }

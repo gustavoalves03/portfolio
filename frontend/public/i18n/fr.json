@@ -446,5 +446,45 @@
       "title": "Mes documents",
       "empty": "Vos documents apparaîtront ici"
     }
+  },
+  "nav": {
+    "menu": "Menu",
+    "home": "Accueil",
+    "about": "À propos",
+    "pro": {
+      "dashboard": "Dashboard",
+      "cares": "Soins",
+      "planning": "Planning",
+      "salon": "Mon salon",
+      "employees": "Équipe"
+    },
+    "client": {
+      "bookings": "Mes rendez-vous"
+    },
+    "employee": {
+      "dashboard": "Dashboard",
+      "planning": "Planning",
+      "bookings": "Réservations",
+      "leaves": "Congés",
+      "documents": "Documents"
+    }
+  },
+  "drawer": {
+    "title": "Mes rendez-vous",
+    "status": "Statut :",
+    "all": "Tous",
+    "pending": "En attente",
+    "confirmed": "Confirmés",
+    "cancelled": "Annulé",
+    "period": "Période :",
+    "allTime": "Tout",
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois",
+    "empty": "Aucun rendez-vous trouvé",
+    "bookNow": "Prendre un rendez-vous",
+    "persons": "personne(s)",
+    "selectPage": "Sélectionner la page",
+    "viewAll": "Voir tous les rendez-vous"
   }
 }

@@ -13,6 +13,7 @@ import { BookingsService } from '../../../../features/bookings/services/bookings
 import { BookingFilters, CareBookingDetailed, CareBookingStatus } from '../../../../features/bookings/models/bookings.model';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 
 type DateFilter = 'all' | 'today' | 'week' | 'month';
 
@@ -29,13 +30,15 @@ type DateFilter = 'all' | 'today' | 'week' | 'month';
     MatProgressSpinnerModule,
     MatCardModule,
     MatBadgeModule,
-    RouterLink
+    RouterLink,
+    TranslocoPipe
   ],
   templateUrl: './bookings-drawer.component.html',
   styleUrl: './bookings-drawer.component.scss'
 })
 export class BookingsDrawerComponent {
   private readonly bookingsService = inject(BookingsService);
+  private readonly i18n = inject(TranslocoService);
 
   // Signals
   protected readonly isOpen = signal(false);
@@ -144,11 +147,11 @@ export class BookingsDrawerComponent {
   protected getStatusLabel(status: CareBookingStatus): string {
     switch (status) {
       case CareBookingStatus.PENDING:
-        return 'En attente';
+        return this.i18n.translate('drawer.pending');
       case CareBookingStatus.CONFIRMED:
-        return 'Confirmé';
+        return this.i18n.translate('drawer.confirmed');
       case CareBookingStatus.CANCELLED:
-        return 'Annulé';
+        return this.i18n.translate('drawer.cancelled');
       default:
         return status;
     }

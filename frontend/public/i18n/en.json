@@ -442,5 +442,45 @@
       "title": "My documents",
       "empty": "Your documents will appear here"
     }
+  },
+  "nav": {
+    "menu": "Menu",
+    "home": "Home",
+    "about": "About",
+    "pro": {
+      "dashboard": "Dashboard",
+      "cares": "Services",
+      "planning": "Schedule",
+      "salon": "My salon",
+      "employees": "Team"
+    },
+    "client": {
+      "bookings": "My bookings"
+    },
+    "employee": {
+      "dashboard": "Dashboard",
+      "planning": "Schedule",
+      "bookings": "Bookings",
+      "leaves": "Leaves",
+      "documents": "Documents"
+    }
+  },
+  "drawer": {
+    "title": "My bookings",
+    "status": "Status:",
+    "all": "All",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "period": "Period:",
+    "allTime": "All",
+    "today": "Today",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "empty": "No bookings found",
+    "bookNow": "Book now",
+    "persons": "person(s)",
+    "selectPage": "Select page",
+    "viewAll": "View all bookings"
   }
 }
