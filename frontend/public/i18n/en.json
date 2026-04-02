@@ -387,6 +387,8 @@
   },
   "booking": {
     "book": "Book",
+    "chooseEmployee": "Choose a practitioner",
+    "noPreference": "No preference",
     "dialog": {
       "title": "Choose a time slot",
       "selectDate": "Select a date",

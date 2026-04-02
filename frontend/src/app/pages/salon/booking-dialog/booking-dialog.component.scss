@@ -38,6 +38,67 @@
   color: #999;
 }
 
+.employee-section {
+  margin-bottom: 16px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.employee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.employee-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  background: white;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    border-color: #c06;
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, #a8385d, #c06);
+    color: white;
+    border-color: transparent;
+  }
+}
+
+.employee-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f0e8ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #c06;
+
+  .selected & {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+}
+
 .date-field {
   width: 100%;
 }

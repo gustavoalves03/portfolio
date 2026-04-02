@@ -26,6 +26,29 @@
       <span class="care-meta">{{ formatDuration(care.duration) }} · {{ formatPrice(care.price) }}</span>
     </div>
 
+    @if (employees().length > 0) {
+      <div class="employee-section">
+        <div class="section-label">{{ 'booking.chooseEmployee' | transloco }}</div>
+        <div class="employee-chips">
+          <button type="button"
+            class="employee-chip"
+            [class.selected]="selectedEmployee() === null"
+            (click)="selectEmployee(null)">
+            {{ 'booking.noPreference' | transloco }}
+          </button>
+          @for (emp of employees(); track emp.id) {
+            <button type="button"
+              class="employee-chip"
+              [class.selected]="selectedEmployee()?.id === emp.id"
+              (click)="selectEmployee(emp)">
+              <span class="employee-avatar">{{ emp.name.charAt(0) }}</span>
+              {{ emp.name }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
     <mat-form-field appearance="outline" class="date-field">
       <mat-label>{{ 'booking.dialog.selectDate' | transloco }}</mat-label>
       <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="minDate"

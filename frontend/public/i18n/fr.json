@@ -391,6 +391,8 @@
   },
   "booking": {
     "book": "Réserver",
+    "chooseEmployee": "Choisir un collaborateur",
+    "noPreference": "Pas de préférence",
     "dialog": {
       "title": "Choisir un créneau",
       "selectDate": "Choisir une date",

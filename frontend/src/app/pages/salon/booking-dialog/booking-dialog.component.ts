@@ -10,7 +10,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { AvailabilityService } from '../../../features/availability/availability.service';
-import { PublicCareDto, TimeSlot, ClientBookingRequest } from '../../../features/salon-profile/models/salon-profile.model';
+import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
 
@@ -57,6 +57,8 @@ export class BookingDialogComponent {
   readonly bookingSuccess = signal(false);
   readonly bookingError = signal<string | null>(null);
   readonly registerJustCompleted = signal(false);
+  readonly employees = signal<EmployeeSlim[]>([]);
+  readonly selectedEmployee = signal<EmployeeSlim | null>(null);
 
   readonly dateFilter = (date: Date | null): boolean => {
     if (!date) return false;
@@ -69,6 +71,9 @@ export class BookingDialogComponent {
 
   constructor() {
     this.loadOpeningHours();
+    this.salonService.getEmployeesForCare(this.slug, this.care.id).subscribe(emps => {
+      this.employees.set(emps);
+    });
   }
 
   onDateChange(date: Date | null): void {
@@ -81,6 +86,10 @@ export class BookingDialogComponent {
 
   selectSlot(slot: TimeSlot): void {
     this.selectedSlot.set(slot);
+  }
+
+  selectEmployee(emp: EmployeeSlim | null): void {
+    this.selectedEmployee.set(emp);
   }
 
   confirm(): void {
@@ -160,6 +169,7 @@ export class BookingDialogComponent {
       careId: this.care.id,
       appointmentDate: this.formatDate(this.selectedDate()!),
       appointmentTime: this.selectedSlot()!.startTime,
+      employeeId: this.selectedEmployee()?.id,
     };
 
     this.salonService.createBooking(this.slug, request).subscribe({

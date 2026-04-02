@@ -60,6 +60,13 @@ export interface ClientBookingRequest {
   careId: number;
   appointmentDate: string;  // "yyyy-MM-dd"
   appointmentTime: string;  // "HH:mm"
+  employeeId?: number;
+}
+
+export interface EmployeeSlim {
+  id: number;
+  name: string;
+  imageUrl: string | null;
 }
 
 export interface ClientBookingResponse {
