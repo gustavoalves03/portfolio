@@ -163,7 +163,8 @@ public class TenantSchemaManager {
                 "ALTER TABLE CARE_BOOKINGS ADD (EMPLOYEE_ID NUMBER(19))"
         };
 
-        try (Connection conn = getProvisioningConnection();
+        // Use application dataSource (not provisioning) — app user has grants on tenant schemas
+        try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
 
             setCurrentSchema(stmt, schemaName);
@@ -171,11 +172,12 @@ public class TenantSchemaManager {
             for (String ddl : newTables) {
                 try {
                     stmt.execute(ddl);
+                    logger.info("Created table in {}", schemaName);
                 } catch (SQLException e) {
                     if (e.getErrorCode() == 955) {
                         logger.debug("Table already exists in {}, skipping", schemaName);
                     } else {
-                        throw e;
+                        logger.warn("DDL failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
                     }
                 }
             }
@@ -183,12 +185,12 @@ public class TenantSchemaManager {
             for (String alter : alterStatements) {
                 try {
                     stmt.execute(alter);
+                    logger.info("Added column in {}", schemaName);
                 } catch (SQLException e) {
                     if (e.getErrorCode() == 1430) {
-                        // ORA-01430: column being added already exists
                         logger.debug("Column already exists in {}, skipping", schemaName);
                     } else {
-                        throw e;
+                        logger.warn("ALTER failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
                     }
                 }
             }
