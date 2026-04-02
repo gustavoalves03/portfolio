@@ -154,6 +154,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/client/**").authenticated()
+                        // Employee endpoints (staff access)
+                        .requestMatchers("/api/employee/**").hasAnyRole("EMPLOYEE", "PRO", "ADMIN")
                         // Pro-only endpoints (salon management)
                         .requestMatchers("/api/pro/**").hasAnyRole("PRO", "ADMIN")
                         // User endpoints (bookings, profile)
