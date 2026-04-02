@@ -58,17 +58,18 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
                         (mousemove)="onBaDragMove($event, post.id)"
                         (mouseup)="onBaDragEnd(post.id)"
                         (mouseleave)="onBaDragEnd(post.id)"
+                        (dragstart)="$event.preventDefault()"
                         (touchstart)="onBaTouchStart($event, post.id)"
                         (touchmove)="onBaTouchMove($event, post.id)"
                         (touchend)="onBaDragEnd(post.id)"
                       >
                         @if (post.afterImageUrl) {
-                          <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" />
+                          <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" draggable="false" />
                         }
                         @if (post.beforeImageUrl) {
                           <img
                             [src]="imgUrl(post.beforeImageUrl)"
-                            class="ba-img ba-before"
+                            class="ba-img ba-before" draggable="false"
                             [style.clip-path]="
                               'inset(0 ' + (100 - getBaSplit(post.id)) + '% 0 0)'
                             "
@@ -321,6 +322,9 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
       width: 100%;
       height: 100%;
       object-fit: cover;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: none;
     }
 
     .ba-before {
@@ -669,6 +673,7 @@ export class SalonPostsViewerComponent {
   }
 
   onBaDragStart(e: MouseEvent, postId: number): void {
+    e.preventDefault();
     this.baDragging[postId] = true;
     this.updateBaSplit(e.clientX, postId, e.currentTarget as HTMLElement);
   }
