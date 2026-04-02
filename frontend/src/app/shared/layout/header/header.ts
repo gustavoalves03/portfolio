@@ -27,7 +27,7 @@ export class Header {
 
   protected readonly isPro = computed(() => {
     const role = this.authService.user()?.role;
-    return role === Role.PRO || role === Role.ADMIN;
+    return role === Role.PRO || role === Role.ADMIN || role === Role.EMPLOYEE;
   });
 
   protected readonly salonName = signal('');

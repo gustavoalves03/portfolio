@@ -3,7 +3,7 @@ export interface NavigationRoute {
   path: string;
   icon?: string; // Material icon name
   requiresAuth?: boolean;
-  requiredRole?: 'PRO' | 'ADMIN';
+  requiredRole?: 'PRO' | 'ADMIN' | 'EMPLOYEE';
   children?: NavigationRoute[];
 }
 
@@ -52,6 +52,13 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'storefront',
     requiresAuth: true,
     requiredRole: 'PRO'
+  },
+  {
+    label: 'Équipe',
+    path: '/pro/employees',
+    icon: 'groups',
+    requiresAuth: true,
+    requiredRole: 'PRO',
   }
 ];
 
@@ -62,4 +69,37 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'calendar_month',
     requiresAuth: true
   }
+];
+
+export const EMPLOYEE_NAVIGATION_ROUTES: NavigationRoute[] = [
+  {
+    label: 'Dashboard',
+    path: '/employee/dashboard',
+    icon: 'dashboard',
+    requiresAuth: true,
+  },
+  {
+    label: 'Planning',
+    path: '/employee/planning',
+    icon: 'calendar_month',
+    requiresAuth: true,
+  },
+  {
+    label: 'Réservations',
+    path: '/employee/bookings',
+    icon: 'event',
+    requiresAuth: true,
+  },
+  {
+    label: 'Congés',
+    path: '/employee/leaves',
+    icon: 'beach_access',
+    requiresAuth: true,
+  },
+  {
+    label: 'Documents',
+    path: '/employee/documents',
+    icon: 'folder',
+    requiresAuth: true,
+  },
 ];

@@ -179,6 +179,8 @@ export class AuthService {
     const role = this.currentUser()?.role;
     if (role === Role.PRO || role === Role.ADMIN) {
       this.router.navigate(['/pro/dashboard']);
+    } else if (role === Role.EMPLOYEE) {
+      this.router.navigate(['/employee/dashboard']);
     } else {
       this.router.navigate(['/']);
     }

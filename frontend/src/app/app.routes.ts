@@ -62,6 +62,57 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/pro/pro-planning.component').then(m => m.ProPlanningComponent),
       },
       { path: 'bookings', component: BookingsComponent },
+      {
+        path: 'employees',
+        loadComponent: () =>
+          import('./pages/pro/pro-employees.component').then(
+            (m) => m.ProEmployeesComponent
+          ),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    ],
+  },
+
+  // Protected employee routes
+  {
+    path: 'employee',
+    canActivate: [authGuard, roleGuard(Role.EMPLOYEE)],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/employee/employee-dashboard.component').then(
+            (m) => m.EmployeeDashboardComponent
+          ),
+      },
+      {
+        path: 'planning',
+        loadComponent: () =>
+          import('./pages/employee/employee-planning.component').then(
+            (m) => m.EmployeePlanningComponent
+          ),
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./pages/employee/employee-bookings.component').then(
+            (m) => m.EmployeeBookingsComponent
+          ),
+      },
+      {
+        path: 'leaves',
+        loadComponent: () =>
+          import('./pages/employee/employee-leaves.component').then(
+            (m) => m.EmployeeLeavesComponent
+          ),
+      },
+      {
+        path: 'documents',
+        loadComponent: () =>
+          import('./pages/employee/employee-documents.component').then(
+            (m) => m.EmployeeDocumentsComponent
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

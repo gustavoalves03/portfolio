@@ -8,7 +8,8 @@ export enum AuthProvider {
 export enum Role {
   USER = 'USER',
   ADMIN = 'ADMIN',
-  PRO = 'PRO'
+  PRO = 'PRO',
+  EMPLOYEE = 'EMPLOYEE'
 }
 
 export interface User {

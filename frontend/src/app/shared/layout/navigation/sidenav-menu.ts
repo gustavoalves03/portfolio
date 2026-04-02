@@ -4,6 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import {
   CLIENT_NAVIGATION_ROUTES,
+  EMPLOYEE_NAVIGATION_ROUTES,
   NAVIGATION_ROUTES,
   NavigationRoute,
   PRO_NAVIGATION_ROUTES,
@@ -29,11 +30,18 @@ export class SidenavMenu {
 
   protected readonly routes = computed<NavigationRoute[]>(() => {
     const user = this.authService.user();
-    const isPro = user?.role === Role.PRO || user?.role === Role.ADMIN;
+    const role = user?.role;
+    const isPro = role === Role.PRO || role === Role.ADMIN;
+    const isEmployee = role === Role.EMPLOYEE;
 
     // PRO: only show pro routes (no public Accueil/À propos)
     if (isPro) {
       return [...PRO_NAVIGATION_ROUTES];
+    }
+
+    // EMPLOYEE: only show employee routes
+    if (isEmployee) {
+      return [...EMPLOYEE_NAVIGATION_ROUTES];
     }
 
     // Public/Client: show public routes + client routes if authenticated
