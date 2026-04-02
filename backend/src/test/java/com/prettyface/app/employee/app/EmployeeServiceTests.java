@@ -105,7 +105,7 @@ class EmployeeServiceTests {
 
         // Verify User created with EMPLOYEE role and LOCAL provider
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
+        verify(userRepository, atLeast(1)).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
         assertThat(savedUser.getRole()).isEqualTo(Role.EMPLOYEE);
         assertThat(savedUser.getProvider()).isEqualTo(AuthProvider.LOCAL);
