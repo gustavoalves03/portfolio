@@ -83,12 +83,12 @@ public class PostService {
         List<String> carouselUrls = List.of();
         if (p.getType() == PostType.CAROUSEL) {
             carouselUrls = postImageRepo.findByPostIdOrderByImageOrderAsc(p.getId())
-                    .stream().map(pi -> "/uploads/posts/" + extractFilename(pi.getImagePath())).toList();
+                    .stream().map(pi -> "/api/images/posts/" + extractFilename(pi.getImagePath())).toList();
         }
         return new PostResponse(
                 p.getId(), p.getType(), p.getCaption(),
-                p.getBeforeImagePath() != null ? "/uploads/posts/" + extractFilename(p.getBeforeImagePath()) : null,
-                p.getAfterImagePath() != null ? "/uploads/posts/" + extractFilename(p.getAfterImagePath()) : null,
+                p.getBeforeImagePath() != null ? "/api/images/posts/" + extractFilename(p.getBeforeImagePath()) : null,
+                p.getAfterImagePath() != null ? "/api/images/posts/" + extractFilename(p.getAfterImagePath()) : null,
                 carouselUrls, p.getCareId(), p.getCareName(), p.getCreatedAt()
         );
     }

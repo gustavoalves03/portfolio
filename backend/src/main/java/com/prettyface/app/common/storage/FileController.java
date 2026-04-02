@@ -47,6 +47,21 @@ public class FileController {
         }
     }
 
+    @GetMapping("/posts/{filename}")
+    public ResponseEntity<Resource> servePostImage(@PathVariable String filename) {
+        try {
+            String filePath = String.format("uploads/posts/%s", filename);
+            Resource resource = fileStorageService.loadFile(filePath);
+            String contentType = determineContentType(filename);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/tenant/{tenantId}/{filename}")
     public ResponseEntity<Resource> serveTenantImage(
             @PathVariable Long tenantId,
