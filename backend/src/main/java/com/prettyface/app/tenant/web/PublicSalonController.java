@@ -15,6 +15,8 @@ import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.employee.app.EmployeeService;
 import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.multitenancy.TenantContext;
+import com.prettyface.app.post.app.PostService;
+import com.prettyface.app.post.web.dto.PostResponse;
 import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.web.dto.PublicSalonResponse;
@@ -44,13 +46,14 @@ public class PublicSalonController {
     private final UserRepository userRepository;
     private final ClientBookingHistoryService clientBookingHistoryService;
     private final EmployeeService employeeService;
+    private final PostService postService;
 
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
                                  SlotAvailabilityService slotAvailabilityService,
                                  CareBookingService careBookingService, UserRepository userRepository,
                                  ClientBookingHistoryService clientBookingHistoryService,
-                                 EmployeeService employeeService) {
+                                 EmployeeService employeeService, PostService postService) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
@@ -60,6 +63,7 @@ public class PublicSalonController {
         this.userRepository = userRepository;
         this.clientBookingHistoryService = clientBookingHistoryService;
         this.employeeService = employeeService;
+        this.postService = postService;
     }
 
     @GetMapping("/{slug}")
@@ -136,6 +140,17 @@ public class PublicSalonController {
         TenantContext.setCurrentTenant(slug);
         try {
             return employeeService.listForCare(careId);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    @GetMapping("/{slug}/posts")
+    public List<PostResponse> listPosts(@PathVariable String slug) {
+        tenantService.findBySlug(slug);
+        TenantContext.setCurrentTenant(slug);
+        try {
+            return postService.listAll();
         } finally {
             TenantContext.clear();
         }
