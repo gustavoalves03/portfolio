@@ -18,11 +18,11 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Creates and provisions Oracle schemas (users) for each tenant.
+ * Creates and provisions tenant schemas for each salon.
  * <p>
- * Each tenant gets its own Oracle schema containing the tenant-scoped tables
+ * Each tenant gets its own schema containing the tenant-scoped tables
  * (CATEGORIES, SERVICES, CARE_IMAGES, OPENING_HOURS, BLOCKED_SLOTS, CARE_BOOKINGS).
- * The APPUSER schema remains the default and holds shared tables (USERS, TENANTS).
+ * The application schema remains the default and holds shared tables (USERS, TENANTS).
  */
 @Component
 public class TenantSchemaManager {
@@ -36,7 +36,11 @@ public class TenantSchemaManager {
             "CARE_IMAGES",
             "OPENING_HOURS",
             "BLOCKED_SLOTS",
-            "CARE_BOOKINGS"
+            "CARE_BOOKINGS",
+            "EMPLOYEES",
+            "EMPLOYEE_CARES",
+            "LEAVE_REQUESTS",
+            "EMPLOYEE_DOCUMENTS"
     );
 
     private final DataSource dataSource;
@@ -44,10 +48,11 @@ public class TenantSchemaManager {
     private final String provisioningJdbcUrl;
     private final String provisioningUsername;
     private final String provisioningPassword;
+    private final DatabaseKind databaseKind;
 
     public TenantSchemaManager(
             DataSource dataSource,
-            @Value("${spring.datasource.username}") String applicationSchemaName,
+            @Value("${app.multitenancy.application-schema:${APP_USER:appuser}}") String applicationSchemaName,
             @Value("${app.multitenancy.provisioning.jdbc-url:${spring.datasource.url}}") String provisioningJdbcUrl,
             @Value("${app.multitenancy.provisioning.username:}") String provisioningUsername,
             @Value("${app.multitenancy.provisioning.password:}") String provisioningPassword
@@ -57,15 +62,23 @@ public class TenantSchemaManager {
         this.provisioningJdbcUrl = provisioningJdbcUrl;
         this.provisioningUsername = provisioningUsername;
         this.provisioningPassword = provisioningPassword;
+        this.databaseKind = detectDatabaseKind(dataSource);
     }
 
     /**
-     * Full provisioning: creates the Oracle user/schema, grants privileges to APPUSER,
-     * and creates all tenant-scoped tables inside the new schema.
+     * Full provisioning: creates the tenant schema/user when needed and creates all
+     * tenant-scoped tables inside the new schema.
      */
     public void provisionSchema(String slug) {
         String schemaName = toSchemaName(slug);
         validateSchemaName(schemaName);
+
+        if (databaseKind == DatabaseKind.H2) {
+            logger.info("Provisioning H2 schema: {}", schemaName);
+            provisionH2Schema(schemaName);
+            logger.info("Schema {} fully provisioned with tables", schemaName);
+            return;
+        }
 
         logger.info("Provisioning Oracle schema: {}", schemaName);
 
@@ -108,6 +121,28 @@ public class TenantSchemaManager {
         }
     }
 
+    private void provisionH2Schema(String schemaName) {
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute("CREATE SCHEMA IF NOT EXISTS \"" + applicationSchemaName + "\"");
+            stmt.execute("CREATE SCHEMA IF NOT EXISTS \"" + schemaName + "\"");
+
+            setCurrentSchema(stmt, schemaName);
+            dropTenantTablesH2(stmt);
+            createTenantTablesH2(stmt);
+            setCurrentSchema(stmt, applicationSchemaName);
+
+        } catch (SQLException e) {
+            logger.error("Failed to create tables in schema {}: {}", schemaName, e.getMessage());
+            throw new RuntimeException(
+                    "Table creation failed in schema: " + schemaName +
+                            ". H2 local provisioning could not initialize the tenant schema.",
+                    e
+            );
+        }
+    }
+
     /**
      * Drops all tenant-scoped tables in the given schema (reverse dependency order).
      * Silently skips tables that don't exist (ORA-00942).
@@ -115,14 +150,15 @@ public class TenantSchemaManager {
     private void dropTenantTables(String schemaName) {
         // Reverse order to respect FK dependencies
         List<String> reverseTables = List.of(
-                "CARE_BOOKINGS", "BLOCKED_SLOTS", "OPENING_HOURS",
+                "EMPLOYEE_DOCUMENTS", "LEAVE_REQUESTS", "EMPLOYEE_CARES",
+                "EMPLOYEES", "CARE_BOOKINGS", "BLOCKED_SLOTS", "OPENING_HOURS",
                 "CARE_IMAGES", "SERVICES", "CATEGORIES"
         );
 
         try (Connection conn = getProvisioningConnection();
              Statement stmt = conn.createStatement()) {
 
-            stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
+            setCurrentSchema(stmt, schemaName);
 
             for (String table : reverseTables) {
                 try {
@@ -134,7 +170,7 @@ public class TenantSchemaManager {
                 }
             }
 
-            stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + applicationSchemaName + "\"");
+            setCurrentSchema(stmt, applicationSchemaName);
             logger.debug("Dropped existing tables in schema {}", schemaName);
 
         } catch (SQLException e) {
@@ -213,7 +249,7 @@ public class TenantSchemaManager {
                 )""",
 
                 // ── CARE_BOOKINGS ──
-                // NOTE: user_id references APPUSER.USERS (cross-schema) so we do NOT
+                // NOTE: user_id references the shared USERS table so we do NOT
                 // add a FK constraint here — just store the user id as a plain number.
                 """
                 CREATE TABLE CARE_BOOKINGS (
@@ -227,10 +263,64 @@ public class TenantSchemaManager {
                     CREATED_AT       TIMESTAMP NOT NULL,
                     CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
                     CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
+                )""",
+
+                // ── EMPLOYEES ──
+                """
+                CREATE TABLE EMPLOYEES (
+                    ID         NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    USER_ID    NUMBER(19) NOT NULL,
+                    NAME       VARCHAR2(255 CHAR) NOT NULL,
+                    EMAIL      VARCHAR2(255 CHAR) NOT NULL,
+                    PHONE      VARCHAR2(255 CHAR),
+                    ACTIVE     NUMBER(1) NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_EMPLOYEE_USER UNIQUE (USER_ID)
+                )""",
+
+                // ── EMPLOYEE_CARES (join table) ──
+                """
+                CREATE TABLE EMPLOYEE_CARES (
+                    EMPLOYEE_ID NUMBER(19) NOT NULL,
+                    CARE_ID     NUMBER(19) NOT NULL,
+                    CONSTRAINT FK_EC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
+                    CONSTRAINT FK_EC_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
+                    CONSTRAINT PK_EMPLOYEE_CARES PRIMARY KEY (EMPLOYEE_ID, CARE_ID)
+                )""",
+
+                // ── LEAVE_REQUESTS ──
+                """
+                CREATE TABLE LEAVE_REQUESTS (
+                    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID   NUMBER(19) NOT NULL,
+                    LEAVE_TYPE    VARCHAR2(255 CHAR) NOT NULL,
+                    STATUS        VARCHAR2(255 CHAR) NOT NULL,
+                    START_DATE    DATE NOT NULL,
+                    END_DATE      DATE NOT NULL,
+                    REASON        VARCHAR2(500 CHAR),
+                    DOCUMENT_PATH VARCHAR2(500 CHAR),
+                    REVIEWER_NOTE VARCHAR2(500 CHAR),
+                    CREATED_AT    TIMESTAMP NOT NULL,
+                    REVIEWED_AT   TIMESTAMP,
+                    CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )""",
+
+                // ── EMPLOYEE_DOCUMENTS ──
+                """
+                CREATE TABLE EMPLOYEE_DOCUMENTS (
+                    ID                  NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID         NUMBER(19) NOT NULL,
+                    DOC_TYPE            VARCHAR2(255 CHAR) NOT NULL,
+                    TITLE               VARCHAR2(255 CHAR) NOT NULL,
+                    FILENAME            VARCHAR2(255 CHAR) NOT NULL,
+                    FILE_PATH           VARCHAR2(500 CHAR) NOT NULL,
+                    UPLOADED_BY_USER_ID NUMBER(19) NOT NULL,
+                    CREATED_AT          TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_DOC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
                 )"""
         };
 
-        // Synonyms that point tenant schema references to APPUSER public tables.
+        // Synonyms that point tenant schema references to shared public tables.
         // This allows Hibernate JPA joins (e.g. CareBooking -> User) to resolve
         // cross-schema without changing entity mappings.
         String[] synonyms = {
@@ -252,7 +342,7 @@ public class TenantSchemaManager {
             }
 
             // Switch to the tenant schema
-            stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
+            setCurrentSchema(stmt, schemaName);
 
             for (String ddl : ddlStatements) {
                 try {
@@ -268,7 +358,7 @@ public class TenantSchemaManager {
             }
 
             // Reset to default schema
-            stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + applicationSchemaName + "\"");
+            setCurrentSchema(stmt, applicationSchemaName);
             grantTenantTablePrivileges(stmt, schemaName);
 
             logger.info("Tenant tables created in schema {}", schemaName);
@@ -282,6 +372,140 @@ public class TenantSchemaManager {
                     e
             );
         }
+    }
+
+    private void dropTenantTablesH2(Statement stmt) throws SQLException {
+        List<String> reverseTables = List.of(
+                "EMPLOYEE_DOCUMENTS", "LEAVE_REQUESTS", "EMPLOYEE_CARES",
+                "EMPLOYEES", "CARE_BOOKINGS", "BLOCKED_SLOTS", "OPENING_HOURS",
+                "CARE_IMAGES", "SERVICES", "CATEGORIES"
+        );
+
+        for (String table : reverseTables) {
+            stmt.execute("DROP TABLE IF EXISTS \"" + table + "\"");
+        }
+    }
+
+    private void createTenantTablesH2(Statement stmt) throws SQLException {
+        String[] ddlStatements = {
+                """
+                CREATE TABLE IF NOT EXISTS CATEGORIES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    NAME VARCHAR(255) NOT NULL,
+                    DESCRIPTION VARCHAR(255),
+                    CONSTRAINT UK_CATEGORY_NAME UNIQUE (NAME)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS SERVICES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    NAME VARCHAR(255) NOT NULL,
+                    PRICE INTEGER NOT NULL,
+                    DESCRIPTION VARCHAR(255) NOT NULL,
+                    STATUS VARCHAR(255) NOT NULL,
+                    DURATION INTEGER NOT NULL,
+                    DISPLAY_ORDER INTEGER,
+                    CATEGORY_ID BIGINT NOT NULL,
+                    CONSTRAINT FK_CARE_CATEGORY FOREIGN KEY (CATEGORY_ID) REFERENCES CATEGORIES(ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS CARE_IMAGES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    NAME VARCHAR(255) NOT NULL,
+                    IMAGE_ORDER INTEGER NOT NULL,
+                    FILENAME VARCHAR(100) NOT NULL,
+                    FILE_PATH VARCHAR(500) NOT NULL,
+                    CARE_ID BIGINT NOT NULL,
+                    CONSTRAINT FK_CARE_IMAGE_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS OPENING_HOURS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    DAY_OF_WEEK INTEGER NOT NULL,
+                    OPEN_TIME TIME NOT NULL,
+                    CLOSE_TIME TIME NOT NULL
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS BLOCKED_SLOTS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    SLOT_DATE DATE NOT NULL,
+                    START_TIME TIME,
+                    END_TIME TIME,
+                    FULL_DAY BOOLEAN NOT NULL,
+                    REASON VARCHAR(500)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS CARE_BOOKINGS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    USER_ID BIGINT NOT NULL,
+                    CARE_ID BIGINT NOT NULL,
+                    QUANTITY INTEGER NOT NULL,
+                    APPOINTMENT_DATE DATE NOT NULL,
+                    APPOINTMENT_TIME TIME NOT NULL,
+                    STATUS VARCHAR(255) NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
+                    CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    USER_ID BIGINT NOT NULL,
+                    NAME VARCHAR(255) NOT NULL,
+                    EMAIL VARCHAR(255) NOT NULL,
+                    PHONE VARCHAR(255),
+                    ACTIVE BOOLEAN NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_EMPLOYEE_USER UNIQUE (USER_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEE_CARES (
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    CARE_ID BIGINT NOT NULL,
+                    CONSTRAINT FK_EC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
+                    CONSTRAINT FK_EC_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
+                    CONSTRAINT PK_EMPLOYEE_CARES PRIMARY KEY (EMPLOYEE_ID, CARE_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS LEAVE_REQUESTS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    LEAVE_TYPE VARCHAR(255) NOT NULL,
+                    STATUS VARCHAR(255) NOT NULL,
+                    START_DATE DATE NOT NULL,
+                    END_DATE DATE NOT NULL,
+                    REASON VARCHAR(500),
+                    DOCUMENT_PATH VARCHAR(500),
+                    REVIEWER_NOTE VARCHAR(500),
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    REVIEWED_AT TIMESTAMP,
+                    CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEE_DOCUMENTS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    DOC_TYPE VARCHAR(255) NOT NULL,
+                    TITLE VARCHAR(255) NOT NULL,
+                    FILENAME VARCHAR(255) NOT NULL,
+                    FILE_PATH VARCHAR(500) NOT NULL,
+                    UPLOADED_BY_USER_ID BIGINT NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_DOC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )"""
+        };
+
+        for (String ddl : ddlStatements) {
+            stmt.execute(ddl);
+        }
+    }
+
+    private void setCurrentSchema(Statement stmt, String schemaName) throws SQLException {
+        if (databaseKind == DatabaseKind.H2) {
+            stmt.execute("SET SCHEMA \"" + schemaName + "\"");
+            return;
+        }
+
+        stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
     }
 
     /**
@@ -325,9 +549,32 @@ public class TenantSchemaManager {
         return "T_" + Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    private static DatabaseKind detectDatabaseKind(DataSource dataSource) {
+        try (Connection connection = dataSource.getConnection()) {
+            String productName = connection.getMetaData().getDatabaseProductName();
+            if (productName == null) {
+                return DatabaseKind.ORACLE;
+            }
+
+            String normalized = productName.toLowerCase(Locale.ROOT);
+            if (normalized.contains("h2")) {
+                return DatabaseKind.H2;
+            }
+        } catch (SQLException e) {
+            logger.warn("Failed to detect database platform for tenant provisioning: {}", e.getMessage());
+        }
+
+        return DatabaseKind.ORACLE;
+    }
+
     private static String normalizeOracleIdentifier(String identifier) {
         String normalized = identifier == null ? "" : identifier.trim().toUpperCase(Locale.ROOT);
         validateSchemaName(normalized);
         return normalized;
+    }
+
+    private enum DatabaseKind {
+        ORACLE,
+        H2
     }
 }
