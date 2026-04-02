@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>{{ 'pro.employees.createTitle' | transloco }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="employee-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'pro.employees.name' | transloco }}</mat-label>
+      <mat-icon matPrefix>person</mat-icon>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'pro.employees.email' | transloco }}</mat-label>
+      <mat-icon matPrefix>email</mat-icon>
+      <input matInput type="email" formControlName="email" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'pro.employees.phone' | transloco }}</mat-label>
+      <mat-icon matPrefix>phone</mat-icon>
+      <input matInput formControlName="phone" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'pro.employees.password' | transloco }}</mat-label>
+      <mat-icon matPrefix>lock</mat-icon>
+      <input matInput type="password" formControlName="password" />
+    </mat-form-field>
+
+    @if (cares.length > 0) {
+      <div class="cares-section">
+        <label class="cares-label">{{ 'pro.employees.assignCares' | transloco }}</label>
+        <div class="cares-checkboxes">
+          @for (care of cares; track care.id) {
+            <mat-checkbox
+              [checked]="selectedCareIds.has(care.id)"
+              (change)="toggleCare(care.id)"
+            >
+              {{ care.name }}
+            </mat-checkbox>
+          }
+        </div>
+      </div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">
+    {{ 'common.cancel' | transloco }}
+  </button>
+  <button mat-raised-button color="primary" (click)="onSave()">
+    {{ 'common.save' | transloco }}
+  </button>
+</mat-dialog-actions>

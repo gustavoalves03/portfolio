@@ -1,0 +1,68 @@
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #999;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+}
+
+.cares-section {
+  margin-top: 4px;
+}
+
+.cares-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.cares-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.delete-btn {
+  margin-right: auto !important;
+}
+
+.action-spacer {
+  flex: 1;
+}

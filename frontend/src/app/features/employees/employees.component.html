@@ -1,0 +1,73 @@
+<section class="employees-section">
+  <!-- Header -->
+  <div class="toolbar">
+    <span class="toolbar-spacer"></span>
+    <button mat-raised-button color="primary" class="add-btn" (click)="onAdd()">
+      <mat-icon>person_add</mat-icon>
+      {{ 'pro.employees.addEmployee' | transloco }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (store.isPending() && store.employees().length === 0) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <!-- Empty state -->
+  @if (store.employees().length === 0 && !store.isPending()) {
+    <div class="empty-state">
+      <mat-icon>groups</mat-icon>
+      <p>{{ 'pro.employees.empty' | transloco }}</p>
+    </div>
+  } @else {
+    <!-- Employee card grid -->
+    <div class="employee-grid">
+      @for (employee of store.employees(); track employee.id) {
+        <div class="employee-card" (click)="onCardClick(employee)">
+          <!-- Avatar -->
+          <div class="employee-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+
+          <!-- Content -->
+          <div class="employee-content">
+            <div class="employee-header">
+              <span class="employee-name">{{ employee.name }}</span>
+              <span
+                class="status-badge"
+                [class.active]="employee.active"
+                [class.inactive]="!employee.active"
+              >
+                {{ (employee.active ? 'pro.employees.active' : 'pro.employees.inactive') | transloco }}
+              </span>
+            </div>
+
+            <div class="employee-email">{{ employee.email }}</div>
+
+            @if (employee.phone) {
+              <div class="employee-phone">{{ employee.phone }}</div>
+            }
+
+            <!-- Assigned cares chips -->
+            @if (employee.assignedCares.length > 0) {
+              <div class="care-chips">
+                @for (care of employee.assignedCares; track care.id) {
+                  <span class="care-chip">{{ care.name }}</span>
+                }
+              </div>
+            } @else {
+              <div class="no-cares">{{ 'pro.employees.noCares' | transloco }}</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,133 @@
+.leaves-section {
+  padding: 0.5rem 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 16px;
+}
+
+.error-banner {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+  font-weight: 500;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: #999;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
+.leaves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leave-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.leave-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.leave-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.leave-employee {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.leave-type {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &.vacation {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.sickness {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+}
+
+.leave-dates {
+  font-size: 12px;
+  color: #888;
+}
+
+.leave-reason {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.reason-label {
+  font-weight: 500;
+  color: #555;
+}
+
+.leave-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    justify-content: flex-end;
+  }
+}
+
+.approve-btn {
+  border-radius: 10px !important;
+  font-size: 13px !important;
+}
+
+.reject-btn {
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  color: #999 !important;
+}

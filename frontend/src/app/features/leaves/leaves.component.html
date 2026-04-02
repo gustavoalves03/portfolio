@@ -1,0 +1,64 @@
+<section class="leaves-section">
+  <h2 class="section-title">{{ 'pro.leaves.pendingTitle' | transloco }}</h2>
+
+  <!-- Loading -->
+  @if (store.isPending() && store.pendingLeaves().length === 0) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (store.error()) {
+    <div class="error-banner">{{ store.error() }}</div>
+  }
+
+  <!-- Empty state -->
+  @if (store.pendingLeaves().length === 0 && !store.isPending()) {
+    <div class="empty-state">
+      <mat-icon>event_available</mat-icon>
+      <p>{{ 'pro.leaves.noLeaves' | transloco }}</p>
+    </div>
+  } @else {
+    <div class="leaves-list">
+      @for (leave of store.pendingLeaves(); track leave.id) {
+        <div class="leave-card">
+          <div class="leave-info">
+            <div class="leave-header">
+              <span class="leave-employee">{{ leave.employeeName }}</span>
+              <span class="leave-type" [class.vacation]="leave.type === 'VACATION'" [class.sickness]="leave.type === 'SICKNESS'">
+                {{ getTypeKey(leave) | transloco }}
+              </span>
+            </div>
+            <div class="leave-dates">
+              {{ leave.startDate | date:'dd/MM/yyyy' }} — {{ leave.endDate | date:'dd/MM/yyyy' }}
+            </div>
+            @if (leave.reason) {
+              <div class="leave-reason">
+                <span class="reason-label">{{ 'pro.leaves.reason' | transloco }}:</span>
+                {{ leave.reason }}
+              </div>
+            }
+          </div>
+          <div class="leave-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              class="approve-btn"
+              (click)="onApprove(leave)"
+            >
+              {{ 'pro.leaves.approve' | transloco }}
+            </button>
+            <button
+              mat-stroked-button
+              class="reject-btn"
+              (click)="onReject(leave)"
+            >
+              {{ 'pro.leaves.reject' | transloco }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,31 @@
+.employee-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.cares-section {
+  margin-top: 4px;
+}
+
+.cares-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.cares-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 4px 0;
+}

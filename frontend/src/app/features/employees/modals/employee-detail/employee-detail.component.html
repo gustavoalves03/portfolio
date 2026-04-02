@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>{{ 'pro.employees.detailTitle' | transloco }}</h2>
+
+<mat-dialog-content>
+  <div class="detail-content">
+    <!-- Employee info -->
+    <div class="info-row">
+      <mat-icon class="info-icon">person</mat-icon>
+      <span class="info-value">{{ employee.name }}</span>
+    </div>
+    <div class="info-row">
+      <mat-icon class="info-icon">email</mat-icon>
+      <span class="info-value">{{ employee.email }}</span>
+    </div>
+    @if (employee.phone) {
+      <div class="info-row">
+        <mat-icon class="info-icon">phone</mat-icon>
+        <span class="info-value">{{ employee.phone }}</span>
+      </div>
+    }
+
+    <!-- Active toggle -->
+    <div class="toggle-row">
+      <span class="toggle-label">{{ 'pro.employees.toggleActive' | transloco }}</span>
+      <mat-slide-toggle
+        [checked]="isActive()"
+        (change)="onToggleActive($event.checked)"
+        color="primary"
+      ></mat-slide-toggle>
+    </div>
+
+    <!-- Cares assignment -->
+    @if (cares.length > 0) {
+      <div class="cares-section">
+        <label class="cares-label">{{ 'pro.employees.assignCares' | transloco }}</label>
+        <div class="cares-checkboxes">
+          @for (care of cares; track care.id) {
+            <mat-checkbox
+              [checked]="selectedCareIds.has(care.id)"
+              (change)="toggleCare(care.id)"
+            >
+              {{ care.name }}
+            </mat-checkbox>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button color="warn" (click)="onDelete()" class="delete-btn">
+    <mat-icon>delete</mat-icon>
+    {{ 'actions.delete' | transloco }}
+  </button>
+  <span class="action-spacer"></span>
+  <button mat-button (click)="onCancel()">
+    {{ 'common.cancel' | transloco }}
+  </button>
+  <button mat-raised-button color="primary" (click)="onSave()">
+    {{ 'common.save' | transloco }}
+  </button>
+</mat-dialog-actions>
