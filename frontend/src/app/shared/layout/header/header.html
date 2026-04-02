@@ -27,9 +27,24 @@
       <!-- Center: salon name (PRO) or Pretty Face (public) -->
       <div class="justify-self-center">
         @if (isPro() && salonName()) {
-          <a routerLink="/pro/dashboard" class="salon-brand">
-            {{ salonName() }}
-          </a>
+          <div class="flex items-center gap-1.5">
+            <a routerLink="/pro/dashboard" class="salon-brand">
+              {{ salonName() }}
+            </a>
+            @if (salonSlug()) {
+              <a
+                [routerLink]="['/salon', salonSlug()]"
+                target="_blank"
+                class="view-salon-btn"
+                [attr.aria-label]="'pro.dashboard.viewSalon' | transloco"
+                [title]="'pro.dashboard.viewSalon' | transloco"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                  <path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 1 1.5 0v4A2.25 2.25 0 0 1 12.75 17h-8.5A2.25 2.25 0 0 1 2 14.75v-8.5A2.25 2.25 0 0 1 4.25 4h5a.75.75 0 0 1 0 1.5h-5Zm7.25-.56a.75.75 0 0 1 .75-.75h4a.75.75 0 0 1 .75.75v4a.75.75 0 0 1-1.5 0V6.31l-5.47 5.47a.75.75 0 0 1-1.06-1.06l5.47-5.47H12.25a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+                </svg>
+              </a>
+            }
+          </div>
         } @else {
           <a routerLink="/" class="select-none text-neutral-900 tracking-[0.25em] uppercase text-sm md:text-base font-medium">
             Pretty Face
@@ -56,6 +71,11 @@
             <button mat-menu-item routerLink="/pro/dashboard">
               {{ 'auth.userMenu.dashboard' | transloco }}
             </button>
+            @if (salonSlug()) {
+              <a mat-menu-item [routerLink]="['/salon', salonSlug()]" target="_blank">
+                {{ 'pro.dashboard.viewSalon' | transloco }}
+              </a>
+            }
             <button mat-menu-item routerLink="/pro/salon">
               {{ 'pro.salon.title' | transloco }}
             </button>

@@ -31,6 +31,23 @@ header a {
   }
 }
 
+// "View my salon" icon next to salon name
+.view-salon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #999;
+  transition: color 150ms ease, background 150ms ease;
+
+  &:hover {
+    color: #c06;
+    background: rgba(192, 0, 102, 0.06);
+  }
+}
+
 .lang-switcher {
   backdrop-filter: blur(6px);
 }

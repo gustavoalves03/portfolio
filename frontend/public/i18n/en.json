@@ -331,6 +331,14 @@
         "6": "Saturday",
         "7": "Sunday"
       }
+    },
+    "posts": {
+      "title": "My Posts",
+      "newPost": "New post",
+      "hideForm": "Hide",
+      "empty": "No posts yet. Publish your first before/after!",
+      "publishSuccess": "Post published!",
+      "deleteSuccess": "Post deleted"
     }
   },
   "home": {
@@ -515,6 +523,7 @@
       "dashboard": "Dashboard",
       "cares": "Services",
       "planning": "Schedule",
+      "posts": "Posts",
       "salon": "My salon",
       "employees": "Team",
       "settings": "Settings"

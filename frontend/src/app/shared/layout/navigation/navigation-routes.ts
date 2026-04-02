@@ -47,6 +47,13 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiredRole: 'PRO'
   },
   {
+    label: 'nav.pro.posts',
+    path: '/pro/posts',
+    icon: 'photo_library',
+    requiresAuth: true,
+    requiredRole: 'PRO',
+  },
+  {
     label: 'nav.pro.salon',
     path: '/pro/salon',
     icon: 'storefront',

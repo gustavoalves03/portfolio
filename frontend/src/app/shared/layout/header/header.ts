@@ -31,17 +31,25 @@ export class Header {
   });
 
   protected readonly salonName = signal('');
+  protected readonly salonSlug = signal('');
   private readonly salonService = inject(SalonProfileService);
 
   constructor() {
     effect(() => {
       if (this.isPro() && this.authService.isAuthenticated()) {
         this.salonService.getProfile().subscribe({
-          next: (tenant) => this.salonName.set(tenant.name),
-          error: () => this.salonName.set(''),
+          next: (tenant) => {
+            this.salonName.set(tenant.name);
+            this.salonSlug.set(tenant.slug);
+          },
+          error: () => {
+            this.salonName.set('');
+            this.salonSlug.set('');
+          },
         });
       } else {
         this.salonName.set('');
+        this.salonSlug.set('');
       }
     });
   }

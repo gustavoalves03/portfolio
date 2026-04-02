@@ -56,6 +56,11 @@ export const routes: Routes = [
         path: 'salon',
         loadComponent: () => import('./features/salon-profile/salon-profile.component').then(m => m.SalonProfileComponent),
       },
+      {
+        path: 'posts',
+        loadComponent: () =>
+          import('./pages/pro/pro-posts.component').then(m => m.ProPostsComponent),
+      },
       { path: 'cares', component: CaresComponent },
       {
         path: 'planning',

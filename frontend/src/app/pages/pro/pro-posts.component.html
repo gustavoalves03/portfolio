@@ -1,0 +1,246 @@
+<div class="posts-page">
+  <!-- Page header -->
+  <div class="page-header">
+    <h1 class="page-title">{{ 'pro.posts.title' | transloco }}</h1>
+    <button class="toggle-form-btn" (click)="toggleForm()">
+      @if (showForm()) {
+        <mat-icon>expand_less</mat-icon>
+        <span>{{ 'pro.posts.hideForm' | transloco }}</span>
+      } @else {
+        <mat-icon>add</mat-icon>
+        <span>{{ 'pro.posts.newPost' | transloco }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- Create form (collapsible) -->
+  @if (showForm()) {
+    <div class="create-section">
+      <!-- Type selector -->
+      <div class="type-selector">
+        <button
+          class="type-card"
+          [class.selected]="selectedType() === 'BEFORE_AFTER'"
+          (click)="selectType('BEFORE_AFTER')"
+        >
+          <mat-icon>compare</mat-icon>
+          <span>{{ 'posts.typeBeforeAfter' | transloco }}</span>
+        </button>
+        <button
+          class="type-card"
+          [class.selected]="selectedType() === 'PHOTO'"
+          (click)="selectType('PHOTO')"
+        >
+          <mat-icon>photo</mat-icon>
+          <span>{{ 'posts.typePhoto' | transloco }}</span>
+        </button>
+        <button
+          class="type-card"
+          [class.selected]="selectedType() === 'CAROUSEL'"
+          (click)="selectType('CAROUSEL')"
+        >
+          <mat-icon>collections</mat-icon>
+          <span>{{ 'posts.typeCarousel' | transloco }}</span>
+        </button>
+      </div>
+
+      <!-- Upload zones -->
+      @switch (selectedType()) {
+        @case ('BEFORE_AFTER') {
+          <div class="upload-row">
+            <div
+              class="upload-zone"
+              (click)="beforeInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropBefore($event)"
+            >
+              @if (beforeImage()) {
+                <img [src]="beforeImage()!.url" alt="Before" />
+                <button class="remove-preview" (click)="removeBefore($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              } @else {
+                <mat-icon>add_photo_alternate</mat-icon>
+                <span>{{ 'posts.uploadBefore' | transloco }}</span>
+              }
+              <input
+                #beforeInput
+                type="file"
+                accept="image/*"
+                hidden
+                (change)="onBeforeSelected($event)"
+              />
+            </div>
+            <div
+              class="upload-zone"
+              (click)="afterInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropAfter($event)"
+            >
+              @if (afterImage()) {
+                <img [src]="afterImage()!.url" alt="After" />
+                <button class="remove-preview" (click)="removeAfter($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              } @else {
+                <mat-icon>add_photo_alternate</mat-icon>
+                <span>{{ 'posts.uploadAfter' | transloco }}</span>
+              }
+              <input
+                #afterInput
+                type="file"
+                accept="image/*"
+                hidden
+                (change)="onAfterSelected($event)"
+              />
+            </div>
+          </div>
+        }
+        @case ('PHOTO') {
+          <div class="upload-row single">
+            <div
+              class="upload-zone"
+              (click)="photoInput.click()"
+              (dragover)="onDragOver($event)"
+              (drop)="onDropPhoto($event)"
+            >
+              @if (photoImage()) {
+                <img [src]="photoImage()!.url" alt="Photo" />
+                <button class="remove-preview" (click)="removePhoto($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              } @else {
+                <mat-icon>add_photo_alternate</mat-icon>
+                <span>{{ 'posts.uploadPhoto' | transloco }}</span>
+              }
+              <input
+                #photoInput
+                type="file"
+                accept="image/*"
+                hidden
+                (change)="onPhotoSelected($event)"
+              />
+            </div>
+          </div>
+        }
+        @case ('CAROUSEL') {
+          <div class="carousel-uploads">
+            @for (img of carouselImages(); track img.url; let i = $index) {
+              <div class="carousel-thumb">
+                <img [src]="img.url" alt="Slide" />
+                <button class="remove-preview" (click)="removeCarouselImage(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+            @if (carouselImages().length < 10) {
+              <div class="upload-zone carousel-add" (click)="carouselInput.click()">
+                <mat-icon>add</mat-icon>
+                <span>{{ 'posts.uploadMore' | transloco }}</span>
+                <input
+                  #carouselInput
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  (change)="onCarouselSelected($event)"
+                />
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- Caption -->
+      <div class="caption-field">
+        <textarea
+          [(ngModel)]="caption"
+          [placeholder]="'posts.captionPlaceholder' | transloco"
+          rows="3"
+          maxlength="500"
+        ></textarea>
+      </div>
+
+      <!-- Care selector -->
+      @if (cares().length > 0) {
+        <div class="care-selector">
+          <label>{{ 'posts.selectCare' | transloco }}</label>
+          <select [ngModel]="selectedCareId()" (ngModelChange)="selectedCareId.set($event === 'null' ? null : +$event)">
+            <option value="null">{{ 'posts.noCare' | transloco }}</option>
+            @for (care of cares(); track care.id) {
+              <option [value]="care.id">{{ care.name }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Publish button -->
+      <div class="form-footer">
+        @if (publishing()) {
+          <mat-spinner diameter="28"></mat-spinner>
+        } @else {
+          <button
+            class="publish-btn"
+            [disabled]="!canPublish()"
+            (click)="publish()"
+          >
+            {{ 'posts.publishBtn' | transloco }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Posts grid -->
+  @if (loading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (posts().length === 0) {
+    <div class="empty-state">
+      <mat-icon>photo_library</mat-icon>
+      <p>{{ 'pro.posts.empty' | transloco }}</p>
+    </div>
+  } @else {
+    <div class="post-grid">
+      @for (post of posts(); track post.id) {
+        <div class="post-thumb">
+          @if (getThumbnail(post)) {
+            <img class="post-thumb-img" [src]="getThumbnail(post)" [alt]="post.caption || 'Post'" />
+          } @else {
+            <div class="post-thumb-img post-thumb-placeholder">
+              <mat-icon>image</mat-icon>
+            </div>
+          }
+          <div class="post-thumb-body">
+            <span class="post-thumb-type"
+              [class.thumb-ba]="post.type === 'BEFORE_AFTER'"
+              [class.thumb-photo]="post.type === 'PHOTO'"
+              [class.thumb-carousel]="post.type === 'CAROUSEL'"
+            >
+              @switch (post.type) {
+                @case ('BEFORE_AFTER') { {{ 'posts.typeBeforeAfter' | transloco }} }
+                @case ('PHOTO') { {{ 'posts.typePhoto' | transloco }} }
+                @case ('CAROUSEL') { {{ 'posts.typeCarousel' | transloco }} }
+              }
+            </span>
+            @if (post.caption) {
+              <p class="post-thumb-caption">{{ post.caption }}</p>
+            }
+            <div class="post-thumb-footer">
+              <div class="post-thumb-meta">
+                <span class="post-thumb-date">{{ formatDate(post.createdAt) }}</span>
+                @if (post.careName) {
+                  <span class="post-thumb-tag">{{ post.careName }}</span>
+                }
+              </div>
+              <button class="post-thumb-delete" (click)="onDelete(post)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
