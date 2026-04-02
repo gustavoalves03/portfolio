@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Mes Congés — Mockup</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #fafafa; min-height: 100vh; }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+    .page-title { font-size: 20px; font-weight: 600; color: #333; margin: 0 0 1.5rem; }
+
+    /* ═══ FORM CARD ═══ */
+    .form-card {
+      background: #fff; border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 2rem;
+    }
+    .form-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 20px; }
+
+    /* ── Type selector chips ── */
+    .type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+    .type-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border: 1.5px solid #e0e0e0; border-radius: 12px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 13px;
+      font-weight: 500; color: #666; cursor: pointer; transition: all 150ms ease;
+    }
+    .type-chip:hover { border-color: #c06; color: #c06; }
+    .type-chip.selected { border-color: #c06; background: #fef2f2; color: #c06; }
+    .type-chip .material-icons-round { font-size: 18px; }
+
+    /* ── Date range calendar ── */
+    .calendar-section { margin-bottom: 20px; }
+    .calendar-label {
+      font-size: 12px; font-weight: 500; color: #999; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .date-summary {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: #f7f5f3; border-radius: 10px;
+      margin-bottom: 14px; font-size: 13px; color: #555;
+    }
+    .date-summary .material-icons-round { font-size: 18px; color: #c06; }
+    .date-summary .date-value { font-weight: 500; color: #333; }
+    .date-summary .arrow { color: #ccc; }
+    .date-summary .day-count { margin-left: auto; font-size: 12px; color: #c06; font-weight: 500; }
+
+    .calendar-wrapper {
+      background: #fff; border: 1px solid #f0f0f0; border-radius: 14px; padding: 16px;
+    }
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .cal-nav-btn {
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer; width: 32px; height: 32px;
+      border-radius: 50%; color: #999; transition: color 150ms ease;
+    }
+    .cal-nav-btn:hover { color: #c06; }
+    .cal-nav-btn .material-icons-round { font-size: 20px; }
+    .cal-month { font-size: 15px; font-weight: 500; color: #333; text-transform: capitalize; }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-weekday {
+      text-align: center; font-size: 11px; font-weight: 600; color: #999;
+      text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 0;
+    }
+    .cal-day {
+      display: flex; align-items: center; justify-content: center;
+      height: 36px; border: none; background: transparent; border-radius: 0;
+      font-family: Roboto, sans-serif; font-size: 13px; color: #333;
+      cursor: pointer; transition: all 100ms ease; position: relative;
+    }
+    .cal-day:hover:not(.other):not(.range-start):not(.range-end) { background: #f0e8ec; border-radius: 50%; }
+    .cal-day.other { color: #ddd; cursor: default; }
+    .cal-day.today { font-weight: 600; }
+    .cal-day.today::after {
+      content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; border-radius: 50%; background: #c06;
+    }
+
+    /* Range selection styles */
+    .cal-day.range-start {
+      background: #c06; color: #fff; font-weight: 600;
+      border-radius: 50% 0 0 50%;
+    }
+    .cal-day.range-end {
+      background: #c06; color: #fff; font-weight: 600;
+      border-radius: 0 50% 50% 0;
+    }
+    .cal-day.range-start.range-end { border-radius: 50%; }
+    .cal-day.in-range { background: #fef2f2; color: #a8385d; }
+    .cal-day.range-start::after, .cal-day.range-end::after { display: none; }
+
+    /* ── Document attachment ── */
+    .document-section {
+      margin-bottom: 20px; padding: 14px; background: #fff8e1;
+      border-radius: 12px; border: 1px dashed #ffc107;
+    }
+    .document-section .doc-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500; color: #f57f17; margin-bottom: 10px;
+    }
+    .document-section .doc-label .material-icons-round { font-size: 18px; }
+    .upload-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border: 1px solid #ffc107; border-radius: 10px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 12px;
+      color: #f57f17; cursor: pointer; transition: all 150ms ease;
+    }
+    .upload-btn:hover { background: #fff8e1; }
+    .upload-btn .material-icons-round { font-size: 16px; }
+    .file-attached {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #4caf50; margin-top: 8px;
+    }
+    .file-attached .material-icons-round { font-size: 16px; }
+
+    /* ── Reason ── */
+    .reason-field { margin-bottom: 16px; }
+    .reason-label { font-size: 12px; font-weight: 500; color: #999; margin-bottom: 6px; }
+    .reason-textarea {
+      width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 13px; color: #333; resize: vertical;
+      min-height: 60px; outline: none; transition: border-color 150ms ease;
+    }
+    .reason-textarea:focus { border-color: #c06; box-shadow: 0 0 0 2px rgba(192,0,102,0.1); }
+    .reason-textarea::placeholder { color: #ccc; }
+
+    /* ── Submit ── */
+    .form-actions { display: flex; justify-content: flex-end; }
+    .submit-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 12px 28px; border-radius: 24px; font-family: Roboto, sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 150ms ease;
+    }
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn .material-icons-round { font-size: 18px; }
+
+    /* ═══ LEAVE LIST ═══ */
+    .section-title { font-size: 16px; font-weight: 600; color: #333; margin: 0 0 14px; }
+    .leaves-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .leave-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .leave-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .leave-type-badge {
+      padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+    }
+    .type-vacation { background: #e3f2fd; color: #1565c0; }
+    .type-sickness { background: #fff3e0; color: #e65100; }
+    .leave-status-badge {
+      padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: auto;
+    }
+    .status-pending { background: #fff8e1; color: #f57f17; }
+    .status-approved { background: #e8f5e9; color: #2e7d32; }
+    .status-rejected { background: #fce4ec; color: #c62828; }
+
+    .leave-dates {
+      display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555;
+    }
+    .leave-dates .material-icons-round { font-size: 16px; color: #c06; }
+    .leave-dates .arrow { color: #ccc; font-size: 12px; }
+    .leave-reason { font-size: 12px; color: #888; margin-top: 4px; }
+    .leave-doc {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; color: #4caf50; margin-top: 4px;
+    }
+    .leave-doc .material-icons-round { font-size: 14px; }
+    .reviewer-note {
+      display: flex; align-items: flex-start; gap: 4px;
+      font-size: 12px; color: #555; margin-top: 6px; font-style: italic;
+      padding-top: 6px; border-top: 1px solid #f0f0f0;
+    }
+    .reviewer-note .material-icons-round { font-size: 14px; color: #c06; margin-top: 1px; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+
+    @media (max-width: 480px) {
+      .type-selector { flex-direction: column; }
+      .date-summary { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <h1 class="page-title">Mes congés</h1>
+
+  <!-- ═══ FORM: Nouvelle demande ═══ -->
+  <div class="form-card">
+    <div class="form-title">Nouvelle demande</div>
+
+    <!-- Type selector -->
+    <div class="type-selector">
+      <button class="type-chip" onclick="selectType(this, 'vacation')">
+        <span class="material-icons-round">beach_access</span>
+        Congé
+      </button>
+      <button class="type-chip selected" onclick="selectType(this, 'sickness')">
+        <span class="material-icons-round">local_hospital</span>
+        Maladie
+      </button>
+    </div>
+
+    <!-- Date range summary -->
+    <div class="calendar-section">
+      <div class="calendar-label">Période</div>
+      <div class="date-summary">
+        <span class="material-icons-round">date_range</span>
+        <span class="date-value">Lun 7 avril</span>
+        <span class="arrow">→</span>
+        <span class="date-value">Ven 11 avril</span>
+        <span class="day-count">5 jours</span>
+      </div>
+
+      <!-- Inline calendar -->
+      <div class="calendar-wrapper">
+        <div class="cal-nav">
+          <button class="cal-nav-btn"><span class="material-icons-round">chevron_left</span></button>
+          <span class="cal-month">Avril 2026</span>
+          <button class="cal-nav-btn"><span class="material-icons-round">chevron_right</span></button>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-weekday">Lu</div>
+          <div class="cal-weekday">Ma</div>
+          <div class="cal-weekday">Me</div>
+          <div class="cal-weekday">Je</div>
+          <div class="cal-weekday">Ve</div>
+          <div class="cal-weekday">Sa</div>
+          <div class="cal-weekday">Di</div>
+          <button class="cal-day other">30</button>
+          <button class="cal-day other">31</button>
+          <button class="cal-day">1</button>
+          <button class="cal-day today">2</button>
+          <button class="cal-day">3</button>
+          <button class="cal-day">4</button>
+          <button class="cal-day">5</button>
+          <button class="cal-day">6</button>
+          <button class="cal-day range-start">7</button>
+          <button class="cal-day in-range">8</button>
+          <button class="cal-day in-range">9</button>
+          <button class="cal-day in-range">10</button>
+          <button class="cal-day range-end">11</button>
+          <button class="cal-day">12</button>
+          <button class="cal-day">13</button>
+          <button class="cal-day">14</button>
+          <button class="cal-day">15</button>
+          <button class="cal-day">16</button>
+          <button class="cal-day">17</button>
+          <button class="cal-day">18</button>
+          <button class="cal-day">19</button>
+          <button class="cal-day">20</button>
+          <button class="cal-day">21</button>
+          <button class="cal-day">22</button>
+          <button class="cal-day">23</button>
+          <button class="cal-day">24</button>
+          <button class="cal-day">25</button>
+          <button class="cal-day">26</button>
+          <button class="cal-day">27</button>
+          <button class="cal-day">28</button>
+          <button class="cal-day">29</button>
+          <button class="cal-day">30</button>
+          <button class="cal-day other">1</button>
+          <button class="cal-day other">2</button>
+          <button class="cal-day other">3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document attachment (visible for sickness) -->
+    <div class="document-section" id="doc-section">
+      <div class="doc-label">
+        <span class="material-icons-round">description</span>
+        Certificat médical
+      </div>
+      <button class="upload-btn">
+        <span class="material-icons-round">upload_file</span>
+        Joindre un document
+      </button>
+      <div class="file-attached">
+        <span class="material-icons-round">check_circle</span>
+        certificat-medical.pdf
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="reason-field">
+      <div class="reason-label">Motif (optionnel)</div>
+      <textarea class="reason-textarea" placeholder="Ex: Grippe, rendez-vous médical...">Grippe saisonnière</textarea>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-actions">
+      <button class="submit-btn">
+        <span class="material-icons-round">send</span>
+        Envoyer la demande
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ LEAVE LIST ═══ -->
+  <h2 class="section-title">Mes demandes</h2>
+  <div class="leaves-list">
+    <!-- Approved vacation -->
+    <div class="leave-card">
+      <div class="leave-header">
+        <span class="leave-type-badge type-vacation">Congé</span>
+        <span class="leave-status-badge status-approved">Approuvé</span>
+      </div>
+      <div class="leave-dates">
+        <span class="material-icons-round">date_range</span>
+        <span>15/07/2026</span>
+        <span class="arrow">→</span>
+        <span>28/07/2026</span>
+      </div>
+      <div class="leave-reason">Vacances d'été</div>
+      <div class="reviewer-note">
+        <span class="material-icons-round">comment</span>
+        Bon repos ! Pensez à prévenir vos clients.
+      </div>
+    </div>
+
+    <!-- Pending sickness with document -->
+    <div class="leave-card">
+      <div class="leave-header">
+        <span class="leave-type-badge type-sickness">Maladie</span>
+        <span class="leave-status-badge status-pending">En attente</span>
+      </div>
+      <div class="leave-dates">
+        <span class="material-icons-round">date_range</span>
+        <span>07/04/2026</span>
+        <span class="arrow">→</span>
+        <span>11/04/2026</span>
+      </div>
+      <div class="leave-reason">Grippe saisonnière</div>
+      <div class="leave-doc">
+        <span class="material-icons-round">attach_file</span>
+        certificat-medical.pdf
+      </div>
+    </div>
+
+    <!-- Rejected vacation -->
+    <div class="leave-card">
+      <div class="leave-header">
+        <span class="leave-type-badge type-vacation">Congé</span>
+        <span class="leave-status-badge status-rejected">Refusé</span>
+      </div>
+      <div class="leave-dates">
+        <span class="material-icons-round">date_range</span>
+        <span>20/03/2026</span>
+        <span class="arrow">→</span>
+        <span>20/03/2026</span>
+      </div>
+      <div class="leave-reason">RDV personnel</div>
+      <div class="reviewer-note">
+        <span class="material-icons-round">comment</span>
+        Journée complète — trop de RDV clients ce jour-là, essayez un autre jour.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — Mockup "Mes congés" — Avril 2026</footer>
+
+<script>
+  function selectType(btn, type) {
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('doc-section').style.display = type === 'sickness' ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>

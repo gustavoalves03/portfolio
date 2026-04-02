@@ -1,0 +1,101 @@
+<h2>Page abonnements — Inscription pro</h2>
+<p class="subtitle">3 plans affichés avant l'inscription, le pro choisit puis remplit le formulaire</p>
+
+<div class="cards">
+  <!-- Option 1: Cards verticales classiques -->
+  <div class="card" data-choice="1" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:500px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="font-size:18px; font-weight:600; color:#333;">Choisissez votre formule</div>
+          <div style="font-size:12px; color:#999; margin-top:4px;">Commencez gratuitement, évoluez à votre rythme</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <!-- Free -->
+          <div style="flex:1; background:white; border-radius:14px; border:1.5px solid #e0e0e0; padding:16px; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-size:13px; font-weight:600; color:#333;">Découverte</div>
+            <div style="font-size:24px; font-weight:700; color:#333; margin:8px 0;">Gratuit</div>
+            <div style="font-size:10px; color:#999; text-align:center; line-height:1.5; margin-bottom:12px;">
+              5 soins max<br/>1 catégorie<br/>Page salon basique<br/>Réservations en ligne
+            </div>
+            <button style="width:100%; padding:8px; border:1.5px solid #c06; border-radius:20px; background:transparent; color:#c06; font-size:12px; font-weight:500; cursor:pointer;">Commencer</button>
+          </div>
+          <!-- Pro -->
+          <div style="flex:1; background:white; border-radius:14px; border:2px solid #c06; padding:16px; display:flex; flex-direction:column; align-items:center; position:relative;">
+            <div style="position:absolute; top:-10px; background:#c06; color:white; font-size:9px; font-weight:600; padding:2px 10px; border-radius:10px; text-transform:uppercase;">Populaire</div>
+            <div style="font-size:13px; font-weight:600; color:#c06;">Pro</div>
+            <div style="margin:8px 0;"><span style="font-size:24px; font-weight:700; color:#333;">29€</span><span style="font-size:11px; color:#999;">/mois</span></div>
+            <div style="font-size:10px; color:#999; text-align:center; line-height:1.5; margin-bottom:12px;">
+              Soins illimités<br/>Catégories illimitées<br/>Hero image<br/>Visible sur Discover<br/>Rappels email
+            </div>
+            <button style="width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; font-weight:500; cursor:pointer;">Choisir</button>
+          </div>
+          <!-- Premium -->
+          <div style="flex:1; background:white; border-radius:14px; border:1.5px solid #e0e0e0; padding:16px; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-size:13px; font-weight:600; color:#333;">Premium</div>
+            <div style="margin:8px 0;"><span style="font-size:24px; font-weight:700; color:#333;">59€</span><span style="font-size:11px; color:#999;">/mois</span></div>
+            <div style="font-size:10px; color:#999; text-align:center; line-height:1.5; margin-bottom:12px;">
+              Tout Pro +<br/>Rappels SMS<br/>Analytics avancés<br/>Priorité recherche<br/>Support dédié
+            </div>
+            <button style="width:100%; padding:8px; border:1.5px solid #c06; border-radius:20px; background:transparent; color:#c06; font-size:12px; font-weight:500; cursor:pointer;">Choisir</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px; font-size:10px; color:#aaa; text-align:center;">📱 Mobile : cards empilées verticalement</div>
+    </div>
+    <div class="card-body">
+      <h3>1 · Cards côte à côte</h3>
+      <p>3 plans en colonnes, le "Pro" mis en avant avec bordure rose + badge "Populaire". Features en liste. CTA différenciés (outline vs gradient). Mobile : les cards s'empilent.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: Cards avec toggle mensuel/annuel -->
+  <div class="card" data-choice="2" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:500px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:12px;">
+          <div style="font-size:18px; font-weight:600; color:#333;">Choisissez votre formule</div>
+          <!-- Toggle -->
+          <div style="display:inline-flex; background:#f0e8ec; border-radius:10px; padding:3px; margin-top:8px;">
+            <div style="padding:6px 16px; border-radius:8px; background:white; font-size:11px; font-weight:600; color:#c06; box-shadow:0 1px 3px rgba(0,0,0,.08);">Mensuel</div>
+            <div style="padding:6px 16px; border-radius:8px; font-size:11px; color:#888;">Annuel <span style="font-size:9px; color:#16a34a;">-20%</span></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <!-- Free -->
+          <div style="flex:1; background:white; border-radius:14px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,.06);">
+            <div style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px;">Découverte</div>
+            <div style="font-size:28px; font-weight:700; color:#333; margin:6px 0;">0€</div>
+            <div style="font-size:10px; color:#999; border-top:1px solid #f0f0f0; padding-top:10px; margin-top:8px; line-height:1.8;">
+              ✓ 5 soins<br/>✓ Réservations<br/>✗ <span style="color:#ccc;">Hero image</span><br/>✗ <span style="color:#ccc;">Discover</span>
+            </div>
+            <button style="margin-top:12px; width:100%; padding:8px; border:1.5px solid #ddd; border-radius:20px; background:white; color:#666; font-size:12px; cursor:pointer;">Commencer</button>
+          </div>
+          <!-- Pro -->
+          <div style="flex:1.1; background:white; border-radius:14px; padding:16px; box-shadow:0 2px 12px rgba(192,102,102,.15); border:1.5px solid #c06; position:relative;">
+            <div style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#c06; color:white; font-size:9px; font-weight:600; padding:2px 12px; border-radius:10px;">RECOMMANDÉ</div>
+            <div style="font-size:11px; font-weight:600; color:#c06; text-transform:uppercase; letter-spacing:.5px;">Pro</div>
+            <div style="margin:6px 0;"><span style="font-size:28px; font-weight:700; color:#333;">29€</span><span style="font-size:11px; color:#999;">/mois</span></div>
+            <div style="font-size:10px; color:#999; border-top:1px solid #f0f0f0; padding-top:10px; margin-top:8px; line-height:1.8;">
+              ✓ Soins illimités<br/>✓ Hero image<br/>✓ Visible Discover<br/>✓ Rappels email
+            </div>
+            <button style="margin-top:12px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; font-weight:500; cursor:pointer;">Choisir Pro</button>
+          </div>
+          <!-- Premium -->
+          <div style="flex:1; background:white; border-radius:14px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,.06);">
+            <div style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px;">Premium</div>
+            <div style="margin:6px 0;"><span style="font-size:28px; font-weight:700; color:#333;">59€</span><span style="font-size:11px; color:#999;">/mois</span></div>
+            <div style="font-size:10px; color:#999; border-top:1px solid #f0f0f0; padding-top:10px; margin-top:8px; line-height:1.8;">
+              ✓ Tout Pro +<br/>✓ Rappels SMS<br/>✓ Analytics<br/>✓ Support dédié
+            </div>
+            <button style="margin-top:12px; width:100%; padding:8px; border:1.5px solid #c06; border-radius:20px; background:white; color:#c06; font-size:12px; cursor:pointer;">Choisir Premium</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 · Cards + toggle mensuel/annuel</h3>
+      <p>Toggle mensuel/annuel en haut avec badge "-20%". Features avec ✓/✗. Plan Pro légèrement plus large avec ombre rose. Prépare le terrain pour la facturation future. Plus commercial.</p>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
@@ -15,6 +16,30 @@ type EmployeesState = {
   employees: Employee[];
 };
 
+function extractErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof HttpErrorResponse) {
+    if (typeof error.error === 'string' && error.error) {
+      return error.error;
+    }
+    if (error.error?.error) {
+      return error.error.error;
+    }
+    if (error.error?.detail) {
+      return error.error.detail;
+    }
+    if (error.error?.message) {
+      return error.error.message;
+    }
+    return error.message ?? fallback;
+  }
+
+  if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+
+  return fallback;
+}
+
 export const EmployeesStore = signalStore(
   withState<EmployeesState>({ employees: [] }),
   withRequestStatus(),
@@ -26,7 +51,7 @@ export const EmployeesStore = signalStore(
           service.list().pipe(
             tap((employees) => patchState(store, { employees }, setFulfilled())),
             catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error loading employees'));
+              patchState(store, setError(extractErrorMessage(err, 'Error loading employees')));
               return EMPTY;
             }),
           ),
@@ -46,7 +71,7 @@ export const EmployeesStore = signalStore(
               ),
             ),
             catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error creating employee'));
+              patchState(store, setError(extractErrorMessage(err, 'Error creating employee')));
               return EMPTY;
             }),
           ),
@@ -68,7 +93,7 @@ export const EmployeesStore = signalStore(
               ),
             ),
             catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error updating employee'));
+              patchState(store, setError(extractErrorMessage(err, 'Error updating employee')));
               return EMPTY;
             }),
           ),
@@ -88,7 +113,7 @@ export const EmployeesStore = signalStore(
               ),
             ),
             catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error deleting employee'));
+              patchState(store, setError(extractErrorMessage(err, 'Error deleting employee')));
               return EMPTY;
             }),
           ),

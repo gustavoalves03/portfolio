@@ -8,6 +8,8 @@ import com.prettyface.app.employee.web.dto.CreateEmployeeRequest;
 import com.prettyface.app.employee.web.dto.EmployeeResponse;
 import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.employee.web.dto.UpdateEmployeeRequest;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
@@ -19,13 +21,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -48,6 +53,9 @@ class EmployeeServiceTests {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private ApplicationSchemaExecutor applicationSchemaExecutor;
+
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -57,6 +65,14 @@ class EmployeeServiceTests {
 
     @BeforeEach
     void setUp() {
+        lenient().when(applicationSchemaExecutor.call(org.mockito.ArgumentMatchers.<Supplier<?>>any()))
+                .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(0).get());
+        lenient().doAnswer(invocation -> {
+            invocation.<Runnable>getArgument(0).run();
+            return null;
+        }).when(applicationSchemaExecutor).run(any(Runnable.class));
+        TenantContext.clear();
+
         user = User.builder()
                 .id(10L)
                 .name("Alice Dupont")
@@ -94,6 +110,7 @@ class EmployeeServiceTests {
     void create_createsUserAndEmployee() {
         CreateEmployeeRequest req = new CreateEmployeeRequest(
                 "Alice Dupont", "alice@example.com", "+33600000000", "secret", List.of(1L));
+        TenantContext.setCurrentTenant("camille-dubois");
 
         when(userRepository.existsByEmail("alice@example.com")).thenReturn(false);
         when(passwordEncoder.encode("secret")).thenReturn("hashed");
@@ -111,6 +128,7 @@ class EmployeeServiceTests {
         assertThat(savedUser.getProvider()).isEqualTo(AuthProvider.LOCAL);
         assertThat(savedUser.getEmail()).isEqualTo("alice@example.com");
         assertThat(savedUser.getPassword()).isEqualTo("hashed");
+        assertThat(savedUser.getTenantSlug()).isEqualTo("camille-dubois");
 
         // Verify Employee created with correct fields
         ArgumentCaptor<Employee> empCaptor = ArgumentCaptor.forClass(Employee.class);
@@ -124,21 +142,66 @@ class EmployeeServiceTests {
 
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("Alice Dupont");
+        assertThat(TenantContext.getCurrentTenant()).isEqualTo("camille-dubois");
     }
 
     @Test
     void create_existingEmail_throws() {
         CreateEmployeeRequest req = new CreateEmployeeRequest(
                 "Alice Dupont", "alice@example.com", null, "secret", null);
+        TenantContext.setCurrentTenant("camille-dubois");
 
         when(userRepository.existsByEmail("alice@example.com")).thenReturn(true);
 
         assertThatThrownBy(() -> employeeService.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("alice@example.com");
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException responseStatusException = (ResponseStatusException) ex;
+                    assertThat(responseStatusException.getStatusCode().value()).isEqualTo(409);
+                    assertThat(responseStatusException.getReason()).isEqualTo("Email already in use");
+                });
 
         verify(userRepository, never()).save(any());
         verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void create_whenUserInsertHitsUniqueConstraint_returnsConflict() {
+        CreateEmployeeRequest req = new CreateEmployeeRequest(
+                "Alice Dupont", "alice@example.com", null, "secret", null);
+        TenantContext.setCurrentTenant("camille-dubois");
+
+        when(userRepository.existsByEmail("alice@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("hashed");
+        when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("UK_USER_EMAIL"));
+
+        assertThatThrownBy(() -> employeeService.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException responseStatusException = (ResponseStatusException) ex;
+                    assertThat(responseStatusException.getStatusCode().value()).isEqualTo(409);
+                    assertThat(responseStatusException.getReason()).isEqualTo("Email already in use");
+                });
+
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void create_whenEmployeeSaveFails_rollsBackSharedUser() {
+        CreateEmployeeRequest req = new CreateEmployeeRequest(
+                "Alice Dupont", "alice@example.com", "+33600000000", "secret", null);
+        TenantContext.setCurrentTenant("camille-dubois");
+
+        when(userRepository.existsByEmail("alice@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("hashed");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(employeeRepository.save(any(Employee.class))).thenThrow(new IllegalStateException("employee save failed"));
+
+        assertThatThrownBy(() -> employeeService.create(req))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("employee save failed");
+
+        verify(userRepository).deleteById(10L);
     }
 
     // -----------------------------------------------------------------------

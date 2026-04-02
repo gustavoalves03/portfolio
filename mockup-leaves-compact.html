@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Congés Employé — 3 Propositions compactes</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #f5f5f5; min-height: 100vh; }
+
+    /* ── NAV ── */
+    .proposal-nav {
+      position: sticky; top: 0; z-index: 100; background: #fff;
+      border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center;
+    }
+    .proposal-btn {
+      padding: 16px 28px; border: none; background: transparent;
+      font-family: Roboto, sans-serif; font-size: 13px; font-weight: 500;
+      color: #999; cursor: pointer; border-bottom: 3px solid transparent; transition: all 150ms ease;
+    }
+    .proposal-btn:hover { color: #666; }
+    .proposal-btn.active { color: #c06; border-bottom-color: #c06; }
+    .proposal { display: none; padding: 24px 20px 64px; max-width: 800px; margin: 0 auto; }
+    .proposal.active { display: block; }
+    .proposal-title { font-size: 17px; font-weight: 300; color: #333; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .proposal-desc { font-size: 12px; color: #999; margin-bottom: 20px; }
+
+    /* ── SHARED STYLES ── */
+    .form-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .form-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+    .type-chips { display: flex; gap: 8px; margin-bottom: 14px; }
+    .type-chip {
+      display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+      border: 1.5px solid #e0e0e0; border-radius: 10px; background: #fff;
+      font-size: 12px; font-weight: 500; color: #666; cursor: pointer; transition: all 150ms ease;
+    }
+    .type-chip:hover { border-color: #c06; color: #c06; }
+    .type-chip.sel { border-color: #c06; background: #fef2f2; color: #c06; }
+    .type-chip .material-icons-round { font-size: 16px; }
+
+    .reason-area {
+      width: 100%; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 12px; color: #333; resize: none;
+      min-height: 40px; outline: none; transition: border-color 150ms ease;
+    }
+    .reason-area:focus { border-color: #c06; box-shadow: 0 0 0 2px rgba(192,0,102,0.08); }
+    .reason-area::placeholder { color: #ccc; }
+
+    .submit-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 10px 24px; border-radius: 20px; font-family: Roboto, sans-serif;
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: opacity 150ms ease;
+    }
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn .material-icons-round { font-size: 16px; }
+
+    .doc-section {
+      margin-bottom: 12px; padding: 10px 12px; background: #fff8e1;
+      border-radius: 10px; border: 1px dashed #ffc107;
+    }
+    .doc-label { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: #f57f17; margin-bottom: 6px; }
+    .doc-label .material-icons-round { font-size: 14px; }
+    .upload-pill {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px;
+      border: 1px solid #ffc107; border-radius: 8px; background: #fff;
+      font-size: 11px; color: #f57f17; cursor: pointer;
+    }
+
+    /* Badge / Summary shared */
+    .badge-sm { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 8px; }
+    .b-vac { background: #e3f2fd; color: #1565c0; }
+    .b-sick { background: #fff3e0; color: #e65100; }
+    .b-pend { background: #fff8e1; color: #f57f17; }
+    .b-appr { background: #e8f5e9; color: #2e7d32; }
+    .b-rej { background: #fce4ec; color: #c62828; }
+
+    /* ── LEAVE LIST (shared) ── */
+    .list-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 10px; }
+    .leave-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 6px;
+    }
+    .li-badges { display: flex; gap: 4px; }
+    .li-dates { font-size: 12px; color: #555; flex: 1; }
+    .li-status { margin-left: auto; }
+
+    /* ════════════════════════════════════════════
+       A — SIDE-BY-SIDE (form left, list right)
+       Calendar mini, everything on one screen
+    ════════════════════════════════════════════ */
+    .layout-split { display: flex; gap: 16px; }
+    @media (max-width: 768px) { .layout-split { flex-direction: column; } }
+    .split-form { flex: 1; min-width: 0; }
+    .split-list { flex: 1; min-width: 0; }
+
+    /* Mini calendar */
+    .mini-cal { border: 1px solid #f0f0f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+    .mc-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .mc-nav-btn { background: none; border: none; cursor: pointer; color: #999; display: flex; align-items: center; width: 24px; height: 24px; border-radius: 50%; justify-content: center; }
+    .mc-nav-btn:hover { color: #c06; }
+    .mc-nav-btn .material-icons-round { font-size: 16px; }
+    .mc-month { font-size: 12px; font-weight: 500; color: #333; text-transform: capitalize; }
+    .mc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .mc-wd { text-align: center; font-size: 9px; font-weight: 600; color: #bbb; text-transform: uppercase; padding: 3px 0; }
+    .mc-day {
+      display: flex; align-items: center; justify-content: center;
+      height: 26px; border: none; background: transparent; border-radius: 0;
+      font-size: 11px; color: #333; cursor: pointer; transition: all 80ms ease;
+    }
+    .mc-day:hover:not(.other):not(.dis) { background: #f0e8ec; border-radius: 50%; }
+    .mc-day.other { color: #ddd; cursor: default; }
+    .mc-day.dis { color: #ddd; cursor: not-allowed; }
+    .mc-day.rs { background: #c06; color: #fff; font-weight: 600; border-radius: 50% 0 0 50%; }
+    .mc-day.re { background: #c06; color: #fff; font-weight: 600; border-radius: 0 50% 50% 0; }
+    .mc-day.rs.re { border-radius: 50%; }
+    .mc-day.ir { background: #fef2f2; color: #a8385d; }
+    .mc-day.today { font-weight: 700; }
+
+    .date-bar {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      background: #f7f5f3; border-radius: 8px; margin-bottom: 10px; font-size: 12px; color: #555;
+    }
+    .date-bar .material-icons-round { font-size: 14px; color: #c06; }
+    .date-bar .dv { font-weight: 500; color: #333; }
+    .date-bar .dc { margin-left: auto; font-size: 11px; color: #c06; font-weight: 500; }
+
+    /* ════════════════════════════════════════════
+       B — SINGLE COLUMN COMPACT
+       Inline form (no card), mini calendar, no scroll
+    ════════════════════════════════════════════ */
+    .compact-form { max-width: 600px; }
+    .inline-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; flex-wrap: wrap; }
+    .inline-row > * { flex-shrink: 0; }
+
+    /* Collapsed calendar — shows only current month, very tight */
+    .tight-cal { border: 1px solid #f0f0f0; border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; }
+    .tc-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .tc-month { font-size: 11px; font-weight: 600; color: #333; text-transform: capitalize; }
+    .tc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; }
+    .tc-wd { text-align: center; font-size: 8px; font-weight: 700; color: #bbb; text-transform: uppercase; padding: 2px 0; }
+    .tc-day {
+      display: flex; align-items: center; justify-content: center;
+      height: 24px; border: none; background: transparent; border-radius: 0;
+      font-size: 10px; color: #333; cursor: pointer;
+    }
+    .tc-day:hover:not(.other):not(.dis) { background: #f0e8ec; border-radius: 50%; }
+    .tc-day.other { color: #ddd; }
+    .tc-day.dis { color: #ddd; cursor: not-allowed; }
+    .tc-day.rs { background: #c06; color: #fff; font-weight: 700; border-radius: 50% 0 0 50%; }
+    .tc-day.re { background: #c06; color: #fff; font-weight: 700; border-radius: 0 50% 50% 0; }
+    .tc-day.rs.re { border-radius: 50%; }
+    .tc-day.ir { background: #fef2f2; color: #a8385d; }
+
+    .form-footer { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+    .reason-inline { flex: 1; min-width: 0; }
+
+    /* ════════════════════════════════════════════
+       C — COLLAPSIBLE ACCORDION
+       Calendar hidden by default, expands on click
+    ════════════════════════════════════════════ */
+    .acc-trigger {
+      display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+      background: #f7f5f3; border-radius: 10px; border: none; width: 100%;
+      font-family: Roboto, sans-serif; font-size: 13px; color: #333;
+      cursor: pointer; margin-bottom: 2px; transition: all 150ms ease;
+    }
+    .acc-trigger:hover { background: #f0e8ec; }
+    .acc-trigger .material-icons-round { font-size: 18px; color: #c06; }
+    .acc-trigger .acc-arrow { margin-left: auto; color: #ccc; transition: transform 200ms ease; }
+    .acc-trigger.open .acc-arrow { transform: rotate(180deg); }
+    .acc-body { overflow: hidden; max-height: 0; transition: max-height 250ms ease; }
+    .acc-body.open { max-height: 400px; }
+    .acc-body-inner { padding: 10px 0 4px; }
+
+    .date-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .date-chip-selected {
+      display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px;
+      background: #fef2f2; border: 1px solid #c06; border-radius: 16px;
+      font-size: 12px; font-weight: 500; color: #c06;
+    }
+    .date-chip-selected .material-icons-round { font-size: 14px; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+<nav class="proposal-nav">
+  <button class="proposal-btn active" onclick="show('a')">A — Côte-à-côte</button>
+  <button class="proposal-btn" onclick="show('b')">B — Compact vertical</button>
+  <button class="proposal-btn" onclick="show('c')">C — Accordéon</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     A — SIDE-BY-SIDE
+     Form+mini calendar left, list right
+═══════════════════════════════════════════ -->
+<div id="p-a" class="proposal active">
+  <div class="proposal-title">A — Côte-à-côte</div>
+  <div class="proposal-desc">Le formulaire avec mini-calendrier à gauche, la liste des demandes à droite. Tout visible sans scroller.</div>
+
+  <div class="layout-split">
+    <div class="split-form">
+      <div class="form-card">
+        <div class="form-title">Nouvelle demande</div>
+        <div class="type-chips">
+          <button class="type-chip sel"><span class="material-icons-round">local_hospital</span> Maladie</button>
+          <button class="type-chip"><span class="material-icons-round">beach_access</span> Congé</button>
+        </div>
+
+        <div class="doc-section">
+          <div class="doc-label"><span class="material-icons-round">description</span> Certificat médical</div>
+          <button class="upload-pill"><span class="material-icons-round" style="font-size:12px">upload_file</span> Joindre</button>
+        </div>
+
+        <div class="date-bar">
+          <span class="material-icons-round">date_range</span>
+          <span class="dv">Lun 7 avr</span> <span style="color:#ccc">→</span> <span class="dv">Ven 11 avr</span>
+          <span class="dc">5 jours</span>
+        </div>
+
+        <div class="mini-cal">
+          <div class="mc-nav">
+            <button class="mc-nav-btn"><span class="material-icons-round">chevron_left</span></button>
+            <span class="mc-month">Avril 2026</span>
+            <button class="mc-nav-btn"><span class="material-icons-round">chevron_right</span></button>
+          </div>
+          <div class="mc-grid">
+            <div class="mc-wd">Lu</div><div class="mc-wd">Ma</div><div class="mc-wd">Me</div><div class="mc-wd">Je</div><div class="mc-wd">Ve</div><div class="mc-wd">Sa</div><div class="mc-wd">Di</div>
+            <button class="mc-day other">30</button><button class="mc-day other">31</button>
+            <button class="mc-day">1</button><button class="mc-day today">2</button><button class="mc-day">3</button><button class="mc-day">4</button><button class="mc-day">5</button>
+            <button class="mc-day">6</button><button class="mc-day rs">7</button><button class="mc-day ir">8</button><button class="mc-day ir">9</button><button class="mc-day ir">10</button><button class="mc-day re">11</button><button class="mc-day">12</button>
+            <button class="mc-day">13</button><button class="mc-day">14</button><button class="mc-day">15</button><button class="mc-day">16</button><button class="mc-day">17</button><button class="mc-day">18</button><button class="mc-day">19</button>
+            <button class="mc-day">20</button><button class="mc-day">21</button><button class="mc-day">22</button><button class="mc-day">23</button><button class="mc-day">24</button><button class="mc-day">25</button><button class="mc-day">26</button>
+            <button class="mc-day">27</button><button class="mc-day">28</button><button class="mc-day">29</button><button class="mc-day">30</button>
+            <button class="mc-day other">1</button><button class="mc-day other">2</button><button class="mc-day other">3</button>
+          </div>
+        </div>
+
+        <textarea class="reason-area" rows="2" placeholder="Motif (optionnel)">Grippe saisonnière</textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="submit-btn"><span class="material-icons-round">send</span> Envoyer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="split-list">
+      <div class="list-title">Mes demandes</div>
+      <div class="leave-item">
+        <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+        <div class="li-dates">15/07 → 28/07</div>
+        <div class="li-status"><span class="badge-sm b-appr">Approuvé</span></div>
+      </div>
+      <div class="leave-item">
+        <div class="li-badges"><span class="badge-sm b-sick">Maladie</span></div>
+        <div class="li-dates">07/04 → 11/04</div>
+        <div class="li-status"><span class="badge-sm b-pend">En attente</span></div>
+      </div>
+      <div class="leave-item">
+        <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+        <div class="li-dates">20/03</div>
+        <div class="li-status"><span class="badge-sm b-rej">Refusé</span></div>
+      </div>
+      <div class="leave-item">
+        <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+        <div class="li-dates">01/03 → 05/03</div>
+        <div class="li-status"><span class="badge-sm b-appr">Approuvé</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     B — COMPACT VERTICAL (tight calendar)
+═══════════════════════════════════════════ -->
+<div id="p-b" class="proposal">
+  <div class="proposal-title">B — Compact vertical</div>
+  <div class="proposal-desc">Calendrier ultra-compact (cellules 24px), tout en colonne, pas de scroll. Le formulaire tient en ~300px de hauteur.</div>
+
+  <div class="compact-form">
+    <div class="form-card">
+      <div class="form-title">Nouvelle demande</div>
+
+      <div class="inline-row">
+        <button class="type-chip sel"><span class="material-icons-round">local_hospital</span> Maladie</button>
+        <button class="type-chip"><span class="material-icons-round">beach_access</span> Congé</button>
+        <div style="flex:1"></div>
+        <button class="upload-pill"><span class="material-icons-round" style="font-size:12px">upload_file</span> Certificat</button>
+      </div>
+
+      <div class="date-bar">
+        <span class="material-icons-round">date_range</span>
+        <span class="dv">7 avr</span> <span style="color:#ccc">→</span> <span class="dv">11 avr</span>
+        <span class="dc">5 jours</span>
+      </div>
+
+      <div class="tight-cal">
+        <div class="tc-nav">
+          <button class="mc-nav-btn"><span class="material-icons-round">chevron_left</span></button>
+          <span class="tc-month">Avril 2026</span>
+          <button class="mc-nav-btn"><span class="material-icons-round">chevron_right</span></button>
+        </div>
+        <div class="tc-grid">
+          <div class="tc-wd">L</div><div class="tc-wd">M</div><div class="tc-wd">M</div><div class="tc-wd">J</div><div class="tc-wd">V</div><div class="tc-wd">S</div><div class="tc-wd">D</div>
+          <button class="tc-day other">30</button><button class="tc-day other">31</button>
+          <button class="tc-day">1</button><button class="tc-day">2</button><button class="tc-day">3</button><button class="tc-day">4</button><button class="tc-day">5</button>
+          <button class="tc-day">6</button><button class="tc-day rs">7</button><button class="tc-day ir">8</button><button class="tc-day ir">9</button><button class="tc-day ir">10</button><button class="tc-day re">11</button><button class="tc-day">12</button>
+          <button class="tc-day">13</button><button class="tc-day">14</button><button class="tc-day">15</button><button class="tc-day">16</button><button class="tc-day">17</button><button class="tc-day">18</button><button class="tc-day">19</button>
+          <button class="tc-day">20</button><button class="tc-day">21</button><button class="tc-day">22</button><button class="tc-day">23</button><button class="tc-day">24</button><button class="tc-day">25</button><button class="tc-day">26</button>
+          <button class="tc-day">27</button><button class="tc-day">28</button><button class="tc-day">29</button><button class="tc-day">30</button>
+          <button class="tc-day other">1</button><button class="tc-day other">2</button><button class="tc-day other">3</button>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <textarea class="reason-area reason-inline" rows="1" placeholder="Motif (optionnel)">Grippe</textarea>
+        <button class="submit-btn"><span class="material-icons-round">send</span> Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px">
+    <div class="list-title">Mes demandes</div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-sick">Maladie</span></div>
+      <div class="li-dates">07/04 → 11/04</div>
+      <div class="li-status"><span class="badge-sm b-pend">En attente</span></div>
+    </div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+      <div class="li-dates">15/07 → 28/07</div>
+      <div class="li-status"><span class="badge-sm b-appr">Approuvé</span></div>
+    </div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+      <div class="li-dates">20/03</div>
+      <div class="li-status"><span class="badge-sm b-rej">Refusé</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     C — ACCORDION (calendar hidden by default)
+═══════════════════════════════════════════ -->
+<div id="p-c" class="proposal">
+  <div class="proposal-title">C — Accordéon</div>
+  <div class="proposal-desc">Le calendrier est caché par défaut. On clique sur la barre de dates pour le déplier. Formulaire ultra-compact quand fermé.</div>
+
+  <div style="max-width:600px">
+    <div class="form-card">
+      <div class="form-title">Nouvelle demande</div>
+
+      <div class="type-chips">
+        <button class="type-chip sel"><span class="material-icons-round">local_hospital</span> Maladie</button>
+        <button class="type-chip"><span class="material-icons-round">beach_access</span> Congé</button>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-label"><span class="material-icons-round">description</span> Certificat médical</div>
+        <button class="upload-pill"><span class="material-icons-round" style="font-size:12px">upload_file</span> Joindre</button>
+      </div>
+
+      <!-- Accordion trigger -->
+      <button class="acc-trigger open" onclick="toggleAcc(this)">
+        <span class="material-icons-round">date_range</span>
+        <span class="dv">Lun 7 avr</span>
+        <span style="color:#ccc">→</span>
+        <span class="dv">Ven 11 avr</span>
+        <span class="dc" style="margin-left:auto;margin-right:8px">5 jours</span>
+        <span class="material-icons-round acc-arrow">expand_more</span>
+      </button>
+
+      <!-- Accordion body (calendar) -->
+      <div class="acc-body open" id="acc-cal">
+        <div class="acc-body-inner">
+          <div class="mini-cal" style="margin-bottom:0">
+            <div class="mc-nav">
+              <button class="mc-nav-btn"><span class="material-icons-round">chevron_left</span></button>
+              <span class="mc-month">Avril 2026</span>
+              <button class="mc-nav-btn"><span class="material-icons-round">chevron_right</span></button>
+            </div>
+            <div class="mc-grid">
+              <div class="mc-wd">Lu</div><div class="mc-wd">Ma</div><div class="mc-wd">Me</div><div class="mc-wd">Je</div><div class="mc-wd">Ve</div><div class="mc-wd">Sa</div><div class="mc-wd">Di</div>
+              <button class="mc-day other">30</button><button class="mc-day other">31</button>
+              <button class="mc-day">1</button><button class="mc-day today">2</button><button class="mc-day">3</button><button class="mc-day">4</button><button class="mc-day">5</button>
+              <button class="mc-day">6</button><button class="mc-day rs">7</button><button class="mc-day ir">8</button><button class="mc-day ir">9</button><button class="mc-day ir">10</button><button class="mc-day re">11</button><button class="mc-day">12</button>
+              <button class="mc-day">13</button><button class="mc-day">14</button><button class="mc-day">15</button><button class="mc-day">16</button><button class="mc-day">17</button><button class="mc-day">18</button><button class="mc-day">19</button>
+              <button class="mc-day">20</button><button class="mc-day">21</button><button class="mc-day">22</button><button class="mc-day">23</button><button class="mc-day">24</button><button class="mc-day">25</button><button class="mc-day">26</button>
+              <button class="mc-day">27</button><button class="mc-day">28</button><button class="mc-day">29</button><button class="mc-day">30</button>
+              <button class="mc-day other">1</button><button class="mc-day other">2</button><button class="mc-day other">3</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <textarea class="reason-area" rows="2" placeholder="Motif (optionnel)">Grippe saisonnière</textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px">
+        <button class="submit-btn"><span class="material-icons-round">send</span> Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px; max-width:600px">
+    <div class="list-title">Mes demandes</div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-sick">Maladie</span></div>
+      <div class="li-dates">07/04 → 11/04</div>
+      <div class="li-status"><span class="badge-sm b-pend">En attente</span></div>
+    </div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+      <div class="li-dates">15/07 → 28/07</div>
+      <div class="li-status"><span class="badge-sm b-appr">Approuvé</span></div>
+    </div>
+    <div class="leave-item">
+      <div class="li-badges"><span class="badge-sm b-vac">Congé</span></div>
+      <div class="li-dates">20/03</div>
+      <div class="li-status"><span class="badge-sm b-rej">Refusé</span></div>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — 3 propositions congés compact — Avril 2026</footer>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.proposal').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.proposal-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('p-' + id).classList.add('active');
+    document.querySelectorAll('.proposal-btn')[{a:0,b:1,c:2}[id]].classList.add('active');
+  }
+  function toggleAcc(btn) {
+    btn.classList.toggle('open');
+    document.getElementById('acc-cal').classList.toggle('open');
+  }
+</script>
+</body>
+</html>

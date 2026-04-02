@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Page Salon avec onglet Posts</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #fafafa; }
+
+    /* ── SALON HERO ── */
+    .hero {
+      position: relative; width: 100%; min-height: 200px;
+      background: linear-gradient(135deg, #f3d5c0, #e8c4b0);
+      display: flex; align-items: flex-end; padding: 0 0 20px;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%);
+    }
+    .hero-content {
+      position: relative; z-index: 1; display: flex; align-items: center;
+      gap: 14px; padding: 0 24px; width: 100%;
+    }
+    .hero-logo {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #f3d5c0, #e8c4b0);
+      border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700; color: #a8385d;
+    }
+    .hero-text { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .hero-name { font-size: 20px; font-weight: 600; }
+    .hero-desc { font-size: 12px; opacity: 0.9; margin-top: 2px; }
+
+    /* ── SECTION TOGGLE (Soins / Posts) ── */
+    .section-toggle {
+      display: flex; background: #fff; border-bottom: 1px solid #e0e0e0;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .toggle-btn {
+      flex: 1; padding: 14px 0; border: none; background: transparent;
+      font-family: Roboto, sans-serif; font-size: 13px; font-weight: 500;
+      color: #999; cursor: pointer; border-bottom: 2px solid transparent;
+      transition: all 150ms ease; display: flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    .toggle-btn:hover { color: #666; }
+    .toggle-btn.active { color: #c06; border-bottom-color: #c06; }
+    .toggle-btn .material-icons-round { font-size: 18px; }
+    .toggle-count {
+      font-size: 10px; font-weight: 700; padding: 1px 6px;
+      border-radius: 8px; background: #f0f0f0; color: #999;
+    }
+    .toggle-btn.active .toggle-count { background: #fef2f2; color: #c06; }
+
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* ── SOINS SECTION (simplified accordion) ── */
+    .soins-section { padding: 16px; max-width: 700px; margin: 0 auto; }
+    .category-block { margin-bottom: 16px; }
+    .cat-header {
+      display: flex; align-items: center; gap: 8px; padding: 10px 0;
+      font-size: 14px; font-weight: 600; color: #333;
+      border-bottom: 1px solid #f0f0f0; cursor: pointer;
+    }
+    .cat-header .material-icons-round { font-size: 18px; color: #c06; }
+    .care-card-mini {
+      display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5;
+    }
+    .ccm-img {
+      width: 56px; height: 56px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, #f3d5c0, #fce4ec);
+    }
+    .ccm-info { flex: 1; }
+    .ccm-name { font-size: 13px; font-weight: 500; color: #333; }
+    .ccm-meta { font-size: 11px; color: #999; margin-top: 2px; }
+    .ccm-book {
+      align-self: center; padding: 6px 14px; border: none; border-radius: 16px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+    }
+
+    /* ── POSTS SECTION ── */
+    .posts-section { padding: 16px; max-width: 520px; margin: 0 auto; }
+
+    /* PRO: create bar */
+    .create-bar {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .create-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff;
+      font-family: Roboto, sans-serif; font-size: 12px; font-weight: 500; cursor: pointer;
+    }
+    .create-btn:hover { opacity: 0.9; }
+    .create-btn .material-icons-round { font-size: 18px; }
+
+    /* Post card */
+    .post-card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px;
+    }
+
+    /* AVANT/APRÈS slider */
+    .compare-box {
+      position: relative; width: 100%; aspect-ratio: 4/3;
+      overflow: hidden; cursor: ew-resize; user-select: none;
+    }
+    .cmp-img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .cmp-after { clip-path: inset(0 0 0 var(--split, 50%)); z-index: 1; }
+    .cmp-line {
+      position: absolute; top: 0; bottom: 0; left: var(--split, 50%);
+      width: 2px; background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.3); z-index: 2;
+      transform: translateX(-50%);
+    }
+    .cmp-handle {
+      position: absolute; top: 50%; left: var(--split, 50%); z-index: 3;
+      transform: translate(-50%, -50%);
+      width: 36px; height: 36px; border-radius: 50%; background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cmp-handle .material-icons-round { font-size: 20px; color: #c06; }
+    .cmp-labels {
+      position: absolute; bottom: 10px; left: 0; right: 0; z-index: 4;
+      display: flex; justify-content: space-between; padding: 0 12px; pointer-events: none;
+    }
+    .cmp-lbl {
+      padding: 4px 12px; border-radius: 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .cmp-lbl.before { background: rgba(0,0,0,0.5); color: #fff; }
+    .cmp-lbl.after { background: rgba(255,255,255,0.9); color: #c06; }
+
+    /* Photo unique */
+    .single-photo { width: 100%; aspect-ratio: 4/3; }
+
+    /* Carrousel */
+    .carousel-box { position: relative; width: 100%; overflow: hidden; }
+    .car-track { display: flex; transition: transform 300ms ease; }
+    .car-slide { min-width: 100%; aspect-ratio: 4/3; }
+    .car-dots {
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 5px; z-index: 2;
+    }
+    .car-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; }
+    .car-dot.active { background: #fff; width: 16px; border-radius: 3px; }
+    .car-counter {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.4);
+      font-size: 10px; font-weight: 600; color: #fff;
+    }
+    .car-nav {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.8);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .car-nav.prev { left: 8px; }
+    .car-nav.next { right: 8px; }
+    .car-nav .material-icons-round { font-size: 16px; color: #333; }
+
+    /* Post body */
+    .post-body { padding: 12px 16px; }
+    .post-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .post-type-pill {
+      padding: 3px 10px; border-radius: 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .pill-ba { background: linear-gradient(135deg, #a8385d, #c06); color: #fff; }
+    .pill-photo { background: #f0f0f0; color: #888; }
+    .pill-carousel { background: #e3f2fd; color: #1565c0; }
+
+    .post-caption { font-size: 13px; color: #333; line-height: 1.5; margin-bottom: 8px; }
+    .post-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+    .post-tag {
+      padding: 2px 8px; background: #f9d5d3; color: #a8385d;
+      border-radius: 8px; font-size: 10px; font-weight: 600;
+    }
+    .post-footer { display: flex; align-items: center; }
+    .post-date { font-size: 11px; color: #bbb; }
+    .post-like {
+      display: flex; align-items: center; gap: 3px; margin-left: auto;
+      font-size: 11px; color: #ccc; cursor: pointer;
+    }
+    .post-like:hover { color: #c06; }
+    .post-like .material-icons-round { font-size: 16px; }
+
+    /* PRO edit/delete */
+    .pro-bar { display: flex; gap: 6px; padding: 0 16px 10px; }
+    .pro-btn {
+      display: flex; align-items: center; gap: 3px; padding: 4px 10px;
+      border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;
+      font-family: Roboto, sans-serif; font-size: 10px; color: #999; cursor: pointer;
+    }
+    .pro-btn:hover { border-color: #c06; color: #c06; }
+    .pro-btn.del:hover { border-color: #ef5350; color: #ef5350; }
+    .pro-btn .material-icons-round { font-size: 13px; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-logo">B</div>
+      <div class="hero-text">
+        <div class="hero-name">Beauté du Regard</div>
+        <div class="hero-desc">Institut de beauté — Soins visage & corps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOGGLE: Soins / Posts ── -->
+  <div class="section-toggle">
+    <button class="toggle-btn" onclick="switchSection('soins')">
+      <span class="material-icons-round">spa</span>
+      Soins
+      <span class="toggle-count">8</span>
+    </button>
+    <button class="toggle-btn active" onclick="switchSection('posts')">
+      <span class="material-icons-round">photo_library</span>
+      Posts
+      <span class="toggle-count">4</span>
+    </button>
+  </div>
+
+  <!-- ═══ SOINS SECTION ═══ -->
+  <div id="section-soins" class="section-panel">
+    <div class="soins-section">
+      <div class="category-block">
+        <div class="cat-header">
+          <span class="material-icons-round">face</span> Soins visage
+        </div>
+        <div class="care-card-mini">
+          <div class="ccm-img"></div>
+          <div class="ccm-info">
+            <div class="ccm-name">Soin visage hydratant</div>
+            <div class="ccm-meta">60 min • 55 €</div>
+          </div>
+          <button class="ccm-book">Réserver</button>
+        </div>
+        <div class="care-card-mini">
+          <div class="ccm-img" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)"></div>
+          <div class="ccm-info">
+            <div class="ccm-name">Peeling doux</div>
+            <div class="ccm-meta">45 min • 45 €</div>
+          </div>
+          <button class="ccm-book">Réserver</button>
+        </div>
+      </div>
+      <div class="category-block">
+        <div class="cat-header">
+          <span class="material-icons-round">self_improvement</span> Soins corps
+        </div>
+        <div class="care-card-mini">
+          <div class="ccm-img" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb)"></div>
+          <div class="ccm-info">
+            <div class="ccm-name">Massage relaxant</div>
+            <div class="ccm-meta">90 min • 75 €</div>
+          </div>
+          <button class="ccm-book">Réserver</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ POSTS SECTION ═══ -->
+  <div id="section-posts" class="section-panel active">
+    <div class="posts-section">
+
+      <!-- PRO: create -->
+      <div class="create-bar">
+        <button class="create-btn">
+          <span class="material-icons-round">add_photo_alternate</span>
+          Publier un post
+        </button>
+      </div>
+
+      <!-- POST 1: Avant/Après -->
+      <div class="post-card">
+        <div class="compare-box" onmousemove="sl(event,this)" ontouchmove="slT(event,this)" style="--split:45%">
+          <div class="cmp-img" style="background:linear-gradient(135deg,#8d6e63,#a1887f)"></div>
+          <div class="cmp-img cmp-after" style="background:linear-gradient(135deg,#f3d5c0,#fce4ec)"></div>
+          <div class="cmp-line"></div>
+          <div class="cmp-handle"><span class="material-icons-round">swap_horiz</span></div>
+          <div class="cmp-labels">
+            <span class="cmp-lbl before">Avant</span>
+            <span class="cmp-lbl after">Après</span>
+          </div>
+        </div>
+        <div class="post-body">
+          <div class="post-top"><span class="post-type-pill pill-ba">Avant / Après</span></div>
+          <div class="post-caption">Résultat après 3 séances de soin hydratant. Peau lumineuse, pores resserrés.</div>
+          <div class="post-tags"><span class="post-tag">Soin visage hydratant</span></div>
+          <div class="post-footer">
+            <span class="post-date">il y a 3 jours</span>
+            <div class="post-like"><span class="material-icons-round">favorite_border</span> 12</div>
+          </div>
+        </div>
+        <div class="pro-bar">
+          <button class="pro-btn"><span class="material-icons-round">edit</span> Modifier</button>
+          <button class="pro-btn del"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+        </div>
+      </div>
+
+      <!-- POST 2: Photo -->
+      <div class="post-card">
+        <div class="single-photo" style="background:linear-gradient(135deg,#2e7d32,#66bb6a)"></div>
+        <div class="post-body">
+          <div class="post-top"><span class="post-type-pill pill-photo">Photo</span></div>
+          <div class="post-caption">Nouveau décor du salon ! Venez découvrir notre espace détente. 🌿</div>
+          <div class="post-footer">
+            <span class="post-date">il y a 1 semaine</span>
+            <div class="post-like"><span class="material-icons-round">favorite_border</span> 8</div>
+          </div>
+        </div>
+        <div class="pro-bar">
+          <button class="pro-btn"><span class="material-icons-round">edit</span> Modifier</button>
+          <button class="pro-btn del"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+        </div>
+      </div>
+
+      <!-- POST 3: Carrousel -->
+      <div class="post-card">
+        <div class="carousel-box">
+          <div class="car-track" id="car1" style="transform:translateX(0)">
+            <div class="car-slide" style="background:linear-gradient(135deg,#f8bbd0,#fce4ec)"></div>
+            <div class="car-slide" style="background:linear-gradient(135deg,#f3d5c0,#e8c4b0)"></div>
+            <div class="car-slide" style="background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+          </div>
+          <span class="car-counter" id="car1-cnt">1 / 3</span>
+          <button class="car-nav prev" onclick="slideCar('car1',-1)"><span class="material-icons-round">chevron_left</span></button>
+          <button class="car-nav next" onclick="slideCar('car1',1)"><span class="material-icons-round">chevron_right</span></button>
+          <div class="car-dots" id="car1-dots">
+            <button class="car-dot active"></button>
+            <button class="car-dot"></button>
+            <button class="car-dot"></button>
+          </div>
+        </div>
+        <div class="post-body">
+          <div class="post-top"><span class="post-type-pill pill-carousel">Carrousel</span></div>
+          <div class="post-caption">Les étapes d'un peeling doux : nettoyage, application, résultat. Teint éclatant en 45 min !</div>
+          <div class="post-tags"><span class="post-tag">Peeling doux</span><span class="post-tag">Visage</span></div>
+          <div class="post-footer">
+            <span class="post-date">il y a 2 semaines</span>
+            <div class="post-like"><span class="material-icons-round">favorite_border</span> 24</div>
+          </div>
+        </div>
+        <div class="pro-bar">
+          <button class="pro-btn"><span class="material-icons-round">edit</span> Modifier</button>
+          <button class="pro-btn del"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+        </div>
+      </div>
+
+      <!-- POST 4: Avant/Après (2) -->
+      <div class="post-card">
+        <div class="compare-box" onmousemove="sl(event,this)" ontouchmove="slT(event,this)" style="--split:55%">
+          <div class="cmp-img" style="background:linear-gradient(135deg,#9e9e9e,#bdbdbd)"></div>
+          <div class="cmp-img cmp-after" style="background:linear-gradient(135deg,#fce4ec,#f48fb1)"></div>
+          <div class="cmp-line"></div>
+          <div class="cmp-handle"><span class="material-icons-round">swap_horiz</span></div>
+          <div class="cmp-labels">
+            <span class="cmp-lbl before">Avant</span>
+            <span class="cmp-lbl after">Après</span>
+          </div>
+        </div>
+        <div class="post-body">
+          <div class="post-top"><span class="post-type-pill pill-ba">Avant / Après</span></div>
+          <div class="post-caption">Transformation après soin éclat + masque. Teint unifié, taches estompées.</div>
+          <div class="post-tags"><span class="post-tag">Soin éclat</span><span class="post-tag">Masque visage</span></div>
+          <div class="post-footer">
+            <span class="post-date">il y a 3 semaines</span>
+            <div class="post-like"><span class="material-icons-round">favorite_border</span> 31</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="mockup-footer">Pretty Face — Page salon avec onglet Posts — Avril 2026</footer>
+
+  <script>
+    function switchSection(s) {
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('section-' + s).classList.add('active');
+      document.querySelectorAll('.toggle-btn')[s === 'soins' ? 0 : 1].classList.add('active');
+    }
+
+    function sl(e,c){if(e.buttons!==1)return;const r=c.getBoundingClientRect();c.style.setProperty('--split',Math.max(5,Math.min(95,((e.clientX-r.left)/r.width)*100))+'%')}
+    function slT(e,c){const r=c.getBoundingClientRect();const t=e.touches[0];c.style.setProperty('--split',Math.max(5,Math.min(95,((t.clientX-r.left)/r.width)*100))+'%')}
+
+    const carStates = {};
+    function slideCar(id, dir) {
+      if (!carStates[id]) carStates[id] = 0;
+      carStates[id] = Math.max(0, Math.min(2, carStates[id] + dir));
+      document.getElementById(id).style.transform = `translateX(-${carStates[id] * 100}%)`;
+      document.getElementById(id + '-cnt').textContent = `${carStates[id] + 1} / 3`;
+      document.querySelectorAll('#' + id + '-dots .car-dot').forEach((d, i) => d.classList.toggle('active', i === carStates[id]));
+    }
+  </script>
+</body>
+</html>

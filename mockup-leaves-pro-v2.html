@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Congés PRO — 3 Propositions</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #f5f5f5; min-height: 100vh; }
+
+    /* ── PROPOSAL SELECTOR ── */
+    .proposal-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff; border-bottom: 1px solid #e0e0e0;
+      display: flex; justify-content: center; gap: 0; padding: 0;
+    }
+    .proposal-btn {
+      padding: 16px 32px; border: none; background: transparent;
+      font-family: Roboto, sans-serif; font-size: 14px; font-weight: 500;
+      color: #999; cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all 150ms ease;
+    }
+    .proposal-btn:hover { color: #666; }
+    .proposal-btn.active { color: #c06; border-bottom-color: #c06; }
+    .proposal { display: none; padding: 32px 24px 64px; max-width: 820px; margin: 0 auto; }
+    .proposal.active { display: block; }
+    .proposal-title {
+      font-size: 18px; font-weight: 300; color: #333; letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .proposal-desc { font-size: 13px; color: #999; margin-bottom: 24px; }
+
+    /* ════════════════════════════════════════════
+       PROPOSAL A — SIDEBAR SPLIT
+       Left: pending count + action list
+       Right: history with filters
+    ════════════════════════════════════════════ */
+    .split-layout { display: flex; gap: 20px; }
+    @media (max-width: 768px) { .split-layout { flex-direction: column; } }
+
+    .split-left {
+      flex: 0 0 280px; position: sticky; top: 80px; align-self: flex-start;
+    }
+    @media (max-width: 768px) { .split-left { flex: 1; position: static; } }
+    .split-right { flex: 1; min-width: 0; }
+
+    /* Pending summary card */
+    .pending-summary {
+      background: linear-gradient(135deg, #a8385d, #c06);
+      border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px;
+    }
+    .pending-summary .ps-label { font-size: 12px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .pending-summary .ps-count { font-size: 36px; font-weight: 700; margin: 4px 0; }
+    .pending-summary .ps-sub { font-size: 12px; opacity: 0.7; }
+
+    .pending-mini-list { display: flex; flex-direction: column; gap: 8px; }
+    .pending-mini-card {
+      background: #fff; border-radius: 12px; padding: 12px 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer;
+      border-left: 3px solid #f57f17; transition: box-shadow 150ms ease;
+    }
+    .pending-mini-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .pmc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .pmc-name { font-size: 13px; font-weight: 600; color: #333; }
+    .pmc-badge { font-size: 10px; font-weight: 600; padding: 1px 8px; border-radius: 10px; margin-left: auto; }
+    .pmc-badge.vac { background: #e3f2fd; color: #1565c0; }
+    .pmc-badge.sick { background: #fff3e0; color: #e65100; }
+    .pmc-dates { font-size: 11px; color: #999; }
+    .pmc-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .pmc-actions button {
+      flex: 1; padding: 6px 0; border-radius: 8px; font-family: Roboto, sans-serif;
+      font-size: 11px; font-weight: 500; cursor: pointer; transition: all 150ms ease;
+    }
+    .pmc-approve { background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none; }
+    .pmc-approve:hover { opacity: 0.9; }
+    .pmc-reject { background: #fff; color: #999; border: 1px solid #ddd; }
+    .pmc-reject:hover { border-color: #999; color: #333; }
+
+    /* Right panel — history */
+    .history-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .history-title-a { font-size: 15px; font-weight: 600; color: #333; }
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .fpill {
+      padding: 4px 12px; border: 1px solid #e0e0e0; border-radius: 16px;
+      font-size: 11px; font-weight: 500; color: #888; background: #fff;
+      cursor: pointer; transition: all 150ms ease;
+    }
+    .fpill:hover { border-color: #c06; color: #c06; }
+    .fpill.on { background: #fef2f2; border-color: #c06; color: #c06; }
+
+    .history-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 10px;
+    }
+    .hc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .hc-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #f9d5d3, #f0dde4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hc-avatar .material-icons-round { font-size: 14px; color: #a8385d; }
+    .hc-name { font-size: 13px; font-weight: 600; color: #333; }
+    .hc-badges { display: flex; gap: 4px; margin-left: auto; }
+    .hc-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .hc-dates { font-size: 12px; color: #888; margin-bottom: 2px; }
+    .hc-reason { font-size: 12px; color: #aaa; }
+    .hc-note { font-size: 12px; color: #555; font-style: italic; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f5f5f5; display: flex; align-items: flex-start; gap: 4px; }
+    .hc-note .material-icons-round { font-size: 14px; color: #c06; margin-top: 1px; }
+    .hc-reviewed { font-size: 10px; color: #ccc; margin-top: 3px; }
+
+    /* ════════════════════════════════════════════
+       PROPOSAL B — SEGMENTED TOGGLE + UNIFIED LIST
+       Top toggle: En attente / Historique
+       Below: filter row only for history, then cards
+    ════════════════════════════════════════════ */
+    .seg-toggle {
+      display: flex; background: #f0f0f0; border-radius: 12px; padding: 3px;
+      margin-bottom: 16px; width: fit-content;
+    }
+    .seg-btn {
+      padding: 8px 24px; border: none; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 13px; font-weight: 500;
+      color: #888; background: transparent; cursor: pointer; transition: all 150ms ease;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .seg-btn.active { background: #fff; color: #333; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .seg-count {
+      background: #c06; color: #fff; font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 8px; min-width: 18px; text-align: center;
+    }
+    .seg-btn:not(.active) .seg-count { background: #ccc; }
+
+    .filter-row-b { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .fr-chip {
+      padding: 5px 14px; border: 1px solid #e0e0e0; border-radius: 20px;
+      font-size: 12px; font-weight: 500; color: #888; background: #fff;
+      cursor: pointer; transition: all 150ms ease;
+    }
+    .fr-chip:hover { border-color: #c06; color: #c06; }
+    .fr-chip.on { background: #c06; color: #fff; border-color: #c06; }
+
+    .b-card {
+      background: #fff; border-radius: 14px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 10px;
+    }
+    .b-card.pending-b { border-left: 3px solid #f57f17; }
+    .b-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .b-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #f9d5d3, #f0dde4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .b-avatar .material-icons-round { font-size: 18px; color: #a8385d; }
+    .b-info { flex: 1; }
+    .b-name { font-size: 14px; font-weight: 600; color: #333; }
+    .b-dates-inline { font-size: 12px; color: #888; }
+    .b-badges { display: flex; gap: 4px; }
+    .b-badge { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
+
+    .b-detail { margin-top: 4px; }
+    .b-reason { font-size: 12px; color: #888; }
+    .b-doc { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: #4caf50; margin-top: 3px; padding: 1px 6px; background: #e8f5e9; border-radius: 6px; }
+    .b-doc .material-icons-round { font-size: 13px; }
+    .b-note { font-size: 12px; color: #555; font-style: italic; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f5f5f5; display: flex; gap: 4px; }
+    .b-note .material-icons-round { font-size: 14px; color: #c06; flex-shrink: 0; margin-top: 1px; }
+    .b-reviewed { font-size: 10px; color: #ccc; margin-top: 3px; }
+
+    .b-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .b-approve {
+      display: flex; align-items: center; gap: 4px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 8px 20px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 12px; font-weight: 500; cursor: pointer;
+    }
+    .b-approve:hover { opacity: 0.9; }
+    .b-reject {
+      display: flex; align-items: center; gap: 4px;
+      background: transparent; color: #999; border: 1px solid #ddd;
+      padding: 8px 20px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 12px; cursor: pointer;
+    }
+    .b-reject:hover { border-color: #999; color: #333; }
+    .b-approve .material-icons-round, .b-reject .material-icons-round { font-size: 16px; }
+
+    /* ════════════════════════════════════════════
+       PROPOSAL C — KANBAN COLUMNS
+       3 columns: En attente | Approuvé | Refusé
+    ════════════════════════════════════════════ */
+    .kanban { display: flex; gap: 14px; }
+    @media (max-width: 768px) { .kanban { flex-direction: column; } }
+
+    .kanban-col { flex: 1; min-width: 0; }
+    .col-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+      padding-bottom: 10px; border-bottom: 2px solid #e0e0e0;
+    }
+    .col-header.pending-col { border-bottom-color: #f57f17; }
+    .col-header.approved-col { border-bottom-color: #4caf50; }
+    .col-header.rejected-col { border-bottom-color: #ef5350; }
+    .col-title { font-size: 13px; font-weight: 600; color: #333; }
+    .col-count {
+      font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 10px;
+      margin-left: auto;
+    }
+    .col-count.pending-cnt { background: #fff8e1; color: #f57f17; }
+    .col-count.approved-cnt { background: #e8f5e9; color: #2e7d32; }
+    .col-count.rejected-cnt { background: #fce4ec; color: #c62828; }
+
+    .k-card {
+      background: #fff; border-radius: 12px; padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 8px;
+    }
+    .k-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .k-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #f9d5d3, #f0dde4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .k-avatar .material-icons-round { font-size: 13px; color: #a8385d; }
+    .k-name { font-size: 13px; font-weight: 600; color: #333; }
+    .k-type-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 8px; margin-left: auto; }
+    .k-dates { font-size: 11px; color: #888; margin-bottom: 2px; }
+    .k-reason { font-size: 11px; color: #aaa; }
+    .k-doc { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; color: #4caf50; margin-top: 2px; }
+    .k-doc .material-icons-round { font-size: 12px; }
+    .k-note { font-size: 11px; color: #555; font-style: italic; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f5f5f5; }
+    .k-reviewed { font-size: 10px; color: #ccc; margin-top: 2px; }
+
+    .k-actions { display: flex; gap: 4px; margin-top: 8px; }
+    .k-actions button {
+      flex: 1; padding: 5px 0; border-radius: 8px; font-family: Roboto, sans-serif;
+      font-size: 11px; font-weight: 500; cursor: pointer;
+    }
+    .k-approve { background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none; }
+    .k-approve:hover { opacity: 0.9; }
+    .k-reject2 { background: #fff; color: #999; border: 1px solid #ddd; }
+    .k-reject2:hover { border-color: #999; color: #333; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+<!-- ── PROPOSAL SELECTOR ── -->
+<nav class="proposal-nav">
+  <button class="proposal-btn active" onclick="showProposal('a')">A — Sidebar Split</button>
+  <button class="proposal-btn" onclick="showProposal('b')">B — Toggle + Liste</button>
+  <button class="proposal-btn" onclick="showProposal('c')">C — Kanban</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     PROPOSAL A — SIDEBAR SPLIT
+═══════════════════════════════════════════════ -->
+<div id="proposal-a" class="proposal active">
+  <div class="proposal-title">A — Sidebar Split</div>
+  <div class="proposal-desc">Les demandes en attente à gauche dans un panneau résumé, l'historique filtrable à droite.</div>
+
+  <div class="split-layout">
+    <!-- LEFT: Pending -->
+    <div class="split-left">
+      <div class="pending-summary">
+        <div class="ps-label">Demandes en attente</div>
+        <div class="ps-count">3</div>
+        <div class="ps-sub">à traiter</div>
+      </div>
+      <div class="pending-mini-list">
+        <div class="pending-mini-card">
+          <div class="pmc-top">
+            <span class="pmc-name">Sophie Martin</span>
+            <span class="pmc-badge vac">Congé</span>
+          </div>
+          <div class="pmc-dates">15/07 → 28/07 · 14 jours</div>
+          <div class="pmc-actions">
+            <button class="pmc-approve">Approuver</button>
+            <button class="pmc-reject">Refuser</button>
+          </div>
+        </div>
+        <div class="pending-mini-card">
+          <div class="pmc-top">
+            <span class="pmc-name">Chloé Dupont</span>
+            <span class="pmc-badge sick">Maladie</span>
+          </div>
+          <div class="pmc-dates">05/04 → 08/04 · 4 jours</div>
+          <div class="pmc-actions">
+            <button class="pmc-approve">Approuver</button>
+            <button class="pmc-reject">Refuser</button>
+          </div>
+        </div>
+        <div class="pending-mini-card">
+          <div class="pmc-top">
+            <span class="pmc-name">Léa Bernard</span>
+            <span class="pmc-badge vac">Congé</span>
+          </div>
+          <div class="pmc-dates">12/04 · 1 jour</div>
+          <div class="pmc-actions">
+            <button class="pmc-approve">Approuver</button>
+            <button class="pmc-reject">Refuser</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: History -->
+    <div class="split-right">
+      <div class="history-header">
+        <span class="history-title-a">Historique</span>
+        <div class="filter-pills">
+          <button class="fpill on">Tous</button>
+          <button class="fpill">Congés</button>
+          <button class="fpill">Maladie</button>
+          <span style="width:1px;background:#e0e0e0;margin:0 4px"></span>
+          <button class="fpill on">Tous</button>
+          <button class="fpill">Approuvés</button>
+          <button class="fpill">Refusés</button>
+        </div>
+      </div>
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-avatar"><span class="material-icons-round">person</span></div>
+          <span class="hc-name">Sophie Martin</span>
+          <div class="hc-badges">
+            <span class="hc-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+            <span class="hc-badge" style="background:#e8f5e9;color:#2e7d32">Approuvé</span>
+          </div>
+        </div>
+        <div class="hc-dates">01/03/2026 → 05/03/2026 · 5 jours</div>
+        <div class="hc-reason">Vacances de printemps</div>
+        <div class="hc-note"><span class="material-icons-round">chat_bubble_outline</span> Bon repos !</div>
+        <div class="hc-reviewed">Traité le 20/02/2026</div>
+      </div>
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-avatar"><span class="material-icons-round">person</span></div>
+          <span class="hc-name">Chloé Dupont</span>
+          <div class="hc-badges">
+            <span class="hc-badge" style="background:#fff3e0;color:#e65100">Maladie</span>
+            <span class="hc-badge" style="background:#e8f5e9;color:#2e7d32">Approuvé</span>
+          </div>
+        </div>
+        <div class="hc-dates">10/01/2026 → 14/01/2026 · 5 jours</div>
+        <div class="hc-reason">Opération dentaire</div>
+        <div class="hc-note"><span class="material-icons-round">chat_bubble_outline</span> Bon rétablissement.</div>
+        <div class="hc-reviewed">Traité le 08/01/2026</div>
+      </div>
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-avatar"><span class="material-icons-round">person</span></div>
+          <span class="hc-name">Léa Bernard</span>
+          <div class="hc-badges">
+            <span class="hc-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+            <span class="hc-badge" style="background:#fce4ec;color:#c62828">Refusé</span>
+          </div>
+        </div>
+        <div class="hc-dates">14/02/2026 · 1 jour</div>
+        <div class="hc-reason">RDV personnel</div>
+        <div class="hc-note"><span class="material-icons-round">chat_bubble_outline</span> Trop de RDV clients ce jour-là.</div>
+        <div class="hc-reviewed">Traité le 10/02/2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PROPOSAL B — SEGMENTED TOGGLE + UNIFIED LIST
+═══════════════════════════════════════════════ -->
+<div id="proposal-b" class="proposal">
+  <div class="proposal-title">B — Toggle segmenté + Liste unifiée</div>
+  <div class="proposal-desc">Un toggle iOS-like pour changer de vue, les filtres n'apparaissent que dans l'historique.</div>
+
+  <div class="seg-toggle">
+    <button class="seg-btn active" onclick="toggleB('pending')">En attente <span class="seg-count">3</span></button>
+    <button class="seg-btn" onclick="toggleB('history')">Historique</button>
+  </div>
+
+  <div id="b-filter-row" class="filter-row-b" style="display:none">
+    <button class="fr-chip on">Tous</button>
+    <button class="fr-chip">Congés</button>
+    <button class="fr-chip">Maladie</button>
+    <span style="width:8px"></span>
+    <button class="fr-chip on">Tous</button>
+    <button class="fr-chip">Approuvés</button>
+    <button class="fr-chip">Refusés</button>
+  </div>
+
+  <!-- Pending cards -->
+  <div id="b-pending">
+    <div class="b-card pending-b">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Sophie Martin</div>
+          <div class="b-dates-inline">15/07 → 28/07/2026 · 14 jours</div>
+        </div>
+        <div class="b-badges"><span class="b-badge" style="background:#e3f2fd;color:#1565c0">Congé</span></div>
+      </div>
+      <div class="b-detail"><div class="b-reason">Vacances d'été</div></div>
+      <div class="b-actions">
+        <button class="b-approve"><span class="material-icons-round">check</span> Approuver</button>
+        <button class="b-reject"><span class="material-icons-round">close</span> Refuser</button>
+      </div>
+    </div>
+    <div class="b-card pending-b">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Chloé Dupont</div>
+          <div class="b-dates-inline">05/04 → 08/04/2026 · 4 jours</div>
+        </div>
+        <div class="b-badges"><span class="b-badge" style="background:#fff3e0;color:#e65100">Maladie</span></div>
+      </div>
+      <div class="b-detail">
+        <div class="b-reason">Grippe saisonnière</div>
+        <div class="b-doc"><span class="material-icons-round">attach_file</span> certificat.pdf</div>
+      </div>
+      <div class="b-actions">
+        <button class="b-approve"><span class="material-icons-round">check</span> Approuver</button>
+        <button class="b-reject"><span class="material-icons-round">close</span> Refuser</button>
+      </div>
+    </div>
+    <div class="b-card pending-b">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Léa Bernard</div>
+          <div class="b-dates-inline">12/04/2026 · 1 jour</div>
+        </div>
+        <div class="b-badges"><span class="b-badge" style="background:#e3f2fd;color:#1565c0">Congé</span></div>
+      </div>
+      <div class="b-detail"><div class="b-reason">RDV personnel</div></div>
+      <div class="b-actions">
+        <button class="b-approve"><span class="material-icons-round">check</span> Approuver</button>
+        <button class="b-reject"><span class="material-icons-round">close</span> Refuser</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History cards -->
+  <div id="b-history" style="display:none">
+    <div class="b-card">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Sophie Martin</div>
+          <div class="b-dates-inline">01/03 → 05/03/2026 · 5 jours</div>
+        </div>
+        <div class="b-badges">
+          <span class="b-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+          <span class="b-badge" style="background:#e8f5e9;color:#2e7d32">Approuvé</span>
+        </div>
+      </div>
+      <div class="b-detail"><div class="b-reason">Vacances de printemps</div></div>
+      <div class="b-note"><span class="material-icons-round">chat_bubble_outline</span> Bon repos !</div>
+      <div class="b-reviewed">Traité le 20/02/2026</div>
+    </div>
+    <div class="b-card">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Léa Bernard</div>
+          <div class="b-dates-inline">14/02/2026 · 1 jour</div>
+        </div>
+        <div class="b-badges">
+          <span class="b-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+          <span class="b-badge" style="background:#fce4ec;color:#c62828">Refusé</span>
+        </div>
+      </div>
+      <div class="b-detail"><div class="b-reason">RDV personnel</div></div>
+      <div class="b-note"><span class="material-icons-round">chat_bubble_outline</span> Trop de RDV clients ce jour-là.</div>
+      <div class="b-reviewed">Traité le 10/02/2026</div>
+    </div>
+    <div class="b-card">
+      <div class="b-top">
+        <div class="b-avatar"><span class="material-icons-round">person</span></div>
+        <div class="b-info">
+          <div class="b-name">Chloé Dupont</div>
+          <div class="b-dates-inline">10/01 → 14/01/2026 · 5 jours</div>
+        </div>
+        <div class="b-badges">
+          <span class="b-badge" style="background:#fff3e0;color:#e65100">Maladie</span>
+          <span class="b-badge" style="background:#e8f5e9;color:#2e7d32">Approuvé</span>
+        </div>
+      </div>
+      <div class="b-detail">
+        <div class="b-reason">Opération dentaire</div>
+        <div class="b-doc"><span class="material-icons-round">attach_file</span> certificat-chirurgien.pdf</div>
+      </div>
+      <div class="b-note"><span class="material-icons-round">chat_bubble_outline</span> Bon rétablissement.</div>
+      <div class="b-reviewed">Traité le 08/01/2026</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PROPOSAL C — KANBAN COLUMNS
+═══════════════════════════════════════════════ -->
+<div id="proposal-c" class="proposal">
+  <div class="proposal-title">C — Kanban</div>
+  <div class="proposal-desc">Vue en colonnes type Trello : En attente | Approuvé | Refusé — vue d'ensemble instantanée.</div>
+
+  <div class="kanban">
+    <!-- Col: Pending -->
+    <div class="kanban-col">
+      <div class="col-header pending-col">
+        <span class="material-icons-round" style="font-size:18px;color:#f57f17">schedule</span>
+        <span class="col-title">En attente</span>
+        <span class="col-count pending-cnt">3</span>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Sophie Martin</span>
+          <span class="k-type-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+        </div>
+        <div class="k-dates">15/07 → 28/07 · 14j</div>
+        <div class="k-reason">Vacances d'été</div>
+        <div class="k-actions">
+          <button class="k-approve">Approuver</button>
+          <button class="k-reject2">Refuser</button>
+        </div>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Chloé Dupont</span>
+          <span class="k-type-badge" style="background:#fff3e0;color:#e65100">Maladie</span>
+        </div>
+        <div class="k-dates">05/04 → 08/04 · 4j</div>
+        <div class="k-reason">Grippe</div>
+        <div class="k-doc"><span class="material-icons-round">attach_file</span> certificat.pdf</div>
+        <div class="k-actions">
+          <button class="k-approve">Approuver</button>
+          <button class="k-reject2">Refuser</button>
+        </div>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Léa Bernard</span>
+          <span class="k-type-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+        </div>
+        <div class="k-dates">12/04 · 1j</div>
+        <div class="k-reason">RDV perso</div>
+        <div class="k-actions">
+          <button class="k-approve">Approuver</button>
+          <button class="k-reject2">Refuser</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col: Approved -->
+    <div class="kanban-col">
+      <div class="col-header approved-col">
+        <span class="material-icons-round" style="font-size:18px;color:#4caf50">check_circle</span>
+        <span class="col-title">Approuvé</span>
+        <span class="col-count approved-cnt">2</span>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Sophie Martin</span>
+          <span class="k-type-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+        </div>
+        <div class="k-dates">01/03 → 05/03 · 5j</div>
+        <div class="k-reason">Vacances printemps</div>
+        <div class="k-note">« Bon repos ! »</div>
+        <div class="k-reviewed">20/02/2026</div>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Chloé Dupont</span>
+          <span class="k-type-badge" style="background:#fff3e0;color:#e65100">Maladie</span>
+        </div>
+        <div class="k-dates">10/01 → 14/01 · 5j</div>
+        <div class="k-reason">Opération dentaire</div>
+        <div class="k-doc"><span class="material-icons-round">attach_file</span> certificat.pdf</div>
+        <div class="k-note">« Bon rétablissement. »</div>
+        <div class="k-reviewed">08/01/2026</div>
+      </div>
+    </div>
+
+    <!-- Col: Rejected -->
+    <div class="kanban-col">
+      <div class="col-header rejected-col">
+        <span class="material-icons-round" style="font-size:18px;color:#ef5350">cancel</span>
+        <span class="col-title">Refusé</span>
+        <span class="col-count rejected-cnt">1</span>
+      </div>
+      <div class="k-card">
+        <div class="k-top">
+          <div class="k-avatar"><span class="material-icons-round">person</span></div>
+          <span class="k-name">Léa Bernard</span>
+          <span class="k-type-badge" style="background:#e3f2fd;color:#1565c0">Congé</span>
+        </div>
+        <div class="k-dates">14/02 · 1j</div>
+        <div class="k-reason">RDV perso</div>
+        <div class="k-note">« Trop de RDV clients. »</div>
+        <div class="k-reviewed">10/02/2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — 3 propositions congés PRO — Avril 2026</footer>
+
+<script>
+  function showProposal(id) {
+    document.querySelectorAll('.proposal').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.proposal-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('proposal-' + id).classList.add('active');
+    document.querySelectorAll('.proposal-btn')[{a:0,b:1,c:2}[id]].classList.add('active');
+  }
+  function toggleB(view) {
+    const btns = document.querySelectorAll('.seg-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (view === 'pending') {
+      btns[0].classList.add('active');
+      document.getElementById('b-pending').style.display = 'block';
+      document.getElementById('b-history').style.display = 'none';
+      document.getElementById('b-filter-row').style.display = 'none';
+    } else {
+      btns[1].classList.add('active');
+      document.getElementById('b-pending').style.display = 'none';
+      document.getElementById('b-history').style.display = 'block';
+      document.getElementById('b-filter-row').style.display = 'flex';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<h2>Mon salon — Options de redesign</h2>
+<p class="subtitle">Page profil salon pour les pros, responsive mobile-first</p>
+
+<div class="cards">
+  <!-- Option A: Sections en cards empilées -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <!-- Desktop mockup -->
+      <div style="max-width:440px; margin:0 auto;">
+        <!-- Header card -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:20px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span style="font-size:24px; color:#a8385d;">📷</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:15px; font-weight:600; color:#333;">L'Atelier de Sophie</div>
+              <div style="font-size:11px; color:#999; margin-top:2px;">/salon/sophie-martin</div>
+              <div style="display:flex; gap:6px; margin-top:6px;">
+                <span style="font-size:10px; background:#dcfce7; color:#166534; padding:2px 8px; border-radius:10px;">En ligne</span>
+              </div>
+            </div>
+            <button style="padding:6px 12px; border:1px solid #ddd; border-radius:8px; background:white; font-size:11px; color:#666; cursor:pointer;">Modifier logo</button>
+          </div>
+        </div>
+        <!-- Info card -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:16px; margin-bottom:12px;">
+          <div style="font-size:12px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">Informations</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; color:#999; width:80px;">Nom</span>
+              <div style="flex:1; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">L'Atelier de Sophie</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:11px; color:#999; width:80px;">Description</span>
+              <div style="flex:1; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px; color:#888;">Institut de beauté spécialisé...</div>
+            </div>
+          </div>
+        </div>
+        <!-- Address card -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:16px; margin-bottom:12px;">
+          <div style="font-size:12px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">📍 Adresse</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:8px;">
+              <div style="flex:2; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">12 rue des Fleurs</div>
+              <div style="flex:1; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">75001</div>
+            </div>
+            <div style="padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">Paris</div>
+          </div>
+        </div>
+        <!-- Contact card -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:16px; margin-bottom:12px;">
+          <div style="font-size:12px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px;">📞 Contact & entreprise</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:8px;">
+              <div style="flex:1; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">06 12 34 56 78</div>
+              <div style="flex:1; padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">sophie@salon.fr</div>
+            </div>
+            <div style="padding:6px 10px; background:#f8f8f8; border-radius:6px; font-size:12px;">SIRET : 123 456 789 00012</div>
+          </div>
+        </div>
+        <!-- Save button -->
+        <button style="width:100%; padding:10px; border:none; border-radius:24px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:13px; font-weight:500; cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Cards empilées par section</h3>
+      <p>Chaque section (identité, adresse, contact) dans sa propre card. Header avec logo + statut en haut. Champs en mode édition inline. Bouton save global en bas. Très mobile-friendly — les cards s'empilent naturellement.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Tabs/Stepper -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:440px; margin:0 auto;">
+        <!-- Header -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:20px; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#d4b5d0,#c8a0c0); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span style="font-size:24px;">📷</span>
+            </div>
+            <div>
+              <div style="font-size:15px; font-weight:600; color:#333;">L'Atelier de Sophie</div>
+              <div style="font-size:11px; color:#999;">/salon/sophie-martin</div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabs -->
+        <div style="display:flex; gap:0; margin-bottom:12px; background:white; border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.06);">
+          <div style="flex:1; padding:10px; text-align:center; font-size:12px; font-weight:600; color:#c06; border-bottom:2px solid #c06;">Infos</div>
+          <div style="flex:1; padding:10px; text-align:center; font-size:12px; color:#999;">Adresse</div>
+          <div style="flex:1; padding:10px; text-align:center; font-size:12px; color:#999;">Contact</div>
+        </div>
+        <!-- Tab content: Infos -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:16px;">
+          <div style="margin-bottom:12px;">
+            <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Nom du salon</label>
+            <div style="margin-top:4px; padding:8px 12px; border:1px solid #e0e0e0; border-radius:8px; font-size:13px;">L'Atelier de Sophie</div>
+          </div>
+          <div>
+            <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Description</label>
+            <div style="margin-top:4px; padding:8px 12px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px; min-height:80px; color:#666;">Institut de beauté spécialisé dans les soins du visage...</div>
+          </div>
+          <button style="margin-top:16px; width:100%; padding:10px; border:none; border-radius:24px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:13px; cursor:pointer;">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Tabs par section</h3>
+      <p>3 onglets : Infos, Adresse, Contact. Le header avec logo reste fixe en haut. Chaque onglet a son propre formulaire + bouton save. Mobile : les tabs scrollent horizontalement. Moins de scroll vertical, plus organisé.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Single form + hero header -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:440px; margin:0 auto;">
+        <!-- Hero header -->
+        <div style="background:linear-gradient(135deg,#f8e8ec,#faf0ee); border-radius:14px; padding:24px 20px; text-align:center; margin-bottom:16px; position:relative;">
+          <div style="width:80px; height:80px; border-radius:50%; background:white; box-shadow:0 2px 8px rgba(0,0,0,.1); margin:0 auto 10px; display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:28px;">📷</span>
+          </div>
+          <div style="font-size:16px; font-weight:600; color:#333;">L'Atelier de Sophie</div>
+          <div style="font-size:11px; color:#999; margin-top:2px;">/salon/sophie-martin</div>
+          <div style="margin-top:8px;">
+            <span style="font-size:10px; background:#dcfce7; color:#166534; padding:2px 10px; border-radius:10px;">En ligne</span>
+          </div>
+        </div>
+        <!-- Single scrollable form -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:16px;">
+          <div style="margin-bottom:14px;">
+            <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Nom du salon</label>
+            <div style="margin-top:4px; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">L'Atelier de Sophie</div>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Description</label>
+            <div style="margin-top:4px; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px; min-height:50px; color:#666;">Institut de beauté...</div>
+          </div>
+          <!-- Divider -->
+          <div style="border-top:1px solid #f0f0f0; margin:14px 0; position:relative;">
+            <span style="position:absolute; top:-8px; left:0; background:white; padding-right:8px; font-size:10px; color:#c06; text-transform:uppercase; letter-spacing:.5px;">Adresse</span>
+          </div>
+          <div style="margin-bottom:10px;">
+            <div style="padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">12 rue des Fleurs</div>
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <div style="width:80px; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">75001</div>
+            <div style="flex:1; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">Paris</div>
+          </div>
+          <!-- Divider -->
+          <div style="border-top:1px solid #f0f0f0; margin:14px 0; position:relative;">
+            <span style="position:absolute; top:-8px; left:0; background:white; padding-right:8px; font-size:10px; color:#c06; text-transform:uppercase; letter-spacing:.5px;">Contact</span>
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <div style="flex:1; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">06 12 34 56 78</div>
+            <div style="flex:1; padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px;">sophie@salon.fr</div>
+          </div>
+          <div style="padding:7px 10px; border:1px solid #e0e0e0; border-radius:8px; font-size:12px; margin-bottom:14px;">SIRET : 123 456 789 00012</div>
+          <button style="width:100%; padding:10px; border:none; border-radius:24px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:13px; font-weight:500; cursor:pointer;">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Hero header + formulaire unique</h3>
+      <p>Header hero avec dégradé rose/nacré, logo centré + statut. En dessous, un seul formulaire continu avec des séparateurs colorés entre sections. Un seul bouton save. Le plus simple, mobile-native, tout visible d'un coup.</p>
+    </div>
+  </div>
+</div>

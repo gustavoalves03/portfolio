@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Congés PRO — Mockup</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #fafafa; min-height: 100vh; }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 0; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      margin-bottom: 20px;
+    }
+    .filter-group {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .filter-label {
+      font-size: 11px; font-weight: 600; color: #999;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-right: 2px;
+    }
+    .filter-chip {
+      padding: 5px 14px; border: 1px solid #e0e0e0; border-radius: 20px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 12px;
+      font-weight: 500; color: #777; cursor: pointer; transition: all 150ms ease;
+      white-space: nowrap;
+    }
+    .filter-chip:hover { border-color: #c06; color: #c06; }
+    .filter-chip.active { background: #c06; border-color: #c06; color: #fff; }
+    .filter-chip.active-subtle { background: #fef2f2; border-color: #c06; color: #c06; }
+
+    .filter-divider {
+      width: 1px; height: 20px; background: #e0e0e0; margin: 0 4px;
+    }
+
+    /* ── Stat summary ── */
+    .stat-row {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 10px; font-size: 12px; font-weight: 500;
+    }
+    .stat-pill.pending-stat { background: #fff8e1; color: #f57f17; }
+    .stat-pill.approved-stat { background: #e8f5e9; color: #2e7d32; }
+    .stat-pill.rejected-stat { background: #fce4ec; color: #c62828; }
+    .stat-pill .stat-count { font-weight: 700; font-size: 14px; }
+
+    /* ── Leave cards ── */
+    .leaves-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .leave-card {
+      background: #fff; border-radius: 14px; padding: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: box-shadow 150ms ease;
+    }
+    .leave-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .leave-card.is-pending { border-left: 3px solid #f57f17; }
+
+    .leave-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+    .leave-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #f9d5d3, #f0dde4);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .leave-avatar .material-icons-round { font-size: 16px; color: #a8385d; }
+
+    .leave-name { font-size: 14px; font-weight: 600; color: #333; }
+
+    .leave-badges { display: flex; gap: 6px; margin-left: auto; }
+    .badge {
+      padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .badge.type-vacation { background: #e3f2fd; color: #1565c0; }
+    .badge.type-sickness { background: #fff3e0; color: #e65100; }
+    .badge.status-pending { background: #fff8e1; color: #f57f17; }
+    .badge.status-approved { background: #e8f5e9; color: #2e7d32; }
+    .badge.status-rejected { background: #fce4ec; color: #c62828; }
+
+    .leave-dates {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: #555; margin-bottom: 4px;
+    }
+    .leave-dates .material-icons-round { font-size: 16px; color: #c06; }
+    .leave-dates .arrow { color: #ccc; font-size: 12px; }
+    .leave-dates .day-count { margin-left: 8px; font-size: 11px; color: #999; }
+
+    .leave-reason { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .leave-doc {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; color: #4caf50; margin-top: 4px;
+      padding: 2px 8px; background: #e8f5e9; border-radius: 8px;
+    }
+    .leave-doc .material-icons-round { font-size: 14px; }
+
+    .reviewer-note {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 12px; color: #555; margin-top: 8px; padding-top: 8px;
+      border-top: 1px solid #f5f5f5; font-style: italic;
+    }
+    .reviewer-note .material-icons-round { font-size: 14px; color: #c06; margin-top: 1px; flex-shrink: 0; }
+    .reviewed-at { font-size: 11px; color: #bbb; margin-top: 4px; }
+
+    /* ── Actions for pending ── */
+    .leave-actions {
+      display: flex; gap: 8px; margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid #f5f5f5;
+    }
+    .approve-btn {
+      display: flex; align-items: center; gap: 4px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 8px 18px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: opacity 150ms ease;
+    }
+    .approve-btn:hover { opacity: 0.9; }
+    .approve-btn .material-icons-round { font-size: 16px; }
+    .reject-btn {
+      display: flex; align-items: center; gap: 4px;
+      background: transparent; color: #999; border: 1px solid #ddd;
+      padding: 8px 18px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 12px; cursor: pointer; transition: all 150ms ease;
+    }
+    .reject-btn:hover { border-color: #999; color: #333; }
+    .reject-btn .material-icons-round { font-size: 16px; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; padding: 40px 16px; color: #ccc;
+    }
+    .empty-state .material-icons-round { font-size: 48px; margin-bottom: 10px; }
+    .empty-state p { font-size: 13px; color: #999; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+
+    @media (max-width: 480px) {
+      .filter-bar { gap: 6px; }
+      .filter-chip { padding: 4px 10px; font-size: 11px; }
+      .leave-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Filter bar ── -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">Vue</span>
+      <button class="filter-chip active" onclick="setView('pending')">En attente <span style="font-weight:700">3</span></button>
+      <button class="filter-chip" onclick="setView('history')">Historique</button>
+    </div>
+    <div class="filter-divider" id="history-divider" style="display:none"></div>
+    <div class="filter-group" id="history-filters" style="display:none">
+      <span class="filter-label">Type</span>
+      <button class="filter-chip active-subtle type-f" onclick="setTypeFilter(this, 'all')">Tous</button>
+      <button class="filter-chip type-f" onclick="setTypeFilter(this, 'vacation')">Congés</button>
+      <button class="filter-chip type-f" onclick="setTypeFilter(this, 'sickness')">Maladie</button>
+    </div>
+    <div class="filter-group" id="status-filters" style="display:none">
+      <span class="filter-label">Statut</span>
+      <button class="filter-chip active-subtle status-f" onclick="setStatusFilter(this, 'all')">Tous</button>
+      <button class="filter-chip status-f" onclick="setStatusFilter(this, 'approved')">Approuvés</button>
+      <button class="filter-chip status-f" onclick="setStatusFilter(this, 'rejected')">Refusés</button>
+    </div>
+  </div>
+
+  <!-- ═══ PENDING VIEW ═══ -->
+  <div id="pending-view">
+    <div class="leaves-list">
+      <!-- Pending 1 — Congé -->
+      <div class="leave-card is-pending">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Sophie Martin</span>
+          <div class="leave-badges">
+            <span class="badge type-vacation">Congé</span>
+            <span class="badge status-pending">En attente</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          15/07/2026 <span class="arrow">→</span> 28/07/2026
+          <span class="day-count">14 jours</span>
+        </div>
+        <div class="leave-reason">Vacances d'été</div>
+        <div class="leave-actions">
+          <button class="approve-btn"><span class="material-icons-round">check</span> Approuver</button>
+          <button class="reject-btn"><span class="material-icons-round">close</span> Refuser</button>
+        </div>
+      </div>
+
+      <!-- Pending 2 — Maladie avec document -->
+      <div class="leave-card is-pending">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Chloé Dupont</span>
+          <div class="leave-badges">
+            <span class="badge type-sickness">Maladie</span>
+            <span class="badge status-pending">En attente</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          05/04/2026 <span class="arrow">→</span> 08/04/2026
+          <span class="day-count">4 jours</span>
+        </div>
+        <div class="leave-reason">Grippe saisonnière</div>
+        <div class="leave-doc"><span class="material-icons-round">attach_file</span> certificat-medical.pdf</div>
+        <div class="leave-actions">
+          <button class="approve-btn"><span class="material-icons-round">check</span> Approuver</button>
+          <button class="reject-btn"><span class="material-icons-round">close</span> Refuser</button>
+        </div>
+      </div>
+
+      <!-- Pending 3 — Congé court -->
+      <div class="leave-card is-pending">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Léa Bernard</span>
+          <div class="leave-badges">
+            <span class="badge type-vacation">Congé</span>
+            <span class="badge status-pending">En attente</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          12/04/2026 <span class="arrow">→</span> 12/04/2026
+          <span class="day-count">1 jour</span>
+        </div>
+        <div class="leave-reason">RDV personnel</div>
+        <div class="leave-actions">
+          <button class="approve-btn"><span class="material-icons-round">check</span> Approuver</button>
+          <button class="reject-btn"><span class="material-icons-round">close</span> Refuser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HISTORY VIEW ═══ -->
+  <div id="history-view" style="display:none">
+    <div class="leaves-list">
+      <!-- History 1 — Approved congé -->
+      <div class="leave-card">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Sophie Martin</span>
+          <div class="leave-badges">
+            <span class="badge type-vacation">Congé</span>
+            <span class="badge status-approved">Approuvé</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          01/03/2026 <span class="arrow">→</span> 05/03/2026
+          <span class="day-count">5 jours</span>
+        </div>
+        <div class="leave-reason">Vacances de printemps</div>
+        <div class="reviewer-note">
+          <span class="material-icons-round">chat_bubble_outline</span>
+          Bon repos ! Pensez à prévenir vos clients.
+        </div>
+        <div class="reviewed-at">Traité le 20/02/2026</div>
+      </div>
+
+      <!-- History 2 — Rejected congé -->
+      <div class="leave-card">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Léa Bernard</span>
+          <div class="leave-badges">
+            <span class="badge type-vacation">Congé</span>
+            <span class="badge status-rejected">Refusé</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          14/02/2026 <span class="arrow">→</span> 14/02/2026
+          <span class="day-count">1 jour</span>
+        </div>
+        <div class="leave-reason">RDV personnel</div>
+        <div class="reviewer-note">
+          <span class="material-icons-round">chat_bubble_outline</span>
+          Trop de rendez-vous clients ce jour-là, essayez un autre jour.
+        </div>
+        <div class="reviewed-at">Traité le 10/02/2026</div>
+      </div>
+
+      <!-- History 3 — Approved maladie -->
+      <div class="leave-card">
+        <div class="leave-top">
+          <div class="leave-avatar"><span class="material-icons-round">person</span></div>
+          <span class="leave-name">Chloé Dupont</span>
+          <div class="leave-badges">
+            <span class="badge type-sickness">Maladie</span>
+            <span class="badge status-approved">Approuvé</span>
+          </div>
+        </div>
+        <div class="leave-dates">
+          <span class="material-icons-round">date_range</span>
+          10/01/2026 <span class="arrow">→</span> 14/01/2026
+          <span class="day-count">5 jours</span>
+        </div>
+        <div class="leave-reason">Opération dentaire</div>
+        <div class="leave-doc"><span class="material-icons-round">attach_file</span> certificat-chirurgien.pdf</div>
+        <div class="reviewer-note">
+          <span class="material-icons-round">chat_bubble_outline</span>
+          Bon rétablissement.
+        </div>
+        <div class="reviewed-at">Traité le 08/01/2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — Mockup "Congés PRO" — Avril 2026</footer>
+
+<script>
+  function setView(view) {
+    const chips = document.querySelectorAll('.filter-bar > .filter-group:first-child .filter-chip');
+    chips.forEach(c => c.classList.remove('active'));
+    if (view === 'pending') {
+      chips[0].classList.add('active');
+      document.getElementById('pending-view').style.display = 'block';
+      document.getElementById('history-view').style.display = 'none';
+      document.getElementById('history-filters').style.display = 'none';
+      document.getElementById('status-filters').style.display = 'none';
+      document.getElementById('history-divider').style.display = 'none';
+    } else {
+      chips[1].classList.add('active');
+      document.getElementById('pending-view').style.display = 'none';
+      document.getElementById('history-view').style.display = 'block';
+      document.getElementById('history-filters').style.display = 'flex';
+      document.getElementById('status-filters').style.display = 'flex';
+      document.getElementById('history-divider').style.display = 'block';
+    }
+  }
+  function setTypeFilter(el, type) {
+    document.querySelectorAll('.type-f').forEach(c => c.classList.remove('active-subtle'));
+    el.classList.add('active-subtle');
+  }
+  function setStatusFilter(el, status) {
+    document.querySelectorAll('.status-f').forEach(c => c.classList.remove('active-subtle'));
+    el.classList.add('active-subtle');
+  }
+</script>
+</body>
+</html>

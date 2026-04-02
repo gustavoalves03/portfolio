@@ -1,0 +1,205 @@
+<h2>Layout de la page Disponibilités</h2>
+<p class="subtitle">Comment présenter la configuration des horaires hebdomadaires ?</p>
+
+<div class="cards">
+
+  <!-- Option A: Liste verticale -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background: #fff; border-radius: 12px; padding: 20px 16px; font-family: system-ui; min-height: 480px;">
+        <div style="font-size: 10px; letter-spacing: 2px; color: #c06; margin-bottom: 6px;">PRETTY FACE</div>
+        <div style="font-size: 18px; font-weight: 300; color: #333; margin-bottom: 20px;">Mes disponibilités</div>
+
+        <!-- Monday -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+          <div style="width: 70px;">
+            <span style="font-size: 13px; font-weight: 500; color: #333;">Lundi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">09:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">12:00</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">14:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">18:00</div>
+          </div>
+          <div style="font-size: 14px; color: #ccc; cursor: pointer;">＋</div>
+        </div>
+
+        <!-- Tuesday -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+          <div style="width: 70px;">
+            <span style="font-size: 13px; font-weight: 500; color: #333;">Mardi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">09:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">18:00</div>
+          </div>
+          <div style="font-size: 14px; color: #ccc; cursor: pointer;">＋</div>
+        </div>
+
+        <!-- Wednesday - closed -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; opacity: 0.5;">
+          <div style="width: 70px;">
+            <span style="font-size: 13px; font-weight: 500; color: #999;">Mercredi</span>
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <span style="font-size: 12px; color: #bbb; font-style: italic;">Fermé</span>
+          </div>
+        </div>
+
+        <!-- Thursday -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+          <div style="width: 70px;">
+            <span style="font-size: 13px; font-weight: 500; color: #333;">Jeudi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">09:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">18:00</div>
+          </div>
+          <div style="font-size: 14px; color: #ccc; cursor: pointer;">＋</div>
+        </div>
+
+        <!-- Friday -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+          <div style="width: 70px;">
+            <span style="font-size: 13px; font-weight: 500; color: #333;">Vendredi</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">09:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: #f7f5f3; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #333;">20:00</div>
+          </div>
+          <div style="font-size: 14px; color: #ccc; cursor: pointer;">＋</div>
+        </div>
+
+        <!-- Samedi/Dimanche closed -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; opacity: 0.5;">
+          <div style="width: 70px;"><span style="font-size: 13px; font-weight: 500; color: #999;">Samedi</span></div>
+          <div style="flex: 1; text-align: center;"><span style="font-size: 12px; color: #bbb; font-style: italic;">Fermé</span></div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; opacity: 0.5;">
+          <div style="width: 70px;"><span style="font-size: 13px; font-weight: 500; color: #999;">Dimanche</span></div>
+          <div style="flex: 1; text-align: center;"><span style="font-size: 12px; color: #bbb; font-style: italic;">Fermé</span></div>
+        </div>
+
+        <!-- Toggle + Save -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+          <span style="font-size: 11px; color: #999;">Cliquez sur un jour fermé pour l'ouvrir</span>
+          <div style="background: linear-gradient(135deg, #a8385d, #c06); color: white; padding: 10px 24px; border-radius: 24px; font-size: 12px; font-weight: 500;">Enregistrer</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Liste verticale compacte</h3>
+      <p>Un jour par ligne avec plages horaires inline. "+" pour ajouter une plage. Jours fermés grisés avec possibilité de cliquer pour ouvrir. Compact, mobile-friendly.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Cards par jour -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background: #fff; border-radius: 12px; padding: 20px 16px; font-family: system-ui; min-height: 480px;">
+        <div style="font-size: 10px; letter-spacing: 2px; color: #c06; margin-bottom: 6px;">PRETTY FACE</div>
+        <div style="font-size: 18px; font-weight: 300; color: #333; margin-bottom: 20px;">Mes disponibilités</div>
+
+        <!-- Day cards grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <!-- Monday card -->
+          <div style="background: #fafafa; border-radius: 12px; padding: 14px; border-left: 3px solid #c06;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #333;">Lundi</span>
+              <div style="width: 28px; height: 16px; background: #c06; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">09:00 – 12:00</div>
+            <div style="font-size: 11px; color: #666;">14:00 – 18:00</div>
+          </div>
+
+          <!-- Tuesday card -->
+          <div style="background: #fafafa; border-radius: 12px; padding: 14px; border-left: 3px solid #c06;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #333;">Mardi</span>
+              <div style="width: 28px; height: 16px; background: #c06; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">09:00 – 18:00</div>
+          </div>
+
+          <!-- Wednesday closed -->
+          <div style="background: #f5f5f5; border-radius: 12px; padding: 14px; border-left: 3px solid #ddd; opacity: 0.6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #999;">Mercredi</span>
+              <div style="width: 28px; height: 16px; background: #ddd; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; left: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #bbb; font-style: italic;">Fermé</div>
+          </div>
+
+          <!-- Thursday -->
+          <div style="background: #fafafa; border-radius: 12px; padding: 14px; border-left: 3px solid #c06;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #333;">Jeudi</span>
+              <div style="width: 28px; height: 16px; background: #c06; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">09:00 – 18:00</div>
+          </div>
+
+          <!-- Friday -->
+          <div style="background: #fafafa; border-radius: 12px; padding: 14px; border-left: 3px solid #c06;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #333;">Vendredi</span>
+              <div style="width: 28px; height: 16px; background: #c06; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #666;">09:00 – 20:00</div>
+          </div>
+
+          <!-- Saturday closed -->
+          <div style="background: #f5f5f5; border-radius: 12px; padding: 14px; border-left: 3px solid #ddd; opacity: 0.6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 12px; font-weight: 600; color: #999;">Samedi</span>
+              <div style="width: 28px; height: 16px; background: #ddd; border-radius: 8px; position: relative;">
+                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; left: 2px; top: 2px;"></div>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: #bbb; font-style: italic;">Fermé</div>
+          </div>
+
+          <!-- Sunday closed - full width -->
+          <div style="grid-column: span 2; background: #f5f5f5; border-radius: 12px; padding: 14px; border-left: 3px solid #ddd; opacity: 0.6;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 12px; font-weight: 600; color: #999;">Dimanche</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; color: #bbb; font-style: italic;">Fermé</span>
+                <div style="width: 28px; height: 16px; background: #ddd; border-radius: 8px; position: relative;">
+                  <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; left: 2px; top: 2px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save -->
+        <div style="text-align: center; margin-top: 20px;">
+          <div style="display: inline-block; background: linear-gradient(135deg, #a8385d, #c06); color: white; padding: 10px 32px; border-radius: 24px; font-size: 12px; font-weight: 500;">Enregistrer</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Cards par jour avec toggle</h3>
+      <p>Chaque jour est une card avec un slide toggle ouvert/fermé. Bordure colorée quand ouvert. Grille 2 colonnes. Cliquer sur une card pour éditer les plages. Plus visuel.</p>
+    </div>
+  </div>
+
+</div>

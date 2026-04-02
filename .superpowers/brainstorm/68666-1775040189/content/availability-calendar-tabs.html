@@ -1,0 +1,197 @@
+<h2>Disponibilités + Calendrier — Page unifiée</h2>
+<p class="subtitle">Regrouper les horaires d'ouverture et le blocage de créneaux sur une même page avec des tabs</p>
+
+<div class="cards">
+  <!-- Option A: Tabs classiques en haut -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:440px; margin:0 auto;">
+        <!-- Title -->
+        <div style="font-size:16px; font-weight:600; color:#333; margin-bottom:12px;">Mon planning</div>
+        <!-- Tabs -->
+        <div style="display:flex; background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); overflow:hidden; margin-bottom:14px;">
+          <div style="flex:1; padding:10px; text-align:center; font-size:12px; font-weight:600; color:#c06; border-bottom:2px solid #c06;">Horaires d'ouverture</div>
+          <div style="flex:1; padding:10px; text-align:center; font-size:12px; color:#999; border-bottom:2px solid transparent;">Créneaux bloqués</div>
+        </div>
+        <!-- Tab 1: Opening hours -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:14px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <!-- Day rows -->
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f5f5f5;">
+              <span style="width:60px; font-size:12px; font-weight:600; color:#333;">Lundi</span>
+              <div style="display:flex; gap:6px; flex:1; flex-wrap:wrap;">
+                <span style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px;">09:00 - 12:00</span>
+                <span style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px;">14:00 - 19:00</span>
+              </div>
+              <button style="width:24px; height:24px; border:none; background:none; cursor:pointer; color:#999; font-size:14px;">✏️</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f5f5f5;">
+              <span style="width:60px; font-size:12px; font-weight:600; color:#333;">Mardi</span>
+              <div style="display:flex; gap:6px; flex:1;">
+                <span style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px;">09:00 - 12:00</span>
+                <span style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px;">14:00 - 19:00</span>
+              </div>
+              <button style="width:24px; height:24px; border:none; background:none; cursor:pointer; color:#999; font-size:14px;">✏️</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f5f5f5;">
+              <span style="width:60px; font-size:12px; font-weight:600; color:#333;">Mercredi</span>
+              <div style="flex:1;">
+                <span style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px;">10:00 - 19:00</span>
+              </div>
+              <button style="width:24px; height:24px; border:none; background:none; cursor:pointer; color:#999; font-size:14px;">✏️</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:6px 0;">
+              <span style="width:60px; font-size:12px; color:#ccc;">Dimanche</span>
+              <span style="font-size:11px; color:#ccc; font-style:italic;">Fermé</span>
+            </div>
+          </div>
+          <button style="margin-top:12px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; cursor:pointer;">Enregistrer les horaires</button>
+        </div>
+      </div>
+      <!-- Mobile hint -->
+      <div style="margin-top:12px; font-size:10px; color:#aaa; text-align:center;">📱 Mobile : les tabs restent en haut, le contenu scrolle</div>
+    </div>
+    <div class="card-body">
+      <h3>A · Tabs Material classiques</h3>
+      <p>Deux onglets Material en haut. Tab 1 : horaires d'ouverture par jour (affichage compact avec badges colorés + edit inline). Tab 2 : calendrier de blocage. Bouton save par tab. Simple et familier.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Toggle segment + calendar always visible -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:440px; margin:0 auto;">
+        <div style="font-size:16px; font-weight:600; color:#333; margin-bottom:12px;">Mon planning</div>
+        <!-- Segment toggle -->
+        <div style="display:flex; background:#f0e8ec; border-radius:10px; padding:3px; margin-bottom:14px;">
+          <div style="flex:1; padding:7px; text-align:center; font-size:12px; font-weight:600; background:white; border-radius:8px; color:#c06; box-shadow:0 1px 3px rgba(0,0,0,.08);">Horaires</div>
+          <div style="flex:1; padding:7px; text-align:center; font-size:12px; color:#888;">Blocages</div>
+        </div>
+        <!-- Content -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:14px;">
+          <!-- Opening hours as vertical list -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#faf8f6; border-radius:10px; padding:10px 12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; font-weight:600; color:#333;">Lundi</span>
+                <label style="display:flex; align-items:center; gap:4px; font-size:10px; color:#888; cursor:pointer;">
+                  <div style="width:28px; height:16px; background:#c06; border-radius:8px; position:relative;">
+                    <div style="width:12px; height:12px; background:white; border-radius:50%; position:absolute; right:2px; top:2px;"></div>
+                  </div>
+                  Ouvert
+                </label>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:6px;">
+                <div style="display:flex; align-items:center; gap:4px;">
+                  <span style="font-size:10px; color:#888;">De</span>
+                  <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">09:00</div>
+                  <span style="font-size:10px; color:#888;">à</span>
+                  <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">12:00</div>
+                </div>
+                <button style="border:none; background:none; color:#c06; font-size:11px; cursor:pointer;">+ plage</button>
+              </div>
+              <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+                <span style="font-size:10px; color:#888;">De</span>
+                <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">14:00</div>
+                <span style="font-size:10px; color:#888;">à</span>
+                <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">19:00</div>
+                <button style="border:none; background:none; color:#d32f2f; font-size:14px; cursor:pointer;">×</button>
+              </div>
+            </div>
+            <div style="background:#faf8f6; border-radius:10px; padding:10px 12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; font-weight:600; color:#333;">Mardi</span>
+                <label style="display:flex; align-items:center; gap:4px; font-size:10px; color:#888;">
+                  <div style="width:28px; height:16px; background:#c06; border-radius:8px; position:relative;">
+                    <div style="width:12px; height:12px; background:white; border-radius:50%; position:absolute; right:2px; top:2px;"></div>
+                  </div>
+                  Ouvert
+                </label>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:6px; align-items:center;">
+                <span style="font-size:10px; color:#888;">De</span>
+                <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">10:00</div>
+                <span style="font-size:10px; color:#888;">à</span>
+                <div style="padding:4px 8px; border:1px solid #e0e0e0; border-radius:6px; font-size:11px;">19:00</div>
+              </div>
+            </div>
+            <div style="background:#f8f8f8; border-radius:10px; padding:10px 12px; opacity:.6;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:13px; color:#999;">Dimanche</span>
+                <label style="display:flex; align-items:center; gap:4px; font-size:10px; color:#ccc;">
+                  <div style="width:28px; height:16px; background:#ccc; border-radius:8px; position:relative;">
+                    <div style="width:12px; height:12px; background:white; border-radius:50%; position:absolute; left:2px; top:2px;"></div>
+                  </div>
+                  Fermé
+                </label>
+              </div>
+            </div>
+          </div>
+          <button style="margin-top:12px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; cursor:pointer;">Enregistrer</button>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-size:10px; color:#aaa; text-align:center;">📱 Mobile : segment toggle + scroll vertical natif</div>
+    </div>
+    <div class="card-body">
+      <h3>B · Segment toggle + cards par jour</h3>
+      <p>Toggle iOS-style (Horaires / Blocages) au lieu de tabs. Chaque jour est une card avec toggle ouvert/fermé, plages horaires éditables inline, bouton "+ plage". Plus interactif, édition directe sans modale. Mobile-native.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Combined view -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:440px; margin:0 auto;">
+        <div style="font-size:16px; font-weight:600; color:#333; margin-bottom:12px;">Mon planning</div>
+        <!-- Two columns desktop, stacked mobile -->
+        <div style="display:flex; gap:12px;">
+          <!-- Left: Mini calendar -->
+          <div style="flex:1; background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:10px; color:#999;">◀</span>
+              <span style="font-size:12px; font-weight:600; color:#333;">Avril 2026</span>
+              <span style="font-size:10px; color:#999;">▶</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:1px; text-align:center; font-size:9px;">
+              <div style="color:#999; padding:3px 0;">Lu</div><div style="color:#999; padding:3px 0;">Ma</div><div style="color:#999; padding:3px 0;">Me</div><div style="color:#999; padding:3px 0;">Je</div><div style="color:#999; padding:3px 0;">Ve</div><div style="color:#999; padding:3px 0;">Sa</div><div style="color:#999; padding:3px 0;">Di</div>
+              <div style="padding:4px 0;">1</div><div style="padding:4px 0;">2</div><div style="padding:4px 0;">3</div><div style="padding:4px 0;">4</div>
+              <div style="padding:4px 0; background:#c06; color:white; border-radius:4px;">5</div>
+              <div style="padding:4px 0;">6</div><div style="padding:4px 0; color:#ccc;">7</div>
+              <div style="padding:4px 0;">8</div><div style="padding:4px 0; background:#ffe0e0; border-radius:4px; color:#c06;">9</div>
+              <div style="padding:4px 0;">10</div><div style="padding:4px 0;">11</div><div style="padding:4px 0;">12</div><div style="padding:4px 0;">13</div><div style="padding:4px 0; color:#ccc;">14</div>
+            </div>
+            <div style="margin-top:8px; display:flex; gap:8px; font-size:9px;">
+              <span style="display:flex; align-items:center; gap:3px;"><span style="width:8px; height:8px; background:#c06; border-radius:2px;"></span> Sélectionné</span>
+              <span style="display:flex; align-items:center; gap:3px;"><span style="width:8px; height:8px; background:#ffe0e0; border-radius:2px;"></span> Bloqué</span>
+            </div>
+          </div>
+          <!-- Right: Day detail -->
+          <div style="flex:1; background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:12px;">
+            <div style="font-size:12px; font-weight:600; color:#333; margin-bottom:8px;">Sam. 5 avril</div>
+            <div style="font-size:10px; color:#888; margin-bottom:6px;">Horaires :</div>
+            <div style="font-size:11px; background:#f0e8ec; color:#a8385d; padding:3px 8px; border-radius:6px; display:inline-block; margin-bottom:8px;">09:00 - 17:00</div>
+            <div style="font-size:10px; color:#888; margin-bottom:6px;">Blocages :</div>
+            <div style="font-size:11px; color:#999; font-style:italic; margin-bottom:8px;">Aucun blocage</div>
+            <button style="width:100%; padding:6px; border:1.5px dashed #c06; border-radius:8px; background:transparent; color:#c06; font-size:11px; cursor:pointer;">+ Bloquer ce jour</button>
+          </div>
+        </div>
+        <!-- Recurring hours below -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:12px; margin-top:12px;">
+          <div style="font-size:12px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Horaires récurrents</div>
+          <div style="font-size:11px; display:flex; flex-wrap:wrap; gap:6px;">
+            <span style="background:#f0e8ec; color:#a8385d; padding:4px 10px; border-radius:8px;">Lun 09-12 · 14-19</span>
+            <span style="background:#f0e8ec; color:#a8385d; padding:4px 10px; border-radius:8px;">Mar 10-19</span>
+            <span style="background:#f0e8ec; color:#a8385d; padding:4px 10px; border-radius:8px;">Mer 10-19</span>
+            <span style="background:#f8f8f8; color:#ccc; padding:4px 10px; border-radius:8px;">Dim fermé</span>
+          </div>
+          <button style="margin-top:8px; border:none; background:none; color:#c06; font-size:11px; cursor:pointer; text-decoration:underline;">Modifier les horaires</button>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-size:10px; color:#aaa; text-align:center;">📱 Mobile : calendrier et détails empilés verticalement</div>
+    </div>
+    <div class="card-body">
+      <h3>C · Vue combinée calendrier + détails</h3>
+      <p>Calendrier mini à gauche, détails du jour sélectionné à droite (horaires + blocages). En bas, les horaires récurrents en badges compacts. Tout sur un seul écran. Mobile : empilé verticalement. Plus visuel mais plus complexe.</p>
+    </div>
+  </div>
+</div>

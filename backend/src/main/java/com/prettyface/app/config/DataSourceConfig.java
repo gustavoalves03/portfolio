@@ -7,6 +7,7 @@ import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,28 +16,37 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Locale;
 
 /**
- * Configures Hibernate multi-tenancy using the ALTER SESSION SET CURRENT_SCHEMA approach.
+ * Configures Hibernate schema-based multi-tenancy for Oracle and H2.
  * <p>
- * A single connection pool (APPUSER) is shared across all tenants. Before each tenant
- * query Hibernate switches the Oracle session schema; on release it resets to the default.
+ * A single connection pool is shared across all tenants. Before each tenant query
+ * Hibernate switches the session schema; on release it resets to the shared schema.
  */
 @Configuration
 public class DataSourceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
-    /** Must match the Oracle username (upper-cased) used by the main datasource. */
-    static final String DEFAULT_SCHEMA = "APPUSER";
+    private final String applicationSchema;
+
+    public DataSourceConfig(
+            @Value("${app.multitenancy.application-schema:${APP_USER:appuser}}") String applicationSchema
+    ) {
+        this.applicationSchema = normalizeIdentifier(applicationSchema);
+    }
 
     @Bean
     HibernatePropertiesCustomizer hibernateMultiTenancyCustomizer(DataSource dataSource) {
+        DatabaseKind databaseKind = detectDatabaseKind(dataSource);
+        initializeDefaultSchema(dataSource, databaseKind, applicationSchema);
+
         return properties -> {
             properties.put(MultiTenancySettings.MULTI_TENANT_CONNECTION_PROVIDER,
-                    new SchemaMultiTenantConnectionProvider(dataSource));
+                    new SchemaMultiTenantConnectionProvider(dataSource, applicationSchema, databaseKind));
             properties.put(MultiTenancySettings.MULTI_TENANT_IDENTIFIER_RESOLVER,
-                    new TenantIdentifierResolver());
+                    new TenantIdentifierResolver(applicationSchema));
         };
     }
 
@@ -44,13 +54,19 @@ public class DataSourceConfig {
 
     static class TenantIdentifierResolver implements CurrentTenantIdentifierResolver<String> {
 
+        private final String defaultSchema;
+
+        TenantIdentifierResolver(String defaultSchema) {
+            this.defaultSchema = defaultSchema;
+        }
+
         @Override
         public String resolveCurrentTenantIdentifier() {
             String tenant = TenantContext.getCurrentTenant();
             if (tenant != null) {
                 return TenantSchemaManager.toSchemaName(tenant);
             }
-            return DEFAULT_SCHEMA;
+            return defaultSchema;
         }
 
         @Override
@@ -66,14 +82,21 @@ public class DataSourceConfig {
         private static final Logger log = LoggerFactory.getLogger(SchemaMultiTenantConnectionProvider.class);
 
         private final DataSource dataSource;
+        private final String defaultSchema;
+        private final DatabaseKind databaseKind;
 
-        SchemaMultiTenantConnectionProvider(DataSource dataSource) {
+        SchemaMultiTenantConnectionProvider(DataSource dataSource, String defaultSchema, DatabaseKind databaseKind) {
             this.dataSource = dataSource;
+            this.defaultSchema = defaultSchema;
+            this.databaseKind = databaseKind;
         }
 
         @Override
         public Connection getAnyConnection() throws SQLException {
-            return dataSource.getConnection();
+            Connection connection = dataSource.getConnection();
+            initializeDefaultSchema(connection);
+            applySchema(connection, defaultSchema);
+            return connection;
         }
 
         @Override
@@ -113,17 +136,87 @@ public class DataSourceConfig {
         // ── helpers ──
 
         private void setSchema(Connection connection, String schemaName) throws SQLException {
-            try (Statement stmt = connection.createStatement()) {
-                stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
-            }
+            initializeDefaultSchema(connection);
+            applySchema(connection, schemaName);
         }
 
         private void resetSchema(Connection connection) {
-            try (Statement stmt = connection.createStatement()) {
-                stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + DEFAULT_SCHEMA + "\"");
+            try {
+                initializeDefaultSchema(connection);
+                applySchema(connection, defaultSchema);
             } catch (SQLException e) {
-                log.warn("Failed to reset schema to {}: {}", DEFAULT_SCHEMA, e.getMessage());
+                log.warn("Failed to reset schema to {}: {}", defaultSchema, e.getMessage());
             }
         }
+
+        private void initializeDefaultSchema(Connection connection) throws SQLException {
+            if (databaseKind != DatabaseKind.H2) {
+                return;
+            }
+
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("CREATE SCHEMA IF NOT EXISTS \"" + defaultSchema + "\"");
+            }
+        }
+
+        private void applySchema(Connection connection, String schemaName) throws SQLException {
+            switch (databaseKind) {
+                case ORACLE -> {
+                    try (Statement stmt = connection.createStatement()) {
+                        stmt.execute("ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
+                    }
+                }
+                case H2 -> {
+                    try (Statement stmt = connection.createStatement()) {
+                        stmt.execute("SET SCHEMA \"" + schemaName + "\"");
+                    }
+                }
+                case OTHER -> connection.setSchema(schemaName);
+            }
+        }
+    }
+
+    private static void initializeDefaultSchema(DataSource dataSource, DatabaseKind databaseKind, String schemaName) {
+        if (databaseKind != DatabaseKind.H2) {
+            return;
+        }
+
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
+            stmt.execute("CREATE SCHEMA IF NOT EXISTS \"" + schemaName + "\"");
+        } catch (SQLException e) {
+            logger.warn("Failed to initialize schema {}: {}", schemaName, e.getMessage());
+        }
+    }
+
+    private static DatabaseKind detectDatabaseKind(DataSource dataSource) {
+        try (Connection connection = dataSource.getConnection()) {
+            String productName = connection.getMetaData().getDatabaseProductName();
+            if (productName == null) {
+                return DatabaseKind.OTHER;
+            }
+
+            String normalized = productName.toLowerCase(Locale.ROOT);
+            if (normalized.contains("oracle")) {
+                return DatabaseKind.ORACLE;
+            }
+            if (normalized.contains("h2")) {
+                return DatabaseKind.H2;
+            }
+        } catch (SQLException e) {
+            logger.warn("Failed to detect database platform: {}", e.getMessage());
+        }
+
+        return DatabaseKind.OTHER;
+    }
+
+    private static String normalizeIdentifier(String identifier) {
+        return identifier == null ? "" : identifier.trim().toUpperCase(Locale.ROOT);
+    }
+
+    enum DatabaseKind {
+        ORACLE,
+        H2,
+        OTHER
     }
 }

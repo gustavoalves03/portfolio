@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Mon Équipe — Mockup</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #fafafa; min-height: 100vh; }
+
+    /* ── PAGE CONTAINER ── */
+    .page { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+    .page-title { font-size: 20px; font-weight: 600; color: #333; margin: 0 0 16px; }
+
+    /* ── TABS (Material-like) ── */
+    .tab-bar { display: flex; justify-content: center; border-bottom: 1px solid #e0e0e0; margin-bottom: 0; }
+    .tab-btn {
+      padding: 12px 24px; border: none; background: transparent; font-family: Roboto, sans-serif;
+      font-size: 13px; font-weight: 500; color: #999; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 150ms ease; letter-spacing: 0.3px;
+    }
+    .tab-btn:hover { color: #666; }
+    .tab-btn.active { color: #c06; border-bottom-color: #c06; }
+    .tab-content { padding-top: 16px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; align-items: center; margin-bottom: 16px; }
+    .toolbar-spacer { flex: 1; }
+    .add-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 10px 20px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 150ms ease;
+    }
+    .add-btn:hover { opacity: 0.9; }
+    .add-btn .material-icons-round { font-size: 18px; }
+
+    /* ═══════════════════════════════
+       TAB 1 — COLLABORATEURS (GRID)
+    ═══════════════════════════════ */
+    .employee-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    @media (max-width: 640px) { .employee-grid { grid-template-columns: 1fr; } }
+
+    .employee-card {
+      display: flex; gap: 14px; padding: 16px; border-radius: 14px; background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow 150ms ease;
+    }
+    .employee-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    .employee-avatar {
+      width: 44px; height: 44px; min-width: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #f9d5d3, #f0dde4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .employee-avatar .material-icons-round { font-size: 22px; color: #a8385d; }
+
+    .employee-content { flex: 1; min-width: 0; }
+    .employee-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .employee-name { font-size: 14px; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .status-badge {
+      font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+    }
+    .status-badge.active { background-color: #e8f5e9; color: #2e7d32; }
+    .status-badge.inactive { background-color: #f5f5f5; color: #999; }
+
+    .employee-email { font-size: 12px; color: #888; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .employee-phone { font-size: 12px; color: #888; margin-top: 1px; }
+
+    .care-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .care-chip { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background-color: #f9d5d3; color: #a8385d; }
+    .no-cares { font-size: 11px; color: #bbb; margin-top: 8px; font-style: italic; }
+
+    /* ═══════════════════════════════
+       TAB 2 — CONGÉS
+    ═══════════════════════════════ */
+    .section-title { font-size: 16px; font-weight: 600; color: #333; margin: 0 0 16px; }
+    .leaves-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .leave-card {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 16px; border-radius: 14px; background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    @media (max-width: 480px) {
+      .leave-card { flex-direction: column; align-items: stretch; }
+    }
+
+    .leave-info { flex: 1; min-width: 0; }
+    .leave-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .leave-employee { font-size: 14px; font-weight: 600; color: #333; }
+
+    .leave-type {
+      font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px;
+    }
+    .leave-type.vacation { background-color: #e3f2fd; color: #1565c0; }
+    .leave-type.sickness { background-color: #fff3e0; color: #e65100; }
+
+    .leave-dates { font-size: 12px; color: #888; }
+    .leave-reason { font-size: 12px; color: #666; margin-top: 4px; }
+    .reason-label { font-weight: 500; color: #555; }
+
+    .leave-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    @media (max-width: 480px) { .leave-actions { justify-content: flex-end; } }
+
+    .approve-btn {
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff; border: none;
+      padding: 8px 18px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 150ms ease;
+    }
+    .approve-btn:hover { opacity: 0.9; }
+
+    .reject-btn {
+      background: transparent; color: #999; border: 1px solid #ddd;
+      padding: 8px 18px; border-radius: 10px; font-family: Roboto, sans-serif;
+      font-size: 13px; cursor: pointer; transition: all 150ms ease;
+    }
+    .reject-btn:hover { border-color: #999; color: #333; }
+
+    /* ── MOCKUP FOOTER ── */
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <h1 class="page-title">Mon Équipe</h1>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('team')">Collaborateurs</button>
+      <button class="tab-btn" onclick="switchTab('leaves')">Congés</button>
+    </div>
+
+    <!-- ═══ TAB 1 — COLLABORATEURS ═══ -->
+    <div id="tab-team" class="tab-panel active">
+      <div class="tab-content">
+        <div class="toolbar">
+          <span class="toolbar-spacer"></span>
+          <button class="add-btn">
+            <span class="material-icons-round">person_add</span>
+            Ajouter un collaborateur
+          </button>
+        </div>
+
+        <div class="employee-grid">
+          <!-- Card 1 — Active, avec prestations -->
+          <div class="employee-card">
+            <div class="employee-avatar">
+              <span class="material-icons-round">person</span>
+            </div>
+            <div class="employee-content">
+              <div class="employee-header">
+                <span class="employee-name">Sophie Martin</span>
+                <span class="status-badge active">Actif</span>
+              </div>
+              <div class="employee-email">sophie.martin@prettyface.fr</div>
+              <div class="employee-phone">06 12 34 56 78</div>
+              <div class="care-chips">
+                <span class="care-chip">Soin visage hydratant</span>
+                <span class="care-chip">Peeling doux</span>
+                <span class="care-chip">Massage relaxant</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 — Active, moins de prestations -->
+          <div class="employee-card">
+            <div class="employee-avatar">
+              <span class="material-icons-round">person</span>
+            </div>
+            <div class="employee-content">
+              <div class="employee-header">
+                <span class="employee-name">Chloé Dupont</span>
+                <span class="status-badge active">Actif</span>
+              </div>
+              <div class="employee-email">chloe.dupont@prettyface.fr</div>
+              <div class="care-chips">
+                <span class="care-chip">Épilation</span>
+                <span class="care-chip">Soin corps tonifiant</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 — Active, une seule prestation -->
+          <div class="employee-card">
+            <div class="employee-avatar">
+              <span class="material-icons-round">person</span>
+            </div>
+            <div class="employee-content">
+              <div class="employee-header">
+                <span class="employee-name">Léa Bernard</span>
+                <span class="status-badge active">Actif</span>
+              </div>
+              <div class="employee-email">lea.bernard@prettyface.fr</div>
+              <div class="employee-phone">06 98 76 54 32</div>
+              <div class="care-chips">
+                <span class="care-chip">Massage relaxant</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 — Inactive -->
+          <div class="employee-card">
+            <div class="employee-avatar">
+              <span class="material-icons-round">person</span>
+            </div>
+            <div class="employee-content">
+              <div class="employee-header">
+                <span class="employee-name">Marie Leroy</span>
+                <span class="status-badge inactive">Inactif</span>
+              </div>
+              <div class="employee-email">marie.leroy@prettyface.fr</div>
+              <span class="no-cares">Aucune prestation assignée</span>
+            </div>
+          </div>
+
+          <!-- Card 5 — Le PRO lui-même -->
+          <div class="employee-card">
+            <div class="employee-avatar">
+              <span class="material-icons-round">person</span>
+            </div>
+            <div class="employee-content">
+              <div class="employee-header">
+                <span class="employee-name">Vous (Propriétaire)</span>
+                <span class="status-badge active">Actif</span>
+              </div>
+              <div class="employee-email">contact@prettyface.fr</div>
+              <div class="care-chips">
+                <span class="care-chip">Soin visage hydratant</span>
+                <span class="care-chip">Peeling doux</span>
+                <span class="care-chip">Épilation</span>
+                <span class="care-chip">Massage relaxant</span>
+                <span class="care-chip">Soin corps tonifiant</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 2 — CONGÉS ═══ -->
+    <div id="tab-leaves" class="tab-panel">
+      <div class="tab-content">
+        <h2 class="section-title">Demandes en attente</h2>
+
+        <div class="leaves-list">
+          <!-- Leave 1 — Congé -->
+          <div class="leave-card">
+            <div class="leave-info">
+              <div class="leave-header">
+                <span class="leave-employee">Sophie Martin</span>
+                <span class="leave-type vacation">Congé</span>
+              </div>
+              <div class="leave-dates">15/07/2026 — 28/07/2026</div>
+              <div class="leave-reason">
+                <span class="reason-label">Motif :</span> Vacances d'été
+              </div>
+            </div>
+            <div class="leave-actions">
+              <button class="approve-btn">Approuver</button>
+              <button class="reject-btn">Refuser</button>
+            </div>
+          </div>
+
+          <!-- Leave 2 — Maladie -->
+          <div class="leave-card">
+            <div class="leave-info">
+              <div class="leave-header">
+                <span class="leave-employee">Chloé Dupont</span>
+                <span class="leave-type sickness">Maladie</span>
+              </div>
+              <div class="leave-dates">05/04/2026 — 08/04/2026</div>
+              <div class="leave-reason">
+                <span class="reason-label">Motif :</span> Grippe — certificat médical joint
+              </div>
+            </div>
+            <div class="leave-actions">
+              <button class="approve-btn">Approuver</button>
+              <button class="reject-btn">Refuser</button>
+            </div>
+          </div>
+
+          <!-- Leave 3 — Congé court -->
+          <div class="leave-card">
+            <div class="leave-info">
+              <div class="leave-header">
+                <span class="leave-employee">Léa Bernard</span>
+                <span class="leave-type vacation">Congé</span>
+              </div>
+              <div class="leave-dates">12/04/2026 — 12/04/2026</div>
+              <div class="leave-reason">
+                <span class="reason-label">Motif :</span> RDV personnel
+              </div>
+            </div>
+            <div class="leave-actions">
+              <button class="approve-btn">Approuver</button>
+              <button class="reject-btn">Refuser</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mockup-footer">Pretty Face — Mockup "Mon Équipe" — Avril 2026</footer>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      if (tab === 'team') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tab-team').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tab-leaves').classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

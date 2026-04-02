@@ -1,22 +1,25 @@
 <div class="availability-page">
-  <h1 class="page-title">{{ 'pro.availability.title' | transloco }}</h1>
-
-  <div class="week-list">
+  <div class="day-grid">
     @for (dayOfWeek of weekDays; track dayOfWeek) {
-      <div class="day-row" [class.closed]="isDayClosed(dayOfWeek)">
-        <div class="day-name">
-          {{ 'pro.availability.days.' + dayOfWeek | transloco }}
-        </div>
-
-        @if (isDayClosed(dayOfWeek)) {
-          <button type="button" class="closed-label" (click)="openDay(dayOfWeek)">
-            <span class="closed-text">{{ 'pro.availability.closed' | transloco }}</span>
-            <span class="open-hint">{{ 'pro.availability.clickToOpen' | transloco }}</span>
+      @if (isDayClosed(dayOfWeek)) {
+        <div class="day-card is-closed">
+          <div class="day-card-header">
+            <span class="day-name">{{ 'pro.availability.days.' + dayOfWeek | transloco }}</span>
+            <span class="day-badge closed">{{ 'pro.availability.closed' | transloco }}</span>
+          </div>
+          <button type="button" class="closed-hint" (click)="openDay(dayOfWeek)">
+            {{ 'pro.availability.clickToOpen' | transloco }}
           </button>
-        } @else {
-          <div class="slots-container">
+        </div>
+      } @else {
+        <div class="day-card">
+          <div class="day-card-header">
+            <span class="day-name">{{ 'pro.availability.days.' + dayOfWeek | transloco }}</span>
+            <span class="day-badge open">{{ 'pro.availability.open' | transloco }}</span>
+          </div>
+          <div class="slot-list">
             @for (slot of getDaySlots(dayOfWeek); track $index; let i = $index) {
-              <div class="slot-row">
+              <div class="slot-item">
                 <input
                   type="time"
                   class="time-input"
@@ -37,10 +40,11 @@
             }
             <button type="button" class="add-slot-btn" (click)="addSlot(dayOfWeek)">
               <mat-icon>add</mat-icon>
+              {{ 'pro.availability.addSlot' | transloco }}
             </button>
           </div>
-        }
-      </div>
+        </div>
+      }
     }
   </div>
 

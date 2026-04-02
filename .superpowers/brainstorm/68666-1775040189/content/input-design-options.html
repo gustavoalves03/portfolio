@@ -1,0 +1,144 @@
+<h2>Design des champs de formulaire</h2>
+<p class="subtitle">Style unifié pour tous les formulaires pro (salon, prestations, catégories)</p>
+
+<div class="cards">
+  <!-- Option 1: Flat minimal -->
+  <div class="card" data-choice="1" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:380px; margin:0 auto; display:flex; flex-direction:column; gap:16px;">
+        <!-- Input 1 -->
+        <div>
+          <label style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;">Nom du salon</label>
+          <input type="text" value="L'Atelier de Sophie" style="width:100%; padding:10px 14px; border:none; border-bottom:2px solid #e0e0e0; background:#fafafa; font-size:14px; color:#333; outline:none; border-radius:0; box-sizing:border-box; transition:border-color .15s;" onfocus="this.style.borderBottomColor='#c06'" onblur="this.style.borderBottomColor='#e0e0e0'" />
+        </div>
+        <!-- Input 2 - row -->
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;">Code postal</label>
+            <input type="text" value="75001" style="width:100%; padding:10px 14px; border:none; border-bottom:2px solid #e0e0e0; background:#fafafa; font-size:14px; color:#333; outline:none; border-radius:0; box-sizing:border-box;" />
+          </div>
+          <div style="flex:2;">
+            <label style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;">Ville</label>
+            <input type="text" value="Paris" style="width:100%; padding:10px 14px; border:none; border-bottom:2px solid #e0e0e0; background:#fafafa; font-size:14px; color:#333; outline:none; border-radius:0; box-sizing:border-box;" />
+          </div>
+        </div>
+        <!-- Textarea -->
+        <div>
+          <label style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;">Description</label>
+          <textarea style="width:100%; padding:10px 14px; border:none; border-bottom:2px solid #e0e0e0; background:#fafafa; font-size:14px; color:#333; outline:none; border-radius:0; box-sizing:border-box; resize:vertical; min-height:60px; font-family:inherit;">Institut de beauté spécialisé...</textarea>
+        </div>
+        <!-- Select -->
+        <div>
+          <label style="font-size:11px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;">Catégorie</label>
+          <select style="width:100%; padding:10px 14px; border:none; border-bottom:2px solid #e0e0e0; background:#fafafa; font-size:14px; color:#333; outline:none; border-radius:0; box-sizing:border-box; appearance:none;">
+            <option>Soins visage</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 · Flat underline</h3>
+      <p>Labels uppercase au-dessus, fond gris très léger, bordure uniquement en bas (underline). Focus : underline rose. Ultra minimaliste, inspiré Material "fill" mais plus aéré. Mobile : les champs prennent toute la largeur.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: Rounded bordered -->
+  <div class="card" data-choice="2" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:380px; margin:0 auto; display:flex; flex-direction:column; gap:16px;">
+        <!-- Input 1 -->
+        <div>
+          <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Nom du salon</label>
+          <input type="text" value="L'Atelier de Sophie" style="width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; background:white; font-size:14px; color:#333; outline:none; box-sizing:border-box; transition:border-color .15s, box-shadow .15s;" onfocus="this.style.borderColor='#c06'; this.style.boxShadow='0 0 0 3px rgba(192,102,102,.1)'" onblur="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'" />
+        </div>
+        <!-- Input 2 - row -->
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Code postal</label>
+            <input type="text" value="75001" style="width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; background:white; font-size:14px; color:#333; outline:none; box-sizing:border-box;" />
+          </div>
+          <div style="flex:2;">
+            <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Ville</label>
+            <input type="text" value="Paris" style="width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; background:white; font-size:14px; color:#333; outline:none; box-sizing:border-box;" />
+          </div>
+        </div>
+        <!-- Textarea -->
+        <div>
+          <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Description</label>
+          <textarea style="width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; background:white; font-size:14px; color:#333; outline:none; box-sizing:border-box; resize:vertical; min-height:60px; font-family:inherit;">Institut de beauté spécialisé...</textarea>
+        </div>
+        <!-- Number row -->
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Prix</label>
+            <div style="display:flex; align-items:center; border:1.5px solid #e0e0e0; border-radius:10px; background:white; overflow:hidden;">
+              <input type="text" value="55,00" style="flex:1; padding:10px 14px; border:none; font-size:14px; color:#333; outline:none; box-sizing:border-box;" />
+              <span style="padding:0 12px; font-size:13px; color:#999; border-left:1px solid #eee; background:#fafafa;">€</span>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:500; color:#666; display:block; margin-bottom:5px;">Durée</label>
+            <div style="display:flex; align-items:center; border:1.5px solid #e0e0e0; border-radius:10px; background:white; overflow:hidden;">
+              <input type="text" value="60" style="flex:1; padding:10px 14px; border:none; font-size:14px; color:#333; outline:none; box-sizing:border-box;" />
+              <span style="padding:0 12px; font-size:13px; color:#999; border-left:1px solid #eee; background:#fafafa;">min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 · Rounded bordered</h3>
+      <p>Bordure arrondie (10px) avec focus ring rose subtil. Labels simples au-dessus. Fond blanc. Suffixes (€, min) intégrés dans le champ. Moderne, aéré, fonctionne bien sur mobile. Look "app native".</p>
+    </div>
+  </div>
+
+  <!-- Option 3: Floating label inside -->
+  <div class="card" data-choice="3" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:380px; margin:0 auto; display:flex; flex-direction:column; gap:14px;">
+        <!-- Input 1 - filled state -->
+        <div style="position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px; transition:border-color .15s;">
+          <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Nom du salon</label>
+          <input type="text" value="L'Atelier de Sophie" style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box;" />
+        </div>
+        <!-- Input row -->
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px;">
+            <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Code postal</label>
+            <input type="text" value="75001" style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box;" />
+          </div>
+          <div style="flex:2; position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px;">
+            <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Ville</label>
+            <input type="text" value="Paris" style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box;" />
+          </div>
+        </div>
+        <!-- Textarea -->
+        <div style="position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px;">
+          <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Description</label>
+          <textarea style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box; resize:vertical; min-height:50px; font-family:inherit;">Institut de beauté spécialisé...</textarea>
+        </div>
+        <!-- Number row with suffix -->
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px; display:flex; align-items:flex-end;">
+            <div style="flex:1;">
+              <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Prix</label>
+              <input type="text" value="55,00" style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box;" />
+            </div>
+            <span style="font-size:13px; color:#999; padding-bottom:8px; margin-left:4px;">€</span>
+          </div>
+          <div style="flex:1; position:relative; background:white; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px 6px; display:flex; align-items:flex-end;">
+            <div style="flex:1;">
+              <label style="font-size:10px; color:#c06; font-weight:500; display:block;">Durée</label>
+              <input type="text" value="60" style="width:100%; padding:4px 0 6px; border:none; font-size:14px; color:#333; outline:none; background:transparent; box-sizing:border-box;" />
+            </div>
+            <span style="font-size:13px; color:#999; padding-bottom:8px; margin-left:4px;">min</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 · Floating label intégré</h3>
+      <p>Label flottant à l'intérieur du champ (petit + rose quand rempli). Bordure arrondie 12px. Pas de fond gris — tout blanc. Compact verticalement. Look premium, similaire aux apps iOS/Android modernes. Suffixes inline.</p>
+    </div>
+  </div>
+</div>

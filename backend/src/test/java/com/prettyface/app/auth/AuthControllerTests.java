@@ -5,6 +5,7 @@ import com.prettyface.app.auth.dto.RegisterRequest;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.app.TenantProvisioningService;
 import com.prettyface.app.tenant.app.TenantService;
+import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
@@ -56,6 +57,9 @@ class AuthControllerTests {
 
     @MockBean
     private TenantService tenantService;
+
+    @MockBean
+    private TenantRepository tenantRepository;
 
     // T1.1: Happy path — returns 200 with JWT token
     @Test

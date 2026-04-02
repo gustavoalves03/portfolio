@@ -1,0 +1,42 @@
+<h2>Format de l'onboarding pro</h2>
+<p class="subtitle">Après inscription, comment guider le pro pour configurer son salon ?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Wizard étape par étape</h3>
+      <p>Un assistant guidé en 4-5 étapes séquentielles : nom du salon → catégories → premier soin → horaires → publication. Le pro ne peut pas sauter d'étapes. Progression claire avec barre d'avancement.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Avantages</h4><ul><li>Impossible de rater une étape</li><li>Expérience fluide et rassurante</li><li>Conversion maximale</li></ul></div>
+        <div class="cons"><h4>Inconvénients</h4><ul><li>Rigide — frustrant si le pro sait déjà ce qu'il fait</li><li>Plus de code à écrire (composant dédié)</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Dashboard avec checklist</h3>
+      <p>Le dashboard affiche une checklist de configuration (✓ Nom du salon, ✓ Catégories, ○ Horaires...). Le pro clique sur chaque item pour aller à la page correspondante. Ordre libre.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Avantages</h4><ul><li>Flexible — le pro fait dans l'ordre qu'il veut</li><li>Réutilise les pages existantes (/pro/salon, /pro/categories...)</li><li>Moins de code nouveau</li></ul></div>
+        <div class="cons"><h4>Inconvénients</h4><ul><li>Moins guidé — risque d'abandon</li><li>Le pro peut publier avec un salon incomplet</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybride : checklist + bloquant</h3>
+      <p>Dashboard avec checklist comme B, mais le bouton "Publier mon salon" est désactivé tant que les étapes obligatoires ne sont pas complétées. Première visite : une bannière suggère de commencer par le nom du salon.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Avantages</h4><ul><li>Flexible ET sécurisé</li><li>Réutilise les pages existantes</li><li>Bloque la publication si incomplet</li></ul></div>
+        <div class="cons"><h4>Inconvénients</h4><ul><li>Validation de complétude à implémenter côté backend</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 2rem; font-style: italic;">💡 Je recommande l'option C — elle offre la flexibilité de B avec la sécurité de A, et réutilise les pages pro existantes.</p>

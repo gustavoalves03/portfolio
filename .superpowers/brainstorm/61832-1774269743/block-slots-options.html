@@ -1,0 +1,205 @@
+<h2>Blocage de créneaux — Quel scope ?</h2>
+<p class="subtitle">Deux approches pour gérer les indisponibilités ponctuelles</p>
+
+<div class="cards">
+
+  <!-- Option A: Full calendar -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background: #fff; border-radius: 12px; padding: 16px; font-family: system-ui; min-height: 520px;">
+        <div style="font-size: 10px; letter-spacing: 2px; color: #c06; margin-bottom: 4px;">PRETTY FACE</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div style="font-size: 16px; font-weight: 300; color: #333;">Mon calendrier</div>
+          <div style="display: flex; gap: 6px;">
+            <div style="padding: 4px 10px; border-radius: 12px; font-size: 10px; background: #f0f0f0; color: #666;">Semaine</div>
+            <div style="padding: 4px 10px; border-radius: 12px; font-size: 10px; background: #c06; color: white;">Mois</div>
+          </div>
+        </div>
+
+        <!-- Month nav -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span style="font-size: 11px; color: #999;">◀</span>
+          <span style="font-size: 13px; font-weight: 500; color: #333;">Mars 2026</span>
+          <span style="font-size: 11px; color: #999;">▶</span>
+        </div>
+
+        <!-- Calendar grid -->
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; font-size: 10px; text-align: center; margin-bottom: 12px;">
+          <span style="color: #999; padding: 4px;">Lu</span>
+          <span style="color: #999; padding: 4px;">Ma</span>
+          <span style="color: #999; padding: 4px;">Me</span>
+          <span style="color: #999; padding: 4px;">Je</span>
+          <span style="color: #999; padding: 4px;">Ve</span>
+          <span style="color: #999; padding: 4px;">Sa</span>
+          <span style="color: #999; padding: 4px;">Di</span>
+
+          <!-- Week 1 -->
+          <span style="color: #ccc; padding: 6px;">23</span>
+          <span style="color: #ccc; padding: 6px;">24</span>
+          <span style="color: #ccc; padding: 6px;">25</span>
+          <span style="color: #ccc; padding: 6px;">26</span>
+          <span style="color: #ccc; padding: 6px;">27</span>
+          <span style="color: #ccc; padding: 6px;">28</span>
+          <span style="color: #ddd; padding: 6px;">1</span>
+
+          <!-- Week 2 -->
+          <span style="padding: 6px; color: #333;">2</span>
+          <span style="padding: 6px; color: #333;">3</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">4</span>
+          <span style="padding: 6px; color: #333;">5</span>
+          <span style="padding: 6px; color: #333;">6</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">7</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">8</span>
+
+          <!-- Week 3 -->
+          <span style="padding: 6px; color: #333;">9</span>
+          <span style="padding: 6px; color: #333;">10</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">11</span>
+          <span style="padding: 6px; color: #333; background: #fde8e8; border-radius: 4px; border: 1px solid #e8a0a0;">12</span>
+          <span style="padding: 6px; color: #333;">13</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">14</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">15</span>
+
+          <!-- Week 4 -->
+          <span style="padding: 6px; color: #333;">16</span>
+          <span style="padding: 6px; color: #333;">17</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">18</span>
+          <span style="padding: 6px; color: #333;">19</span>
+          <span style="padding: 6px; color: #333; background: #fde8e8; border-radius: 4px; border: 1px solid #e8a0a0;">20</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">21</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">22</span>
+
+          <!-- Week 5 -->
+          <span style="padding: 6px; background: #c06; color: white; border-radius: 4px; font-weight: 600;">23</span>
+          <span style="padding: 6px; color: #333;">24</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">25</span>
+          <span style="padding: 6px; color: #333;">26</span>
+          <span style="padding: 6px; color: #333;">27</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">28</span>
+          <span style="padding: 6px; color: #ddd; background: #f5f5f5; border-radius: 4px;">29</span>
+        </div>
+
+        <!-- Legend -->
+        <div style="display: flex; gap: 12px; font-size: 9px; color: #999; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 8px; height: 8px; background: #c06; border-radius: 2px;"></div> Aujourd'hui
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 8px; height: 8px; background: #fde8e8; border: 1px solid #e8a0a0; border-radius: 2px;"></div> Créneau bloqué
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <div style="width: 8px; height: 8px; background: #f5f5f5; border-radius: 2px;"></div> Fermé
+          </div>
+        </div>
+
+        <!-- Day detail panel -->
+        <div style="background: #fafafa; border-radius: 12px; padding: 12px;">
+          <div style="font-size: 12px; font-weight: 500; color: #333; margin-bottom: 8px;">Jeudi 12 mars</div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: white; border-radius: 8px; font-size: 11px;">
+              <span style="color: #333;">09:00 – 12:00</span>
+              <span style="color: #4a4; font-size: 10px;">Disponible</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #fde8e8; border-radius: 8px; font-size: 11px; border: 1px solid #e8a0a0;">
+              <span style="color: #333;">14:00 – 16:00</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: #c06; font-size: 10px;">Bloqué</span>
+                <span style="color: #999; font-size: 10px; text-decoration: underline; cursor: pointer;">Débloquer</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: white; border-radius: 8px; font-size: 11px;">
+              <span style="color: #333;">16:00 – 18:00</span>
+              <span style="color: #4a4; font-size: 10px;">Disponible</span>
+            </div>
+          </div>
+          <button style="margin-top: 8px; background: none; border: 1px dashed #ccc; border-radius: 8px; padding: 6px; width: 100%; font-size: 11px; color: #999; cursor: pointer;">+ Bloquer un créneau</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Page calendrier complète</h3>
+      <p>Nouvelle page /pro/calendar. Vue mois avec jours colorés (bloqués en rose, fermés grisés). Clic sur un jour → panneau détail avec créneaux disponibles/bloqués. Bloquer/débloquer directement depuis le calendrier. Scope plus large mais UX riche.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Extension availability page -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background: #fff; border-radius: 12px; padding: 16px; font-family: system-ui; min-height: 520px;">
+        <div style="font-size: 10px; letter-spacing: 2px; color: #c06; margin-bottom: 4px;">PRETTY FACE</div>
+        <div style="font-size: 16px; font-weight: 300; color: #333; margin-bottom: 20px;">Mes disponibilités</div>
+
+        <!-- Weekly hours (collapsed summary) -->
+        <div style="background: #fafafa; border-radius: 12px; padding: 12px; margin-bottom: 20px;">
+          <div style="font-size: 12px; font-weight: 500; color: #333; margin-bottom: 8px;">Horaires hebdomadaires</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 10px; color: #666;">
+            <span style="padding: 3px 8px; background: #f4e1d2; border-radius: 8px;">Lun 09-18</span>
+            <span style="padding: 3px 8px; background: #f4e1d2; border-radius: 8px;">Mar 09-18</span>
+            <span style="padding: 3px 8px; background: #eee; border-radius: 8px; color: #bbb;">Mer fermé</span>
+            <span style="padding: 3px 8px; background: #f4e1d2; border-radius: 8px;">Jeu 09-18</span>
+            <span style="padding: 3px 8px; background: #f4e1d2; border-radius: 8px;">Ven 09-20</span>
+            <span style="padding: 3px 8px; background: #eee; border-radius: 8px; color: #bbb;">Sam fermé</span>
+            <span style="padding: 3px 8px; background: #eee; border-radius: 8px; color: #bbb;">Dim fermé</span>
+          </div>
+        </div>
+
+        <!-- Separator -->
+        <div style="border-top: 1px solid #f0f0f0; margin-bottom: 20px;"></div>
+
+        <!-- Block section -->
+        <div style="font-size: 12px; font-weight: 500; color: #333; margin-bottom: 12px;">Indisponibilités ponctuelles</div>
+
+        <!-- Add block form -->
+        <div style="background: #f7f5f3; border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <div style="background: white; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #333; border: 1px solid #e8e4e0;">📅 12/03/2026</div>
+            <div style="background: white; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #333; border: 1px solid #e8e4e0;">14:00</div>
+            <span style="font-size: 11px; color: #999;">→</span>
+            <div style="background: white; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #333; border: 1px solid #e8e4e0;">16:00</div>
+            <div style="background: linear-gradient(135deg, #a8385d, #c06); color: white; padding: 8px 14px; border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer;">Bloquer</div>
+          </div>
+          <div style="margin-top: 8px;">
+            <input type="text" placeholder="Raison (optionnel)" style="width: 100%; border: 1px solid #e8e4e0; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #666; background: white; outline: none;" />
+          </div>
+        </div>
+
+        <!-- Existing blocks list -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fde8e8; border-radius: 10px; border: 1px solid #f0c0c0;">
+            <div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">Jeu. 12 mars — 14:00 à 16:00</div>
+              <div style="font-size: 10px; color: #999;">RDV médecin</div>
+            </div>
+            <div style="font-size: 10px; color: #c06; cursor: pointer; text-decoration: underline;">Débloquer</div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fde8e8; border-radius: 10px; border: 1px solid #f0c0c0;">
+            <div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">Ven. 20 mars — 09:00 à 12:00</div>
+              <div style="font-size: 10px; color: #999;">Formation</div>
+            </div>
+            <div style="font-size: 10px; color: #c06; cursor: pointer; text-decoration: underline;">Débloquer</div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fde8e8; border-radius: 10px; border: 1px solid #f0c0c0;">
+            <div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">Lun. 30 mars — journée entière</div>
+              <div style="font-size: 10px; color: #999;">Vacances</div>
+            </div>
+            <div style="font-size: 10px; color: #c06; cursor: pointer; text-decoration: underline;">Débloquer</div>
+          </div>
+        </div>
+
+        <!-- Empty hint -->
+        <div style="text-align: center; margin-top: 16px;">
+          <span style="font-size: 10px; color: #ccc;">Les blocages passés sont automatiquement nettoyés</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Section sur la page Disponibilités</h3>
+      <p>Extension de /pro/availability. Résumé des horaires en haut, puis section "Indisponibilités" avec formulaire date + heures + raison, liste des blocages existants avec débloquer. Simple, rapide, cohérent avec l'existant. Le calendrier viendra avec Epic 6.</p>
+    </div>
+  </div>
+
+</div>

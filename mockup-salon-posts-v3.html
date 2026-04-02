@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Posts TikTok-style — Mockup</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; scroll-snap-type: y mandatory; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #fff; background: #000; overflow-x: hidden; }
+
+    /* ── SNAP SCROLL CONTAINER ── */
+    .snap-container {
+      height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── EACH POST = FULL VIEWPORT ── */
+    .snap-post {
+      scroll-snap-align: start;
+      height: 100vh; width: 100%; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Background image */
+    .post-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    /* Gradient overlay for text readability */
+    .post-gradient {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 100%);
+    }
+
+    /* ── AVANT/APRÈS SLIDER (fullscreen) ── */
+    .fs-compare {
+      position: absolute; inset: 0; z-index: 0; cursor: ew-resize; user-select: none;
+    }
+    .fs-compare .fs-before, .fs-compare .fs-after {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .fs-compare .fs-after {
+      clip-path: inset(0 0 0 var(--split, 50%));
+    }
+    .fs-line {
+      position: absolute; top: 0; bottom: 0; left: var(--split, 50%);
+      width: 2px; background: rgba(255,255,255,0.8); z-index: 2;
+      transform: translateX(-50%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    .fs-handle {
+      position: absolute; top: 50%; left: var(--split, 50%); z-index: 3;
+      transform: translate(-50%, -50%);
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.95); box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fs-handle .material-icons-round { font-size: 22px; color: #c06; }
+    .fs-labels {
+      position: absolute; top: 50%; left: 0; right: 0; z-index: 2;
+      display: flex; justify-content: space-between; padding: 0 16px;
+      transform: translateY(-50%); pointer-events: none;
+    }
+    .fs-lbl {
+      padding: 6px 16px; border-radius: 10px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .fs-lbl.before { background: rgba(0,0,0,0.5); color: #fff; }
+    .fs-lbl.after { background: rgba(255,255,255,0.9); color: #c06; }
+
+    /* ── CARROUSEL FULLSCREEN ── */
+    .fs-carousel {
+      position: absolute; inset: 0; display: flex; transition: transform 400ms ease; z-index: 0;
+    }
+    .fs-carousel-slide {
+      min-width: 100%; height: 100%;
+    }
+    .fs-carousel-counter {
+      position: absolute; top: 60px; right: 16px; z-index: 5;
+      padding: 4px 12px; border-radius: 12px; background: rgba(0,0,0,0.4);
+      font-size: 12px; font-weight: 600; color: #fff;
+    }
+    .fs-carousel-dots {
+      position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 5;
+      display: flex; gap: 6px;
+    }
+    .fs-cdot {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4);
+      border: none;
+    }
+    .fs-cdot.active { background: #fff; width: 18px; border-radius: 3px; }
+
+    /* Swipe left/right zones */
+    .swipe-zone {
+      position: absolute; top: 0; bottom: 0; width: 40%; z-index: 4; cursor: pointer;
+    }
+    .swipe-zone.left { left: 0; }
+    .swipe-zone.right { right: 0; }
+
+    /* ── BOTTOM INFO OVERLAY ── */
+    .post-info {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 5;
+      padding: 20px 16px 32px; pointer-events: none;
+    }
+    .pi-type {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 12px; border-radius: 10px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .pi-type.ba { background: linear-gradient(135deg, #a8385d, #c06); color: #fff; }
+    .pi-type.photo { background: rgba(255,255,255,0.2); color: #fff; }
+    .pi-type.carousel { background: rgba(255,255,255,0.2); color: #fff; }
+
+    .pi-caption {
+      font-size: 14px; color: #fff; line-height: 1.5; margin-bottom: 8px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      max-width: 80%;
+    }
+    .pi-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .pi-tag {
+      padding: 3px 10px; background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(4px); border-radius: 10px;
+      font-size: 11px; font-weight: 500; color: #fff;
+    }
+    .pi-meta { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+    /* ── RIGHT SIDEBAR ACTIONS (TikTok-style) ── */
+    .post-actions {
+      position: absolute; right: 12px; bottom: 120px; z-index: 5;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .action-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #fff; cursor: pointer;
+    }
+    .action-btn .material-icons-round {
+      font-size: 28px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+    }
+    .action-btn span:last-child { font-size: 10px; font-weight: 500; }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-hint {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 5; display: flex; flex-direction: column; align-items: center;
+      color: rgba(255,255,255,0.5); animation: bounce 2s infinite;
+    }
+    .scroll-hint .material-icons-round { font-size: 20px; }
+    .scroll-hint span { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+    }
+    .top-title { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+
+    /* ── PROGRESS DOTS ── */
+    .progress-dots {
+      position: fixed; right: 6px; top: 50%; transform: translateY(-50%); z-index: 10;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .pdot {
+      width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.3);
+      border: none; cursor: pointer; transition: all 150ms ease;
+    }
+    .pdot.active { background: #c06; width: 4px; height: 16px; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <span class="top-title">Réalisations</span>
+</div>
+
+<!-- Progress dots -->
+<div class="progress-dots">
+  <button class="pdot active" onclick="goTo(0)"></button>
+  <button class="pdot" onclick="goTo(1)"></button>
+  <button class="pdot" onclick="goTo(2)"></button>
+  <button class="pdot" onclick="goTo(3)"></button>
+</div>
+
+<div class="snap-container" id="snap">
+
+  <!-- ═══ POST 1: AVANT/APRÈS (slider) ═══ -->
+  <div class="snap-post">
+    <div class="fs-compare" onmousemove="slider(event,this)" ontouchmove="sliderT(event,this)" style="--split:45%">
+      <div class="fs-before" style="background:linear-gradient(135deg,#8d6e63,#a1887f)"></div>
+      <div class="fs-after" style="background:linear-gradient(135deg,#f3d5c0,#fce4ec)"></div>
+      <div class="fs-line"></div>
+      <div class="fs-handle"><span class="material-icons-round">swap_horiz</span></div>
+      <div class="fs-labels">
+        <span class="fs-lbl before">Avant</span>
+        <span class="fs-lbl after">Après</span>
+      </div>
+    </div>
+    <div class="post-gradient"></div>
+    <div class="post-info">
+      <div class="pi-type ba">Avant / Après</div>
+      <div class="pi-caption">Résultat après 3 séances de soin hydratant. La peau est visiblement plus lumineuse et les pores resserrés.</div>
+      <div class="pi-tags"><span class="pi-tag">Soin visage hydratant</span></div>
+      <div class="pi-meta">il y a 3 jours • Beauté du Regard</div>
+    </div>
+    <div class="post-actions">
+      <div class="action-btn"><span class="material-icons-round">favorite_border</span><span>12</span></div>
+      <div class="action-btn"><span class="material-icons-round">chat_bubble_outline</span><span>3</span></div>
+      <div class="action-btn"><span class="material-icons-round">share</span><span></span></div>
+    </div>
+    <div class="scroll-hint"><span class="material-icons-round">expand_more</span><span>scroll</span></div>
+  </div>
+
+  <!-- ═══ POST 2: PHOTO UNIQUE ═══ -->
+  <div class="snap-post">
+    <div class="post-bg" style="background:linear-gradient(135deg,#2e7d32,#4caf50)"></div>
+    <div class="post-gradient"></div>
+    <div class="post-info">
+      <div class="pi-type photo">Photo</div>
+      <div class="pi-caption">Nouveau décor du salon ! Venez découvrir notre espace détente repensé. 🌿</div>
+      <div class="pi-meta">il y a 1 semaine • Beauté du Regard</div>
+    </div>
+    <div class="post-actions">
+      <div class="action-btn"><span class="material-icons-round">favorite_border</span><span>8</span></div>
+      <div class="action-btn"><span class="material-icons-round">chat_bubble_outline</span><span>1</span></div>
+      <div class="action-btn"><span class="material-icons-round">share</span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ═══ POST 3: CARROUSEL ═══ -->
+  <div class="snap-post">
+    <div class="fs-carousel" id="fsCarousel" style="transform:translateX(0)">
+      <div class="fs-carousel-slide" style="background:linear-gradient(135deg,#f8bbd0,#fce4ec)"></div>
+      <div class="fs-carousel-slide" style="background:linear-gradient(135deg,#f3d5c0,#e8c4b0)"></div>
+      <div class="fs-carousel-slide" style="background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+    </div>
+    <div class="fs-carousel-dots">
+      <button class="fs-cdot active"></button>
+      <button class="fs-cdot"></button>
+      <button class="fs-cdot"></button>
+    </div>
+    <div class="swipe-zone left" onclick="slideFS(-1)"></div>
+    <div class="swipe-zone right" onclick="slideFS(1)"></div>
+    <div class="post-gradient"></div>
+    <div class="post-info">
+      <div class="pi-type carousel">Carrousel • 3 photos</div>
+      <div class="pi-caption">Les étapes d'un peeling doux : nettoyage, application, résultat. Un teint éclatant en 45 minutes !</div>
+      <div class="pi-tags"><span class="pi-tag">Peeling doux</span><span class="pi-tag">Visage</span></div>
+      <div class="pi-meta">il y a 2 semaines • Beauté du Regard</div>
+    </div>
+    <div class="post-actions">
+      <div class="action-btn"><span class="material-icons-round">favorite_border</span><span>24</span></div>
+      <div class="action-btn"><span class="material-icons-round">chat_bubble_outline</span><span>5</span></div>
+      <div class="action-btn"><span class="material-icons-round">share</span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ═══ POST 4: AVANT/APRÈS (2) ═══ -->
+  <div class="snap-post">
+    <div class="fs-compare" onmousemove="slider(event,this)" ontouchmove="sliderT(event,this)" style="--split:55%">
+      <div class="fs-before" style="background:linear-gradient(135deg,#9e9e9e,#bdbdbd)"></div>
+      <div class="fs-after" style="background:linear-gradient(135deg,#fce4ec,#f48fb1)"></div>
+      <div class="fs-line"></div>
+      <div class="fs-handle"><span class="material-icons-round">swap_horiz</span></div>
+      <div class="fs-labels">
+        <span class="fs-lbl before">Avant</span>
+        <span class="fs-lbl after">Après</span>
+      </div>
+    </div>
+    <div class="post-gradient"></div>
+    <div class="post-info">
+      <div class="pi-type ba">Avant / Après</div>
+      <div class="pi-caption">Transformation après un soin éclat + masque. Teint unifié, taches estompées.</div>
+      <div class="pi-tags"><span class="pi-tag">Soin éclat</span><span class="pi-tag">Masque visage</span></div>
+      <div class="pi-meta">il y a 3 semaines • Beauté du Regard</div>
+    </div>
+    <div class="post-actions">
+      <div class="action-btn"><span class="material-icons-round">favorite_border</span><span>31</span></div>
+      <div class="action-btn"><span class="material-icons-round">chat_bubble_outline</span><span>7</span></div>
+      <div class="action-btn"><span class="material-icons-round">share</span><span></span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Slider avant/après
+  function slider(e,c){if(e.buttons!==1)return;const r=c.getBoundingClientRect();c.style.setProperty('--split',Math.max(5,Math.min(95,((e.clientX-r.left)/r.width)*100))+'%')}
+  function sliderT(e,c){const r=c.getBoundingClientRect();const t=e.touches[0];c.style.setProperty('--split',Math.max(5,Math.min(95,((t.clientX-r.left)/r.width)*100))+'%')}
+
+  // Carrousel fullscreen
+  let fsSlide=0;
+  function slideFS(d){
+    fsSlide=Math.max(0,Math.min(2,fsSlide+d));
+    document.getElementById('fsCarousel').style.transform=`translateX(-${fsSlide*100}%)`;
+    document.querySelectorAll('.fs-cdot').forEach((dot,i)=>dot.classList.toggle('active',i===fsSlide));
+  }
+
+  // Progress dots
+  const snap=document.getElementById('snap');
+  const posts=document.querySelectorAll('.snap-post');
+  const dots=document.querySelectorAll('.pdot');
+  snap.addEventListener('scroll',()=>{
+    const idx=Math.round(snap.scrollTop/window.innerHeight);
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+  });
+  function goTo(i){posts[i].scrollIntoView({behavior:'smooth'})}
+</script>
+</body>
+</html>

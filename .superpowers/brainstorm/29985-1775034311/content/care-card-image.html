@@ -1,0 +1,145 @@
+<h2>Carte de soin — Image à gauche</h2>
+<p class="subtitle">Chaque soin dans la vitrine salon avec un espace image dédié à gauche</p>
+
+<div class="cards">
+  <!-- Option 1: Image carrée -->
+  <div class="card" data-choice="1" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
+        <!-- Care card 1 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; overflow:hidden; height:100px;">
+          <div style="width:100px; min-width:100px; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:28px;">💅</span>
+          </div>
+          <div style="padding:12px 14px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+              <div>
+                <div style="font-size:13px; font-weight:600; color:#333;">Manucure classique</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">30 min</div>
+              </div>
+              <div style="font-size:13px; font-weight:600; color:#c06;">25 €</div>
+            </div>
+            <div style="margin-top:auto;">
+              <button style="padding:5px 14px; border:1px solid #c06; border-radius:16px; background:transparent; color:#c06; font-size:11px; cursor:pointer;">Réserver</button>
+            </div>
+          </div>
+        </div>
+        <!-- Care card 2 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; overflow:hidden; height:100px;">
+          <div style="width:100px; min-width:100px; background:linear-gradient(135deg,#d4b5d0,#c8a0c0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:28px;">💆‍♀️</span>
+          </div>
+          <div style="padding:12px 14px; flex:1; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+              <div>
+                <div style="font-size:13px; font-weight:600; color:#333;">Soin hydratant visage</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">60 min</div>
+              </div>
+              <div style="font-size:13px; font-weight:600; color:#c06;">55 €</div>
+            </div>
+            <div style="margin-top:auto;">
+              <button style="padding:5px 14px; border:1px solid #c06; border-radius:16px; background:transparent; color:#c06; font-size:11px; cursor:pointer;">Réserver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 · Image carrée (100×100)</h3>
+      <p>Thumbnail carré à gauche. Compact, le texte reste bien lisible. Le bouton "Réserver" est en bas à droite. Fallback dégradé si pas d'image.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: Image plus haute -->
+  <div class="card" data-choice="2" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
+        <!-- Care card 1 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; overflow:hidden; min-height:120px;">
+          <div style="width:130px; min-width:130px; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:32px;">💅</span>
+          </div>
+          <div style="padding:14px 16px; flex:1; display:flex; flex-direction:column;">
+            <div style="font-size:14px; font-weight:600; color:#333;">Manucure classique</div>
+            <div style="font-size:11px; color:#888; margin-top:3px;">Limage, cuticules et vernis classique</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;">
+              <div>
+                <span style="font-size:11px; color:#888;">30 min</span>
+                <span style="font-size:11px; color:#888; margin-left:8px;">·</span>
+                <span style="font-size:13px; font-weight:600; color:#c06; margin-left:8px;">25 €</span>
+              </div>
+              <button style="padding:6px 16px; border:none; border-radius:16px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:11px; cursor:pointer;">Réserver</button>
+            </div>
+          </div>
+        </div>
+        <!-- Care card 2 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; overflow:hidden; min-height:120px;">
+          <div style="width:130px; min-width:130px; background:linear-gradient(135deg,#d4b5d0,#c8a0c0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:32px;">💆‍♀️</span>
+          </div>
+          <div style="padding:14px 16px; flex:1; display:flex; flex-direction:column;">
+            <div style="font-size:14px; font-weight:600; color:#333;">Soin hydratant visage</div>
+            <div style="font-size:11px; color:#888; margin-top:3px;">Soin profond hydratant pour peaux sèches</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;">
+              <div>
+                <span style="font-size:11px; color:#888;">60 min</span>
+                <span style="font-size:11px; color:#888; margin-left:8px;">·</span>
+                <span style="font-size:13px; font-weight:600; color:#c06; margin-left:8px;">55 €</span>
+              </div>
+              <button style="padding:6px 16px; border:none; border-radius:16px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:11px; cursor:pointer;">Réserver</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 · Image rectangle (130×120)</h3>
+      <p>Image plus large, place pour la description du soin. Bouton "Réserver" plein (gradient) en bas à droite. Durée + prix sur la même ligne. Plus aéré, meilleur rendu avec de vraies photos.</p>
+    </div>
+  </div>
+
+  <!-- Option 3: Image arrondie -->
+  <div class="card" data-choice="3" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:20px;">
+      <div style="max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
+        <!-- Care card 1 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; padding:12px; gap:12px;">
+          <div style="width:72px; height:72px; min-width:72px; border-radius:12px; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:26px;">💅</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px; font-weight:600; color:#333;">Manucure classique</div>
+            <div style="font-size:11px; color:#888; margin-top:2px;">30 min · 25 €</div>
+          </div>
+          <button style="padding:6px 14px; border:none; border-radius:16px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:11px; cursor:pointer; white-space:nowrap;">Réserver</button>
+        </div>
+        <!-- Care card 2 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; padding:12px; gap:12px;">
+          <div style="width:72px; height:72px; min-width:72px; border-radius:12px; background:linear-gradient(135deg,#d4b5d0,#c8a0c0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:26px;">💆‍♀️</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px; font-weight:600; color:#333;">Soin hydratant visage</div>
+            <div style="font-size:11px; color:#888; margin-top:2px;">60 min · 55 €</div>
+          </div>
+          <button style="padding:6px 14px; border:none; border-radius:16px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:11px; cursor:pointer; white-space:nowrap;">Réserver</button>
+        </div>
+        <!-- Care card 3 -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.06); display:flex; align-items:center; padding:12px; gap:12px;">
+          <div style="width:72px; height:72px; min-width:72px; border-radius:12px; background:linear-gradient(135deg,#b5d4c0,#a0c8b0); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:26px;">🧖‍♀️</span>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px; font-weight:600; color:#333;">Gommage corps</div>
+            <div style="font-size:11px; color:#888; margin-top:2px;">45 min · 50 €</div>
+          </div>
+          <button style="padding:6px 14px; border:none; border-radius:16px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:11px; cursor:pointer; white-space:nowrap;">Réserver</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 · Thumbnail arrondi (72×72)</h3>
+      <p>Image arrondie (border-radius 12px), layout en ligne. Plus compact, aligné au centre. Pas de description visible (seulement nom + durée + prix). Idéal pour lister beaucoup de soins.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,115 @@
+<h2>Formulaire d'inscription pro — Après choix du plan</h2>
+<p class="subtitle">Le pro a choisi un plan, il remplit ses infos perso + entreprise</p>
+
+<div class="cards">
+  <!-- Option A: Single page stepper -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:400px; margin:0 auto;">
+        <!-- Plan selected badge -->
+        <div style="text-align:center; margin-bottom:16px;">
+          <span style="font-size:11px; background:#f0e8ec; color:#c06; padding:4px 12px; border-radius:10px; font-weight:500;">Plan Pro · 29€/mois</span>
+        </div>
+        <!-- Steps indicator -->
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:#c06; color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;">1</div>
+          <div style="width:40px; height:2px; background:#c06;"></div>
+          <div style="width:28px; height:28px; border-radius:50%; background:#e0e0e0; color:#999; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;">2</div>
+        </div>
+        <!-- Step 1: Compte -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:20px;">
+          <div style="font-size:14px; font-weight:600; color:#333; margin-bottom:14px;">Votre compte</div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="position:relative; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Nom complet</label>
+              <input type="text" value="Sophie Martin" style="width:100%; border:none; font-size:14px; color:#333; outline:none; padding:2px 0; background:transparent; box-sizing:border-box;" />
+            </div>
+            <div style="position:relative; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Email</label>
+              <input type="email" value="sophie@salon.fr" style="width:100%; border:none; font-size:14px; color:#333; outline:none; padding:2px 0; background:transparent; box-sizing:border-box;" />
+            </div>
+            <div style="position:relative; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Mot de passe</label>
+              <input type="password" value="••••••••" style="width:100%; border:none; font-size:14px; color:#333; outline:none; padding:2px 0; background:transparent; box-sizing:border-box;" />
+            </div>
+          </div>
+          <button style="margin-top:16px; width:100%; padding:10px; border:none; border-radius:24px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:13px; font-weight:500; cursor:pointer;">Continuer →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Stepper 2 étapes</h3>
+      <p>Étape 1 : Compte (nom, email, mdp). Étape 2 : Entreprise (salon, adresse, tel, SIRET). Indicateur de progression en haut. Badge du plan choisi visible. Chaque étape dans sa propre card.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Single scrollable form -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="max-width:400px; margin:0 auto;">
+        <!-- Plan badge -->
+        <div style="text-align:center; margin-bottom:14px;">
+          <span style="font-size:11px; background:#f0e8ec; color:#c06; padding:4px 12px; border-radius:10px; font-weight:500;">Plan Pro · 29€/mois</span>
+        </div>
+        <!-- Single card form -->
+        <div style="background:white; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,.06); padding:20px;">
+          <div style="font-size:16px; font-weight:600; color:#333; margin-bottom:16px; text-align:center;">Créer votre salon</div>
+          <!-- Account section -->
+          <div style="font-size:10px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Compte</div>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Nom complet</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">Sophie Martin</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <div style="flex:1; border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+                <label style="font-size:10px; color:#c06; font-weight:500;">Email</label>
+                <div style="font-size:13px; color:#333; padding:2px 0;">sophie@salon.fr</div>
+              </div>
+            </div>
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Mot de passe</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">••••••••</div>
+            </div>
+          </div>
+          <!-- Separator -->
+          <div style="border-top:1px solid #f0f0f0; margin:12px 0; position:relative;">
+            <span style="position:absolute; top:-8px; left:0; background:white; padding-right:8px; font-size:10px; color:#c06; text-transform:uppercase; letter-spacing:.5px;">Mon salon</span>
+          </div>
+          <!-- Business section -->
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Nom du salon</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">L'Atelier de Sophie</div>
+            </div>
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Téléphone</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">06 12 34 56 78</div>
+            </div>
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">Adresse</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">12 rue des Fleurs, 75001 Paris</div>
+            </div>
+            <div style="border:1.5px solid #e0e0e0; border-radius:12px; padding:6px 14px;">
+              <label style="font-size:10px; color:#c06; font-weight:500;">SIRET</label>
+              <div style="font-size:13px; color:#333; padding:2px 0;">123 456 789 00012</div>
+            </div>
+          </div>
+          <!-- Consent -->
+          <div style="display:flex; align-items:start; gap:8px; margin-bottom:14px;">
+            <input type="checkbox" checked style="margin-top:3px; accent-color:#c06;" />
+            <span style="font-size:11px; color:#666; line-height:1.4;">J'accepte les conditions générales d'utilisation</span>
+          </div>
+          <button style="width:100%; padding:10px; border:none; border-radius:24px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:13px; font-weight:500; cursor:pointer;">Créer mon salon</button>
+          <div style="text-align:center; margin-top:10px;">
+            <span style="font-size:11px; color:#999;">Déjà un compte ? <a href="#" style="color:#c06; text-decoration:none;">Se connecter</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Formulaire unique scrollable</h3>
+      <p>Tout sur un seul écran avec séparateur "Mon salon" entre les sections. Badge du plan en haut. Plus rapide — pas de navigation entre étapes. Consent checkbox + bouton "Créer mon salon". Lien connexion en bas.</p>
+    </div>
+  </div>
+</div>

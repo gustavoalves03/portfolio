@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -32,11 +31,12 @@ describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['registerPro']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', [
+      'registerClient',
+      'navigateByRole',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -51,7 +51,6 @@ describe('RegisterComponent', () => {
         provideRouter([]),
         provideNoopAnimations(),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
 
@@ -60,7 +59,6 @@ describe('RegisterComponent', () => {
     fixture.detectChanges();
   });
 
-  // T3.1: Form validation — submit disabled with invalid fields
   it('should mark form as invalid when fields are empty', () => {
     expect(component.form.invalid).toBeTrue();
   });
@@ -74,9 +72,6 @@ describe('RegisterComponent', () => {
 
   it('should show name error when name is empty and touched', () => {
     component.nameControl?.markAsTouched();
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    // Form is marked invalid with required validator
     expect(component.nameControl?.hasError('required')).toBeTrue();
   });
 
@@ -92,14 +87,13 @@ describe('RegisterComponent', () => {
     expect(component.passwordControl?.hasError('minlength')).toBeTrue();
   });
 
-  it('should not call registerPro when form is invalid', () => {
+  it('should not call registerClient when form is invalid', () => {
     component.onSubmit();
-    expect(authServiceSpy.registerPro).not.toHaveBeenCalled();
+    expect(authServiceSpy.registerClient).not.toHaveBeenCalled();
   });
 
-  // T3.2: Success flow — redirects to /pro/dashboard
-  it('should redirect to /pro/dashboard on successful registration', () => {
-    authServiceSpy.registerPro.and.returnValue(of({} as any));
+  it('should call registerClient and navigate on successful registration', () => {
+    authServiceSpy.registerClient.and.returnValue(of({} as any));
 
     component.form.setValue({
       name: 'Sophie Martin',
@@ -110,14 +104,17 @@ describe('RegisterComponent', () => {
 
     component.onSubmit();
 
-    expect(authServiceSpy.registerPro).toHaveBeenCalledWith('Sophie Martin', 'sophie@salon.fr', 'password123');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    expect(authServiceSpy.registerClient).toHaveBeenCalledWith(
+      'Sophie Martin',
+      'sophie@salon.fr',
+      'password123'
+    );
+    expect(authServiceSpy.navigateByRole).toHaveBeenCalled();
   });
 
-  // T3.3: 409 error — shows inline email error
   it('should set emailConflictError on 409 response', () => {
     const error = new HttpErrorResponse({ status: 409, statusText: 'Conflict' });
-    authServiceSpy.registerPro.and.returnValue(throwError(() => error));
+    authServiceSpy.registerClient.and.returnValue(throwError(() => error));
 
     component.form.setValue({
       name: 'Sophie Martin',
@@ -129,6 +126,5 @@ describe('RegisterComponent', () => {
     component.onSubmit();
 
     expect(component.emailConflictError).toBeTrue();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 });

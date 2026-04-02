@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Posts / Avant-Après — 3 Propositions</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #f5f5f5; min-height: 100vh; }
+
+    .proposal-nav {
+      position: sticky; top: 0; z-index: 100; background: #fff;
+      border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center;
+    }
+    .proposal-btn {
+      padding: 16px 24px; border: none; background: transparent;
+      font-family: Roboto, sans-serif; font-size: 13px; font-weight: 500;
+      color: #999; cursor: pointer; border-bottom: 3px solid transparent; transition: all 150ms ease;
+    }
+    .proposal-btn:hover { color: #666; }
+    .proposal-btn.active { color: #c06; border-bottom-color: #c06; }
+    .proposal { display: none; padding: 24px 20px 64px; max-width: 860px; margin: 0 auto; }
+    .proposal.active { display: block; }
+    .proposal-title { font-size: 17px; font-weight: 300; color: #333; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .proposal-desc { font-size: 12px; color: #999; margin-bottom: 24px; line-height: 1.5; }
+
+    /* ── Shared image placeholders ── */
+    .img-placeholder {
+      width: 100%; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; position: relative;
+    }
+    .img-before { background: linear-gradient(135deg, #e8c4b0 0%, #d4a088 100%); }
+    .img-after { background: linear-gradient(135deg, #f3d5c0 0%, #fce4ec 100%); }
+    .img-label {
+      position: absolute; top: 8px; left: 8px; padding: 3px 10px; border-radius: 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .img-label.before { background: rgba(0,0,0,0.5); color: #fff; }
+    .img-label.after { background: rgba(255,255,255,0.9); color: #c06; }
+
+    .img-full { background: linear-gradient(135deg, #f3d5c0, #fce4ec); width: 100%; aspect-ratio: 1; border-radius: 10px; }
+    .img-wide { background: linear-gradient(135deg, #f3d5c0, #e8c4b0); width: 100%; aspect-ratio: 16/9; border-radius: 12px; }
+
+    /* ════════════════════════════════════════════
+       A — INSTAGRAM GRID + LIGHTBOX
+       Vue client : grille carrée, clic = lightbox avant/après
+       Vue PRO : même grille + bouton ajouter
+    ════════════════════════════════════════════ */
+
+    /* Section header like salon page */
+    .section-header-a {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;
+    }
+    .section-icon { font-size: 22px; color: #c06; }
+    .section-name { font-size: 16px; font-weight: 600; color: #333; }
+    .section-count { font-size: 12px; color: #999; margin-left: auto; }
+
+    .insta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    @media (max-width: 480px) { .insta-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .insta-cell {
+      position: relative; cursor: pointer; overflow: hidden; border-radius: 4px;
+    }
+    .insta-cell .img-full { border-radius: 4px; transition: transform 200ms ease; }
+    .insta-cell:hover .img-full { transform: scale(1.05); }
+    .insta-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 200ms ease;
+    }
+    .insta-cell:hover .insta-overlay { opacity: 1; }
+    .insta-overlay .material-icons-round { font-size: 28px; color: #fff; }
+
+    /* Lightbox preview */
+    .lightbox-preview {
+      background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12); max-width: 500px; margin: 20px auto;
+    }
+    .lb-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+    }
+    .lb-caption { font-size: 13px; color: #555; margin-bottom: 6px; }
+    .lb-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #999; }
+    .lb-care-tag {
+      padding: 2px 8px; background: #f9d5d3; color: #a8385d;
+      border-radius: 8px; font-size: 10px; font-weight: 600;
+    }
+
+    /* PRO add button */
+    .add-post-cell {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      aspect-ratio: 1; border: 2px dashed #ddd; border-radius: 4px;
+      color: #ccc; cursor: pointer; transition: all 150ms ease; gap: 4px;
+    }
+    .add-post-cell:hover { border-color: #c06; color: #c06; }
+    .add-post-cell .material-icons-round { font-size: 28px; }
+    .add-post-cell span { font-size: 11px; font-weight: 500; }
+
+    /* ════════════════════════════════════════════
+       B — SLIDER AVANT/APRÈS (interactive)
+       Chaque post est une carte avec slider comparatif
+    ════════════════════════════════════════════ */
+
+    .posts-feed { display: flex; flex-direction: column; gap: 16px; max-width: 500px; margin: 0 auto; }
+
+    .post-card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .post-compare {
+      position: relative; width: 100%; aspect-ratio: 4/3; overflow: hidden;
+    }
+    .post-compare .img-before, .post-compare .img-after {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .post-compare .img-after { clip-path: inset(0 0 0 50%); }
+    .slider-line {
+      position: absolute; top: 0; bottom: 0; left: 50%; width: 3px;
+      background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.3); z-index: 2;
+    }
+    .slider-handle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 32px; height: 32px; border-radius: 50%; background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .slider-handle .material-icons-round { font-size: 18px; color: #c06; }
+    .compare-labels {
+      position: absolute; bottom: 10px; left: 0; right: 0; z-index: 2;
+      display: flex; justify-content: space-between; padding: 0 12px;
+    }
+    .compare-labels span {
+      padding: 3px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .compare-labels .lbl-before { background: rgba(0,0,0,0.5); color: #fff; }
+    .compare-labels .lbl-after { background: rgba(255,255,255,0.9); color: #c06; }
+
+    .post-body { padding: 14px 16px; }
+    .post-caption { font-size: 13px; color: #333; margin-bottom: 6px; line-height: 1.4; }
+    .post-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #999; flex-wrap: wrap; }
+    .post-care-tag {
+      padding: 2px 8px; background: #f9d5d3; color: #a8385d;
+      border-radius: 8px; font-size: 10px; font-weight: 600;
+    }
+    .post-date { font-size: 11px; color: #bbb; }
+
+    /* PRO: create post card */
+    .create-post-card {
+      background: #fff; border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 2px dashed #e0e0e0;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; transition: border-color 150ms ease; color: #999;
+    }
+    .create-post-card:hover { border-color: #c06; color: #c06; }
+    .create-post-card .material-icons-round { font-size: 32px; }
+    .create-post-card span { font-size: 13px; font-weight: 500; }
+
+    /* ════════════════════════════════════════════
+       C — MASONRY + CATÉGORIES
+       Grille masonry avec filtrage par catégorie de soin
+    ════════════════════════════════════════════ */
+
+    .filter-bar-c { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .fc-chip {
+      padding: 6px 14px; border: 1px solid #e0e0e0; border-radius: 20px;
+      font-size: 12px; font-weight: 500; color: #888; background: #fff;
+      cursor: pointer; transition: all 150ms ease;
+    }
+    .fc-chip:hover { border-color: #c06; color: #c06; }
+    .fc-chip.on { background: #c06; color: #fff; border-color: #c06; }
+
+    .masonry { columns: 2; column-gap: 10px; }
+    @media (min-width: 640px) { .masonry { columns: 3; } }
+
+    .masonry-item {
+      break-inside: avoid; margin-bottom: 10px; background: #fff;
+      border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      cursor: pointer; transition: box-shadow 150ms ease;
+    }
+    .masonry-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+    .mi-images { position: relative; }
+    .mi-badge-ba {
+      position: absolute; top: 8px; right: 8px; display: flex; gap: 3px;
+    }
+    .mi-badge {
+      padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .mi-badge.b { background: rgba(0,0,0,0.5); color: #fff; }
+    .mi-badge.a { background: rgba(255,255,255,0.9); color: #c06; }
+
+    .mi-body { padding: 10px 12px; }
+    .mi-caption { font-size: 12px; color: #333; margin-bottom: 4px; line-height: 1.4; }
+    .mi-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .mi-tag {
+      padding: 1px 6px; background: #f9d5d3; color: #a8385d;
+      border-radius: 6px; font-size: 9px; font-weight: 600;
+    }
+    .mi-date { font-size: 10px; color: #bbb; margin-top: 4px; }
+
+    /* Heights for masonry effect */
+    .h-short .img-wide { aspect-ratio: 4/3; }
+    .h-tall .img-wide { aspect-ratio: 3/4; }
+    .h-square .img-wide { aspect-ratio: 1; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+<nav class="proposal-nav">
+  <button class="proposal-btn active" onclick="show('a')">A — Grille Instagram</button>
+  <button class="proposal-btn" onclick="show('b')">B — Feed Slider</button>
+  <button class="proposal-btn" onclick="show('c')">C — Masonry + Filtres</button>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     A — GRILLE INSTAGRAM
+     Vue client : grille carrée
+     Vue PRO : grille + bouton ajouter
+═══════════════════════════════════════ -->
+<div id="p-a" class="proposal active">
+  <div class="proposal-title">A — Grille Instagram</div>
+  <div class="proposal-desc">Grille de photos carrées comme Instagram. Le clic ouvre un lightbox avec la comparaison avant/après côte-à-côte, la description et le soin associé. Le PRO a un bouton "+" pour ajouter.</div>
+
+  <!-- Client view -->
+  <div class="section-header-a">
+    <span class="material-icons-round section-icon">photo_library</span>
+    <span class="section-name">Réalisations</span>
+    <span class="section-count">8 posts</span>
+  </div>
+
+  <div class="insta-grid">
+    <div class="insta-cell"><div class="img-full img-after"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full img-before"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full" style="background:linear-gradient(135deg,#e8c4b0,#d4a088)"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full img-after"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full img-before"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <div class="insta-cell"><div class="img-full" style="background:linear-gradient(135deg,#f8bbd0,#f3d5c0)"></div><div class="insta-overlay"><span class="material-icons-round">compare</span></div></div>
+    <!-- PRO: add button -->
+    <div class="add-post-cell">
+      <span class="material-icons-round">add_photo_alternate</span>
+      <span>Ajouter</span>
+    </div>
+  </div>
+
+  <!-- Lightbox preview (what opens on click) -->
+  <div class="lightbox-preview" style="margin-top: 24px">
+    <div style="font-size: 11px; color: #bbb; text-align: center; margin-bottom: 12px;">Aperçu du lightbox au clic ↓</div>
+    <div class="lb-compare">
+      <div class="img-placeholder img-before"><span class="img-label before">Avant</span></div>
+      <div class="img-placeholder img-after"><span class="img-label after">Après</span></div>
+    </div>
+    <div class="lb-caption">Résultat après 3 séances de soin hydratant. La peau est visiblement plus lumineuse et les pores resserrés.</div>
+    <div class="lb-meta">
+      <span class="lb-care-tag">Soin visage hydratant</span>
+      <span>•</span>
+      <span>il y a 3 jours</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     B — FEED SLIDER (avant/après interactif)
+     Cartes en feed vertical avec slider comparatif
+═══════════════════════════════════════ -->
+<div id="p-b" class="proposal">
+  <div class="proposal-title">B — Feed avec slider avant/après</div>
+  <div class="proposal-desc">Feed vertical de cartes, chaque carte a un slider interactif pour comparer avant et après (comme les outils photo pro). La description et le soin associé sont en dessous.</div>
+
+  <div class="posts-feed">
+    <!-- Create post (PRO only) -->
+    <div class="create-post-card">
+      <span class="material-icons-round">add_photo_alternate</span>
+      <span>Publier un avant/après</span>
+    </div>
+
+    <!-- Post 1 -->
+    <div class="post-card">
+      <div class="post-compare">
+        <div class="img-before" style="background:linear-gradient(135deg,#e8c4b0,#d4a088)"></div>
+        <div class="img-after" style="background:linear-gradient(135deg,#f3d5c0,#fce4ec)"></div>
+        <div class="slider-line"></div>
+        <div class="slider-handle"><span class="material-icons-round">swap_horiz</span></div>
+        <div class="compare-labels">
+          <span class="lbl-before">Avant</span>
+          <span class="lbl-after">Après</span>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="post-caption">Résultat après 3 séances de soin hydratant. La peau est visiblement plus lumineuse et les pores resserrés.</div>
+        <div class="post-meta">
+          <span class="post-care-tag">Soin visage hydratant</span>
+          <span class="post-date">il y a 3 jours</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post 2 -->
+    <div class="post-card">
+      <div class="post-compare">
+        <div class="img-before" style="background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+        <div class="img-after" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)"></div>
+        <div class="slider-line"></div>
+        <div class="slider-handle"><span class="material-icons-round">swap_horiz</span></div>
+        <div class="compare-labels">
+          <span class="lbl-before">Avant</span>
+          <span class="lbl-after">Après</span>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="post-caption">Transformation complète après un peeling doux + masque éclat. Le teint est unifié et les taches atténuées.</div>
+        <div class="post-meta">
+          <span class="post-care-tag">Peeling doux</span>
+          <span class="post-care-tag">Masque éclat</span>
+          <span class="post-date">il y a 1 semaine</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post 3 (single image, no before/after) -->
+    <div class="post-card">
+      <div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#f3d5c0,#fce4ec);border-radius:0"></div>
+      <div class="post-body">
+        <div class="post-caption">Nouveau décor du salon ! Venez découvrir notre espace détente repensé pour votre bien-être. 🌿</div>
+        <div class="post-meta">
+          <span class="post-date">il y a 2 semaines</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     C — MASONRY + FILTRES PAR CATÉGORIE
+     Grille masonry avec tailles variées + filtres
+═══════════════════════════════════════ -->
+<div id="p-c" class="proposal">
+  <div class="proposal-title">C — Masonry + Filtres par catégorie</div>
+  <div class="proposal-desc">Grille masonry (type Pinterest) avec des tailles variées. Filtrage par catégorie de soin. Chaque carte montre la photo "après" avec un badge "Avant/Après". Au clic : détail complet.</div>
+
+  <div class="filter-bar-c">
+    <button class="fc-chip on">Tous</button>
+    <button class="fc-chip">Visage</button>
+    <button class="fc-chip">Corps</button>
+    <button class="fc-chip">Ongles</button>
+    <button class="fc-chip">Épilation</button>
+  </div>
+
+  <div class="masonry">
+    <!-- Item 1 — tall -->
+    <div class="masonry-item h-tall">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:3/4;background:linear-gradient(135deg,#f3d5c0,#fce4ec)"></div>
+        <div class="mi-badge-ba">
+          <span class="mi-badge b">Avant</span>
+          <span class="mi-badge a">Après</span>
+        </div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Soin hydratant — 3 séances, peau lumineuse</div>
+        <div class="mi-tags"><span class="mi-tag">Visage</span></div>
+        <div class="mi-date">3 avril 2026</div>
+      </div>
+    </div>
+
+    <!-- Item 2 — short -->
+    <div class="masonry-item h-short">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:4/3;background:linear-gradient(135deg,#e8c4b0,#d4a088)"></div>
+        <div class="mi-badge-ba">
+          <span class="mi-badge b">Avant</span>
+          <span class="mi-badge a">Après</span>
+        </div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Peeling doux + masque éclat</div>
+        <div class="mi-tags"><span class="mi-tag">Visage</span><span class="mi-tag">Peeling</span></div>
+        <div class="mi-date">28 mars 2026</div>
+      </div>
+    </div>
+
+    <!-- Item 3 — square -->
+    <div class="masonry-item h-square">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:1;background:linear-gradient(135deg,#fce4ec,#f8bbd0)"></div>
+        <div class="mi-badge-ba">
+          <span class="mi-badge b">Avant</span>
+          <span class="mi-badge a">Après</span>
+        </div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Massage sculptant corps</div>
+        <div class="mi-tags"><span class="mi-tag">Corps</span></div>
+        <div class="mi-date">20 mars 2026</div>
+      </div>
+    </div>
+
+    <!-- Item 4 — short -->
+    <div class="masonry-item h-short">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:4/3;background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Nouveau décor du salon 🌿</div>
+        <div class="mi-date">15 mars 2026</div>
+      </div>
+    </div>
+
+    <!-- Item 5 — tall -->
+    <div class="masonry-item h-tall">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:3/4;background:linear-gradient(135deg,#f8bbd0,#f3d5c0)"></div>
+        <div class="mi-badge-ba">
+          <span class="mi-badge b">Avant</span>
+          <span class="mi-badge a">Après</span>
+        </div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Épilation définitive — résultat après 5 séances</div>
+        <div class="mi-tags"><span class="mi-tag">Épilation</span></div>
+        <div class="mi-date">10 mars 2026</div>
+      </div>
+    </div>
+
+    <!-- Item 6 — square -->
+    <div class="masonry-item h-square">
+      <div class="mi-images">
+        <div class="img-wide" style="aspect-ratio:1;background:linear-gradient(135deg,#e0f2f1,#b2dfdb)"></div>
+        <div class="mi-badge-ba">
+          <span class="mi-badge b">Avant</span>
+          <span class="mi-badge a">Après</span>
+        </div>
+      </div>
+      <div class="mi-body">
+        <div class="mi-caption">Manucure semi-permanente rose nacré</div>
+        <div class="mi-tags"><span class="mi-tag">Ongles</span></div>
+        <div class="mi-date">5 mars 2026</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — 3 propositions "Posts Salon" — Avril 2026</footer>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.proposal').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.proposal-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('p-' + id).classList.add('active');
+    document.querySelectorAll('.proposal-btn')[{a:0,b:1,c:2}[id]].classList.add('active');
+  }
+</script>
+</body>
+</html>

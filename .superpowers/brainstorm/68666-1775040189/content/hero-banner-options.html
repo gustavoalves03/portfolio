@@ -1,0 +1,109 @@
+<h2>Images d'accueil (Hero Banner) — Vue client</h2>
+<p class="subtitle">Grande image en haut de la page salon, visible par les clients</p>
+
+<div class="cards">
+  <!-- Option 1: Single hero full-width -->
+  <div class="card" data-choice="1" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:12px;">
+      <div style="max-width:480px; margin:0 auto; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1);">
+        <!-- Hero image -->
+        <div style="height:200px; background:linear-gradient(135deg,#e8c4b0,#d4a090); position:relative; display:flex; align-items:flex-end;">
+          <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.5), transparent);"></div>
+          <div style="position:relative; padding:20px; color:white; width:100%;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:48px; height:48px; border-radius:50%; background:white; box-shadow:0 2px 6px rgba(0,0,0,.2); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <span style="font-size:18px;">💆</span>
+              </div>
+              <div>
+                <div style="font-size:18px; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,.3);">L'Atelier de Sophie</div>
+                <div style="font-size:11px; opacity:.9;">Institut de beauté · Paris 1er</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Content below -->
+        <div style="background:white; padding:16px;">
+          <div style="font-size:12px; color:#888; line-height:1.5;">Institut de beauté spécialisé dans les soins du visage et le bien-être...</div>
+          <div style="margin-top:12px; font-size:12px; font-weight:600; color:#333;">Soins visage</div>
+          <div style="margin-top:6px; display:flex; gap:8px;">
+            <div style="flex:1; background:#faf8f6; border-radius:8px; padding:8px; font-size:11px;">Soin hydratant · 55€</div>
+            <div style="flex:1; background:#faf8f6; border-radius:8px; padding:8px; font-size:11px;">Nettoyage peau · 45€</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 · Hero unique avec overlay</h3>
+      <p>Une seule grande image (16:9) en haut, dégradé sombre en bas avec nom du salon + logo + adresse superposés. Si pas d'image, dégradé pastel fallback. Simple, impactant, mobile-first.</p>
+    </div>
+  </div>
+
+  <!-- Option 2: Carousel -->
+  <div class="card" data-choice="2" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:12px;">
+      <div style="max-width:480px; margin:0 auto; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1);">
+        <!-- Carousel -->
+        <div style="height:200px; background:linear-gradient(135deg,#d4b5d0,#c8a0c0); position:relative;">
+          <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.4), transparent);"></div>
+          <!-- Dots -->
+          <div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:6px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:white;"></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.4);"></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.4);"></div>
+          </div>
+          <!-- Arrows -->
+          <div style="position:absolute; top:50%; left:8px; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;">‹</div>
+          <div style="position:absolute; top:50%; right:8px; transform:translateY(-50%); width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.7); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer;">›</div>
+        </div>
+        <!-- Salon info below -->
+        <div style="background:white; padding:16px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); flex-shrink:0;"></div>
+            <div>
+              <div style="font-size:15px; font-weight:600; color:#333;">L'Atelier de Sophie</div>
+              <div style="font-size:11px; color:#999;">Paris 1er · 06 12 34 56 78</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:#888; line-height:1.5;">Institut de beauté spécialisé...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 · Carrousel d'images</h3>
+      <p>Jusqu'à 5 images en carrousel avec dots + flèches. Info salon en dessous (pas d'overlay). Swipe sur mobile. Plus de place pour montrer l'ambiance du salon. Le pro uploade plusieurs photos.</p>
+    </div>
+  </div>
+
+  <!-- Option 3: Collage grid -->
+  <div class="card" data-choice="3" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:12px;">
+      <div style="max-width:480px; margin:0 auto; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.1);">
+        <!-- Image grid: 1 big + 2 small -->
+        <div style="display:grid; grid-template-columns:2fr 1fr; grid-template-rows:100px 100px; gap:2px; height:202px;">
+          <div style="grid-row:1/3; background:linear-gradient(135deg,#e8c4b0,#d4a090); border-radius:0;"></div>
+          <div style="background:linear-gradient(135deg,#d4b5d0,#c8a0c0);"></div>
+          <div style="background:linear-gradient(135deg,#b5d4c0,#a0c8b0); position:relative;">
+            <div style="position:absolute; inset:0; background:rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; color:white; font-size:13px; font-weight:500;">+3 photos</div>
+          </div>
+        </div>
+        <!-- Salon info -->
+        <div style="background:white; padding:16px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <div style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#f3d5c0,#e8c4b0); flex-shrink:0;"></div>
+            <div>
+              <div style="font-size:15px; font-weight:600; color:#333;">L'Atelier de Sophie</div>
+              <div style="font-size:11px; color:#999;">Paris 1er</div>
+            </div>
+          </div>
+          <div style="font-size:12px; color:#888; line-height:1.5;">Institut de beauté spécialisé dans les soins du visage...</div>
+        </div>
+      </div>
+      <!-- Mobile variant -->
+      <div style="margin-top:10px; font-size:10px; color:#aaa; text-align:center;">📱 Mobile : grille 1 image principale + 1 petite, ou carrousel si &lt;3 images</div>
+    </div>
+    <div class="card-body">
+      <h3>3 · Grille collage</h3>
+      <p>1 grande image + 2 petites en grille (style Airbnb). "+N photos" sur la dernière si plus de 3. Clic ouvre une galerie plein écran. Mobile : s'adapte en 1+1 ou carrousel. Look premium.</p>
+    </div>
+  </div>
+</div>

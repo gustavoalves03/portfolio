@@ -1,0 +1,142 @@
+<h2>Modale de réservation — Options de redesign</h2>
+<p class="subtitle">La modale actuelle (480px, calendrier + créneaux empilés) est trop grande. Voici 3 alternatives plus compactes en deux étapes.</p>
+
+<div class="cards">
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">ÉTAPE 1 — Choisir un jour</div>
+      <div style="background:white; border-radius:12px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:320px; margin:0 auto;">
+        <!-- Care summary -->
+        <div style="display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:1px solid #eee; margin-bottom:10px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:#c06;"></div>
+          <span style="font-size:12px; font-weight:500;">Manucure classique</span>
+          <span style="font-size:11px; color:#888; margin-left:auto;">30 min · 25€</span>
+        </div>
+        <!-- Mini calendar -->
+        <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:2px; text-align:center; font-size:10px;">
+          <div style="color:#999;">Lu</div><div style="color:#999;">Ma</div><div style="color:#999;">Me</div><div style="color:#999;">Je</div><div style="color:#999;">Ve</div><div style="color:#999;">Sa</div><div style="color:#999;">Di</div>
+          <div style="padding:6px 0; color:#ccc;">28</div><div style="padding:6px 0; color:#ccc;">29</div><div style="padding:6px 0; color:#ccc;">30</div>
+          <div style="padding:6px 0;">1</div><div style="padding:6px 0;">2</div><div style="padding:6px 0;">3</div><div style="padding:6px 0; color:#ccc;">4</div>
+          <div style="padding:6px 0;">5</div><div style="padding:6px 0; background:#c06; color:white; border-radius:6px;">6</div><div style="padding:6px 0;">7</div><div style="padding:6px 0;">8</div><div style="padding:6px 0;">9</div><div style="padding:6px 0;">10</div><div style="padding:6px 0; color:#ccc;">11</div>
+          <div style="padding:6px 0;">12</div><div style="padding:6px 0;">13</div><div style="padding:6px 0;">14</div><div style="padding:6px 0;">15</div><div style="padding:6px 0;">16</div><div style="padding:6px 0;">17</div><div style="padding:6px 0; color:#ccc;">18</div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#888; margin-top:12px;">ÉTAPE 2 — Choisir une heure</div>
+      <div style="background:white; border-radius:12px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:320px; margin:6px auto 0;">
+        <div style="font-size:11px; color:#666; margin-bottom:8px;">← Mar. 6 avril</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px;">
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">09:00</div>
+          <div style="padding:6px; border-radius:6px; background:#c06; color:white; text-align:center; font-size:11px;">09:30</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">10:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">10:30</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">11:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">11:30</div>
+        </div>
+        <button style="margin-top:10px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; cursor:pointer;">Confirmer 09:30</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Deux étapes verticales</h3>
+      <p>Même modale, mais le calendrier et les créneaux sont sur deux écrans successifs. Flèche retour pour revenir au calendrier. Modale plus petite (360px). La sélection du jour est conservée.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">ÉTAPE 1</div>
+      <div style="background:white; border-radius:12px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:320px; margin:0 auto;">
+        <div style="display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:1px solid #eee; margin-bottom:10px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:#c06;"></div>
+          <span style="font-size:12px; font-weight:500;">Manucure classique</span>
+          <span style="font-size:11px; color:#888; margin-left:auto;">30 min · 25€</span>
+        </div>
+        <!-- Horizontal scroll dates -->
+        <div style="display:flex; gap:6px; overflow-x:auto; padding:4px 0;">
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid #e0e0e0;">
+            <div style="font-size:9px; color:#888;">Lun</div>
+            <div style="font-size:14px; font-weight:600;">5</div>
+          </div>
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; background:#c06; color:white;">
+            <div style="font-size:9px; opacity:.8;">Mar</div>
+            <div style="font-size:14px; font-weight:600;">6</div>
+          </div>
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid #e0e0e0;">
+            <div style="font-size:9px; color:#888;">Mer</div>
+            <div style="font-size:14px; font-weight:600;">7</div>
+          </div>
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid #e0e0e0;">
+            <div style="font-size:9px; color:#888;">Jeu</div>
+            <div style="font-size:14px; font-weight:600;">8</div>
+          </div>
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid #e0e0e0;">
+            <div style="font-size:9px; color:#888;">Ven</div>
+            <div style="font-size:14px; font-weight:600;">9</div>
+          </div>
+          <div style="min-width:44px; text-align:center; padding:8px 4px; border-radius:10px; border:1px solid #e0e0e0;">
+            <div style="font-size:9px; color:#888;">Sam</div>
+            <div style="font-size:14px; font-weight:600;">10</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#888; margin-top:12px;">ÉTAPE 2 — Créneaux visibles en dessous</div>
+      <div style="background:white; border-radius:12px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:320px; margin:6px auto 0;">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px;">
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">09:00</div>
+          <div style="padding:6px; border-radius:6px; background:#c06; color:white; text-align:center; font-size:11px;">10:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">11:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">14:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">15:00</div>
+          <div style="padding:6px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:11px;">16:00</div>
+        </div>
+        <button style="margin-top:10px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; cursor:pointer;">Confirmer Mar. 6 à 10:00</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Strip de jours horizontal</h3>
+      <p>Remplace le calendrier par une bande scrollable de jours (7 prochains jours visibles). Plus compact. Les créneaux apparaissent en dessous quand on sélectionne un jour. Tout est sur un seul écran, modale étroite (340px).</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf8f6; padding:16px;">
+      <div style="font-size:11px; color:#888; margin-bottom:8px;">UN SEUL ÉCRAN COMPACT</div>
+      <div style="background:white; border-radius:12px; padding:14px; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:320px; margin:0 auto;">
+        <div style="display:flex; align-items:center; gap:8px; padding-bottom:10px; border-bottom:1px solid #eee; margin-bottom:10px;">
+          <div style="width:8px; height:8px; border-radius:50%; background:#c06;"></div>
+          <span style="font-size:12px; font-weight:500;">Manucure classique</span>
+          <span style="font-size:11px; color:#888; margin-left:auto;">30 min · 25€</span>
+        </div>
+        <!-- Date picker input style -->
+        <div style="margin-bottom:10px;">
+          <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Date</label>
+          <div style="padding:8px 12px; border:1px solid #ddd; border-radius:8px; font-size:13px; display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span>Mardi 6 avril 2026</span>
+            <span style="color:#888;">📅</span>
+          </div>
+        </div>
+        <!-- Time selection -->
+        <label style="font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px;">Heure</label>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-top:4px;">
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">09:00</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">09:30</div>
+          <div style="padding:5px; border-radius:6px; background:#c06; color:white; text-align:center; font-size:10px;">10:00</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">10:30</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">11:00</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">11:30</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">14:00</div>
+          <div style="padding:5px; border-radius:6px; border:1px solid #e0e0e0; text-align:center; font-size:10px;">14:30</div>
+        </div>
+        <button style="margin-top:12px; width:100%; padding:8px; border:none; border-radius:20px; background:linear-gradient(135deg,#a8385d,#c06); color:white; font-size:12px; cursor:pointer;">Confirmer</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Date picker Material + grille</h3>
+      <p>Utilise le date picker natif d'Angular Material (compact, s'ouvre en popup). Les créneaux s'affichent en grille 4 colonnes en dessous. Modale très compacte (340px), un seul écran. Pas de navigation de mois.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:1.5rem; font-style:italic;">💡 Je recommande A pour garder la visibilité du calendrier mois tout en réduisant la taille, ou B pour un look plus moderne et mobile-friendly.</p>

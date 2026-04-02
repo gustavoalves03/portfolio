@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pretty Face — Feed Posts Multi-types — Mockup</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+    body { font-family: Roboto, "Helvetica Neue", sans-serif; color: #333; background: #fafafa; min-height: 100vh; }
+
+    .page { max-width: 520px; margin: 0 auto; padding: 24px 16px 64px; }
+    .page-header { text-align: center; margin-bottom: 20px; }
+    .page-title { font-size: 17px; font-weight: 300; color: #333; letter-spacing: 0.5px; }
+    .page-desc { font-size: 12px; color: #999; margin-top: 4px; line-height: 1.5; }
+
+    /* ── CREATE POST (PRO) ── */
+    .create-bar {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+    .create-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 12px 16px; border: 1.5px dashed #ddd; border-radius: 12px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 12px;
+      font-weight: 500; color: #999; cursor: pointer; transition: all 150ms ease;
+    }
+    .create-btn:hover { border-color: #c06; color: #c06; }
+    .create-btn .material-icons-round { font-size: 18px; }
+    .create-btn.primary {
+      border: none; background: linear-gradient(135deg, #a8385d, #c06); color: #fff;
+    }
+    .create-btn.primary:hover { opacity: 0.9; }
+
+    /* ── POST CARDS ── */
+    .feed { display: flex; flex-direction: column; gap: 16px; }
+
+    .post-card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Post type badge */
+    .post-type-ribbon {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 8px;
+      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .ribbon-ba { background: linear-gradient(135deg, #a8385d, #c06); color: #fff; }
+    .ribbon-photo { background: #f0f0f0; color: #888; }
+    .ribbon-carousel { background: #e3f2fd; color: #1565c0; }
+
+    /* ── TYPE 1: AVANT/APRÈS (slider) ── */
+    .compare-container {
+      position: relative; width: 100%; aspect-ratio: 4/3; overflow: hidden;
+      cursor: ew-resize; user-select: none;
+    }
+    .compare-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .compare-before { background: linear-gradient(135deg, #e8c4b0, #d4a088); z-index: 1; }
+    .compare-after {
+      background: linear-gradient(135deg, #f3d5c0, #fce4ec); z-index: 2;
+      clip-path: inset(0 0 0 var(--split, 50%));
+    }
+    .compare-line {
+      position: absolute; top: 0; bottom: 0; left: var(--split, 50%); width: 2px;
+      background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.3); z-index: 3;
+      transform: translateX(-50%);
+    }
+    .compare-handle {
+      position: absolute; top: 50%; left: var(--split, 50%); transform: translate(-50%, -50%);
+      width: 36px; height: 36px; border-radius: 50%; background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 4;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .compare-handle .material-icons-round { font-size: 20px; color: #c06; }
+    .compare-labels {
+      position: absolute; bottom: 10px; left: 0; right: 0; z-index: 5;
+      display: flex; justify-content: space-between; padding: 0 12px; pointer-events: none;
+    }
+    .cl-label {
+      padding: 4px 12px; border-radius: 8px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .cl-before { background: rgba(0,0,0,0.5); color: #fff; }
+    .cl-after { background: rgba(255,255,255,0.9); color: #c06; }
+
+    /* ── TYPE 2: PHOTO UNIQUE ── */
+    .single-img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+    }
+
+    /* ── TYPE 3: CARROUSEL ── */
+    .carousel-container { position: relative; width: 100%; overflow: hidden; }
+    .carousel-track {
+      display: flex; transition: transform 300ms ease;
+    }
+    .carousel-slide {
+      min-width: 100%; aspect-ratio: 4/3;
+    }
+    .carousel-dots {
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 2;
+    }
+    .carousel-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5);
+      border: none; cursor: pointer; transition: all 150ms ease;
+    }
+    .carousel-dot.active { background: #fff; width: 16px; border-radius: 3px; }
+    .carousel-nav {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+      width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.8);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .carousel-nav.prev { left: 8px; }
+    .carousel-nav.next { right: 8px; }
+    .carousel-nav .material-icons-round { font-size: 18px; color: #333; }
+    .carousel-counter {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.4);
+      font-size: 10px; font-weight: 600; color: #fff;
+    }
+
+    /* ── POST BODY (shared) ── */
+    .post-body { padding: 14px 16px; }
+    .post-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .post-caption { font-size: 13px; color: #333; line-height: 1.5; margin-bottom: 8px; }
+    .post-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+    .post-tag {
+      padding: 2px 8px; background: #f9d5d3; color: #a8385d;
+      border-radius: 8px; font-size: 10px; font-weight: 600;
+    }
+    .post-footer { display: flex; align-items: center; gap: 8px; }
+    .post-date { font-size: 11px; color: #bbb; }
+    .post-likes {
+      display: flex; align-items: center; gap: 3px; margin-left: auto;
+      font-size: 11px; color: #ccc;
+    }
+    .post-likes .material-icons-round { font-size: 14px; }
+
+    /* ── PRO ACTIONS on cards ── */
+    .pro-actions {
+      display: flex; gap: 6px; padding: 0 16px 12px;
+    }
+    .pro-action-btn {
+      display: flex; align-items: center; gap: 4px; padding: 4px 10px;
+      border: 1px solid #e0e0e0; border-radius: 8px; background: #fff;
+      font-family: Roboto, sans-serif; font-size: 11px; color: #999; cursor: pointer;
+    }
+    .pro-action-btn:hover { border-color: #c06; color: #c06; }
+    .pro-action-btn .material-icons-round { font-size: 14px; }
+    .pro-action-btn.delete:hover { border-color: #ef5350; color: #ef5350; }
+
+    /* ── CREATE POST MODAL PREVIEW ── */
+    .modal-preview {
+      background: #fff; border-radius: 16px; padding: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12); margin-top: 32px;
+    }
+    .modal-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px; }
+
+    .post-type-selector { display: flex; gap: 8px; margin-bottom: 16px; }
+    .pts-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 16px 12px; border: 1.5px solid #e0e0e0; border-radius: 12px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 11px;
+      font-weight: 500; color: #888; cursor: pointer; transition: all 150ms ease;
+    }
+    .pts-btn:hover { border-color: #c06; color: #c06; }
+    .pts-btn.selected { border-color: #c06; background: #fef2f2; color: #c06; }
+    .pts-btn .material-icons-round { font-size: 24px; }
+
+    .upload-zones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .upload-zone {
+      aspect-ratio: 4/3; border: 2px dashed #ddd; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; color: #ccc; cursor: pointer; transition: all 150ms ease;
+    }
+    .upload-zone:hover { border-color: #c06; color: #c06; }
+    .upload-zone .material-icons-round { font-size: 24px; }
+    .upload-zone span { font-size: 11px; font-weight: 500; }
+    .upload-zone.single { grid-column: span 2; aspect-ratio: 16/9; }
+
+    .field-row { margin-bottom: 12px; }
+    .field-label { font-size: 11px; font-weight: 500; color: #999; margin-bottom: 4px; }
+    .field-input {
+      width: 100%; padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+      font-family: Roboto, sans-serif; font-size: 12px; color: #333; outline: none;
+    }
+    .field-input:focus { border-color: #c06; }
+    .field-input::placeholder { color: #ccc; }
+    .field-textarea { resize: none; min-height: 50px; }
+
+    .care-select { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; }
+    .care-option {
+      padding: 4px 12px; border: 1px solid #e0e0e0; border-radius: 16px;
+      font-size: 11px; font-weight: 500; color: #888; background: #fff; cursor: pointer;
+    }
+    .care-option:hover { border-color: #c06; color: #c06; }
+    .care-option.sel { background: #f9d5d3; color: #a8385d; border-color: #f9d5d3; }
+
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-cancel {
+      padding: 10px 20px; border: 1px solid #ddd; border-radius: 20px;
+      background: #fff; font-family: Roboto, sans-serif; font-size: 12px; color: #999; cursor: pointer;
+    }
+    .btn-publish {
+      padding: 10px 24px; border: none; border-radius: 20px;
+      background: linear-gradient(135deg, #a8385d, #c06); color: #fff;
+      font-family: Roboto, sans-serif; font-size: 12px; font-weight: 500; cursor: pointer;
+    }
+    .btn-publish:hover { opacity: 0.9; }
+
+    .mockup-footer { text-align: center; padding: 32px 24px 48px; font-size: 12px; color: #ccc; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="page-header">
+    <div class="page-title">Posts du salon — Feed multi-types</div>
+    <div class="page-desc">Le PRO publie des avant/après, des photos ou des carrousels. Le client voit le feed dans la page salon.</div>
+  </div>
+
+  <!-- ── PRO: Create bar ── -->
+  <div class="create-bar">
+    <button class="create-btn primary">
+      <span class="material-icons-round">add_photo_alternate</span>
+      Publier
+    </button>
+  </div>
+
+  <div class="feed">
+
+    <!-- ═══ POST 1: AVANT/APRÈS (slider) ═══ -->
+    <div class="post-card">
+      <div class="compare-container" id="slider1" onmousemove="moveSlider(event, this)" ontouchmove="moveSliderTouch(event, this)" style="--split: 45%">
+        <div class="compare-img compare-before"></div>
+        <div class="compare-img compare-after"></div>
+        <div class="compare-line"></div>
+        <div class="compare-handle"><span class="material-icons-round">swap_horiz</span></div>
+        <div class="compare-labels">
+          <span class="cl-label cl-before">Avant</span>
+          <span class="cl-label cl-after">Après</span>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="post-top">
+          <span class="post-type-ribbon ribbon-ba">Avant / Après</span>
+        </div>
+        <div class="post-caption">Résultat après 3 séances de soin hydratant. La peau est visiblement plus lumineuse et les pores resserrés.</div>
+        <div class="post-tags">
+          <span class="post-tag">Soin visage hydratant</span>
+        </div>
+        <div class="post-footer">
+          <span class="post-date">il y a 3 jours</span>
+          <div class="post-likes"><span class="material-icons-round">favorite_border</span> 12</div>
+        </div>
+      </div>
+      <div class="pro-actions">
+        <button class="pro-action-btn"><span class="material-icons-round">edit</span> Modifier</button>
+        <button class="pro-action-btn delete"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+      </div>
+    </div>
+
+    <!-- ═══ POST 2: PHOTO UNIQUE ═══ -->
+    <div class="post-card">
+      <div class="single-img" style="background:linear-gradient(135deg,#e0f2f1,#b2dfdb)"></div>
+      <div class="post-body">
+        <div class="post-top">
+          <span class="post-type-ribbon ribbon-photo">Photo</span>
+        </div>
+        <div class="post-caption">Nouveau décor du salon ! Venez découvrir notre espace détente repensé pour votre bien-être. 🌿</div>
+        <div class="post-footer">
+          <span class="post-date">il y a 1 semaine</span>
+          <div class="post-likes"><span class="material-icons-round">favorite_border</span> 8</div>
+        </div>
+      </div>
+      <div class="pro-actions">
+        <button class="pro-action-btn"><span class="material-icons-round">edit</span> Modifier</button>
+        <button class="pro-action-btn delete"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+      </div>
+    </div>
+
+    <!-- ═══ POST 3: CARROUSEL ═══ -->
+    <div class="post-card">
+      <div class="carousel-container">
+        <div class="carousel-track" id="carousel1" style="transform: translateX(0)">
+          <div class="carousel-slide" style="background:linear-gradient(135deg,#f8bbd0,#fce4ec)"></div>
+          <div class="carousel-slide" style="background:linear-gradient(135deg,#f3d5c0,#e8c4b0)"></div>
+          <div class="carousel-slide" style="background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+        </div>
+        <span class="carousel-counter">1 / 3</span>
+        <button class="carousel-nav prev" onclick="slideCarousel(-1)"><span class="material-icons-round">chevron_left</span></button>
+        <button class="carousel-nav next" onclick="slideCarousel(1)"><span class="material-icons-round">chevron_right</span></button>
+        <div class="carousel-dots">
+          <button class="carousel-dot active"></button>
+          <button class="carousel-dot"></button>
+          <button class="carousel-dot"></button>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="post-top">
+          <span class="post-type-ribbon ribbon-carousel">Carrousel</span>
+        </div>
+        <div class="post-caption">Les étapes d'un peeling doux : nettoyage, application, résultat. Un teint éclatant en 45 minutes !</div>
+        <div class="post-tags">
+          <span class="post-tag">Peeling doux</span>
+          <span class="post-tag">Visage</span>
+        </div>
+        <div class="post-footer">
+          <span class="post-date">il y a 2 semaines</span>
+          <div class="post-likes"><span class="material-icons-round">favorite_border</span> 24</div>
+        </div>
+      </div>
+      <div class="pro-actions">
+        <button class="pro-action-btn"><span class="material-icons-round">edit</span> Modifier</button>
+        <button class="pro-action-btn delete"><span class="material-icons-round">delete_outline</span> Supprimer</button>
+      </div>
+    </div>
+
+    <!-- ═══ POST 4: AVANT/APRÈS (2e exemple) ═══ -->
+    <div class="post-card">
+      <div class="compare-container" onmousemove="moveSlider(event, this)" ontouchmove="moveSliderTouch(event, this)" style="--split: 55%">
+        <div class="compare-img compare-before" style="background:linear-gradient(135deg,#d7ccc8,#bcaaa4)"></div>
+        <div class="compare-img compare-after" style="background:linear-gradient(135deg,#fce4ec,#f8bbd0)"></div>
+        <div class="compare-line"></div>
+        <div class="compare-handle"><span class="material-icons-round">swap_horiz</span></div>
+        <div class="compare-labels">
+          <span class="cl-label cl-before">Avant</span>
+          <span class="cl-label cl-after">Après</span>
+        </div>
+      </div>
+      <div class="post-body">
+        <div class="post-top">
+          <span class="post-type-ribbon ribbon-ba">Avant / Après</span>
+        </div>
+        <div class="post-caption">Transformation complète après un soin éclat + masque. Le teint est unifié et les taches estompées.</div>
+        <div class="post-tags">
+          <span class="post-tag">Soin éclat</span>
+          <span class="post-tag">Masque visage</span>
+        </div>
+        <div class="post-footer">
+          <span class="post-date">il y a 3 semaines</span>
+          <div class="post-likes"><span class="material-icons-round">favorite_border</span> 31</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL: Créer un post ═══ -->
+  <div class="modal-preview">
+    <div style="font-size: 11px; color: #bbb; text-align: center; margin-bottom: 14px;">↓ Aperçu de la modale de création</div>
+    <div class="modal-title">Nouveau post</div>
+
+    <!-- Type selector -->
+    <div class="post-type-selector">
+      <button class="pts-btn selected">
+        <span class="material-icons-round">compare</span>
+        Avant / Après
+      </button>
+      <button class="pts-btn" onclick="this.parentNode.querySelectorAll('.pts-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">
+        <span class="material-icons-round">photo</span>
+        Photo
+      </button>
+      <button class="pts-btn" onclick="this.parentNode.querySelectorAll('.pts-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">
+        <span class="material-icons-round">view_carousel</span>
+        Carrousel
+      </button>
+    </div>
+
+    <!-- Upload zones (avant/après mode) -->
+    <div class="upload-zones">
+      <div class="upload-zone">
+        <span class="material-icons-round">add_a_photo</span>
+        <span>Photo AVANT</span>
+      </div>
+      <div class="upload-zone">
+        <span class="material-icons-round">add_a_photo</span>
+        <span>Photo APRÈS</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="field-row">
+      <div class="field-label">Description</div>
+      <textarea class="field-input field-textarea" placeholder="Décrivez le résultat, le nombre de séances..."></textarea>
+    </div>
+
+    <!-- Care tags -->
+    <div class="field-row">
+      <div class="field-label">Soins associés</div>
+      <div class="care-select">
+        <button class="care-option sel">Soin visage hydratant</button>
+        <button class="care-option">Peeling doux</button>
+        <button class="care-option">Massage relaxant</button>
+        <button class="care-option">Épilation</button>
+        <button class="care-option">Soin corps tonifiant</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel">Annuler</button>
+      <button class="btn-publish">Publier</button>
+    </div>
+  </div>
+</div>
+
+<footer class="mockup-footer">Pretty Face — Feed Posts multi-types — Avril 2026</footer>
+
+<script>
+  // Slider interactif
+  function moveSlider(e, container) {
+    if (e.buttons !== 1) return;
+    const rect = container.getBoundingClientRect();
+    const pct = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+    container.style.setProperty('--split', pct + '%');
+  }
+  function moveSliderTouch(e, container) {
+    const rect = container.getBoundingClientRect();
+    const touch = e.touches[0];
+    const pct = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
+    container.style.setProperty('--split', pct + '%');
+  }
+
+  // Carrousel
+  let currentSlide = 0;
+  function slideCarousel(dir) {
+    currentSlide = Math.max(0, Math.min(2, currentSlide + dir));
+    document.getElementById('carousel1').style.transform = `translateX(-${currentSlide * 100}%)`;
+    document.querySelector('.carousel-counter').textContent = `${currentSlide + 1} / 3`;
+    document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+  }
+</script>
+</body>
+</html>

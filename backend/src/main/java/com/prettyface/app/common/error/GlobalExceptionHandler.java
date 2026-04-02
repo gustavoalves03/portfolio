@@ -4,6 +4,7 @@ import org.springframework.http.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -26,6 +27,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String,Object>> badCredentials(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> responseStatus(ResponseStatusException ex) {
+        String message = ex.getReason() == null || ex.getReason().isBlank()
+                ? ex.getMessage()
+                : ex.getReason();
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(Map.of("error", message));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
