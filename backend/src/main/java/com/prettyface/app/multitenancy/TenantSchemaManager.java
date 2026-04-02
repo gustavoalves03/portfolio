@@ -90,6 +90,197 @@ public class TenantSchemaManager {
     }
 
     /**
+     * Migrate an existing tenant schema to add new tables and columns
+     * without dropping existing data. Idempotent — safe to run multiple times.
+     */
+    public void migrateSchema(String slug) {
+        String schemaName = toSchemaName(slug);
+        validateSchemaName(schemaName);
+
+        if (databaseKind == DatabaseKind.H2) {
+            migrateH2Schema(schemaName);
+            return;
+        }
+
+        migrateOracleSchema(schemaName);
+    }
+
+    private void migrateOracleSchema(String schemaName) {
+        // New tables to create (idempotent — ORA-00955 skipped)
+        String[] newTables = {
+                """
+                CREATE TABLE EMPLOYEES (
+                    ID         NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    USER_ID    NUMBER(19) NOT NULL,
+                    NAME       VARCHAR2(255 CHAR) NOT NULL,
+                    EMAIL      VARCHAR2(255 CHAR) NOT NULL,
+                    PHONE      VARCHAR2(255 CHAR),
+                    ACTIVE     NUMBER(1) NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_EMPLOYEE_USER UNIQUE (USER_ID)
+                )""",
+                """
+                CREATE TABLE EMPLOYEE_CARES (
+                    EMPLOYEE_ID NUMBER(19) NOT NULL,
+                    CARE_ID     NUMBER(19) NOT NULL,
+                    CONSTRAINT FK_EC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
+                    CONSTRAINT FK_EC_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
+                    CONSTRAINT PK_EMPLOYEE_CARES PRIMARY KEY (EMPLOYEE_ID, CARE_ID)
+                )""",
+                """
+                CREATE TABLE LEAVE_REQUESTS (
+                    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID   NUMBER(19) NOT NULL,
+                    LEAVE_TYPE    VARCHAR2(255 CHAR) NOT NULL,
+                    STATUS        VARCHAR2(255 CHAR) NOT NULL,
+                    START_DATE    DATE NOT NULL,
+                    END_DATE      DATE NOT NULL,
+                    REASON        VARCHAR2(500 CHAR),
+                    DOCUMENT_PATH VARCHAR2(500 CHAR),
+                    REVIEWER_NOTE VARCHAR2(500 CHAR),
+                    CREATED_AT    TIMESTAMP NOT NULL,
+                    REVIEWED_AT   TIMESTAMP,
+                    CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )""",
+                """
+                CREATE TABLE EMPLOYEE_DOCUMENTS (
+                    ID                  NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID         NUMBER(19) NOT NULL,
+                    DOC_TYPE            VARCHAR2(255 CHAR) NOT NULL,
+                    TITLE               VARCHAR2(255 CHAR) NOT NULL,
+                    FILENAME            VARCHAR2(255 CHAR) NOT NULL,
+                    FILE_PATH           VARCHAR2(500 CHAR) NOT NULL,
+                    UPLOADED_BY_USER_ID NUMBER(19) NOT NULL,
+                    CREATED_AT          TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_DOC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )"""
+        };
+
+        // New columns on existing tables (idempotent — ORA-01430 skipped)
+        String[] alterStatements = {
+                "ALTER TABLE OPENING_HOURS ADD (EMPLOYEE_ID NUMBER(19))",
+                "ALTER TABLE BLOCKED_SLOTS ADD (EMPLOYEE_ID NUMBER(19))",
+                "ALTER TABLE CARE_BOOKINGS ADD (EMPLOYEE_ID NUMBER(19))"
+        };
+
+        try (Connection conn = getProvisioningConnection();
+             Statement stmt = conn.createStatement()) {
+
+            setCurrentSchema(stmt, schemaName);
+
+            for (String ddl : newTables) {
+                try {
+                    stmt.execute(ddl);
+                } catch (SQLException e) {
+                    if (e.getErrorCode() == 955) {
+                        logger.debug("Table already exists in {}, skipping", schemaName);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+
+            for (String alter : alterStatements) {
+                try {
+                    stmt.execute(alter);
+                } catch (SQLException e) {
+                    if (e.getErrorCode() == 1430) {
+                        // ORA-01430: column being added already exists
+                        logger.debug("Column already exists in {}, skipping", schemaName);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+
+            setCurrentSchema(stmt, applicationSchemaName);
+            logger.info("Oracle schema {} migrated successfully", schemaName);
+
+        } catch (SQLException e) {
+            logger.error("Failed to migrate Oracle schema {}: {}", schemaName, e.getMessage());
+            throw new RuntimeException("Schema migration failed for: " + schemaName, e);
+        }
+    }
+
+    private void migrateH2Schema(String schemaName) {
+        String[] newTables = {
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    USER_ID BIGINT NOT NULL,
+                    NAME VARCHAR(255) NOT NULL,
+                    EMAIL VARCHAR(255) NOT NULL,
+                    PHONE VARCHAR(255),
+                    ACTIVE BOOLEAN NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_EMPLOYEE_USER UNIQUE (USER_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEE_CARES (
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    CARE_ID BIGINT NOT NULL,
+                    CONSTRAINT FK_EC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
+                    CONSTRAINT FK_EC_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
+                    CONSTRAINT PK_EMPLOYEE_CARES PRIMARY KEY (EMPLOYEE_ID, CARE_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS LEAVE_REQUESTS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    LEAVE_TYPE VARCHAR(255) NOT NULL,
+                    STATUS VARCHAR(255) NOT NULL,
+                    START_DATE DATE NOT NULL,
+                    END_DATE DATE NOT NULL,
+                    REASON VARCHAR(500),
+                    DOCUMENT_PATH VARCHAR(500),
+                    REVIEWER_NOTE VARCHAR(500),
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    REVIEWED_AT TIMESTAMP,
+                    CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS EMPLOYEE_DOCUMENTS (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    EMPLOYEE_ID BIGINT NOT NULL,
+                    DOC_TYPE VARCHAR(255) NOT NULL,
+                    TITLE VARCHAR(255) NOT NULL,
+                    FILENAME VARCHAR(255) NOT NULL,
+                    FILE_PATH VARCHAR(500) NOT NULL,
+                    UPLOADED_BY_USER_ID BIGINT NOT NULL,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_DOC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
+                )"""
+        };
+
+        String[] alterStatements = {
+                "ALTER TABLE OPENING_HOURS ADD COLUMN IF NOT EXISTS EMPLOYEE_ID BIGINT",
+                "ALTER TABLE BLOCKED_SLOTS ADD COLUMN IF NOT EXISTS EMPLOYEE_ID BIGINT",
+                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS EMPLOYEE_ID BIGINT"
+        };
+
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            setCurrentSchema(stmt, schemaName);
+
+            for (String ddl : newTables) {
+                stmt.execute(ddl);
+            }
+
+            for (String alter : alterStatements) {
+                stmt.execute(alter);
+            }
+
+            setCurrentSchema(stmt, applicationSchemaName);
+            logger.info("H2 schema {} migrated successfully", schemaName);
+
+        } catch (SQLException e) {
+            logger.error("Failed to migrate H2 schema {}: {}", schemaName, e.getMessage());
+            throw new RuntimeException("Schema migration failed for: " + schemaName, e);
+        }
+    }
+
+    /**
      * Creates the Oracle user (schema) if it does not already exist.
      */
     private void createSchemaUser(String schemaName) {
