@@ -266,16 +266,18 @@ import { CreatePostModalComponent } from '../create-post-modal/create-post-modal
 
     .snap-viewport {
       position: relative;
-      height: 480px;
+      aspect-ratio: 3 / 4;
+      max-height: 85vh;
       border-radius: 16px;
       overflow: hidden;
       background: #000;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      margin: 0 auto;
     }
 
-    @media (min-height: 800px) {
+    @media (min-width: 768px) {
       .snap-viewport {
-        height: 560px;
+        max-width: 400px;
       }
     }
 

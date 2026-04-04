@@ -1,0 +1,239 @@
+<h2>Page d'accueil — 3 propositions de design</h2>
+<p class="subtitle">Clique sur celle que tu préfères</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Landing épurée</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Hero doux + grille de salons vedettes</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;font-family:system-ui,sans-serif;">
+      <!-- Hero -->
+      <div style="background:linear-gradient(180deg,#fff5f5 0%,#fff 100%);padding:48px 24px 36px;text-align:center;position:relative;overflow:hidden;">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.25" viewBox="0 0 800 250">
+          <circle cx="400" cy="120" r="100" fill="#f9d5d3"/>
+          <circle cx="180" cy="180" r="70" fill="#dce8d2"/>
+          <circle cx="650" cy="60" r="60" fill="#d5e5f0"/>
+        </svg>
+        <div style="position:relative;z-index:1;">
+          <h1 style="font-size:24px;font-weight:300;letter-spacing:1px;color:#333;margin:0 0 4px;">Pretty Face</h1>
+          <p style="font-size:13px;color:#666;font-weight:300;margin:0 0 20px;">Trouve ton prochain soin beauté</p>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:22px;padding:9px 18px;box-shadow:0 3px 12px rgba(0,0,0,0.07);max-width:320px;width:100%;">
+            <span style="font-size:13px;">🔍</span>
+            <span style="font-size:12px;color:#999;">Rechercher un soin, un salon...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section -->
+      <div style="max-width:600px;margin:0 auto;padding:24px 20px 0;">
+        <p style="font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 12px;">Salons près de toi</p>
+      </div>
+
+      <!-- Grid 3 cols -->
+      <div style="max-width:600px;margin:0 auto;padding:0 20px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+          <div style="height:80px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;color:rgba(255,255,255,0.8);">S</span>
+          </div>
+          <div style="padding:10px 12px;">
+            <div style="font-size:12px;font-weight:600;color:#333;">Studio Nacre</div>
+            <div style="font-size:10px;color:#888;margin-top:1px;">📍 Paris</div>
+            <div style="margin-top:5px;display:flex;gap:3px;">
+              <span style="padding:1px 6px;border-radius:6px;font-size:8px;background:#f5f0ed;color:#666;">Visage</span>
+              <span style="padding:1px 6px;border-radius:6px;font-size:8px;background:#f5f0ed;color:#666;">Ongles</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+          <div style="height:80px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;color:rgba(255,255,255,0.8);">L</span>
+          </div>
+          <div style="padding:10px 12px;">
+            <div style="font-size:12px;font-weight:600;color:#333;">L'Atelier Rose</div>
+            <div style="font-size:10px;color:#888;margin-top:1px;">📍 Lyon</div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+          <div style="height:80px;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:22px;color:rgba(255,255,255,0.8);">B</span>
+          </div>
+          <div style="padding:10px 12px;">
+            <div style="font-size:12px;font-weight:600;color:#333;">Beauty Lab</div>
+            <div style="font-size:10px;color:#888;margin-top:1px;">📍 Bordeaux</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:6px 0 20px;">
+        <span style="font-size:12px;font-weight:500;color:#c06;">Voir tous les salons →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Vitrine immersive</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Hero plein écran + mini-carte + posts récents</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;font-family:system-ui,sans-serif;">
+      <!-- Hero full -->
+      <div style="background:linear-gradient(135deg,#f9e4d4 0%,#f0d5c0 40%,#e8c8b0 100%);padding:60px 24px 50px;text-align:center;position:relative;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.08);"></div>
+        <div style="position:relative;z-index:1;">
+          <h1 style="font-size:28px;font-weight:300;letter-spacing:2px;color:#fff;margin:0 0 6px;text-shadow:0 1px 8px rgba(0,0,0,0.15);">Pretty Face</h1>
+          <p style="font-size:13px;color:rgba(255,255,255,0.9);font-weight:300;margin:0 0 22px;text-shadow:0 1px 4px rgba(0,0,0,0.1);">Trouve ton prochain soin beauté</p>
+          <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.95);border-radius:22px;padding:10px 18px;box-shadow:0 4px 20px rgba(0,0,0,0.1);max-width:340px;width:100%;">
+            <span style="font-size:13px;">🔍</span>
+            <span style="font-size:12px;color:#999;">Rechercher un soin, un salon...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini map + salons nearby -->
+      <div style="max-width:600px;margin:0 auto;padding:20px 20px 0;">
+        <p style="font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;">Près de toi</p>
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:10px;">
+          <!-- Mini map -->
+          <div style="height:140px;border-radius:12px;background:linear-gradient(135deg,#e8e4df,#d8d4cf);position:relative;overflow:hidden;">
+            <div style="position:absolute;top:40px;left:50px;width:16px;height:16px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;"></div>
+            <div style="position:absolute;top:80px;left:90px;width:16px;height:16px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;"></div>
+            <div style="position:absolute;top:60px;left:75px;width:10px;height:10px;border-radius:50%;background:#4285f4;border:2px solid #fff;"></div>
+          </div>
+          <!-- 2 salons -->
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="flex:1;display:flex;gap:8px;align-items:center;background:#fafafa;border-radius:10px;padding:8px 10px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;color:rgba(255,255,255,0.8);">S</span></div>
+              <div><div style="font-size:11px;font-weight:600;color:#333;">Studio Nacre</div><div style="font-size:9px;color:#888;">📍 Paris · 0.8 km</div></div>
+            </div>
+            <div style="flex:1;display:flex;gap:8px;align-items:center;background:#fafafa;border-radius:10px;padding:8px 10px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;color:rgba(255,255,255,0.8);">L</span></div>
+              <div><div style="font-size:11px;font-weight:600;color:#333;">L'Atelier Rose</div><div style="font-size:9px;color:#888;">📍 Paris · 1.2 km</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent posts -->
+      <div style="max-width:600px;margin:0 auto;padding:20px 20px;">
+        <p style="font-size:11px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 10px;">Derniers posts</p>
+        <div style="display:flex;gap:8px;">
+          <div style="width:100px;height:130px;border-radius:10px;background:linear-gradient(180deg,#f0d5c0,#e8c0a8);position:relative;overflow:hidden;">
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);">
+              <div style="font-size:9px;color:#fff;font-weight:500;">Avant / Après</div>
+            </div>
+          </div>
+          <div style="width:100px;height:130px;border-radius:10px;background:linear-gradient(180deg,#d5dce8,#c0c8d5);position:relative;overflow:hidden;">
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);">
+              <div style="font-size:9px;color:#fff;font-weight:500;">Soin glow</div>
+            </div>
+          </div>
+          <div style="width:100px;height:130px;border-radius:10px;background:linear-gradient(180deg,#dce8d2,#c8d5b8);position:relative;overflow:hidden;">
+            <div style="position:absolute;bottom:0;left:0;right:0;padding:6px 8px;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);">
+              <div style="font-size:9px;color:#fff;font-weight:500;">Manucure</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Portail de recherche</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Style Doctolib — la home EST la recherche</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fff;font-family:system-ui,sans-serif;">
+      <!-- Compact hero with search -->
+      <div style="background:#fff;padding:32px 24px 20px;text-align:center;border-bottom:1px solid #f0f0f0;">
+        <h1 style="font-size:20px;font-weight:300;color:#333;margin:0 0 4px;letter-spacing:0.5px;">Pretty Face</h1>
+        <p style="font-size:12px;color:#888;margin:0 0 16px;">Trouve ton soin beauté idéal</p>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#f7f7f7;border-radius:22px;padding:10px 18px;max-width:400px;width:100%;border:1px solid #eee;">
+          <span style="font-size:13px;">🔍</span>
+          <span style="font-size:12px;color:#999;">Soin, salon ou ville...</span>
+        </div>
+      </div>
+
+      <!-- Directly the salon list -->
+      <div style="max-width:600px;margin:0 auto;padding:16px 20px;">
+        <p style="font-size:10px;color:#999;margin:0 0 10px;">3 salons disponibles</p>
+
+        <!-- List items -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:12px;background:#fff;border-radius:10px;padding:12px;border:1px solid #f0f0f0;align-items:center;">
+            <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-size:18px;color:rgba(255,255,255,0.8);">S</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:#333;">Studio Nacre</div>
+              <div style="font-size:10px;color:#888;">📍 Paris 11e · Soins visage, Ongles</div>
+            </div>
+            <div style="padding:5px 12px;border-radius:14px;background:linear-gradient(135deg,#a8385d,#c06);color:#fff;font-size:10px;font-weight:500;flex-shrink:0;">Voir</div>
+          </div>
+
+          <div style="display:flex;gap:12px;background:#fff;border-radius:10px;padding:12px;border:1px solid #f0f0f0;align-items:center;">
+            <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-size:18px;color:rgba(255,255,255,0.8);">L</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:#333;">L'Atelier Rose</div>
+              <div style="font-size:10px;color:#888;">📍 Lyon 3e · Maquillage</div>
+            </div>
+            <div style="padding:5px 12px;border-radius:14px;background:linear-gradient(135deg,#a8385d,#c06);color:#fff;font-size:10px;font-weight:500;flex-shrink:0;">Voir</div>
+          </div>
+
+          <div style="display:flex;gap:12px;background:#fff;border-radius:10px;padding:12px;border:1px solid #f0f0f0;align-items:center;">
+            <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-size:18px;color:rgba(255,255,255,0.8);">B</span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;color:#333;">Beauty Lab</div>
+              <div style="font-size:10px;color:#888;">📍 Bordeaux · Soins corps, Épilation</div>
+            </div>
+            <div style="padding:5px 12px;border-radius:14px;background:linear-gradient(135deg,#a8385d,#c06);color:#fff;font-size:10px;font-weight:500;flex-shrink:0;">Voir</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pro CTA small -->
+      <div style="max-width:600px;margin:0 auto;padding:12px 20px 20px;text-align:center;">
+        <span style="font-size:11px;color:#c06;font-weight:500;">Tu es pro ? Crée ta vitrine →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pros-cons" style="margin-top:16px;">
+  <div class="pros">
+    <h4>Résumé</h4>
+    <ul>
+      <li><strong>A</strong> — Douce, accueillante, identity Pretty Face forte</li>
+      <li><strong>B</strong> — Riche et engageante, montre la vie de la plateforme</li>
+      <li><strong>C</strong> — Utilitaire, l'utilisateur trouve vite, moins de décoration</li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<h2>Page d'accueil — Design A : Landing épurée</h2>
+<p class="subtitle">Hero + salons vedettes en grille, sans catégories fictives</p>
+
+<div class="mockup">
+  <div class="mockup-header">Home — Desktop</div>
+  <div class="mockup-body" style="background:#fff;font-family:system-ui,sans-serif;">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(180deg,#fff5f5 0%,#fff 100%);padding:60px 24px 48px;text-align:center;position:relative;overflow:hidden;">
+      <!-- Blobs -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.3" viewBox="0 0 800 300">
+        <circle cx="400" cy="150" r="120" fill="#f9d5d3"/>
+        <circle cx="180" cy="220" r="90" fill="#dce8d2"/>
+        <circle cx="650" cy="80" r="80" fill="#d5e5f0"/>
+      </svg>
+      <div style="position:relative;z-index:1;">
+        <h1 style="font-size:28px;font-weight:300;letter-spacing:1px;color:#333;margin:0 0 6px;">Pretty Face</h1>
+        <p style="font-size:14px;color:#666;font-weight:300;margin:0 0 24px;">Trouve ton prochain soin beauté</p>
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:24px;padding:10px 20px;box-shadow:0 4px 16px rgba(0,0,0,0.08);max-width:360px;width:100%;">
+          <span style="font-size:14px;">🔍</span>
+          <span style="font-size:13px;color:#999;">Rechercher un soin, un salon...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section title -->
+    <div style="max-width:700px;margin:0 auto;padding:32px 24px 0;">
+      <p style="font-size:12px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 14px;">Découvre les artistes près de toi</p>
+    </div>
+
+    <!-- Salon grid -->
+    <div style="max-width:700px;margin:0 auto;padding:0 24px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+
+      <!-- Salon 1 -->
+      <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="height:100px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:28px;font-weight:300;color:rgba(255,255,255,0.8);">S</span>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:13px;font-weight:600;color:#333;">Studio Nacre</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">📍 Paris 11e</div>
+          <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Soins visage</span>
+            <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Ongles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salon 2 -->
+      <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="height:100px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:28px;font-weight:300;color:rgba(255,255,255,0.8);">L</span>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:13px;font-weight:600;color:#333;">L'Atelier Rose</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">📍 Lyon 3e</div>
+          <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Maquillage</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salon 3 -->
+      <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="height:100px;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:28px;font-weight:300;color:rgba(255,255,255,0.8);">B</span>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:13px;font-weight:600;color:#333;">Beauty Lab</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">📍 Bordeaux</div>
+          <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Soins corps</span>
+            <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Épilation</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Discover all -->
+    <div style="text-align:center;padding:4px 0 24px;">
+      <span style="font-size:13px;font-weight:500;color:#c06;cursor:pointer;">Voir tous les salons →</span>
+    </div>
+
+    <!-- Pro CTA -->
+    <div style="max-width:700px;margin:0 auto 24px;padding:20px;background:#fafafa;border-radius:14px;text-align:center;">
+      <p style="font-size:13px;color:#555;margin:0 0 4px;">Tu es pro de la beauté ?</p>
+      <span style="font-size:12px;font-weight:500;color:#c06;cursor:pointer;">Crée ta vitrine gratuitement →</span>
+    </div>
+
+  </div>
+</div>
+
+<div style="margin-top:24px;">
+  <h3>Points clés</h3>
+  <ul style="font-size:14px;color:#666;line-height:1.8;">
+    <li>Plus de catégories fictives en dur</li>
+    <li>Grille responsive (1/2/3 colonnes)</li>
+    <li>Chaque salon montre sa <strong>ville</strong> avec une icône 📍</li>
+    <li>Chips de catégories réelles (issues des soins du salon)</li>
+    <li>Bouton "Voir tous les salons" mène vers la page Découvrir</li>
+  </ul>
+</div>

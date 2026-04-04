@@ -47,6 +47,7 @@ export class ProPostsComponent implements OnInit {
   caption = '';
   readonly selectedCareId = signal<number | null>(null);
   readonly publishing = signal(false);
+  readonly editingPost = signal<PostResponse | null>(null);
 
   // Image previews
   readonly beforeImage = signal<ImagePreview | null>(null);
@@ -59,6 +60,7 @@ export class ProPostsComponent implements OnInit {
 
   readonly canPublish = computed(() => {
     if (this.publishing()) return false;
+    if (this.editingPost()) return true;
     switch (this.selectedType()) {
       case 'BEFORE_AFTER':
         return !!this.beforeImage() && !!this.afterImage();
@@ -75,6 +77,10 @@ export class ProPostsComponent implements OnInit {
   }
 
   toggleForm(): void {
+    if (this.editingPost()) {
+      this.resetForm();
+      return;
+    }
     this.showForm.update((v) => !v);
   }
 
@@ -165,8 +171,51 @@ export class ProPostsComponent implements OnInit {
     e.preventDefault();
   }
 
-  // Publish
+  // Edit
+  onEdit(post: PostResponse): void {
+    this.editingPost.set(post);
+    this.selectedType.set(post.type);
+    this.caption = post.caption ?? '';
+    this.selectedCareId.set(post.careId);
+    this.showForm.set(true);
+  }
+
+  // Publish / Update
   publish(): void {
+    const editing = this.editingPost();
+
+    if (editing) {
+      this.publishing.set(true);
+      const fd = new FormData();
+      if (this.caption.trim()) {
+        fd.append('caption', this.caption.trim());
+      }
+      if (this.selectedCareId()) {
+        fd.append('careId', String(this.selectedCareId()));
+        const care = this.cares().find((c) => c.id === this.selectedCareId());
+        if (care) fd.append('careName', care.name);
+      }
+
+      this.postsService.update(editing.id, fd).subscribe({
+        next: (updated: PostResponse) => {
+          this.publishing.set(false);
+          this.posts.update((list) =>
+            list.map((p) => (p.id === updated.id ? updated : p)),
+          );
+          this.resetForm();
+          this.snackBar.open(
+            this.transloco.translate('pro.posts.updateSuccess'),
+            undefined,
+            { duration: 3000 },
+          );
+        },
+        error: () => {
+          this.publishing.set(false);
+        },
+      });
+      return;
+    }
+
     if (!this.canPublish()) return;
     this.publishing.set(true);
 
@@ -293,8 +342,9 @@ export class ProPostsComponent implements OnInit {
     });
   }
 
-  private resetForm(): void {
+  resetForm(): void {
     this.showForm.set(false);
+    this.editingPost.set(null);
     this.selectedType.set('BEFORE_AFTER');
     this.caption = '';
     this.selectedCareId.set(null);

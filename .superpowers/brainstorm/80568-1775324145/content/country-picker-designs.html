@@ -1,0 +1,307 @@
+<h2>Sélecteur de pays — 3 propositions</h2>
+<p class="subtitle">Pour l'onglet "Adresse" du profil salon. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Autocomplete Material</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Champ texte avec dropdown filtrable — style cohérent avec le reste du formulaire</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;font-family:system-ui,sans-serif;padding:24px;">
+      <!-- Simulated form -->
+      <div style="max-width:500px;margin:0 auto;">
+        <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 16px;">Onglet Adresse</p>
+
+        <!-- Street field (context) -->
+        <div style="margin-bottom:16px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+          <div style="font-size:10px;color:#888;margin-bottom:2px;">Adresse</div>
+          <div style="font-size:13px;color:#333;">12 rue des Lilas</div>
+        </div>
+
+        <!-- Postal + City row (context) -->
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:0 0 120px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Code postal</div>
+            <div style="font-size:13px;color:#333;">75011</div>
+          </div>
+          <div style="flex:1;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Ville</div>
+            <div style="font-size:13px;color:#333;">Paris</div>
+          </div>
+        </div>
+
+        <!-- Country field — THE STAR -->
+        <div style="position:relative;">
+          <div style="border:2px solid #c06;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#c06;margin-bottom:2px;">Pays</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:18px;">🇫🇷</span>
+              <span style="font-size:13px;color:#333;">Fra</span>
+              <span style="font-size:13px;color:#999;">|</span>
+            </div>
+          </div>
+          <!-- Dropdown -->
+          <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:0 0 8px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:10;max-height:220px;overflow-y:auto;">
+            <!-- Filtered results -->
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fef2f8;cursor:pointer;">
+              <span style="font-size:20px;">🇫🇷</span>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:#333;">France</div>
+                <div style="font-size:10px;color:#999;">FR</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:20px;">🇬🇫</span>
+              <div>
+                <div style="font-size:13px;color:#333;">Guyane française</div>
+                <div style="font-size:10px;color:#999;">GF</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:20px;">🇵🇫</span>
+              <div>
+                <div style="font-size:13px;color:#333;">Polynésie française</div>
+                <div style="font-size:10px;color:#999;">PF</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:20px;">🇹🇫</span>
+              <div>
+                <div style="font-size:13px;color:#333;">Terres australes françaises</div>
+                <div style="font-size:10px;color:#999;">TF</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;">
+      <div style="font-size:12px;color:#666;line-height:1.6;">
+        <strong>+</strong> Cohérent avec les autres mat-form-field du formulaire<br>
+        <strong>+</strong> Recherche en tapant directement dans le champ<br>
+        <strong>+</strong> Drapeau emoji visible dans le champ sélectionné<br>
+        <strong>−</strong> Dropdown peut être long à scroller sans recherche
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Select Material avec recherche intégrée</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">mat-select avec un champ de recherche en haut du panel</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;font-family:system-ui,sans-serif;padding:24px;">
+      <div style="max-width:500px;margin:0 auto;">
+        <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 16px;">Onglet Adresse</p>
+
+        <!-- Context fields -->
+        <div style="margin-bottom:16px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+          <div style="font-size:10px;color:#888;margin-bottom:2px;">Adresse</div>
+          <div style="font-size:13px;color:#333;">12 rue des Lilas</div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:0 0 120px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Code postal</div>
+            <div style="font-size:13px;color:#333;">75011</div>
+          </div>
+          <div style="flex:1;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Ville</div>
+            <div style="font-size:13px;color:#333;">Paris</div>
+          </div>
+        </div>
+
+        <!-- Country select — open state -->
+        <div style="position:relative;">
+          <div style="border:2px solid #c06;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#c06;margin-bottom:2px;">Pays</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:18px;">🇫🇷</span>
+                <span style="font-size:13px;color:#333;">France</span>
+              </div>
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style="transform:rotate(180deg);">
+                <path d="M1 1L6 6L11 1" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <!-- Panel dropdown -->
+          <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:0 0 8px 8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:10;">
+            <!-- Search field inside panel -->
+            <div style="padding:10px 12px;border-bottom:1px solid #eee;">
+              <div style="display:flex;align-items:center;gap:6px;background:#f5f5f5;border-radius:8px;padding:7px 10px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l5 5"/></svg>
+                <span style="font-size:12px;color:#999;">Rechercher un pays...</span>
+              </div>
+            </div>
+            <!-- Popular countries -->
+            <div style="padding:6px 0;border-bottom:1px solid #f0f0f0;">
+              <div style="padding:2px 12px;font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:0.5px;">Populaires</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;background:#fef2f8;">
+                <span style="font-size:18px;">🇫🇷</span>
+                <span style="font-size:13px;font-weight:500;color:#333;">France</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2.5" style="margin-left:auto;"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇧🇪</span>
+                <span style="font-size:13px;color:#333;">Belgique</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇨🇭</span>
+                <span style="font-size:13px;color:#333;">Suisse</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇱🇺</span>
+                <span style="font-size:13px;color:#333;">Luxembourg</span>
+              </div>
+            </div>
+            <!-- All countries -->
+            <div style="max-height:150px;overflow-y:auto;padding:6px 0;">
+              <div style="padding:2px 12px;font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:0.5px;">Tous les pays</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇦🇫</span>
+                <span style="font-size:13px;color:#333;">Afghanistan</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇦🇱</span>
+                <span style="font-size:13px;color:#333;">Albanie</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇩🇿</span>
+                <span style="font-size:13px;color:#333;">Algérie</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;">
+                <span style="font-size:18px;">🇩🇪</span>
+                <span style="font-size:13px;color:#333;">Allemagne</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;">
+      <div style="font-size:12px;color:#666;line-height:1.6;">
+        <strong>+</strong> Section "Populaires" en haut (France, Belgique, Suisse, Luxembourg)<br>
+        <strong>+</strong> Recherche dédiée dans le panel<br>
+        <strong>+</strong> Checkmark visuel sur le pays sélectionné<br>
+        <strong>+</strong> Bien organisé avec séparateurs<br>
+        <strong>−</strong> Un peu plus complexe à implémenter
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Autocomplete compact avec drapeau inline</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Champ simple avec drapeau à gauche — compact et élégant</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;font-family:system-ui,sans-serif;padding:24px;">
+      <div style="max-width:500px;margin:0 auto;">
+        <p style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin:0 0 16px;">Onglet Adresse</p>
+
+        <!-- Context -->
+        <div style="margin-bottom:16px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+          <div style="font-size:10px;color:#888;margin-bottom:2px;">Adresse</div>
+          <div style="font-size:13px;color:#333;">12 rue des Lilas</div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <div style="flex:0 0 120px;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Code postal</div>
+            <div style="font-size:13px;color:#333;">75011</div>
+          </div>
+          <div style="flex:1;border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;">
+            <div style="font-size:10px;color:#888;margin-bottom:2px;">Ville</div>
+            <div style="font-size:13px;color:#333;">Paris</div>
+          </div>
+        </div>
+
+        <!-- Country — closed state showing selected -->
+        <div style="border:1px solid #ccc;border-radius:4px;padding:12px 14px;background:#fff;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;line-height:1;">🇫🇷</span>
+          <div style="flex:1;">
+            <div style="font-size:10px;color:#888;margin-bottom:1px;">Pays</div>
+            <div style="font-size:13px;color:#333;">France</div>
+          </div>
+          <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+            <path d="M1 1L6 6L11 1" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div style="height:16px;"></div>
+
+        <!-- Country — open state with search -->
+        <div style="position:relative;">
+          <div style="border:2px solid #c06;border-radius:4px 4px 0 0;padding:10px 14px;background:#fff;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;line-height:1;">🇧🇪</span>
+            <div style="flex:1;">
+              <div style="font-size:10px;color:#c06;margin-bottom:1px;">Pays</div>
+              <div style="display:flex;align-items:center;">
+                <span style="font-size:13px;color:#333;">Bel</span>
+                <span style="font-size:13px;color:#ccc;">|</span>
+              </div>
+            </div>
+          </div>
+          <!-- Compact dropdown -->
+          <div style="background:#fff;border:2px solid #c06;border-top:1px solid #eee;border-radius:0 0 8px 8px;box-shadow:0 8px 20px rgba(0,0,0,0.1);max-height:200px;overflow-y:auto;">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fef2f8;cursor:pointer;">
+              <span style="font-size:18px;">🇧🇪</span>
+              <span style="font-size:13px;font-weight:500;color:#333;">Belgique</span>
+              <span style="font-size:10px;color:#999;margin-left:auto;">BE</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:18px;">🇧🇿</span>
+              <span style="font-size:13px;color:#333;">Belize</span>
+              <span style="font-size:10px;color:#999;margin-left:auto;">BZ</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:18px;">🇧🇯</span>
+              <span style="font-size:13px;color:#333;">Bénin</span>
+              <span style="font-size:10px;color:#999;margin-left:auto;">BJ</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+              <span style="font-size:18px;">🇧🇹</span>
+              <span style="font-size:13px;color:#333;">Bhoutan</span>
+              <span style="font-size:10px;color:#999;margin-left:auto;">BT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;">
+      <div style="font-size:12px;color:#666;line-height:1.6;">
+        <strong>+</strong> Très compact — le drapeau est intégré dans le champ lui-même<br>
+        <strong>+</strong> Filtrage au fur et à mesure de la frappe<br>
+        <strong>+</strong> Le drapeau change en temps réel quand on tape<br>
+        <strong>+</strong> Code ISO visible dans la dropdown<br>
+        <strong>−</strong> Pas de section "pays populaires"
+      </div>
+    </div>
+  </div>
+</div>

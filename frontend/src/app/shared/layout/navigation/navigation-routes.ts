@@ -18,6 +18,11 @@ export const NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'home'
   },
   {
+    label: 'nav.discover',
+    path: '/discover',
+    icon: 'explore'
+  },
+  {
     label: 'nav.about',
     path: '/about',
     icon: 'info'

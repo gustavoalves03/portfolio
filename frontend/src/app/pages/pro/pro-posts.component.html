@@ -3,20 +3,30 @@
   <div class="page-header">
     <h1 class="page-title">{{ 'pro.posts.title' | transloco }}</h1>
     <button class="toggle-form-btn" (click)="toggleForm()">
-      @if (showForm()) {
+      @if (showForm() && !editingPost()) {
         <mat-icon>expand_less</mat-icon>
         <span>{{ 'pro.posts.hideForm' | transloco }}</span>
-      } @else {
+      } @else if (!showForm()) {
         <mat-icon>add</mat-icon>
         <span>{{ 'pro.posts.newPost' | transloco }}</span>
       }
     </button>
   </div>
 
-  <!-- Create form (collapsible) -->
+  <!-- Create/Edit form (collapsible) -->
   @if (showForm()) {
     <div class="create-section">
-      <!-- Type selector -->
+      @if (editingPost()) {
+        <div class="edit-header">
+          <h2 class="edit-title">{{ 'pro.posts.editPost' | transloco }}</h2>
+          <button class="cancel-edit-btn" (click)="resetForm()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      }
+
+      <!-- Type selector (hidden when editing) -->
+      @if (!editingPost()) {
       <div class="type-selector">
         <button
           class="type-card"
@@ -150,6 +160,7 @@
           </div>
         }
       }
+      }
 
       <!-- Caption -->
       <div class="caption-field">
@@ -184,7 +195,7 @@
             [disabled]="!canPublish()"
             (click)="publish()"
           >
-            {{ 'posts.publishBtn' | transloco }}
+            {{ (editingPost() ? 'pro.posts.saveBtn' : 'posts.publishBtn') | transloco }}
           </button>
         }
       </div>
@@ -234,9 +245,14 @@
                   <span class="post-thumb-tag">{{ post.careName }}</span>
                 }
               </div>
-              <button class="post-thumb-delete" (click)="onDelete(post)">
-                <mat-icon>delete_outline</mat-icon>
-              </button>
+              <div class="post-thumb-actions">
+                <button class="post-thumb-edit" (click)="onEdit(post)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="post-thumb-delete" (click)="onDelete(post)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -5,5 +5,7 @@ public record SalonCardResponse(
         String slug,
         String description,
         String logoUrl,
-        String categoryNames
+        String categoryNames,
+        String addressCity,
+        String fullAddress
 ) {}

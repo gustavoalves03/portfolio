@@ -50,6 +50,15 @@ public class PostController {
         return service.createCarousel(caption, careId, careName, images);
     }
 
+    @PutMapping("/{id}")
+    public PostResponse update(
+            @PathVariable Long id,
+            @RequestParam(value = "caption", required = false) String caption,
+            @RequestParam(value = "careId", required = false) Long careId,
+            @RequestParam(value = "careName", required = false) String careName) {
+        return service.update(id, caption, careId, careName);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) { service.delete(id); }

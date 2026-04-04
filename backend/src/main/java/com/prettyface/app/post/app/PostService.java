@@ -74,6 +74,16 @@ public class PostService {
     }
 
     @Transactional
+    public PostResponse update(Long id, String caption, Long careId, String careName) {
+        Post post = postRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        post.setCaption(caption);
+        post.setCareId(careId);
+        post.setCareName(careName);
+        return toResponse(postRepo.save(post));
+    }
+
+    @Transactional
     public void delete(Long id) {
         postImageRepo.deleteByPostId(id);
         postRepo.deleteById(id);

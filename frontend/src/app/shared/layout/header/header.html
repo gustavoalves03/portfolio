@@ -20,7 +20,8 @@
           </svg>
         </button>
         @if (!isPro()) {
-          <a routerLink="/about" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">Sur nous</a>
+          <a routerLink="/discover" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">{{ 'nav.discover' | transloco }}</a>
+          <a routerLink="/about" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">{{ 'nav.about' | transloco }}</a>
         }
       </div>
 

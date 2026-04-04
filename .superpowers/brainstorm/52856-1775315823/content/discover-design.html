@@ -1,0 +1,196 @@
+<h2>Page Découvrir — Design B : Split View (Airbnb)</h2>
+<p class="subtitle">Liste scrollable à gauche + carte à droite sur desktop, empilé sur mobile</p>
+
+<div class="split" style="gap:20px;">
+
+  <!-- Desktop mockup -->
+  <div class="mockup" style="flex:1.6;">
+    <div class="mockup-header">Discover — Desktop (≥ 768px)</div>
+    <div class="mockup-body" style="background:#f8f8f8;font-family:system-ui,sans-serif;padding:0;">
+
+      <!-- Search bar -->
+      <div style="padding:16px 20px;background:#fff;border-bottom:1px solid #eee;">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:#f5f5f5;border-radius:20px;padding:8px 16px;width:100%;max-width:320px;">
+          <span style="font-size:13px;">🔍</span>
+          <span style="font-size:12px;color:#999;">Rechercher un salon...</span>
+        </div>
+      </div>
+
+      <!-- Split layout -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;height:420px;">
+
+        <!-- Left: salon list -->
+        <div style="overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;border-right:1px solid #eee;">
+
+          <p style="font-size:11px;color:#999;margin:0 0 4px;">3 salon(s)</p>
+
+          <!-- Salon card 1 (hovered) -->
+          <div style="display:flex;gap:12px;background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 12px rgba(192,0,102,0.12);border:1.5px solid #c06;align-items:flex-start;cursor:pointer;">
+            <div style="width:56px;height:56px;min-width:56px;border-radius:10px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:20px;font-weight:300;color:rgba(255,255,255,0.8);">S</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:600;color:#333;">Studio Nacre</div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">📍 Paris 11e</div>
+              <div style="font-size:11px;color:#666;margin-top:4px;line-height:1.3;">Institut de beauté spécialisé dans les soins du visage et la manucure...</div>
+              <div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">
+                <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Soins visage</span>
+                <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Ongles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salon card 2 -->
+          <div style="display:flex;gap:12px;background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1.5px solid transparent;align-items:flex-start;cursor:pointer;">
+            <div style="width:56px;height:56px;min-width:56px;border-radius:10px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:20px;font-weight:300;color:rgba(255,255,255,0.8);">L</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:600;color:#333;">L'Atelier Rose</div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">📍 Lyon 3e</div>
+              <div style="font-size:11px;color:#666;margin-top:4px;line-height:1.3;">Maquillage professionnel et conseils personnalisés...</div>
+              <div style="margin-top:6px;display:flex;gap:4px;">
+                <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Maquillage</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salon card 3 -->
+          <div style="display:flex;gap:12px;background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1.5px solid transparent;align-items:flex-start;cursor:pointer;">
+            <div style="width:56px;height:56px;min-width:56px;border-radius:10px;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:20px;font-weight:300;color:rgba(255,255,255,0.8);">B</span>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:600;color:#333;">Beauty Lab</div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">📍 Bordeaux</div>
+              <div style="font-size:11px;color:#666;margin-top:4px;line-height:1.3;">Soins du corps et épilations dans un cadre zen...</div>
+              <div style="margin-top:6px;display:flex;gap:4px;">
+                <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Soins corps</span>
+                <span style="padding:2px 7px;border-radius:8px;font-size:9px;background:#f5f0ed;color:#666;">Épilation</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: map -->
+        <div style="background:#e8e0d8;position:relative;overflow:hidden;">
+          <!-- Fake map tiles -->
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#e8e4df 0%,#d8d4cf 50%,#e0dcd7 100%);opacity:0.6;"></div>
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.15;" viewBox="0 0 400 420">
+            <line x1="0" y1="80" x2="400" y2="80" stroke="#999" stroke-width="0.5"/>
+            <line x1="0" y1="160" x2="400" y2="160" stroke="#999" stroke-width="0.5"/>
+            <line x1="0" y1="240" x2="400" y2="240" stroke="#999" stroke-width="0.5"/>
+            <line x1="0" y1="320" x2="400" y2="320" stroke="#999" stroke-width="0.5"/>
+            <line x1="80" y1="0" x2="80" y2="420" stroke="#999" stroke-width="0.5"/>
+            <line x1="160" y1="0" x2="160" y2="420" stroke="#999" stroke-width="0.5"/>
+            <line x1="240" y1="0" x2="240" y2="420" stroke="#999" stroke-width="0.5"/>
+            <line x1="320" y1="0" x2="320" y2="420" stroke="#999" stroke-width="0.5"/>
+            <!-- Roads -->
+            <path d="M0,200 Q100,180 200,210 Q300,240 400,200" stroke="#bbb" stroke-width="2" fill="none"/>
+            <path d="M150,0 Q170,150 140,300 Q120,380 150,420" stroke="#bbb" stroke-width="2" fill="none"/>
+          </svg>
+
+          <!-- Salon markers -->
+          <div style="position:absolute;top:120px;left:140px;z-index:2;">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>
+            <!-- Popup for hovered salon -->
+            <div style="position:absolute;top:-50px;left:-40px;background:#fff;border-radius:10px;padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,0.15);white-space:nowrap;z-index:3;">
+              <div style="font-size:12px;font-weight:600;color:#333;">Studio Nacre</div>
+              <div style="font-size:10px;color:#888;">📍 Paris 11e</div>
+            </div>
+          </div>
+
+          <div style="position:absolute;top:260px;left:100px;z-index:2;">
+            <div style="width:22px;height:22px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
+          </div>
+
+          <div style="position:absolute;top:310px;left:220px;z-index:2;">
+            <div style="width:22px;height:22px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
+          </div>
+
+          <!-- User marker -->
+          <div style="position:absolute;top:180px;left:200px;z-index:2;">
+            <div style="width:14px;height:14px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>
+          </div>
+
+          <!-- Map attribution -->
+          <div style="position:absolute;bottom:4px;right:8px;font-size:9px;color:#999;z-index:2;">© OpenStreetMap</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile mockup -->
+  <div class="mockup" style="flex:0.7;max-width:320px;">
+    <div class="mockup-header">Discover — Mobile</div>
+    <div class="mockup-body" style="background:#f8f8f8;font-family:system-ui,sans-serif;padding:0;">
+
+      <!-- Search -->
+      <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #eee;">
+        <div style="display:flex;align-items:center;gap:6px;background:#f5f5f5;border-radius:18px;padding:8px 14px;">
+          <span style="font-size:12px;">🔍</span>
+          <span style="font-size:11px;color:#999;">Rechercher un salon...</span>
+        </div>
+      </div>
+
+      <!-- Map (compact) -->
+      <div style="height:180px;background:linear-gradient(135deg,#e8e4df,#d8d4cf);position:relative;overflow:hidden;">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.15;" viewBox="0 0 320 180">
+          <line x1="0" y1="60" x2="320" y2="60" stroke="#999" stroke-width="0.5"/>
+          <line x1="0" y1="120" x2="320" y2="120" stroke="#999" stroke-width="0.5"/>
+          <line x1="80" y1="0" x2="80" y2="180" stroke="#999" stroke-width="0.5"/>
+          <line x1="160" y1="0" x2="160" y2="180" stroke="#999" stroke-width="0.5"/>
+          <line x1="240" y1="0" x2="240" y2="180" stroke="#999" stroke-width="0.5"/>
+        </svg>
+        <div style="position:absolute;top:70px;left:100px;width:20px;height:20px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
+        <div style="position:absolute;top:110px;left:180px;width:20px;height:20px;background:linear-gradient(135deg,#a8385d,#c06);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.2);"></div>
+        <div style="position:absolute;top:85px;left:150px;width:12px;height:12px;border-radius:50%;background:#4285f4;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>
+      </div>
+
+      <!-- Salon list -->
+      <div style="padding:12px;">
+        <p style="font-size:10px;color:#999;margin:0 0 8px;">3 salon(s)</p>
+
+        <div style="display:flex;gap:10px;background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:8px;align-items:flex-start;">
+          <div style="width:44px;height:44px;min-width:44px;border-radius:8px;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:16px;color:rgba(255,255,255,0.8);">S</span>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#333;">Studio Nacre</div>
+            <div style="font-size:10px;color:#888;">📍 Paris 11e</div>
+            <div style="margin-top:4px;display:flex;gap:3px;">
+              <span style="padding:1px 5px;border-radius:6px;font-size:8px;background:#f5f0ed;color:#666;">Soins visage</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);margin-bottom:8px;align-items:flex-start;">
+          <div style="width:44px;height:44px;min-width:44px;border-radius:8px;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:16px;color:rgba(255,255,255,0.8);">L</span>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#333;">L'Atelier Rose</div>
+            <div style="font-size:10px;color:#888;">📍 Lyon 3e</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;">
+  <h3>Interactions</h3>
+  <ul style="font-size:14px;color:#666;line-height:1.8;">
+    <li><strong>Hover</strong> un salon dans la liste → sa carte passe en surbrillance rose + le marqueur grossit sur la carte</li>
+    <li><strong>Clic</strong> sur un marqueur → popup avec nom + ville, puis navigation vers la page salon</li>
+    <li><strong>Point bleu</strong> = position du client (géolocalisation du navigateur)</li>
+    <li><strong>Pins roses</strong> = salons géocodés depuis leur adresse</li>
+    <li>La carte à droite reste <strong>sticky</strong> pendant le scroll de la liste</li>
+    <li>Sur mobile : carte en haut (250px) + liste en dessous</li>
+  </ul>
+</div>
