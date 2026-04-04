@@ -1,25 +1,59 @@
-.discover-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
+// ─── Split layout ───
+.discover-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 80px);
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 }
 
-// Header
-.discover-header {
-  text-align: center;
-  margin-bottom: 24px;
+// ─── Left panel (salon list) ───
+.left-panel {
+  order: 2;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 24px;
+
+  @media (min-width: 768px) {
+    order: 1;
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0 24px 24px;
+  }
 }
 
-.discover-title {
-  font-size: 1.5rem;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  color: #333;
-  margin-bottom: 16px;
+// ─── Right panel (map) ───
+.right-panel {
+  order: 1;
+  height: 250px;
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    order: 2;
+    flex: 0 0 50%;
+    max-width: 50%;
+    height: auto;
+  }
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+// ─── Search bar ───
+.search-bar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fafaf9;
+  padding: 16px 0;
 }
 
 .discover-search {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
   background: white;
@@ -27,7 +61,6 @@
   padding: 10px 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   width: 100%;
-  max-width: 380px;
 
   .search-icon {
     font-size: 14px;
@@ -48,127 +81,97 @@
   }
 }
 
-// Category chips
-.category-chips {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-  margin-bottom: 8px;
-
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.chip {
-  flex: 0 0 auto;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #555;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: border-color 150ms ease;
-
-  &.selected {
-    border-color: #a08060;
-    color: #333;
-  }
-
-  &:hover:not(.selected) {
-    filter: brightness(0.97);
-  }
-}
-
-// Results
-.results-count {
-  font-size: 12px;
-  color: #999;
-  margin-bottom: 12px;
-}
-
-// Salon grid
-.salon-grid {
+// ─── Salon list ───
+.salon-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 
 .salon-card {
+  display: flex;
+  gap: 12px;
   background: white;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: none;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: box-shadow 150ms ease;
+  padding: 12px;
+  transition:
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
+  align-items: flex-start;
 
-  &:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  &:hover,
+  &.hovered {
+    border-color: #c06;
+    box-shadow: 0 4px 16px rgba(192, 0, 102, 0.12);
   }
 }
 
-.salon-card-header {
-  height: 100px;
-  position: relative;
-}
-
-.salon-card-logo {
-  position: absolute;
-  bottom: -20px;
-  left: 16px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.salon-card-avatar {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 500;
-  color: #c06;
+  overflow: hidden;
+}
+
+.salon-initial {
+  font-size: 20px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .salon-card-body {
-  padding: 28px 16px 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .salon-card-name {
   display: block;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: #333;
 }
 
+.salon-card-city {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
 .salon-card-desc {
-  font-size: 12px;
+  font-size: 11px;
   color: #666;
   line-height: 1.4;
-  margin: 8px 0 0;
+  margin: 4px 0 0;
 }
 
 .salon-card-categories {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .salon-card-chip {
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
   font-size: 10px;
   background: #f5f0ed;
   color: #666;
 }
 
-// Empty state
+// ─── Empty state ───
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -191,4 +194,53 @@
   font-size: 13px;
   color: #999;
   margin: 6px 0 0;
+}
+
+// ─── Custom map markers (Leaflet) ───
+:host ::ng-deep {
+  .user-location-marker {
+    background: none;
+    border: none;
+  }
+
+  .user-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4285f4;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .salon-map-marker {
+    background: none;
+    border: none;
+  }
+
+  .salon-pin {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #a8385d, #c06);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 150ms ease;
+  }
+
+  .salon-pin.highlighted {
+    width: 30px;
+    height: 30px;
+    border-width: 3px;
+    box-shadow: 0 2px 8px rgba(192, 0, 102, 0.4);
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .leaflet-popup-content {
+    margin: 10px 14px;
+  }
 }

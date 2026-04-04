@@ -1,76 +1,70 @@
-<div class="discover-page">
-  <!-- Header -->
-  <section class="discover-header">
-    <h1 class="discover-title">{{ 'discover.title' | transloco }}</h1>
-    <form class="discover-search" (submit)="onSearch(); $event.preventDefault()">
-      <span class="search-icon">🔍</span>
-      <input
-        type="text"
-        class="search-input"
-        [placeholder]="'discover.search' | transloco"
-        [value]="searchQuery()"
-        (input)="searchQuery.set($any($event.target).value)"
-      />
-    </form>
-  </section>
+<div class="discover-layout">
+  <!-- Left panel: search + salon list -->
+  <div class="left-panel">
+    <!-- Search bar -->
+    <div class="search-bar-wrapper">
+      <form class="discover-search" (submit)="onSearch(); $event.preventDefault()">
+        <span class="search-icon">\ud83d\udd0d</span>
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'discover.search' | transloco"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+      </form>
+    </div>
 
-  <!-- Category chips -->
-  <section class="category-chips">
-    <button
-      type="button"
-      class="chip"
-      [class.selected]="!selectedCategory()"
-      [style.background-color]="'#f0f0f0'"
-      (click)="onCategoryClick(null)"
-    >
-      {{ 'discover.allCategories' | transloco }}
-    </button>
-    @for (cat of categories; track cat.slug) {
-      <button
-        type="button"
-        class="chip"
-        [class.selected]="selectedCategory() === cat.slug"
-        [style.background-color]="cat.color"
-        (click)="onCategoryClick(cat.slug)"
-      >
-        {{ cat.emoji }} {{ cat.name }}
-      </button>
-    }
-  </section>
-
-  <!-- Results -->
-  @if (salons().length > 0) {
-    <p class="results-count">{{ salons().length }} salon(s)</p>
-    <section class="salon-grid">
-      @for (salon of salons(); track salon.slug; let i = $index) {
-        <button type="button" class="salon-card" (click)="onSalonClick(salon.slug)">
-          <div
-            class="salon-card-header"
-            [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getGradient(i)"
+    <!-- Salon list -->
+    @if (salons().length > 0) {
+      <div class="salon-list">
+        @for (salon of salons(); track salon.slug; let i = $index) {
+          <button
+            type="button"
+            class="salon-card"
+            [class.hovered]="hoveredSlug() === salon.slug"
+            (click)="onSalonClick(salon.slug)"
+            (mouseenter)="onCardEnter(salon.slug)"
+            (mouseleave)="onCardLeave(salon.slug)"
           >
-            @if (!salon.logoUrl) {
-              <div class="salon-card-logo">{{ salon.name.charAt(0) }}</div>
-            }
-          </div>
-          <div class="salon-card-body">
-            <span class="salon-card-name">{{ salon.name }}</span>
-            <p class="salon-card-desc">{{ truncate(salon.description, 120) }}</p>
-            @if (salon.categoryNames) {
-              <div class="salon-card-categories">
-                @for (catName of salon.categoryNames.split(', '); track catName) {
-                  <span class="salon-card-chip">{{ catName }}</span>
-                }
-              </div>
-            }
-          </div>
-        </button>
-      }
-    </section>
-  } @else {
-    <section class="empty-state">
-      <span class="empty-icon">🔍</span>
-      <p class="empty-title">{{ 'discover.noResults' | transloco }}</p>
-      <p class="empty-hint">{{ 'discover.noResultsHint' | transloco }}</p>
-    </section>
-  }
+            <div
+              class="salon-card-avatar"
+              [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getGradient(i)"
+            >
+              @if (!salon.logoUrl) {
+                <span class="salon-initial">{{ salon.name.charAt(0) }}</span>
+              }
+            </div>
+            <div class="salon-card-body">
+              <span class="salon-card-name">{{ salon.name }}</span>
+              @if (salon.addressCity) {
+                <span class="salon-card-city">\ud83d\udccd {{ salon.addressCity }}</span>
+              }
+              @if (salon.description) {
+                <p class="salon-card-desc">{{ truncate(salon.description, 100) }}</p>
+              }
+              @if (salon.categoryNames) {
+                <div class="salon-card-categories">
+                  @for (catName of salon.categoryNames.split(', '); track catName) {
+                    <span class="salon-card-chip">{{ catName }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="empty-icon">\ud83d\udd0d</span>
+        <p class="empty-title">{{ 'discover.noResults' | transloco }}</p>
+        <p class="empty-hint">{{ 'discover.noResultsHint' | transloco }}</p>
+      </div>
+    }
+  </div>
+
+  <!-- Right panel: map -->
+  <div class="right-panel">
+    <div class="map-container" #mapContainer></div>
+  </div>
 </div>
