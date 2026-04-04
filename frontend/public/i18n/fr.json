@@ -358,6 +358,8 @@
     "categories": {
       "title": "Catégories"
     },
+    "nearYou": "Près de toi",
+    "recentPosts": "Derniers posts",
     "salons": {
       "title": "Découvre les artistes près de toi",
       "empty": "Aucun salon disponible pour le moment",

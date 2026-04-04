@@ -1,17 +1,11 @@
 <!-- Hero Section -->
 <section class="hero">
-  <div class="hero-bg">
-    <svg class="hero-blobs" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="400" cy="200" r="160" fill="#f9d5d3" opacity="0.25"/>
-      <circle cx="200" cy="300" r="120" fill="#dce8d2" opacity="0.25"/>
-      <circle cx="650" cy="120" r="100" fill="#d5e5f0" opacity="0.25"/>
-    </svg>
-  </div>
+  <div class="hero-overlay"></div>
   <div class="hero-content">
     <h1 class="hero-title">{{ 'home.hero.title' | transloco }}</h1>
     <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
     <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
-      <span class="hero-search-icon">🔍</span>
+      <span class="hero-search-icon">&#x1F50D;</span>
       <input
         type="text"
         class="hero-search-input"
@@ -23,59 +17,76 @@
   </div>
 </section>
 
-<!-- Categories Section -->
+<!-- Near You Section -->
 <section class="landing-section">
-  <h2 class="section-title">{{ 'home.categories.title' | transloco }}</h2>
-  <div class="categories-grid">
-    @for (cat of categories; track cat.slug) {
-      <button
-        type="button"
-        class="category-card"
-        [style.background-color]="cat.color"
-        (click)="onCategoryClick(cat.slug)"
-      >
-        <span class="category-emoji">{{ cat.emoji }}</span>
-        <div>
-          <span class="category-name">{{ cat.name }}</span>
-        </div>
-      </button>
-    }
-  </div>
-</section>
+  <h2 class="section-title">{{ 'home.nearYou' | transloco }}</h2>
 
-<!-- Featured Salons Section -->
-<section class="landing-section">
-  <h2 class="section-title">{{ 'home.salons.title' | transloco }}</h2>
   @if (salons().length > 0) {
-    <div class="salons-carousel">
-      @for (salon of salons(); track salon.slug; let i = $index) {
-        <button type="button" class="salon-card" (click)="onSalonClick(salon.slug)">
-          <div
-            class="salon-image"
-            [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getGradient(i)"
-          >
-            @if (!salon.logoUrl) {
-              <span class="salon-initial">{{ salon.name.charAt(0) }}</span>
-            }
-          </div>
-          <div class="salon-info">
-            <span class="salon-name">{{ salon.name }}</span>
-            @if (salon.categoryNames) {
-              <span class="salon-category">{{ salon.categoryNames }}</span>
-            }
-          </div>
-        </button>
-      }
+    <div class="near-you-grid">
+      <!-- Mini map -->
+      <div class="mini-map-wrapper">
+        <div class="mini-map" #miniMap></div>
+      </div>
+
+      <!-- Salon mini cards -->
+      <div class="salon-mini-cards">
+        @for (salon of salons().slice(0, 3); track salon.slug; let i = $index) {
+          <button type="button" class="salon-mini-card" (click)="onSalonClick(salon.slug)">
+            <div
+              class="salon-mini-avatar"
+              [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getSalonGradient(i)"
+            >
+              @if (!salon.logoUrl) {
+                <span class="salon-mini-initial">{{ salon.name.charAt(0) }}</span>
+              }
+            </div>
+            <div class="salon-mini-info">
+              <span class="salon-mini-name">{{ salon.name }}</span>
+              @if (salon.addressCity) {
+                <span class="salon-mini-city">{{ salon.addressCity }}</span>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="discover-all">
+      <button type="button" class="discover-all-btn" (click)="onDiscoverAll()">
+        {{ 'home.salons.discoverAll' | transloco }} &rarr;
+      </button>
     </div>
   } @else {
     <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
   }
 </section>
 
+<!-- Recent Posts Section -->
+@if (recentPosts().length > 0) {
+  <section class="landing-section">
+    <h2 class="section-title">{{ 'home.recentPosts' | transloco }}</h2>
+
+    <div class="posts-scroll-row">
+      @for (post of recentPosts(); track post.id) {
+        <button
+          type="button"
+          class="post-thumbnail"
+          [style.background]="getThumbnailUrl(post) ? 'url(' + getThumbnailUrl(post) + ') center/cover no-repeat' : getPostGradient(post.type)"
+          (click)="onPostClick(post)"
+        >
+          <div class="post-thumbnail-overlay">
+            <span class="post-thumbnail-type">{{ getPostTypeLabel(post.type) }}</span>
+          </div>
+        </button>
+      }
+    </div>
+  </section>
+}
+
 <!-- Pro CTA Section -->
 <section class="pro-cta">
   <p class="pro-cta-question">{{ 'home.cta.question' | transloco }}</p>
   <button type="button" class="pro-cta-action" (click)="onProCta()">
-    {{ 'home.cta.action' | transloco }} →
+    {{ 'home.cta.action' | transloco }} &rarr;
   </button>
 </section>

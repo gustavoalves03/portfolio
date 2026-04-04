@@ -4,20 +4,14 @@
   padding: 80px 24px 60px;
   text-align: center;
   overflow: hidden;
+  background: linear-gradient(135deg, #f9e4d4 0%, #f0d5c0 40%, #e8c8b0 100%);
 }
 
-.hero-bg {
+.hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+  background: rgba(0, 0, 0, 0.08);
   z-index: 0;
-}
-
-.hero-blobs {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .hero-content {
@@ -28,16 +22,17 @@
 }
 
 .hero-title {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 300;
-  letter-spacing: 1px;
-  color: #333;
+  letter-spacing: 2px;
+  color: white;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   margin-bottom: 8px;
 }
 
 .hero-subtitle {
   font-size: 1rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 300;
   margin-bottom: 28px;
 }
@@ -46,12 +41,13 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 28px;
   padding: 12px 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 420px;
+  backdrop-filter: blur(4px);
 }
 
 .hero-search-icon {
@@ -86,90 +82,124 @@
   margin-bottom: 16px;
 }
 
-// ===== Categories =====
-.categories-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+// ===== Near You Grid =====
+.near-you-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(4, 1fr);
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: flex-start;
   }
 }
 
-.category-card {
+.mini-map-wrapper {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  @media (min-width: 600px) {
+    width: 200px;
+    min-width: 200px;
+  }
+}
+
+.mini-map {
+  width: 100%;
+  height: 100%;
+}
+
+// ===== Salon Mini Cards =====
+.salon-mini-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.salon-mini-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  border-radius: 14px;
+  background: white;
+  border-radius: 12px;
+  padding: 10px 14px;
   border: none;
   cursor: pointer;
-  transition: filter 150ms ease;
   text-align: left;
+  width: 100%;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease;
 
   &:hover {
-    filter: brightness(0.97);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
   }
 }
 
-.category-emoji {
-  font-size: 24px;
-  flex-shrink: 0;
+.salon-mini-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-.category-name {
+.salon-mini-initial {
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.salon-mini-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.salon-mini-name {
   display: block;
   font-size: 13px;
   font-weight: 600;
   color: #333;
-}
-
-
-// ===== Salons Carousel =====
-.salons-carousel {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px;
-
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.salon-card {
-  flex: 0 0 160px;
-  scroll-snap-align: start;
-  background: white;
-  border-radius: 14px;
+  white-space: nowrap;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  text-overflow: ellipsis;
+}
+
+.salon-mini-city {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 1px;
+}
+
+// ===== Discover All =====
+.discover-all {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.discover-all-btn {
+  font-size: 13px;
+  font-weight: 500;
+  color: #c06;
+  background: none;
   border: none;
   cursor: pointer;
-  text-align: left;
-  transition: box-shadow 150ms ease;
+  transition: color 150ms ease;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    color: #a05;
   }
-}
-
-.salon-image {
-  height: 80px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.salon-initial {
-  font-size: 28px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.8);
 }
 
 .empty-hint {
@@ -178,24 +208,60 @@
   text-align: center;
 }
 
-.salon-info {
-  padding: 12px;
+// ===== Recent Posts =====
+.posts-scroll-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
+  }
 }
 
-.salon-name {
-  display: block;
-  font-size: 13px;
+.post-thumbnail {
+  flex-shrink: 0;
+  width: 110px;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.post-thumbnail-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 8px 10px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+}
+
+.post-thumbnail-type {
+  font-size: 10px;
   font-weight: 500;
-  color: #333;
+  color: white;
+  letter-spacing: 0.3px;
 }
-
-.salon-category {
-  display: block;
-  font-size: 11px;
-  color: #999;
-  margin-top: 2px;
-}
-
 
 // ===== Pro CTA =====
 .pro-cta {
@@ -228,5 +294,37 @@
 
   &:hover {
     color: #a05;
+  }
+}
+
+// ===== Custom map markers (Leaflet) =====
+:host ::ng-deep {
+  .user-location-marker {
+    background: none;
+    border: none;
+  }
+
+  .user-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #4285f4;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .salon-map-marker {
+    background: none;
+    border: none;
+  }
+
+  .salon-pin-small {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #a8385d, #c06);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 }
