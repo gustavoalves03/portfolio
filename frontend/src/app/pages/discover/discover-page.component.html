@@ -4,7 +4,7 @@
     <!-- Search bar -->
     <div class="search-bar-wrapper">
       <form class="discover-search" (submit)="onSearch(); $event.preventDefault()">
-        <span class="search-icon">\ud83d\udd0d</span>
+        <mat-icon class="search-icon">search</mat-icon>
         <input
           type="text"
           class="search-input"
@@ -38,7 +38,10 @@
             <div class="salon-card-body">
               <span class="salon-card-name">{{ salon.name }}</span>
               @if (salon.addressCity) {
-                <span class="salon-card-city">\ud83d\udccd {{ salon.addressCity }}</span>
+                <span class="salon-card-city">
+                  <mat-icon class="city-icon">location_on</mat-icon>
+                  {{ salon.addressCity }}
+                </span>
               }
               @if (salon.description) {
                 <p class="salon-card-desc">{{ truncate(salon.description, 100) }}</p>
@@ -56,7 +59,7 @@
       </div>
     } @else {
       <div class="empty-state">
-        <span class="empty-icon">\ud83d\udd0d</span>
+        <mat-icon class="empty-icon">search</mat-icon>
         <p class="empty-title">{{ 'discover.noResults' | transloco }}</p>
         <p class="empty-hint">{{ 'discover.noResultsHint' | transloco }}</p>
       </div>

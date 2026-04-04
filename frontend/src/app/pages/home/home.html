@@ -5,7 +5,7 @@
     <h1 class="hero-title">{{ 'home.hero.title' | transloco }}</h1>
     <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
     <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
-      <span class="hero-search-icon">&#x1F50D;</span>
+      <mat-icon class="hero-search-icon">search</mat-icon>
       <input
         type="text"
         class="hero-search-input"

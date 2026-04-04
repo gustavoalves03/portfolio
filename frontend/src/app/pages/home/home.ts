@@ -2,8 +2,8 @@ import {
   Component,
   inject,
   signal,
+  effect,
   PLATFORM_ID,
-  AfterViewInit,
   OnDestroy,
   ElementRef,
   viewChild,
@@ -11,6 +11,7 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { SalonCard } from '../../features/discovery/discovery.model';
@@ -35,11 +36,11 @@ const POST_GRADIENTS: Record<string, string> = {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home implements AfterViewInit, OnDestroy {
+export class Home implements OnDestroy {
   private router = inject(Router);
   private discoveryService = inject(DiscoveryService);
   private postsService = inject(PostsService);
@@ -64,6 +65,19 @@ export class Home implements AfterViewInit, OnDestroy {
   });
 
   readonly searchQuery = signal('');
+  private mapInitialized = false;
+
+  constructor() {
+    // Watch for salons + miniMap DOM element to both be ready
+    effect(() => {
+      const salons = this.salons();
+      const mapEl = this.miniMapRef()?.nativeElement;
+      if (salons.length > 0 && mapEl && !this.mapInitialized && isPlatformBrowser(this.platformId)) {
+        this.mapInitialized = true;
+        this.initMap();
+      }
+    });
+  }
 
   getSalonGradient(index: number): string {
     return SALON_GRADIENTS[index % SALON_GRADIENTS.length];
@@ -90,12 +104,6 @@ export class Home implements AfterViewInit, OnDestroy {
     if (!post.thumbnailUrl) return null;
     if (post.thumbnailUrl.startsWith('http')) return post.thumbnailUrl;
     return `${this.apiBaseUrl}${post.thumbnailUrl}`;
-  }
-
-  ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.initMap();
-    }
   }
 
   ngOnDestroy(): void {
@@ -145,7 +153,7 @@ export class Home implements AfterViewInit, OnDestroy {
       .setView([46.6, 2.3], 6);
 
     this.L
-      .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      .tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
       })
       .addTo(this.mapInstance);

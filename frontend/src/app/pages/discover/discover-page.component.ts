@@ -2,8 +2,8 @@ import {
   Component,
   inject,
   signal,
+  effect,
   PLATFORM_ID,
-  AfterViewInit,
   OnDestroy,
   ElementRef,
   viewChild,
@@ -11,8 +11,9 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { switchMap, tap } from 'rxjs';
+import { switchMap } from 'rxjs';
 import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { SalonCard } from '../../features/discovery/discovery.model';
 
@@ -27,11 +28,11 @@ const GRADIENTS = [
 @Component({
   selector: 'app-discover-page',
   standalone: true,
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, MatIconModule],
   templateUrl: './discover-page.component.html',
   styleUrl: './discover-page.component.scss',
 })
-export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
+export class DiscoverPageComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private discoveryService = inject(DiscoveryService);
@@ -46,25 +47,39 @@ export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
   private userMarker: any = null;
   private L: any = null;
   private geocodeCache = new Map<string, { lat: number; lng: number } | null>();
-
   readonly mapContainer = viewChild<ElementRef<HTMLElement>>('mapContainer');
+
+  // Signal to track when map is ready — used by the salon-plotting effect
+  private readonly mapReady = signal(false);
 
   readonly salons = toSignal(
     this.route.queryParamMap.pipe(
       switchMap((p) => this.discoveryService.searchSalons(p.get('category'), p.get('q'))),
-      tap((salons) => this.geocodeAndPlotSalons(salons)),
     ),
     { initialValue: [] as SalonCard[] },
   );
 
-  getGradient(index: number): string {
-    return GRADIENTS[index % GRADIENTS.length];
+  constructor() {
+    // Init map when DOM element is available
+    effect(() => {
+      const el = this.mapContainer()?.nativeElement;
+      if (el && !this.mapReady() && isPlatformBrowser(this.platformId)) {
+        this.initMap();
+      }
+    });
+
+    // Plot salons when BOTH map is ready AND salons are loaded
+    effect(() => {
+      const ready = this.mapReady();
+      const salons = this.salons();
+      if (ready && salons.length > 0) {
+        this.geocodeAndPlotSalons(salons);
+      }
+    });
   }
 
-  ngAfterViewInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.initMap();
-    }
+  getGradient(index: number): string {
+    return GRADIENTS[index % GRADIENTS.length];
   }
 
   ngOnDestroy(): void {
@@ -121,17 +136,19 @@ export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
       attributionControl: true,
     }).setView([46.6, 2.3], 6);
 
-    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    this.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap',
       maxZoom: 19,
     }).addTo(this.mapInstance);
 
-    this.locateUser();
+    // Force Leaflet to recalculate size after layout settles
+    setTimeout(() => {
+      this.mapInstance?.invalidateSize();
+      // Signal that map is ready — triggers salon plotting effect
+      this.mapReady.set(true);
+    }, 250);
 
-    const currentSalons = this.salons();
-    if (currentSalons.length > 0) {
-      this.geocodeAndPlotSalons(currentSalons);
-    }
+    this.locateUser();
   }
 
   private locateUser(): void {
@@ -161,7 +178,7 @@ export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
           .bindPopup(this.transloco.translate('discover.yourLocation'));
       },
       () => {
-        // Geolocation denied or failed — keep default view
+        // Geolocation denied or failed
       },
       { timeout: 8000 },
     );
@@ -196,7 +213,7 @@ export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
         const popup = `
           <div style="font-family:Roboto,sans-serif;min-width:140px;cursor:pointer">
             <strong style="font-size:13px">${salon.name}</strong>
-            ${salon.addressCity ? `<div style="font-size:11px;color:#888;margin-top:2px">\ud83d\udccd ${salon.addressCity}</div>` : ''}
+            ${salon.addressCity ? `<div style="font-size:11px;color:#888;margin-top:2px">${salon.addressCity}</div>` : ''}
           </div>
         `;
 
@@ -212,11 +229,10 @@ export class DiscoverPageComponent implements AfterViewInit, OnDestroy {
         this.markerMap.set(salon.slug, marker);
         bounds.push([coords.lat, coords.lng]);
       } catch {
-        // Geocoding failed for this salon, skip
+        // Geocoding failed
       }
     }
 
-    // Fit map to show all markers + user position
     if (this.userMarker) {
       const userPos = this.userMarker.getLatLng();
       bounds.push([userPos.lat, userPos.lng]);
