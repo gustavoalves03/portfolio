@@ -208,7 +208,8 @@
       "phone": "Téléphone",
       "contactEmail": "Email de contact",
       "businessSection": "Informations entreprise",
-      "siret": "SIRET"
+      "siret": "SIRET",
+      "addressCountry": "Pays"
     },
     "categories": {
       "add": "Ajouter une catégorie",
@@ -342,7 +343,10 @@
       "hideForm": "Masquer",
       "empty": "Aucun post. Publiez votre premier avant/après !",
       "publishSuccess": "Post publié !",
-      "deleteSuccess": "Post supprimé"
+      "updateSuccess": "Post modifié !",
+      "deleteSuccess": "Post supprimé",
+      "editPost": "Modifier le post",
+      "saveBtn": "Enregistrer"
     }
   },
   "home": {
@@ -356,7 +360,8 @@
     },
     "salons": {
       "title": "Découvre les artistes près de toi",
-      "empty": "Aucun salon disponible pour le moment"
+      "empty": "Aucun salon disponible pour le moment",
+      "discoverAll": "Voir tous les salons"
     },
     "cta": {
       "question": "Tu es pro de la beauté ?",
@@ -367,10 +372,9 @@
     "title": "Découvrir les salons",
     "search": "Rechercher un salon...",
     "noResults": "Aucun salon trouvé",
-    "noResultsHint": "Essayez une autre catégorie",
+    "noResultsHint": "Essayez un autre terme de recherche",
     "resultsCount": "{{count}} salon(s) trouvé(s)",
-    "allCategories": "Tous",
-    "backHome": "Retour à l'accueil"
+    "yourLocation": "Vous êtes ici"
   },
   "salon": {
     "caresTab": "Soins",
@@ -522,6 +526,7 @@
   "nav": {
     "menu": "Menu",
     "home": "Accueil",
+    "discover": "Découvrir",
     "about": "À propos",
     "pro": {
       "dashboard": "Dashboard",

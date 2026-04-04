@@ -204,7 +204,8 @@
       "phone": "Phone",
       "contactEmail": "Contact email",
       "businessSection": "Business information",
-      "siret": "SIRET"
+      "siret": "SIRET",
+      "addressCountry": "Country"
     },
     "categories": {
       "add": "Add category",
@@ -338,7 +339,10 @@
       "hideForm": "Hide",
       "empty": "No posts yet. Publish your first before/after!",
       "publishSuccess": "Post published!",
-      "deleteSuccess": "Post deleted"
+      "updateSuccess": "Post updated!",
+      "deleteSuccess": "Post deleted",
+      "editPost": "Edit post",
+      "saveBtn": "Save"
     }
   },
   "home": {
@@ -352,7 +356,8 @@
     },
     "salons": {
       "title": "Discover artists near you",
-      "empty": "No salons available yet"
+      "empty": "No salons available yet",
+      "discoverAll": "See all salons"
     },
     "cta": {
       "question": "Are you a beauty professional?",
@@ -363,10 +368,9 @@
     "title": "Discover salons",
     "search": "Search for a salon...",
     "noResults": "No salons found",
-    "noResultsHint": "Try another category",
+    "noResultsHint": "Try a different search term",
     "resultsCount": "{{count}} salon(s) found",
-    "allCategories": "All",
-    "backHome": "Back to home"
+    "yourLocation": "You are here"
   },
   "salon": {
     "caresTab": "Services",
@@ -518,6 +522,7 @@
   "nav": {
     "menu": "Menu",
     "home": "Home",
+    "discover": "Discover",
     "about": "About",
     "pro": {
       "dashboard": "Dashboard",
