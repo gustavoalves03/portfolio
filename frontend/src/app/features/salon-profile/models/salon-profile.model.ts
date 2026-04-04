@@ -9,6 +9,7 @@ export interface TenantResponse {
   addressStreet: string | null;
   addressPostalCode: string | null;
   addressCity: string | null;
+  addressCountry: string | null;
   phone: string | null;
   contactEmail: string | null;
   siret: string | null;
@@ -24,6 +25,7 @@ export interface UpdateTenantRequest {
   addressStreet: string | null;
   addressPostalCode: string | null;
   addressCity: string | null;
+  addressCountry: string | null;
   phone: string | null;
   contactEmail: string | null;
   siret: string | null;

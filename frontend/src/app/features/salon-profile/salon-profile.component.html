@@ -95,6 +95,11 @@
                 <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" maxlength="100" name="addressCity" />
               </mat-form-field>
             </div>
+
+            <app-country-picker
+              [countryCode]="addressCountry()"
+              (countryCodeChange)="addressCountry.set($event)"
+            />
           </div>
         </mat-tab>
 

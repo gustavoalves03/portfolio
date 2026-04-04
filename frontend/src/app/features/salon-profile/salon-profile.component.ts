@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
+import { CountryPickerComponent } from '../../shared/uis/country-picker/country-picker.component';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
 
@@ -24,6 +25,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatIconModule,
     MatTabsModule,
     TranslocoPipe,
+    CountryPickerComponent,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',
@@ -44,6 +46,7 @@ export class SalonProfileComponent {
   protected addressStreet = signal('');
   protected addressPostalCode = signal('');
   protected addressCity = signal('');
+  protected addressCountry = signal<string | null>(null);
   protected phone = signal('');
   protected contactEmail = signal('');
   protected siret = signal('');
@@ -69,6 +72,7 @@ export class SalonProfileComponent {
         this.addressStreet.set(tenant.addressStreet ?? '');
         this.addressPostalCode.set(tenant.addressPostalCode ?? '');
         this.addressCity.set(tenant.addressCity ?? '');
+        this.addressCountry.set(tenant.addressCountry ?? null);
         this.phone.set(tenant.phone ?? '');
         this.contactEmail.set(tenant.contactEmail ?? '');
         this.siret.set(tenant.siret ?? '');
@@ -200,6 +204,7 @@ export class SalonProfileComponent {
       addressStreet: this.addressStreet() || null,
       addressPostalCode: this.addressPostalCode() || null,
       addressCity: this.addressCity() || null,
+      addressCountry: this.addressCountry(),
       phone: this.phone() || null,
       contactEmail: this.contactEmail() || null,
       siret: this.siret() || null,
