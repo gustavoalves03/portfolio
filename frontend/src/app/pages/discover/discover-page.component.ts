@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   inject,
   signal,
   PLATFORM_ID,
@@ -16,12 +15,6 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { switchMap, tap } from 'rxjs';
 import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { SalonCard } from '../../features/discovery/discovery.model';
-
-interface GeocodedSalon {
-  salon: SalonCard;
-  lat: number;
-  lng: number;
-}
 
 const GRADIENTS = [
   'linear-gradient(135deg, #e8d5c4, #f0e0d0)',
