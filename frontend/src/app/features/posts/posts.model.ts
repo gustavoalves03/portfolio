@@ -11,3 +11,13 @@ export interface PostResponse {
   careName: string | null;
   createdAt: string;
 }
+
+export interface RecentPost {
+  id: number;
+  type: PostType;
+  caption: string | null;
+  thumbnailUrl: string | null;
+  salonName: string | null;
+  salonSlug: string | null;
+  createdAt: string;
+}
