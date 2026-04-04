@@ -36,6 +36,25 @@ public class PublicDiscoveryController {
         return tenants.stream().map(this::toCard).toList();
     }
 
+    private String buildFullAddress(Tenant t) {
+        StringBuilder sb = new StringBuilder();
+        if (t.getAddressStreet() != null && !t.getAddressStreet().isBlank())
+            sb.append(t.getAddressStreet());
+        if (t.getAddressPostalCode() != null && !t.getAddressPostalCode().isBlank()) {
+            if (!sb.isEmpty()) sb.append(", ");
+            sb.append(t.getAddressPostalCode());
+        }
+        if (t.getAddressCity() != null && !t.getAddressCity().isBlank()) {
+            if (!sb.isEmpty()) sb.append(" ");
+            sb.append(t.getAddressCity());
+        }
+        if (t.getAddressCountry() != null && !t.getAddressCountry().isBlank()) {
+            if (!sb.isEmpty()) sb.append(", ");
+            sb.append(t.getAddressCountry());
+        }
+        return sb.isEmpty() ? null : sb.toString();
+    }
+
     private SalonCardResponse toCard(Tenant t) {
         String logoUrl = null;
         if (t.getLogoPath() != null) {
@@ -51,6 +70,8 @@ public class PublicDiscoveryController {
                 desc = desc.substring(0, 200) + "...";
             }
         }
-        return new SalonCardResponse(t.getName(), t.getSlug(), desc, logoUrl, t.getCategoryNames());
+        String fullAddress = buildFullAddress(t);
+        return new SalonCardResponse(t.getName(), t.getSlug(), desc, logoUrl, t.getCategoryNames(),
+                t.getAddressCity(), fullAddress);
     }
 }

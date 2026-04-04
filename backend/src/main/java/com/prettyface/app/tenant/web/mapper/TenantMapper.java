@@ -32,6 +32,7 @@ public class TenantMapper {
                 tenant.getAddressStreet(),
                 tenant.getAddressPostalCode(),
                 tenant.getAddressCity(),
+                tenant.getAddressCountry(),
                 tenant.getPhone(),
                 tenant.getContactEmail(),
                 tenant.getSiret(),

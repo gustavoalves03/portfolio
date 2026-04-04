@@ -12,6 +12,7 @@ public record TenantResponse(
         String addressStreet,
         String addressPostalCode,
         String addressCity,
+        String addressCountry,
         String phone,
         String contactEmail,
         String siret,

@@ -88,6 +88,7 @@ public class TenantService {
         tenant.setAddressStreet(request.addressStreet());
         tenant.setAddressPostalCode(request.addressPostalCode());
         tenant.setAddressCity(request.addressCity());
+        tenant.setAddressCountry(request.addressCountry());
         tenant.setPhone(request.phone());
         tenant.setContactEmail(request.contactEmail());
         tenant.setSiret(request.siret());

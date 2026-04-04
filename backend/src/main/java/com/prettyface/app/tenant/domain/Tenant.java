@@ -62,6 +62,9 @@ public class Tenant {
     @Column(name = "address_city", length = 100)
     private String addressCity;
 
+    @Column(name = "address_country", length = 2)
+    private String addressCountry;
+
     @Column(name = "phone", length = 20)
     private String phone;
 
