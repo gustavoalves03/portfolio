@@ -40,6 +40,9 @@
         <button class="toggle-btn" [class.active]="activeTab() === 'posts'" (click)="activeTab.set('posts')">
           <mat-icon>photo_library</mat-icon> {{ 'salon.postsTab' | transloco }}
         </button>
+        <button class="toggle-btn" [class.active]="activeTab() === 'contact'" (click)="activeTab.set('contact')">
+          <mat-icon>location_on</mat-icon> {{ 'salon.contactTab' | transloco }}
+        </button>
       </div>
 
       @if (activeTab() === 'cares') {
@@ -92,9 +95,52 @@
             {{ 'salon.public.noCares' | transloco }}
           </div>
         }
-      } @else {
+      } @else if (activeTab() === 'posts') {
         <div class="posts-tab-content">
           <app-salon-posts-viewer [slug]="slug" (bookCare)="onBookFromPost($event)" />
+        </div>
+      } @else if (activeTab() === 'contact') {
+        <div class="contact-tab-content">
+          <!-- Map -->
+          @if (fullAddress) {
+            <div class="contact-map-wrapper">
+              <div class="contact-map" #contactMap></div>
+            </div>
+          }
+
+          <!-- Contact info -->
+          <div class="contact-info">
+            @if (fullAddress) {
+              <div class="contact-item">
+                <mat-icon class="contact-icon">location_on</mat-icon>
+                <div>
+                  @if (salon.addressStreet) {
+                    <div class="contact-text">{{ salon.addressStreet }}</div>
+                  }
+                  <div class="contact-text">
+                    {{ salon.addressPostalCode }} {{ salon.addressCity }}
+                  </div>
+                </div>
+              </div>
+            }
+            @if (salon.phone) {
+              <a [href]="'tel:' + salon.phone" class="contact-item contact-link">
+                <mat-icon class="contact-icon">phone</mat-icon>
+                <span class="contact-text">{{ salon.phone }}</span>
+              </a>
+            }
+            @if (salon.contactEmail) {
+              <a [href]="'mailto:' + salon.contactEmail" class="contact-item contact-link">
+                <mat-icon class="contact-icon">email</mat-icon>
+                <span class="contact-text">{{ salon.contactEmail }}</span>
+              </a>
+            }
+            @if (!fullAddress && !salon.phone && !salon.contactEmail) {
+              <div class="text-center py-12 text-neutral-500">
+                {{ 'salon.noContact' | transloco }}
+              </div>
+            }
+          </div>
         </div>
       }
     </div>

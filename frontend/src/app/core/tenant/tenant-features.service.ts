@@ -14,6 +14,9 @@ export class TenantFeaturesService {
   readonly employeesEnabled = signal<boolean>(false);
   readonly annualLeaveDays = signal<number>(25);
   readonly closedOnHolidays = signal<boolean>(true);
+  readonly minAdvanceMinutes = signal<number>(120);
+  readonly maxAdvanceDays = signal<number>(90);
+  readonly maxClientHoursPerDay = signal<number>(8);
 
   constructor() {
     effect(() => {
@@ -25,6 +28,9 @@ export class TenantFeaturesService {
         this.employeesEnabled.set(false);
         this.annualLeaveDays.set(25);
         this.closedOnHolidays.set(true);
+        this.minAdvanceMinutes.set(120);
+        this.maxAdvanceDays.set(90);
+        this.maxClientHoursPerDay.set(8);
       }
     });
   }
@@ -32,19 +38,30 @@ export class TenantFeaturesService {
   private loadFeatures(): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
     this.http
-      .get<{ employeesEnabled: boolean; annualLeaveDays: number; closedOnHolidays: boolean }>(
-        `${base}/api/pro/tenant`,
-      )
+      .get<{
+        employeesEnabled: boolean;
+        annualLeaveDays: number;
+        closedOnHolidays: boolean;
+        minAdvanceMinutes: number;
+        maxAdvanceDays: number;
+        maxClientHoursPerDay: number;
+      }>(`${base}/api/pro/tenant`)
       .subscribe({
         next: (r) => {
           this.employeesEnabled.set(r.employeesEnabled ?? false);
           this.annualLeaveDays.set(r.annualLeaveDays ?? 25);
           this.closedOnHolidays.set(r.closedOnHolidays ?? true);
+          this.minAdvanceMinutes.set(r.minAdvanceMinutes ?? 120);
+          this.maxAdvanceDays.set(r.maxAdvanceDays ?? 90);
+          this.maxClientHoursPerDay.set(r.maxClientHoursPerDay ?? 8);
         },
         error: () => {
           this.employeesEnabled.set(false);
           this.annualLeaveDays.set(25);
           this.closedOnHolidays.set(true);
+          this.minAdvanceMinutes.set(120);
+          this.maxAdvanceDays.set(90);
+          this.maxClientHoursPerDay.set(8);
         },
       });
   }
@@ -70,5 +87,34 @@ export class TenantFeaturesService {
         closedOnHolidays: closed,
       })
       .subscribe({ next: () => this.closedOnHolidays.set(closed) });
+  }
+
+  setMinAdvanceMinutes(minutes: number): void {
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    this.http
+      .put<{ minAdvanceMinutes: number }>(
+        `${base}/api/pro/tenant/settings/min-advance-minutes`,
+        { minAdvanceMinutes: minutes },
+      )
+      .subscribe({ next: () => this.minAdvanceMinutes.set(minutes) });
+  }
+
+  setMaxAdvanceDays(days: number): void {
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    this.http
+      .put<{ maxAdvanceDays: number }>(`${base}/api/pro/tenant/settings/max-advance-days`, {
+        maxAdvanceDays: days,
+      })
+      .subscribe({ next: () => this.maxAdvanceDays.set(days) });
+  }
+
+  setMaxClientHoursPerDay(hours: number): void {
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    this.http
+      .put<{ maxClientHoursPerDay: number }>(
+        `${base}/api/pro/tenant/settings/max-client-hours-per-day`,
+        { maxClientHoursPerDay: hours },
+      )
+      .subscribe({ next: () => this.maxClientHoursPerDay.set(hours) });
   }
 }

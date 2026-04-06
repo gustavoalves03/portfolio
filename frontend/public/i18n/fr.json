@@ -130,7 +130,9 @@
       "INACTIVE": "Inactif"
     },
     "toggleSuccess": "Statut mis à jour",
-    "reorderSuccess": "Ordre mis à jour"
+    "reorderSuccess": "Ordre mis à jour",
+    "deleteSuccess": "Soin supprimé",
+    "deleteError": "Erreur lors de la suppression"
   },
   "categories": {
     "title": "Catégories",
@@ -183,7 +185,65 @@
       "weekBookings": "RDV cette semaine",
       "recentBookings": "Dernières réservations",
       "noBookings": "Aucune réservation pour le moment",
-      "viewSalon": "Voir mon salon"
+      "viewSalon": "Voir mon salon",
+      "analytics": {
+        "period": {
+          "week": "Semaine",
+          "month": "Mois",
+          "quarter": "Trimestre",
+          "year": "Année"
+        },
+        "kpi": {
+          "bookings": "Rendez-vous",
+          "revenue": "Chiffre d'affaires",
+          "attendance": "Présence",
+          "occupancy": "Occupation",
+          "avgBasket": "Panier moyen"
+        },
+        "charts": {
+          "revenueTitle": "Chiffre d'affaires",
+          "bookingsTitle": "Rendez-vous par jour",
+          "bars": "Barres",
+          "line": "Ligne"
+        },
+        "heatmap": {
+          "title": "Créneaux les plus demandés"
+        },
+        "employees": {
+          "title": "Performance employés",
+          "sortCA": "CA",
+          "sortBookings": "RDV",
+          "sortRate": "Taux"
+        },
+        "clients": {
+          "title": "Clients fidèles",
+          "sortVisits": "Visites",
+          "sortCA": "CA",
+          "sortReliability": "Fiabilité"
+        },
+        "cares": {
+          "title": "Top prestations"
+        },
+        "status": {
+          "title": "Répartition des RDV",
+          "CONFIRMED": "Confirmé",
+          "PENDING": "En attente",
+          "CANCELLED": "Annulé",
+          "NO_SHOW": "Absent"
+        },
+        "forecast": {
+          "title": "Prévision CA",
+          "subtitle": "basé sur les RDV confirmés"
+        },
+        "atRisk": {
+          "title": "Clients à risque",
+          "lastVisit": "Dernière visite",
+          "daysAgo": "il y a {{days}} jours"
+        },
+        "allEmployees": "Tous les employés",
+        "allCares": "Toutes les prestations",
+        "vsLastPeriod": "vs période préc."
+      }
     },
     "salon": {
       "title": "Mon salon",
@@ -248,7 +308,8 @@
       "legend": {
         "today": "Aujourd'hui",
         "blocked": "Créneau bloqué",
-        "closed": "Fermé"
+        "closed": "Fermé",
+        "holiday": "Jour férié"
       }
     },
     "planning": {
@@ -320,7 +381,17 @@
       "closedOnHolidaysDesc": "Bloquer automatiquement les jours fériés de votre pays",
       "upcomingHolidays": "Prochains jours fériés",
       "holidayClosed": "Fermé",
-      "holidayOpen": "Ouvert (exception)"
+      "holidayOpen": "Ouvert (exception)",
+      "bookingSection": "Réservation",
+      "minAdvanceLabel": "Délai minimum de réservation",
+      "minAdvanceDesc": "Temps minimum avant le rendez-vous (en minutes)",
+      "maxAdvanceLabel": "Délai maximum de réservation",
+      "maxAdvanceDesc": "Nombre maximum de jours à l'avance",
+      "maxClientHoursLabel": "Max heures de RDV par jour",
+      "maxClientHoursDesc": "Nombre maximum d'heures de prestations par client par jour",
+      "hoursUnit": "h",
+      "minutesUnit": "min",
+      "daysAdvanceUnit": "jours"
     },
     "availability": {
       "title": "Mes disponibilités",
@@ -481,7 +552,12 @@
     },
     "errors": {
       "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
-      "generic": "Une erreur est survenue. Veuillez réessayer."
+      "generic": "Une erreur est survenue. Veuillez réessayer.",
+      "tooSoon": "Réservation trop proche. Veuillez réserver au moins {{min}} minutes à l'avance.",
+      "tooFarAhead": "Réservation trop lointaine. Maximum {{max}} jours à l'avance.",
+      "dailyLimitReached": "Vous avez atteint le nombre maximum de réservations pour cette journée.",
+      "timeOverlap": "Vous avez déjà un rendez-vous à cette heure dans un autre salon.",
+      "dailyHoursExceeded": "Vous avez atteint le nombre maximum d'heures de rendez-vous pour cette journée."
     }
   },
   "employee": {
@@ -556,6 +632,14 @@
       "bookings": "Réservations",
       "leaves": "Congés",
       "documents": "Documents"
+    }
+  },
+  "errors": {
+    "care": {
+      "hasFutureBookings": "Impossible de supprimer : des rendez-vous futurs existent. Annulez-les d'abord.",
+      "cancelBookingsAction": "Annuler les RDV",
+      "bookingsCancelled": "rendez-vous annulé(s)",
+      "cancelFailed": "Erreur lors de l'annulation des rendez-vous"
     }
   },
   "drawer": {

@@ -39,7 +39,10 @@ public class TenantMapper {
                 tenant.getUpdatedAt(),
                 tenant.getEmployeesEnabled(),
                 tenant.getAnnualLeaveDays(),
-                tenant.getClosedOnHolidays()
+                tenant.getClosedOnHolidays(),
+                tenant.getMinAdvanceMinutes(),
+                tenant.getMaxAdvanceDays(),
+                tenant.getMaxClientHoursPerDay()
         );
     }
 

@@ -1,3 +1,37 @@
+$primary: #c06;
+$primary-light: #e8a0b0;
+$primary-lighter: #fef2f8;
+$bg: #f5f4f2;
+$green: #52b788;
+$green-dark: #166534;
+$red: #ef5350;
+$red-dark: #dc2626;
+$orange: #f9a825;
+$blue: #42a5f5;
+$purple: #ab47bc;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+$radius: 10px;
+
+:host {
+  display: block;
+  background: $bg;
+  min-height: 100vh;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+}
+
+// ──── Header ────
+.dashboard-header {
+  padding: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .draft-chip {
   background-color: var(--mat-sys-surface-variant);
   color: var(--mat-sys-on-surface-variant);
@@ -9,7 +43,7 @@
 
 .active-chip {
   background-color: #dcfce7;
-  color: #166534;
+  color: $green-dark;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 0.75rem;
@@ -20,6 +54,542 @@
   color: #16a34a;
 }
 
-.text-primary {
-  color: var(--mat-sys-primary);
+// ──── Filter Bar ────
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $bg;
+  padding: 12px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.period-pills {
+  display: flex;
+  gap: 4px;
+  background: white;
+  border-radius: 8px;
+  padding: 3px;
+  box-shadow: $shadow;
+}
+
+.period-pill {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 180ms ease;
+
+  &.active {
+    background: $primary;
+    color: white;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.filter-selects {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.filter-field {
+  width: 180px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  ::ng-deep .mdc-notched-outline {
+    border-radius: 8px !important;
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    font-size: 0.8125rem;
+  }
+}
+
+// ──── KPI Cards ────
+.kpi-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.kpi-card {
+  flex: 0 0 auto;
+  min-width: 180px;
+  background: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: transform 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.kpi-rose .kpi-icon {
+  background: $primary-lighter;
+  color: $primary;
+}
+
+.kpi-green .kpi-icon {
+  background: #dcfce7;
+  color: $green-dark;
+}
+
+.kpi-blue .kpi-icon {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.kpi-orange .kpi-icon {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.kpi-purple .kpi-icon {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.kpi-value {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.kpi-trend {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.trend-positive {
+  color: $green-dark;
+}
+
+.trend-negative {
+  color: $red-dark;
+}
+
+// ──── Widget Grid ────
+.widget-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.widget-card {
+  background: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+}
+
+// ──── Charts ────
+.chart-container {
+  height: 240px;
+  position: relative;
+}
+
+.chart-container-sm {
+  height: 200px;
+}
+
+.chart-toggle {
+  border: 1px solid #e0e0e0;
+  background: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+// ──── Heatmap ────
+.heatmap-container {
+  overflow-x: auto;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+  min-width: 360px;
+}
+
+.heatmap-label {
+  // empty corner cell
+}
+
+.heatmap-day-label {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #888;
+  padding: 4px 0;
+}
+
+.heatmap-hour-label {
+  font-size: 0.6875rem;
+  color: #888;
+  padding-right: 6px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.heatmap-cell {
+  border-radius: 3px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 200ms ease;
+}
+
+.heatmap-count {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+// ──── Rankings ────
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ranking-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.ranking-position {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $primary-lighter;
+  color: $primary;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.ranking-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.ranking-detail {
+  font-size: 0.6875rem;
+  color: #999;
+}
+
+.ranking-bar-container {
+  flex: 1;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ranking-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #a8385d, $primary);
+  border-radius: 4px;
+  transition: width 300ms ease;
+}
+
+.bar-care {
+  background: linear-gradient(90deg, $primary, $primary-light);
+}
+
+.sort-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.sort-pill {
+  border: 1px solid #e0e0e0;
+  background: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  color: #888;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  &.active {
+    background: $primary-lighter;
+    color: $primary;
+    border-color: $primary;
+  }
+
+  &:hover:not(.active) {
+    border-color: #bbb;
+  }
+}
+
+// ──── Attendance badge ────
+.attendance-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.badge-good {
+  background: #dcfce7;
+  color: $green-dark;
+}
+
+.badge-warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-bad {
+  background: #fee2e2;
+  color: $red-dark;
+}
+
+// ──── Bottom Row ────
+.bottom-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.status-forecast-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.widget-card-half {
+  // inherits widget-card styles
+}
+
+// ──── Forecast ────
+.forecast-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.forecast-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 6px;
+  padding: 12px 0;
+}
+
+.forecast-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $primary;
+}
+
+.forecast-subtitle {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+// ──── At-Risk Clients ────
+.at-risk-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.at-risk-card {
+  flex: 0 0 auto;
+  min-width: 160px;
+  background: #fff8f8;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.at-risk-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: $red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.at-risk-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.at-risk-detail {
+  font-size: 0.6875rem;
+  color: #999;
+}
+
+.at-risk-days {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: $red;
+}
+
+// ──── Salon Actions ────
+.salon-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+// ──── Responsive ────
+@media (max-width: 768px) {
+  .widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-forecast-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-selects {
+    margin-left: 0;
+    flex-direction: column;
+  }
+
+  .filter-field {
+    width: 100%;
+  }
+
+  .kpi-card {
+    min-width: 160px;
+  }
+
+  .ranking-info {
+    min-width: 100px;
+  }
 }

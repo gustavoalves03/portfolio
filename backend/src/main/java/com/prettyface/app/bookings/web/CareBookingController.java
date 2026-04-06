@@ -12,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -62,5 +63,11 @@ public class CareBookingController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) { service.delete(id); }
+
+    @PostMapping("/cancel-by-care/{careId}")
+    public Map<String, Object> cancelFutureBookingsForCare(@PathVariable Long careId) {
+        int count = service.cancelFutureBookingsForCare(careId);
+        return Map.of("cancelledCount", count);
+    }
 }
 

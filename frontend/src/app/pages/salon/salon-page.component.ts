@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,34 +26,57 @@ import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-view
   templateUrl: './salon-page.component.html',
   styleUrl: './salon-page.component.scss',
 })
-export class SalonPageComponent implements OnInit {
+export class SalonPageComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly salonService = inject(SalonProfileService);
   private readonly dialog = inject(MatDialog);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected salon = signal<PublicSalonResponse | null>(null);
   protected loading = signal(true);
   protected notFound = signal(false);
-  protected readonly activeTab = signal<'cares' | 'posts'>('cares');
+  protected readonly activeTab = signal<'cares' | 'posts' | 'contact'>('cares');
 
-  ngOnInit(): void {
+  readonly contactMapRef = viewChild<ElementRef<HTMLElement>>('contactMap');
+  private mapInstance: any = null;
+  private L: any = null;
+  private contactMapInitialized = false;
+
+  constructor() {
+    // Load salon
     const slug = this.route.snapshot.paramMap.get('slug');
     if (!slug) {
       this.notFound.set(true);
       this.loading.set(false);
-      return;
+    } else {
+      this.salonService.getPublicSalon(slug).subscribe({
+        next: (salon) => {
+          this.salon.set(salon);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.notFound.set(true);
+          this.loading.set(false);
+        },
+      });
     }
 
-    this.salonService.getPublicSalon(slug).subscribe({
-      next: (salon) => {
-        this.salon.set(salon);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notFound.set(true);
-        this.loading.set(false);
-      },
+    // Init contact map when tab is active and DOM is ready
+    effect(() => {
+      const el = this.contactMapRef()?.nativeElement;
+      const salon = this.salon();
+      if (el && salon && !this.contactMapInitialized && isPlatformBrowser(this.platformId)) {
+        this.contactMapInitialized = true;
+        this.initContactMap(salon);
+      }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.mapInstance) {
+      this.mapInstance.remove();
+      this.mapInstance = null;
+    }
   }
 
   protected formatDuration(minutes: number): string {
@@ -95,6 +119,60 @@ export class SalonPageComponent implements OnInit {
 
   protected get slug(): string {
     return this.route.snapshot.paramMap.get('slug') ?? '';
+  }
+
+  protected get fullAddress(): string {
+    const s = this.salon();
+    if (!s) return '';
+    return [s.addressStreet, s.addressPostalCode, s.addressCity, s.addressCountry]
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  private async initContactMap(salon: PublicSalonResponse): Promise<void> {
+    const address = this.fullAddress;
+    if (!address) return;
+
+    const leaflet = await import('leaflet');
+    this.L = leaflet.default || leaflet;
+
+    const el = this.contactMapRef()?.nativeElement;
+    if (!el) return;
+
+    this.mapInstance = this.L.map(el, {
+      zoomControl: true,
+      attributionControl: false,
+    }).setView([46.6, 2.3], 6);
+
+    this.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(this.mapInstance);
+
+    setTimeout(() => this.mapInstance?.invalidateSize(), 250);
+
+    // Geocode the salon address
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+
+        this.mapInstance.setView([lat, lng], 15);
+
+        const salonIcon = this.L.divIcon({
+          className: 'salon-map-marker',
+          html: '<div class="salon-pin"></div>',
+          iconSize: [28, 28],
+          iconAnchor: [14, 28],
+        });
+
+        this.L.marker([lat, lng], { icon: salonIcon }).addTo(this.mapInstance);
+      }
+    } catch {
+      // Geocoding failed
+    }
   }
 
   private openBookingDialog(care: PublicCareDto): void {

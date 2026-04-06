@@ -17,5 +17,8 @@ public record UpdateTenantRequest(
         @Size(max = 14) String siret,
         Boolean employeesEnabled,
         Integer annualLeaveDays,
-        Boolean closedOnHolidays
+        Boolean closedOnHolidays,
+        Integer minAdvanceMinutes,
+        Integer maxAdvanceDays,
+        Integer maxClientHoursPerDay
 ) {}

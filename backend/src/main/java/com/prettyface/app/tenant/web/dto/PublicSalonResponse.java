@@ -8,5 +8,11 @@ public record PublicSalonResponse(
         String description,
         String logoUrl,
         String heroImageUrl,
-        List<PublicCategoryDto> categories
+        List<PublicCategoryDto> categories,
+        String addressStreet,
+        String addressPostalCode,
+        String addressCity,
+        String addressCountry,
+        String phone,
+        String contactEmail
 ) {}

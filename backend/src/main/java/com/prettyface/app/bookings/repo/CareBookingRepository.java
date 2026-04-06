@@ -50,6 +50,18 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
     Page<CareBooking> findByUserId(Long userId, Pageable pageable);
 
     /**
+     * Find future non-cancelled bookings for a specific care
+     */
+    List<CareBooking> findByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
+        Long careId, LocalDate date, CareBookingStatus status);
+
+    /**
+     * Count future non-cancelled bookings for a specific care
+     */
+    long countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
+        Long careId, LocalDate date, CareBookingStatus status);
+
+    /**
      * Complex query with optional filters using JPQL
      * Eagerly fetch user and care to avoid N+1 queries
      */
@@ -69,6 +81,33 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
         @Param("to") LocalDateTime to,
         @Param("userId") Long userId,
         Pageable pageable
+    );
+
+    /**
+     * Find all bookings within a date range (for analytics)
+     */
+    @Query("""
+        SELECT b FROM CareBooking b
+        JOIN FETCH b.user
+        JOIN FETCH b.care
+        WHERE b.appointmentDate BETWEEN :start AND :end
+        """)
+    List<CareBooking> findByAppointmentDateBetween(
+        @Param("start") LocalDate start,
+        @Param("end") LocalDate end
+    );
+
+    /**
+     * Find future bookings with a specific status (for forecast)
+     */
+    @Query("""
+        SELECT b FROM CareBooking b
+        JOIN FETCH b.care
+        WHERE b.appointmentDate >= :date AND b.status = :status
+        """)
+    List<CareBooking> findByAppointmentDateGreaterThanEqualAndStatus(
+        @Param("date") LocalDate date,
+        @Param("status") CareBookingStatus status
     );
 }
 

@@ -3,6 +3,7 @@ package com.prettyface.app.care.domain;
 
 import com.prettyface.app.category.domain.Category;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +25,7 @@ public class Care {
     private String name;
 
     @Setter
+    @Min(0)
     @Column(name = "price", nullable = false)
     private Integer price;
 
@@ -37,6 +39,7 @@ public class Care {
     private CareStatus status;
 
     @Setter
+    @Min(1)
     @Column(name = "duration", nullable = false)
     private Integer duration;
 

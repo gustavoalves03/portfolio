@@ -2,11 +2,11 @@
   <div class="container mx-auto px-4 flex flex-col gap-2 items-center">
     @if (isPro()) {
       <p>
-        Propulsé par <a routerLink="/" class="text-neutral-900 hover:underline underline-offset-4">Pretty Face</a>
+        Propulsé par <a routerLink="/" class="text-neutral-900 hover:underline underline-offset-4" style="letter-spacing:0.15em;text-transform:uppercase;font-weight:400;font-size:11px;"><span style="color:#c06;font-weight:600;font-size:9px;letter-spacing:0.3em;">PRETTY</span> FACE</a>
         · <a routerLink="/" class="text-neutral-500 hover:underline underline-offset-4">Abonnements</a>
       </p>
     } @else {
-      <p>&copy; {{ year }} Pretty Face</p>
+      <p>&copy; {{ year }} <span style="letter-spacing:0.15em;text-transform:uppercase;font-weight:400;font-size:11px;"><span style="color:#c06;font-weight:600;font-size:9px;letter-spacing:0.3em;">PRETTY</span> FACE</span></p>
       @if (!isLoggedIn()) {
         <p>
           <a routerLink="/pricing" class="text-neutral-500 hover:text-neutral-900 hover:underline underline-offset-4">Vous êtes professionnel ? Créez votre vitrine</a>

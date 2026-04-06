@@ -2,7 +2,10 @@
 <section class="hero">
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-title">{{ 'home.hero.title' | transloco }}</h1>
+    <div class="hero-brand">
+      <span class="hero-brand-pretty">Pretty</span>
+      <span class="hero-brand-face">Face</span>
+    </div>
     <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
     <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
       <mat-icon class="hero-search-icon">search</mat-icon>
@@ -21,17 +24,24 @@
 <section class="landing-section">
   <h2 class="section-title">{{ 'home.nearYou' | transloco }}</h2>
 
-  @if (salons().length > 0) {
-    <div class="near-you-grid">
-      <!-- Mini map -->
-      <div class="mini-map-wrapper">
-        <div class="mini-map" #miniMap></div>
-      </div>
+  <div class="near-you-grid">
+    <!-- Mini map (always present) -->
+    <div class="mini-map-wrapper">
+      <div class="mini-map" #miniMap></div>
+    </div>
 
-      <!-- Salon mini cards -->
-      <div class="salon-mini-cards">
+    <!-- Salon mini cards -->
+    <div class="salon-mini-cards">
+      @if (salons().length > 0) {
         @for (salon of salons().slice(0, 3); track salon.slug; let i = $index) {
-          <button type="button" class="salon-mini-card" (click)="onSalonClick(salon.slug)">
+          <button
+            type="button"
+            class="salon-mini-card"
+            [class.selected]="selectedSlug() === salon.slug"
+            (click)="onSalonCardClick(salon.slug)"
+            (mouseenter)="onSalonHover(salon.slug)"
+            (mouseleave)="onSalonLeave()"
+          >
             <div
               class="salon-mini-avatar"
               [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getSalonGradient(i)"
@@ -48,38 +58,24 @@
             </div>
           </button>
         }
-      </div>
+      } @else {
+        <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
+      }
     </div>
+  </div>
 
-    <div class="discover-all">
-      <button type="button" class="discover-all-btn" (click)="onDiscoverAll()">
-        {{ 'home.salons.discoverAll' | transloco }} &rarr;
-      </button>
-    </div>
-  } @else {
-    <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
-  }
+  <div class="discover-all">
+    <button type="button" class="discover-all-btn" (click)="onDiscoverAll()">
+      {{ 'home.salons.discoverAll' | transloco }} &rarr;
+    </button>
+  </div>
 </section>
 
 <!-- Recent Posts Section -->
-@if (recentPosts().length > 0) {
+@if (isBrowser && recentPosts().length > 0) {
   <section class="landing-section">
     <h2 class="section-title">{{ 'home.recentPosts' | transloco }}</h2>
-
-    <div class="posts-scroll-row">
-      @for (post of recentPosts(); track post.id) {
-        <button
-          type="button"
-          class="post-thumbnail"
-          [style.background]="getThumbnailUrl(post) ? 'url(' + getThumbnailUrl(post) + ') center/cover no-repeat' : getPostGradient(post.type)"
-          (click)="onPostClick(post)"
-        >
-          <div class="post-thumbnail-overlay">
-            <span class="post-thumbnail-type">{{ getPostTypeLabel(post.type) }}</span>
-          </div>
-        </button>
-      }
-    </div>
+    <app-recent-posts-viewer [posts]="recentPosts()" />
   </section>
 }
 

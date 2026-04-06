@@ -21,13 +21,35 @@
   margin: 0 auto;
 }
 
-.hero-title {
-  font-size: 2.4rem;
-  font-weight: 300;
-  letter-spacing: 2px;
+// Hero brand — stacked
+.hero-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.hero-brand-pretty {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+}
+
+.hero-brand-face {
+  font-size: 3rem;
+  font-weight: 200;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: white;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  margin-bottom: 8px;
+
+  @media (min-width: 768px) {
+    font-size: 3.5rem;
+  }
 }
 
 .hero-subtitle {
@@ -103,6 +125,8 @@
   border-radius: 14px;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
+  z-index: 0; // isolate Leaflet z-index from header
 
   @media (min-width: 600px) {
     width: 200px;
@@ -113,6 +137,8 @@
 .mini-map {
   width: 100%;
   height: 100%;
+  z-index: 0;
+  position: relative;
 }
 
 // ===== Salon Mini Cards =====
@@ -140,8 +166,10 @@
     box-shadow 150ms ease,
     transform 150ms ease;
 
-  &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  &:hover,
+  &.selected {
+    box-shadow: 0 4px 16px rgba(192, 0, 102, 0.12);
+    border: 1.5px solid #c06;
     transform: translateY(-1px);
   }
 }

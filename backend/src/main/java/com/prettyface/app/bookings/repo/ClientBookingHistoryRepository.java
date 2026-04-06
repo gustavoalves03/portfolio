@@ -16,4 +16,7 @@ public interface ClientBookingHistoryRepository extends JpaRepository<ClientBook
             Long userId, LocalDate beforeDate);
 
     Optional<ClientBookingHistory> findByTenantSlugAndBookingId(String tenantSlug, Long bookingId);
+
+    List<ClientBookingHistory> findByUserIdAndAppointmentDateAndStatusNot(
+            Long userId, LocalDate date, String status);
 }

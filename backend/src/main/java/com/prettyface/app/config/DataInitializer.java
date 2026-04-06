@@ -9,6 +9,9 @@ import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.multitenancy.TenantSchemaManager;
+import com.prettyface.app.post.domain.Post;
+import com.prettyface.app.post.domain.PostType;
+import com.prettyface.app.post.repo.PostRepository;
 import com.prettyface.app.tenant.app.SlugUtils;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.domain.TenantStatus;
@@ -44,7 +47,8 @@ public class DataInitializer {
             TenantSchemaManager tenantSchemaManager,
             CategoryRepository categoryRepository,
             CareRepository careRepository,
-            OpeningHourRepository openingHourRepository
+            OpeningHourRepository openingHourRepository,
+            PostRepository postRepository
     ) {
         return args -> {
             if (userRepository.count() > 0) {
@@ -67,6 +71,12 @@ public class DataInitializer {
                     "Venez découvrir nos soins personnalisés dans un cadre chaleureux.");
             salonSophie.setCategoryNames("Soins visage,Soins corps,Épilation");
             salonSophie.setCategorySlugs("soins-visage,soins-corps,epilation");
+            salonSophie.setAddressStreet("25 Rue du Faubourg Saint-Antoine");
+            salonSophie.setAddressPostalCode("75011");
+            salonSophie.setAddressCity("Paris");
+            salonSophie.setAddressCountry("FR");
+            salonSophie.setPhone("+33 1 43 72 15 80");
+            salonSophie.setContactEmail("sophie@prettyface.com");
             tenantRepository.save(salonSophie);
             tenantSchemaManager.provisionSchema(salonSophie.getSlug());
             seedSalonSophie(salonSophie.getSlug(), categoryRepository, careRepository, openingHourRepository);
@@ -81,10 +91,36 @@ public class DataInitializer {
                     "Nail art, pose de vernis semi-permanent et maquillage événementiel.");
             salonCamille.setCategoryNames("Ongles,Maquillage");
             salonCamille.setCategorySlugs("ongles,maquillage");
+            salonCamille.setAddressStreet("12 Rue de la République");
+            salonCamille.setAddressPostalCode("69003");
+            salonCamille.setAddressCity("Lyon");
+            salonCamille.setAddressCountry("FR");
+            salonCamille.setPhone("+33 4 78 60 22 45");
+            salonCamille.setContactEmail("camille@prettyface.com");
             tenantRepository.save(salonCamille);
             tenantSchemaManager.provisionSchema(salonCamille.getSlug());
             seedSalonCamille(salonCamille.getSlug(), categoryRepository, careRepository, openingHourRepository);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
+
+            // ── Pro 3: Isabelle's salon (Bordeaux) ──
+            User isabelle = createUser(userRepository, passwordEncoder,
+                    "Isabelle Dupont", "isabelle@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
+            Tenant salonIsabelle = createTenant(tenantRepository, isabelle);
+            salonIsabelle.setName("Éclat Naturel");
+            salonIsabelle.setDescription("Soins bio et naturels pour le visage et le corps. " +
+                    "Produits certifiés bio, ambiance zen et cocooning.");
+            salonIsabelle.setCategoryNames("Soins visage,Soins corps");
+            salonIsabelle.setCategorySlugs("soins-visage,soins-corps");
+            salonIsabelle.setAddressStreet("8 Cours de l'Intendance");
+            salonIsabelle.setAddressPostalCode("33000");
+            salonIsabelle.setAddressCity("Bordeaux");
+            salonIsabelle.setAddressCountry("FR");
+            salonIsabelle.setPhone("+33 5 56 48 30 12");
+            salonIsabelle.setContactEmail("isabelle@prettyface.com");
+            tenantRepository.save(salonIsabelle);
+            tenantSchemaManager.provisionSchema(salonIsabelle.getSlug());
+            seedSalonIsabelle(salonIsabelle.getSlug(), categoryRepository, careRepository, openingHourRepository);
+            logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonIsabelle.getName(), salonIsabelle.getSlug(), isabelle.getEmail());
 
             // ── Clients ──
             createUser(userRepository, passwordEncoder,
@@ -93,6 +129,10 @@ public class DataInitializer {
                     "Julie Petit", "julie@test.com", DEFAULT_PASSWORD, Role.USER);
             createUser(userRepository, passwordEncoder,
                     "Clara Moreau", "clara@test.com", DEFAULT_PASSWORD, Role.USER);
+
+            // ── Posts (images from Unsplash) ──
+            seedPosts(postRepository);
+            logger.info("✅ Posts de démonstration créés");
 
             logger.info("=== Seeding complete ===");
             logger.info("Comptes pro:    sophie@prettyface.com / {}  |  camille@prettyface.com / {}", DEFAULT_PASSWORD, DEFAULT_PASSWORD);
@@ -220,6 +260,76 @@ public class DataInitializer {
         } finally {
             TenantContext.clear();
         }
+    }
+
+    // ── Isabelle's salon: soins bio ──
+    private void seedSalonIsabelle(String slug,
+                                    CategoryRepository categoryRepo,
+                                    CareRepository careRepo,
+                                    OpeningHourRepository openingHourRepo) {
+        TenantContext.setCurrentTenant(slug);
+        try {
+            Category visage = saveCategory(categoryRepo, "Soins visage", "Soins naturels et bio pour le visage");
+            Category corps = saveCategory(categoryRepo, "Soins corps", "Soins corporels aux produits bio");
+
+            saveCare(careRepo, "Soin éclat bio", "Soin illuminateur aux huiles essentielles bio",
+                    6500, 60, visage, 1);
+            saveCare(careRepo, "Facial detox", "Nettoyage profond aux argiles naturelles",
+                    5000, 50, visage, 2);
+            saveCare(careRepo, "Massage aux pierres chaudes", "Massage relaxant aux pierres de basalte",
+                    7500, 75, corps, 1);
+            saveCare(careRepo, "Enveloppement algues", "Soin minceur et détoxifiant aux algues marines",
+                    6000, 60, corps, 2);
+
+            // Opening hours: Tue-Sat 9h30-18h30
+            for (int day = 2; day <= 6; day++) {
+                saveOpeningHour(openingHourRepo, day, LocalTime.of(9, 30), LocalTime.of(18, 30));
+            }
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    // ── Demo posts with image URLs ──
+    private void seedPosts(PostRepository postRepo) {
+        // Post images: use downloadable public URLs as paths
+        // In production these would be uploaded files; for demo we store URLs directly
+        createPost(postRepo, PostType.PHOTO, "Résultat soin éclat",
+                null,
+                "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600",
+                null, "Soin éclat bio");
+        createPost(postRepo, PostType.PHOTO, "Manucure du jour",
+                null,
+                "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600",
+                null, "Manucure classique");
+        createPost(postRepo, PostType.PHOTO, "Massage relaxant",
+                null,
+                "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600",
+                null, "Massage relaxant");
+        createPost(postRepo, PostType.BEFORE_AFTER, "Transformation soin anti-âge",
+                "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=600",
+                "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=600",
+                null, "Soin anti-âge premium");
+        createPost(postRepo, PostType.PHOTO, "Ambiance zen du salon",
+                null,
+                "https://images.unsplash.com/photo-1540555700478-4be289fbec6f?w=600",
+                null, null);
+        createPost(postRepo, PostType.PHOTO, "Nail art créatif",
+                null,
+                "https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=600",
+                null, "Nail art créatif");
+    }
+
+    private void createPost(PostRepository repo, PostType type, String caption,
+                            String beforePath, String afterPath, Long careId, String careName) {
+        Post post = new Post();
+        post.setType(type);
+        post.setCaption(caption);
+        post.setBeforeImagePath(beforePath);
+        post.setAfterImagePath(afterPath);
+        post.setCareId(careId);
+        post.setCareName(careName);
+        repo.save(post);
     }
 
     private Category saveCategory(CategoryRepository repo, String name, String description) {

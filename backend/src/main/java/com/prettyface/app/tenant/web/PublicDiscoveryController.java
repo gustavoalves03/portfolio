@@ -28,7 +28,7 @@ public class PublicDiscoveryController {
         if (category != null && !category.isBlank()) {
             tenants = tenantRepository.findByStatusAndCategorySlugsContaining(TenantStatus.ACTIVE, category);
         } else if (q != null && !q.isBlank()) {
-            tenants = tenantRepository.findByStatusAndNameContainingIgnoreCase(TenantStatus.ACTIVE, q.trim());
+            tenants = tenantRepository.searchByKeyword(TenantStatus.ACTIVE, q.trim());
         } else {
             tenants = tenantRepository.findByStatus(TenantStatus.ACTIVE);
         }

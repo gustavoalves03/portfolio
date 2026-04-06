@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import com.prettyface.app.bookings.domain.CareBookingStatus;
+import com.prettyface.app.bookings.repo.CareBookingRepository;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.domain.CareStatus;
@@ -16,6 +18,10 @@ import com.prettyface.app.care.web.dto.CareResponse;
 import com.prettyface.app.care.web.mapper.CareMapper;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.common.storage.FileStorageService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDate;
 
 @Service
 public class CareService {
@@ -25,11 +31,14 @@ public class CareService {
     private final CareRepository repo;
     private final CategoryRepository categoryRepository;
     private final FileStorageService fileStorageService;
+    private final CareBookingRepository careBookingRepository;
 
-    public CareService(CareRepository repo, CategoryRepository categoryRepository, FileStorageService fileStorageService) {
+    public CareService(CareRepository repo, CategoryRepository categoryRepository,
+                       FileStorageService fileStorageService, CareBookingRepository careBookingRepository) {
         this.repo = repo;
         this.categoryRepository = categoryRepository;
         this.fileStorageService = fileStorageService;
+        this.careBookingRepository = careBookingRepository;
     }
 
     @Transactional(readOnly = true)
@@ -228,6 +237,12 @@ public class CareService {
 
     @Transactional
     public void delete(Long id) {
+        long futureBookings = careBookingRepository.countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
+                id, LocalDate.now(), CareBookingStatus.CANCELLED);
+        if (futureBookings > 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Cannot delete: " + futureBookings + " future booking(s) exist. Cancel them first.");
+        }
         // Delete all images first
         fileStorageService.deleteCareImages(id);
         // Delete Care entity (cascade will delete CareImage entities)

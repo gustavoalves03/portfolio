@@ -10,6 +10,9 @@ import com.prettyface.app.bookings.repo.CareBookingRepository;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.employee.app.LeaveRequestService;
+import com.prettyface.app.multitenancy.TenantContext;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.repo.TenantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +32,23 @@ public class SlotAvailabilityService {
     private final CareBookingRepository bookingRepo;
     private final CareRepository careRepo;
     private final LeaveRequestService leaveRequestService;
+    private final HolidayAvailabilityService holidayAvailabilityService;
+    private final TenantRepository tenantRepository;
 
     public SlotAvailabilityService(OpeningHourRepository openingHourRepo,
                                    BlockedSlotRepository blockedSlotRepo,
                                    CareBookingRepository bookingRepo,
                                    CareRepository careRepo,
-                                   LeaveRequestService leaveRequestService) {
+                                   LeaveRequestService leaveRequestService,
+                                   HolidayAvailabilityService holidayAvailabilityService,
+                                   TenantRepository tenantRepository) {
         this.openingHourRepo = openingHourRepo;
         this.blockedSlotRepo = blockedSlotRepo;
         this.bookingRepo = bookingRepo;
         this.careRepo = careRepo;
         this.leaveRequestService = leaveRequestService;
+        this.holidayAvailabilityService = holidayAvailabilityService;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -49,6 +58,11 @@ public class SlotAvailabilityService {
     @Transactional(readOnly = true)
     public List<TimeSlot> getAvailableSlots(LocalDate date, Long careId) {
         if (date.isBefore(LocalDate.now())) {
+            return List.of();
+        }
+
+        // Check if closed for public holiday
+        if (isClosedForHoliday(date)) {
             return List.of();
         }
 
@@ -86,8 +100,12 @@ public class SlotAvailabilityService {
         List<CareBooking> existingBookings = bookingRepo
                 .findByAppointmentDateAndStatusNot(date, CareBookingStatus.CANCELLED);
 
-        // Generate candidate slots from opening hours
+        // Get buffer time between appointments
+        int bufferMinutes = getBufferMinutes();
+
+        // Generate candidate slots from opening hours (deduplicate overlapping windows)
         List<TimeSlot> availableSlots = new ArrayList<>();
+        java.util.Set<String> seenStartTimes = new java.util.HashSet<>();
 
         for (OpeningHour oh : openingHours) {
             LocalTime cursor = oh.getOpenTime();
@@ -95,11 +113,14 @@ public class SlotAvailabilityService {
 
             while (cursor.plusMinutes(durationMinutes).compareTo(windowEnd) <= 0) {
                 LocalTime slotEnd = cursor.plusMinutes(durationMinutes);
+                String startKey = cursor.toString();
 
-                if (!isBlockedAt(cursor, slotEnd, blockedSlots)
-                        && !isBookedAt(cursor, slotEnd, existingBookings)) {
-                    availableSlots.add(new TimeSlot(cursor.toString(), slotEnd.toString()));
+                if (!seenStartTimes.contains(startKey)
+                        && !isBlockedAt(cursor, slotEnd, blockedSlots)
+                        && !isBookedAt(cursor, slotEnd, existingBookings, bufferMinutes)) {
+                    availableSlots.add(new TimeSlot(startKey, slotEnd.toString()));
                 }
+                seenStartTimes.add(startKey);
 
                 cursor = cursor.plusMinutes(SLOT_INTERVAL_MINUTES);
             }
@@ -119,6 +140,11 @@ public class SlotAvailabilityService {
             return List.of();
         }
 
+        // Check if closed for public holiday
+        if (isClosedForHoliday(date)) {
+            return List.of();
+        }
+
         Care care = careRepo.findById(careId)
                 .orElseThrow(() -> new IllegalArgumentException("Care not found: " + careId));
         int durationMinutes = care.getDuration();
@@ -126,23 +152,34 @@ public class SlotAvailabilityService {
         // Get day of week (Monday=1..Sunday=7)
         int dow = date.getDayOfWeek().getValue();
 
+        // Get salon-wide opening hours for this day (always needed for clipping)
+        List<OpeningHour> salonHours = openingHourRepo
+                .findByEmployeeIdIsNullOrderByDayOfWeekAscOpenTimeAsc()
+                .stream()
+                .filter(oh -> oh.getDayOfWeek() == dow)
+                .toList();
+
+        // If the salon itself is closed, no employee can work
+        if (salonHours.isEmpty()) {
+            return List.of();
+        }
+
         // Get employee's personal opening hours; fallback to salon-wide if none
         List<OpeningHour> employeeHours = openingHourRepo
                 .findByEmployeeIdOrderByDayOfWeekAscOpenTimeAsc(employeeId);
         List<OpeningHour> openingHours;
         if (employeeHours.isEmpty()) {
-            openingHours = openingHourRepo.findByEmployeeIdIsNullOrderByDayOfWeekAscOpenTimeAsc()
-                    .stream()
-                    .filter(oh -> oh.getDayOfWeek() == dow)
-                    .toList();
+            openingHours = salonHours;
         } else {
-            openingHours = employeeHours.stream()
+            // Clip employee hours to salon hours (intersection)
+            List<OpeningHour> empDayHours = employeeHours.stream()
                     .filter(oh -> oh.getDayOfWeek() == dow)
                     .toList();
+            openingHours = clipToSalonHours(empDayHours, salonHours);
         }
 
         if (openingHours.isEmpty()) {
-            return List.of(); // Closed day
+            return List.of(); // No overlap between employee and salon hours
         }
 
         // Check if employee is on approved leave
@@ -173,8 +210,12 @@ public class SlotAvailabilityService {
         List<CareBooking> existingBookings = bookingRepo
                 .findByAppointmentDateAndEmployeeIdAndStatusNot(date, employeeId, CareBookingStatus.CANCELLED);
 
-        // Generate candidate slots from opening hours
+        // Get buffer time between appointments
+        int bufferMinutes = getBufferMinutes();
+
+        // Generate candidate slots from opening hours (deduplicate overlapping windows)
         List<TimeSlot> availableSlots = new ArrayList<>();
+        java.util.Set<String> seenStartTimes = new java.util.HashSet<>();
 
         for (OpeningHour oh : openingHours) {
             LocalTime cursor = oh.getOpenTime();
@@ -182,11 +223,14 @@ public class SlotAvailabilityService {
 
             while (cursor.plusMinutes(durationMinutes).compareTo(windowEnd) <= 0) {
                 LocalTime slotEnd = cursor.plusMinutes(durationMinutes);
+                String startKey = cursor.toString();
 
-                if (!isBlockedAt(cursor, slotEnd, allBlocks)
-                        && !isBookedAt(cursor, slotEnd, existingBookings)) {
-                    availableSlots.add(new TimeSlot(cursor.toString(), slotEnd.toString()));
+                if (!seenStartTimes.contains(startKey)
+                        && !isBlockedAt(cursor, slotEnd, allBlocks)
+                        && !isBookedAt(cursor, slotEnd, existingBookings, bufferMinutes)) {
+                    availableSlots.add(new TimeSlot(startKey, slotEnd.toString()));
                 }
+                seenStartTimes.add(startKey);
 
                 cursor = cursor.plusMinutes(SLOT_INTERVAL_MINUTES);
             }
@@ -215,6 +259,57 @@ public class SlotAvailabilityService {
         return null;
     }
 
+    /**
+     * Get the buffer time (in minutes) between appointments for the current tenant.
+     */
+    private int getBufferMinutes() {
+        String slug = TenantContext.getCurrentTenant();
+        if (slug == null) return 0;
+        return tenantRepository.findBySlug(slug)
+                .map(t -> t.getBufferMinutes() != null ? t.getBufferMinutes() : 0)
+                .orElse(0);
+    }
+
+    /**
+     * Clip employee opening hours to salon opening hours (intersection).
+     * An employee can only work during times when the salon is also open.
+     * For each employee window, find the overlap with each salon window.
+     */
+    private List<OpeningHour> clipToSalonHours(List<OpeningHour> empHours, List<OpeningHour> salonHours) {
+        List<OpeningHour> clipped = new ArrayList<>();
+        for (OpeningHour emp : empHours) {
+            for (OpeningHour salon : salonHours) {
+                // Find intersection of [emp.open, emp.close] and [salon.open, salon.close]
+                LocalTime start = emp.getOpenTime().isAfter(salon.getOpenTime()) ? emp.getOpenTime() : salon.getOpenTime();
+                LocalTime end = emp.getCloseTime().isBefore(salon.getCloseTime()) ? emp.getCloseTime() : salon.getCloseTime();
+                if (start.isBefore(end)) {
+                    OpeningHour oh = new OpeningHour();
+                    oh.setDayOfWeek(emp.getDayOfWeek());
+                    oh.setOpenTime(start);
+                    oh.setCloseTime(end);
+                    oh.setEmployeeId(emp.getEmployeeId());
+                    clipped.add(oh);
+                }
+            }
+        }
+        return clipped;
+    }
+
+    /**
+     * Check if the salon is closed for a public holiday on the given date.
+     * Uses TenantContext to resolve the current tenant's country and closedOnHolidays flag.
+     */
+    private boolean isClosedForHoliday(LocalDate date) {
+        String slug = TenantContext.getCurrentTenant();
+        if (slug == null) return false;
+        Tenant tenant = tenantRepository.findBySlug(slug).orElse(null);
+        if (tenant == null) return false;
+        String country = tenant.getAddressCountry();
+        Boolean closed = tenant.getClosedOnHolidays();
+        if (country == null || closed == null) return false;
+        return holidayAvailabilityService.isClosedForHoliday(date, country, closed);
+    }
+
     private boolean isBlockedAt(LocalTime start, LocalTime end, List<BlockedSlot> blockedSlots) {
         for (BlockedSlot bs : blockedSlots) {
             if (bs.isFullDay()) return true;
@@ -228,14 +323,15 @@ public class SlotAvailabilityService {
         return false;
     }
 
-    private boolean isBookedAt(LocalTime start, LocalTime end, List<CareBooking> bookings) {
+    private boolean isBookedAt(LocalTime start, LocalTime end, List<CareBooking> bookings, int bufferMinutes) {
         for (CareBooking booking : bookings) {
             LocalTime bookingStart = booking.getAppointmentTime();
             int bookingDuration = booking.getCare().getDuration();
-            LocalTime bookingEnd = bookingStart.plusMinutes(bookingDuration);
+            // Add buffer after the booking: the next slot can only start after bookingEnd + buffer
+            LocalTime bookingEndWithBuffer = bookingStart.plusMinutes(bookingDuration + bufferMinutes);
 
-            // Overlap check
-            if (start.isBefore(bookingEnd) && end.isAfter(bookingStart)) {
+            // Overlap check (buffer extends the "occupied" zone)
+            if (start.isBefore(bookingEndWithBuffer) && end.isAfter(bookingStart)) {
                 return true;
             }
         }

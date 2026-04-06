@@ -104,6 +104,17 @@ public class TenantService {
             tenant.setClosedOnHolidays(request.closedOnHolidays());
         }
 
+        // Booking limits
+        if (request.minAdvanceMinutes() != null) {
+            tenant.setMinAdvanceMinutes(request.minAdvanceMinutes());
+        }
+        if (request.maxAdvanceDays() != null) {
+            tenant.setMaxAdvanceDays(request.maxAdvanceDays());
+        }
+        if (request.maxClientHoursPerDay() != null) {
+            tenant.setMaxClientHoursPerDay(request.maxClientHoursPerDay());
+        }
+
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);
     }

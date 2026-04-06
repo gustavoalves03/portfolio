@@ -1,6 +1,8 @@
 package com.prettyface.app.availability.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +20,8 @@ public class OpeningHour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Min(1)
+    @Max(7)
     @Column(name = "day_of_week", nullable = false)
     private Integer dayOfWeek; // 1=Monday ... 7=Sunday
 

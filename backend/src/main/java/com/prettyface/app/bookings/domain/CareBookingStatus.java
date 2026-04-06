@@ -4,5 +4,6 @@ public enum CareBookingStatus {
     PENDING,
     CONFIRMED,
     CANCELLED,
+    NO_SHOW,
 }
 

@@ -86,6 +86,22 @@ public class Tenant {
     @Column(name = "closed_on_holidays")
     private Boolean closedOnHolidays = true;
 
+    @Builder.Default
+    @Column(name = "buffer_minutes")
+    private Integer bufferMinutes = 0;
+
+    @Builder.Default
+    @Column(name = "min_advance_minutes")
+    private Integer minAdvanceMinutes = 120; // 2h minimum before booking
+
+    @Builder.Default
+    @Column(name = "max_advance_days")
+    private Integer maxAdvanceDays = 90; // 3 months max
+
+    @Builder.Default
+    @Column(name = "max_client_hours_per_day")
+    private Integer maxClientHoursPerDay = 8;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

@@ -13,7 +13,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, merge, switchMap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { SalonCard } from '../../features/discovery/discovery.model';
 
@@ -53,8 +54,21 @@ export class DiscoverPageComponent implements OnDestroy {
   private readonly mapReady = signal(false);
 
   readonly salons = toSignal(
-    this.route.queryParamMap.pipe(
-      switchMap((p) => this.discoveryService.searchSalons(p.get('category'), p.get('q'))),
+    merge(
+      // React to URL query params (initial load, shared links)
+      this.route.queryParamMap.pipe(
+        switchMap((p) => {
+          const q = p.get('q');
+          if (q) this.searchQuery.set(q);
+          return this.discoveryService.searchSalons(p.get('category'), q);
+        }),
+      ),
+      // React to live typing with debounce
+      toObservable(this.searchQuery).pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((q) => this.discoveryService.searchSalons(null, q || null)),
+      ),
     ),
     { initialValue: [] as SalonCard[] },
   );
@@ -90,10 +104,8 @@ export class DiscoverPageComponent implements OnDestroy {
   }
 
   onSearch(): void {
-    const q = this.searchQuery().trim();
-    this.router.navigate(['/discover'], {
-      queryParams: q ? { q } : {},
-    });
+    // Search is handled reactively via toObservable(searchQuery) with debounce
+    // This method is kept for form submit (pressing Enter)
   }
 
   onSalonClick(slug: string): void {

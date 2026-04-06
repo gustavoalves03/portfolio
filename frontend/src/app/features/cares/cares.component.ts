@@ -261,9 +261,58 @@ export class CaresComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.store.deleteCare(care.id);
+        this.caresService.delete(care.id).subscribe({
+          next: () => {
+            this.store.getCares();
+            this.snackBar.open(
+              this.i18n.translate('cares.deleteSuccess'),
+              'OK',
+              { duration: 3000 },
+            );
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              const ref = this.snackBar.open(
+                this.i18n.translate('errors.care.hasFutureBookings'),
+                this.i18n.translate('errors.care.cancelBookingsAction'),
+                { duration: 10000, panelClass: 'snackbar-warning' },
+              );
+              ref.onAction().subscribe(() => {
+                this.cancelFutureBookingsForCare(care);
+              });
+            } else {
+              this.snackBar.open(
+                this.i18n.translate('cares.deleteError'),
+                'OK',
+                { duration: 5000, panelClass: 'snackbar-error' },
+              );
+            }
+          },
+        });
       }
     });
+  }
+
+  private cancelFutureBookingsForCare(care: Care): void {
+    const base = this.caresService['apiBaseUrl']?.replace(/\/$/, '') ?? '';
+    this.caresService['http']
+      .post<{ cancelledCount: number }>(`${base}/api/bookings/cancel-by-care/${care.id}`, {})
+      .subscribe({
+        next: (res) => {
+          this.snackBar.open(
+            `${res.cancelledCount} ${this.i18n.translate('errors.care.bookingsCancelled')}`,
+            'OK',
+            { duration: 5000 },
+          );
+        },
+        error: () => {
+          this.snackBar.open(
+            this.i18n.translate('errors.care.cancelFailed'),
+            'OK',
+            { duration: 5000, panelClass: 'snackbar-error' },
+          );
+        },
+      });
   }
 
   readonly onViewCareDetails = (care: Care) => {

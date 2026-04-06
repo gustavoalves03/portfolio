@@ -16,8 +16,13 @@ export interface RecentPost {
   id: number;
   type: PostType;
   caption: string | null;
-  thumbnailUrl: string | null;
+  beforeImageUrl: string | null;
+  afterImageUrl: string | null;
+  carouselImageUrls: string[];
+  careName: string | null;
   salonName: string | null;
   salonSlug: string | null;
+  salonLogoUrl: string | null;
+  salonCity: string | null;
   createdAt: string;
 }

@@ -26,7 +26,9 @@
             [class.today]="day.isToday"
             [class.closed]="day.isClosed && day.isCurrentMonth"
             [class.has-blocks]="day.hasBlocks && day.isCurrentMonth"
+            [class.holiday]="day.isHoliday && day.isCurrentMonth"
             [class.selected]="isSelected(day)"
+            [title]="day.holidayName || ''"
             (click)="selectDay(day)"
           >
             {{ day.dayOfMonth }}
@@ -48,6 +50,10 @@
           <span class="legend-dot closed-dot"></span>
           {{ 'pro.calendar.legend.closed' | transloco }}
         </div>
+        <div class="legend-item">
+          <span class="legend-dot holiday-dot"></span>
+          {{ 'pro.calendar.legend.holiday' | transloco }}
+        </div>
       </div>
     </div>
 
@@ -57,6 +63,13 @@
         <div class="day-detail-title">
           {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
         </div>
+
+        @if (isSelectedDayHoliday()) {
+          <div class="day-holiday-msg">
+            <mat-icon class="holiday-icon">celebration</mat-icon>
+            {{ selectedDayHolidayName() }}
+          </div>
+        }
 
         @if (isSelectedDayClosed()) {
           <div class="day-closed-msg">{{ 'pro.calendar.closed' | transloco }}</div>

@@ -38,8 +38,10 @@
     "@jsverse/transloco-locale": "^8.0.2",
     "@ngrx/signals": "^20.0.0",
     "@types/leaflet": "^1.9.21",
+    "chart.js": "^4.5.1",
     "express": "^5.1.0",
     "leaflet": "^1.9.4",
+    "ng2-charts": "^10.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

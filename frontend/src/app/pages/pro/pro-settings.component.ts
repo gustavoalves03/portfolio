@@ -60,6 +60,61 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
             }
 
             <div class="settings-card" style="margin-top: 16px;">
+                <h2 class="section-title">{{ 'pro.settings.bookingSection' | transloco }}</h2>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <div class="setting-label">{{ 'pro.settings.minAdvanceLabel' | transloco }}</div>
+                        <div class="setting-desc">{{ 'pro.settings.minAdvanceDesc' | transloco }}</div>
+                    </div>
+                    <div class="days-input">
+                        <input
+                            type="number"
+                            class="days-field"
+                            [value]="featuresService.minAdvanceMinutes()"
+                            min="0"
+                            (change)="onMinAdvanceChange($any($event.target).value)"
+                        />
+                        <span class="days-unit">{{ 'pro.settings.minutesUnit' | transloco }}</span>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <div class="setting-label">{{ 'pro.settings.maxAdvanceLabel' | transloco }}</div>
+                        <div class="setting-desc">{{ 'pro.settings.maxAdvanceDesc' | transloco }}</div>
+                    </div>
+                    <div class="days-input">
+                        <input
+                            type="number"
+                            class="days-field"
+                            [value]="featuresService.maxAdvanceDays()"
+                            min="0"
+                            (change)="onMaxAdvanceChange($any($event.target).value)"
+                        />
+                        <span class="days-unit">{{ 'pro.settings.daysAdvanceUnit' | transloco }}</span>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <div class="setting-label">{{ 'pro.settings.maxClientHoursLabel' | transloco }}</div>
+                        <div class="setting-desc">{{ 'pro.settings.maxClientHoursDesc' | transloco }}</div>
+                    </div>
+                    <div class="days-input">
+                        <input
+                            type="number"
+                            class="days-field"
+                            [value]="featuresService.maxClientHoursPerDay()"
+                            min="0"
+                            (change)="onMaxClientHoursChange($any($event.target).value)"
+                        />
+                        <span class="days-unit">{{ 'pro.settings.hoursUnit' | transloco }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card" style="margin-top: 16px;">
                 <h2 class="section-title">{{ 'pro.settings.holidaysSection' | transloco }}</h2>
 
                 <div class="setting-row">
@@ -74,27 +129,36 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
                 </div>
 
                 @if (featuresService.closedOnHolidays() && upcomingHolidays().length > 0) {
-                    <div class="holidays-list">
-                        <div class="holidays-header">{{ 'pro.settings.upcomingHolidays' | transloco }}</div>
-                        @for (holiday of upcomingHolidays(); track holiday.date) {
-                            <div class="holiday-row">
-                                <div class="holiday-info">
-                                    <div class="holiday-name">{{ holiday.name }}</div>
-                                    <div class="holiday-date">{{ holiday.date | date:'longDate' }}</div>
+                    <button class="holidays-drawer-toggle" (click)="holidaysOpen.set(!holidaysOpen())">
+                        <span>{{ 'pro.settings.upcomingHolidays' | transloco }}</span>
+                        <span class="holidays-count">{{ upcomingHolidays().length }}</span>
+                        <mat-icon class="holidays-chevron" [class.rotated]="holidaysOpen()">expand_more</mat-icon>
+                    </button>
+                    @if (holidaysOpen()) {
+                        <div class="holidays-scroll">
+                            @for (holiday of upcomingHolidays(); track holiday.date) {
+                                <div class="holiday-row">
+                                    <div class="holiday-date-badge">
+                                        <span class="holiday-day">{{ holiday.date | date:'d' }}</span>
+                                        <span class="holiday-month">{{ holiday.date | date:'MMM' }}</span>
+                                    </div>
+                                    <div class="holiday-info">
+                                        <div class="holiday-name">{{ holiday.name }}</div>
+                                    </div>
+                                    <button
+                                        class="holiday-status-btn"
+                                        [class.open]="isHolidayOpen(holiday.date)"
+                                        (click)="toggleHolidayException(holiday.date)">
+                                        @if (isHolidayOpen(holiday.date)) {
+                                            {{ 'pro.settings.holidayOpen' | transloco }}
+                                        } @else {
+                                            {{ 'pro.settings.holidayClosed' | transloco }}
+                                        }
+                                    </button>
                                 </div>
-                                <button
-                                    class="holiday-status-btn"
-                                    [class.open]="isHolidayOpen(holiday.date)"
-                                    (click)="toggleHolidayException(holiday.date)">
-                                    @if (isHolidayOpen(holiday.date)) {
-                                        {{ 'pro.settings.holidayOpen' | transloco }}
-                                    } @else {
-                                        {{ 'pro.settings.holidayClosed' | transloco }}
-                                    }
-                                </button>
-                            </div>
-                        }
-                    </div>
+                            }
+                        </div>
+                    }
                 }
             </div>
         </div>
@@ -115,15 +179,45 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
         }
         .days-field:focus { border-color: #c06; box-shadow: 0 0 0 2px rgba(192,0,102,0.1); }
         .days-unit { font-size: 13px; color: #888; }
-        .holidays-list { margin-top: 12px; }
-        .holidays-header { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px; padding-top: 8px; border-top: 1px solid #f5f5f5; }
-        .holiday-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f8f8f8; }
-        .holiday-name { font-size: 14px; font-weight: 500; color: #333; }
-        .holiday-date { font-size: 12px; color: #999; margin-top: 2px; }
+        .holidays-drawer-toggle {
+            display: flex; align-items: center; gap: 8px; width: 100%;
+            margin-top: 12px; padding: 10px 0; border: none; background: none;
+            border-top: 1px solid #f5f5f5; cursor: pointer;
+            font-family: Roboto, sans-serif; font-size: 13px; font-weight: 600; color: #666;
+        }
+        .holidays-drawer-toggle:hover { color: #333; }
+        .holidays-count {
+            background: #f0e0e8; color: #c06; font-size: 11px; font-weight: 600;
+            padding: 1px 7px; border-radius: 10px;
+        }
+        .holidays-chevron {
+            margin-left: auto; font-size: 20px; width: 20px; height: 20px;
+            color: #999; transition: transform 200ms ease;
+        }
+        .holidays-chevron.rotated { transform: rotate(180deg); }
+        .holidays-scroll {
+            max-height: 280px; overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #e0e0e0 transparent;
+        }
+        .holidays-scroll::-webkit-scrollbar { width: 4px; }
+        .holidays-scroll::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+        .holiday-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0; border-bottom: 1px solid #f8f8f8;
+        }
+        .holiday-date-badge {
+            width: 42px; min-width: 42px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; line-height: 1;
+        }
+        .holiday-day { font-size: 18px; font-weight: 700; color: #333; }
+        .holiday-month { font-size: 10px; color: #888; text-transform: uppercase; }
+        .holiday-info { flex: 1; min-width: 0; }
+        .holiday-name { font-size: 13px; font-weight: 500; color: #333; }
         .holiday-status-btn {
             padding: 4px 12px; border-radius: 16px; border: 1.5px solid #e57373;
-            background: #fff5f5; color: #c62828; font-size: 12px; font-weight: 500;
-            cursor: pointer; transition: all 150ms ease;
+            background: #fff5f5; color: #c62828; font-size: 11px; font-weight: 500;
+            cursor: pointer; transition: all 150ms ease; flex-shrink: 0;
         }
         .holiday-status-btn:hover { background: #ffebee; }
         .holiday-status-btn.open {
@@ -138,6 +232,7 @@ export class ProSettingsComponent implements OnInit {
     private readonly apiBaseUrl = inject(API_BASE_URL);
 
     readonly upcomingHolidays = signal<HolidayInfo[]>([]);
+    readonly holidaysOpen = signal(false);
     readonly holidayExceptions = signal<HolidayExceptionInfo[]>([]);
 
     ngOnInit(): void {
@@ -149,6 +244,27 @@ export class ProSettingsComponent implements OnInit {
         const days = parseInt(value, 10);
         if (!isNaN(days) && days >= 0 && days <= 365) {
             this.featuresService.setAnnualLeaveDays(days);
+        }
+    }
+
+    onMinAdvanceChange(value: string): void {
+        const minutes = parseInt(value, 10);
+        if (!isNaN(minutes) && minutes >= 0) {
+            this.featuresService.setMinAdvanceMinutes(minutes);
+        }
+    }
+
+    onMaxAdvanceChange(value: string): void {
+        const days = parseInt(value, 10);
+        if (!isNaN(days) && days >= 0) {
+            this.featuresService.setMaxAdvanceDays(days);
+        }
+    }
+
+    onMaxClientHoursChange(value: string): void {
+        const hours = parseInt(value, 10);
+        if (!isNaN(hours) && hours >= 0) {
+            this.featuresService.setMaxClientHoursPerDay(hours);
         }
     }
 

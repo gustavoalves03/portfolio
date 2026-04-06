@@ -48,7 +48,7 @@ oradata/
 ### OS ###
 .DS_Store
 Thumbs.db
-
+./.gitignore
 ### Logs ###
 *.log
 logs/

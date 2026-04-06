@@ -3,7 +3,9 @@ package com.prettyface.app.bookings.app;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
+import com.prettyface.app.bookings.domain.ClientBookingHistory;
 import com.prettyface.app.bookings.repo.CareBookingRepository;
+import com.prettyface.app.bookings.repo.ClientBookingHistoryRepository;
 import com.prettyface.app.bookings.web.dto.CareBookingDetailedResponse;
 import com.prettyface.app.bookings.web.dto.CareBookingRequest;
 import com.prettyface.app.bookings.web.dto.CareBookingResponse;
@@ -13,7 +15,10 @@ import com.prettyface.app.bookings.web.mapper.CareBookingMapper;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.notification.app.EmailService;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -24,8 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class CareBookingService {
@@ -34,15 +41,20 @@ public class CareBookingService {
     private final CareRepository careRepository;
     private final SlotAvailabilityService slotAvailabilityService;
     private final EmailService emailService;
+    private final TenantRepository tenantRepository;
+    private final ClientBookingHistoryRepository clientBookingHistoryRepository;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
-                               EmailService emailService) {
+                               EmailService emailService, TenantRepository tenantRepository,
+                               ClientBookingHistoryRepository clientBookingHistoryRepository) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
         this.slotAvailabilityService = slotAvailabilityService;
         this.emailService = emailService;
+        this.tenantRepository = tenantRepository;
+        this.clientBookingHistoryRepository = clientBookingHistoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -93,8 +105,45 @@ public class CareBookingService {
 
     @Transactional
     public CareBookingResponse update(Long id, CareBookingRequest req) {
-        CareBooking b = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
-        // Authoritative user/care can stay unchanged; update quantity/status only
+        CareBooking b = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+
+        LocalDateTime originalDateTime = LocalDateTime.of(b.getAppointmentDate(), b.getAppointmentTime());
+        boolean isPast = originalDateTime.isBefore(LocalDateTime.now());
+
+        // Rule 1: Cannot cancel a past booking — use NO_SHOW instead
+        if (isPast && req.status() == CareBookingStatus.CANCELLED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot cancel a past appointment. Use NO_SHOW status instead.");
+        }
+
+        // Rule 2: Cannot modify date/time of a past booking
+        if (isPast && (!req.appointmentDate().equals(b.getAppointmentDate())
+                    || !req.appointmentTime().equals(b.getAppointmentTime()))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot reschedule a past appointment.");
+        }
+
+        // Rule 3: If date, time, or care changes → re-verify slot availability
+        boolean dateChanged = !req.appointmentDate().equals(b.getAppointmentDate());
+        boolean timeChanged = !req.appointmentTime().equals(b.getAppointmentTime());
+        boolean careChanged = !req.careId().equals(b.getCare().getId());
+
+        if ((dateChanged || timeChanged || careChanged)
+                && req.status() != CareBookingStatus.CANCELLED
+                && req.status() != CareBookingStatus.NO_SHOW) {
+
+            boolean slotAvailable = slotAvailabilityService
+                    .getAvailableSlots(req.appointmentDate(), req.careId())
+                    .stream()
+                    .anyMatch(slot -> LocalTime.parse(slot.startTime()).equals(req.appointmentTime()));
+
+            if (!slotAvailable) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "The new time slot is not available.");
+            }
+        }
+
         CareBookingMapper.updateEntity(b, req);
         return CareBookingMapper.toResponse(repo.save(b));
     }
@@ -110,6 +159,60 @@ public class CareBookingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Care not found or inactive"));
 
         LocalTime time = LocalTime.parse(req.appointmentTime());
+
+        // Get tenant for booking limits
+        String slug = TenantContext.getCurrentTenant();
+        Tenant tenant = null;
+        if (slug != null) {
+            tenant = tenantRepository.findBySlug(slug).orElse(null);
+        }
+
+        // Check minimum advance time
+        if (tenant != null && tenant.getMinAdvanceMinutes() != null && tenant.getMinAdvanceMinutes() > 0) {
+            LocalDateTime appointmentDateTime = LocalDateTime.of(req.appointmentDate(), time);
+            LocalDateTime minAllowed = LocalDateTime.now().plusMinutes(tenant.getMinAdvanceMinutes());
+            if (appointmentDateTime.isBefore(minAllowed)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Booking must be at least " + tenant.getMinAdvanceMinutes() + " minutes in advance");
+            }
+        }
+
+        // Check maximum advance time
+        if (tenant != null && tenant.getMaxAdvanceDays() != null && tenant.getMaxAdvanceDays() > 0) {
+            LocalDate maxDate = LocalDate.now().plusDays(tenant.getMaxAdvanceDays());
+            if (req.appointmentDate().isAfter(maxDate)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Booking cannot be more than " + tenant.getMaxAdvanceDays() + " days in advance");
+            }
+        }
+
+        // Check for time overlap across all salons (shared schema)
+        List<ClientBookingHistory> clientDayBookings = clientBookingHistoryRepository
+                .findByUserIdAndAppointmentDateAndStatusNot(client.getId(), req.appointmentDate(), "CANCELLED");
+
+        for (ClientBookingHistory existing : clientDayBookings) {
+            LocalTime existingStart = existing.getAppointmentTime();
+            LocalTime existingEnd = existingStart.plusMinutes(existing.getCareDuration());
+            LocalTime newStart = time;
+            LocalTime newEnd = time.plusMinutes(care.getDuration());
+            if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "You already have a booking from " + existingStart + " to " + existingEnd +
+                        " at " + existing.getSalonName());
+            }
+        }
+
+        // Check max client hours per day
+        if (tenant != null && tenant.getMaxClientHoursPerDay() != null && tenant.getMaxClientHoursPerDay() > 0) {
+            int totalBookedMinutes = clientDayBookings.stream()
+                    .mapToInt(ClientBookingHistory::getCareDuration)
+                    .sum();
+            int maxMinutes = tenant.getMaxClientHoursPerDay() * 60;
+            if (totalBookedMinutes + care.getDuration() > maxMinutes) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                        "Maximum " + tenant.getMaxClientHoursPerDay() + " hours of appointments per day");
+            }
+        }
 
         // Re-verify slot availability (concurrency protection)
         boolean slotAvailable = slotAvailabilityService.getAvailableSlots(req.appointmentDate(), req.careId())
@@ -148,6 +251,17 @@ public class CareBookingService {
                 booking.getStatus().name(),
                 salonName
         );
+    }
+
+    @Transactional
+    public int cancelFutureBookingsForCare(Long careId) {
+        List<CareBooking> futureBookings = repo.findByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
+                careId, LocalDate.now(), CareBookingStatus.CANCELLED);
+        for (CareBooking booking : futureBookings) {
+            booking.setStatus(CareBookingStatus.CANCELLED);
+            repo.save(booking);
+        }
+        return futureBookings.size();
     }
 }
 

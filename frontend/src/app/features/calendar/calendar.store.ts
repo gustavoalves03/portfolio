@@ -1,5 +1,6 @@
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
 import {
@@ -12,20 +13,24 @@ import { CalendarService } from './calendar.service';
 import { AvailabilityService } from '../availability/availability.service';
 import { BlockedSlotRequest, BlockedSlotResponse } from './calendar.model';
 import { OpeningHourResponse } from '../availability/availability.model';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 
 type CalendarState = {
   blockedSlots: BlockedSlotResponse[];
   openingHours: OpeningHourResponse[];
+  holidays: { date: string; name: string }[];
 };
 
 export const CalendarStore = signalStore(
-  withState<CalendarState>({ blockedSlots: [], openingHours: [] }),
+  withState<CalendarState>({ blockedSlots: [], openingHours: [], holidays: [] }),
   withRequestStatus(),
   withMethods(
     (
       store,
       calendarService = inject(CalendarService),
-      availabilityService = inject(AvailabilityService)
+      availabilityService = inject(AvailabilityService),
+      http = inject(HttpClient),
+      apiBaseUrl = inject(API_BASE_URL)
     ) => ({
       loadBlockedSlots: rxMethod<void>(
         pipe(
@@ -97,12 +102,27 @@ export const CalendarStore = signalStore(
           )
         )
       ),
+      loadHolidays: rxMethod<void>(
+        pipe(
+          switchMap(() =>
+            http
+              .get<{ date: string; name: string }[]>(
+                `${apiBaseUrl}/api/pro/holidays/upcoming`
+              )
+              .pipe(
+                tap((holidays) => patchState(store, { holidays })),
+                catchError(() => EMPTY)
+              )
+          )
+        )
+      ),
     })
   ),
   withHooks((store) => ({
     onInit() {
       store.loadBlockedSlots();
       store.loadOpeningHours();
+      store.loadHolidays();
     },
   }))
 );

@@ -22,4 +22,6 @@ export interface CalendarDay {
   isToday: boolean;
   isClosed: boolean;
   hasBlocks: boolean;
+  isHoliday: boolean;
+  holidayName: string | null;
 }

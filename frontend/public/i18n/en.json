@@ -126,7 +126,9 @@
       "INACTIVE": "Inactive"
     },
     "toggleSuccess": "Status updated",
-    "reorderSuccess": "Order updated"
+    "reorderSuccess": "Order updated",
+    "deleteSuccess": "Service deleted",
+    "deleteError": "Error deleting service"
   },
   "categories": {
     "title": "Categories",
@@ -179,7 +181,65 @@
       "weekBookings": "This week's appointments",
       "recentBookings": "Recent bookings",
       "noBookings": "No bookings yet",
-      "viewSalon": "View my salon"
+      "viewSalon": "View my salon",
+      "analytics": {
+        "period": {
+          "week": "Week",
+          "month": "Month",
+          "quarter": "Quarter",
+          "year": "Year"
+        },
+        "kpi": {
+          "bookings": "Appointments",
+          "revenue": "Revenue",
+          "attendance": "Attendance",
+          "occupancy": "Occupancy",
+          "avgBasket": "Avg. basket"
+        },
+        "charts": {
+          "revenueTitle": "Revenue",
+          "bookingsTitle": "Appointments per day",
+          "bars": "Bars",
+          "line": "Line"
+        },
+        "heatmap": {
+          "title": "Most requested time slots"
+        },
+        "employees": {
+          "title": "Employee performance",
+          "sortCA": "Revenue",
+          "sortBookings": "Bookings",
+          "sortRate": "Rate"
+        },
+        "clients": {
+          "title": "Loyal clients",
+          "sortVisits": "Visits",
+          "sortCA": "Revenue",
+          "sortReliability": "Reliability"
+        },
+        "cares": {
+          "title": "Top services"
+        },
+        "status": {
+          "title": "Appointment breakdown",
+          "CONFIRMED": "Confirmed",
+          "PENDING": "Pending",
+          "CANCELLED": "Cancelled",
+          "NO_SHOW": "No-show"
+        },
+        "forecast": {
+          "title": "Revenue forecast",
+          "subtitle": "based on confirmed appointments"
+        },
+        "atRisk": {
+          "title": "At-risk clients",
+          "lastVisit": "Last visit",
+          "daysAgo": "{{days}} days ago"
+        },
+        "allEmployees": "All employees",
+        "allCares": "All services",
+        "vsLastPeriod": "vs previous period"
+      }
     },
     "salon": {
       "title": "My salon",
@@ -244,7 +304,8 @@
       "legend": {
         "today": "Today",
         "blocked": "Blocked slot",
-        "closed": "Closed"
+        "closed": "Closed",
+        "holiday": "Public holiday"
       }
     },
     "planning": {
@@ -316,7 +377,17 @@
       "closedOnHolidaysDesc": "Automatically block public holidays for your country",
       "upcomingHolidays": "Upcoming holidays",
       "holidayClosed": "Closed",
-      "holidayOpen": "Open (exception)"
+      "holidayOpen": "Open (exception)",
+      "bookingSection": "Booking",
+      "minAdvanceLabel": "Minimum booking advance",
+      "minAdvanceDesc": "Minimum time before appointment (in minutes)",
+      "maxAdvanceLabel": "Maximum booking advance",
+      "maxAdvanceDesc": "Maximum number of days in advance",
+      "maxClientHoursLabel": "Max appointment hours per day",
+      "maxClientHoursDesc": "Maximum hours of appointments per client per day",
+      "hoursUnit": "h",
+      "minutesUnit": "min",
+      "daysAdvanceUnit": "days"
     },
     "availability": {
       "title": "My availability",
@@ -477,7 +548,12 @@
     },
     "errors": {
       "slotTaken": "This slot was just booked. Please choose another.",
-      "generic": "An error occurred. Please try again."
+      "generic": "An error occurred. Please try again.",
+      "tooSoon": "Booking too soon. Please book at least {{min}} minutes in advance.",
+      "tooFarAhead": "Booking too far ahead. Maximum {{max}} days in advance.",
+      "dailyLimitReached": "You have reached the maximum number of bookings for this day.",
+      "timeOverlap": "You already have a booking at this time at another salon.",
+      "dailyHoursExceeded": "You have reached the maximum appointment hours for this day."
     }
   },
   "employee": {
@@ -552,6 +628,14 @@
       "bookings": "Bookings",
       "leaves": "Leaves",
       "documents": "Documents"
+    }
+  },
+  "errors": {
+    "care": {
+      "hasFutureBookings": "Cannot delete: future bookings exist. Cancel them first.",
+      "cancelBookingsAction": "Cancel bookings",
+      "bookingsCancelled": "booking(s) cancelled",
+      "cancelFailed": "Error cancelling bookings"
     }
   },
   "drawer": {

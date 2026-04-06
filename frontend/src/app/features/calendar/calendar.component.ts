@@ -107,6 +107,26 @@ export class CalendarComponent {
     return this.selectedDayOpeningHours().length === 0;
   });
 
+  readonly holidayMap = computed(() => {
+    const map = new Map<string, { date: string; name: string }>();
+    for (const h of this.store.holidays()) {
+      map.set(h.date, h);
+    }
+    return map;
+  });
+
+  readonly isSelectedDayHoliday = computed(() => {
+    const sel = this.selectedDate();
+    if (!sel) return false;
+    return this.holidayMap().has(this.formatDate(sel));
+  });
+
+  readonly selectedDayHolidayName = computed(() => {
+    const sel = this.selectedDate();
+    if (!sel) return null;
+    return this.holidayMap().get(this.formatDate(sel))?.name ?? null;
+  });
+
   prevMonth(): void {
     const d = this.currentMonth();
     this.currentMonth.set(new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -169,13 +189,18 @@ export class CalendarComponent {
     let dow = date.getDay();
     dow = dow === 0 ? 7 : dow;
 
+    const dateStr = this.formatDate(date);
+    const holiday = this.holidayMap().get(dateStr);
+
     return {
       date,
       dayOfMonth: date.getDate(),
       isCurrentMonth,
       isToday: date.getTime() === today.getTime(),
       isClosed: closedDows.has(dow),
-      hasBlocks: blockedDates.has(this.formatDate(date)),
+      hasBlocks: blockedDates.has(dateStr),
+      isHoliday: !!holiday,
+      holidayName: holiday?.name ?? null,
     };
   }
 

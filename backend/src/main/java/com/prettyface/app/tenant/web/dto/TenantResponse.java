@@ -19,5 +19,8 @@ public record TenantResponse(
         LocalDateTime updatedAt,
         Boolean employeesEnabled,
         Integer annualLeaveDays,
-        Boolean closedOnHolidays
+        Boolean closedOnHolidays,
+        Integer minAdvanceMinutes,
+        Integer maxAdvanceDays,
+        Integer maxClientHoursPerDay
 ) {}

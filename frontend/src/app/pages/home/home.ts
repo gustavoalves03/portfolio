@@ -10,14 +10,15 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { SalonCard } from '../../features/discovery/discovery.model';
 import { PostsService } from '../../features/posts/posts.service';
 import { RecentPost } from '../../features/posts/posts.model';
-import { API_BASE_URL } from '../../core/config/api-base-url.token';
+import { RecentPostsViewerComponent } from '../../features/posts/recent-posts-viewer/recent-posts-viewer.component';
 
 const SALON_GRADIENTS = [
   'linear-gradient(135deg, #e8d5c4, #f0e0d0)',
@@ -27,16 +28,11 @@ const SALON_GRADIENTS = [
   'linear-gradient(135deg, #f0e6cc, #f5ecd5)',
 ];
 
-const POST_GRADIENTS: Record<string, string> = {
-  BEFORE_AFTER: 'linear-gradient(180deg, #f0d5c0, #e8c0a8)',
-  PHOTO: 'linear-gradient(180deg, #d5dce8, #c0c8d5)',
-  CAROUSEL: 'linear-gradient(180deg, #dce8d2, #c8d5b8)',
-};
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [TranslocoPipe, MatIconModule],
+  imports: [TranslocoPipe, MatIconModule, RecentPostsViewerComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -45,8 +41,8 @@ export class Home implements OnDestroy {
   private discoveryService = inject(DiscoveryService);
   private postsService = inject(PostsService);
   private platformId = inject(PLATFORM_ID);
-  private transloco = inject(TranslocoService);
-  private apiBaseUrl = inject(API_BASE_URL);
+
+  readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private mapInstance: any = null;
   private markerMap = new Map<string, any>();
@@ -56,25 +52,43 @@ export class Home implements OnDestroy {
 
   readonly miniMapRef = viewChild<ElementRef<HTMLElement>>('miniMap');
 
-  readonly salons = toSignal(this.discoveryService.searchSalons(), {
-    initialValue: [] as SalonCard[],
-  });
+  readonly searchQuery = signal('');
+
+  readonly salons = toSignal(
+    toObservable(this.searchQuery).pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((q) => this.discoveryService.searchSalons(null, q || null)),
+    ),
+    { initialValue: [] as SalonCard[] },
+  );
 
   readonly recentPosts = toSignal(this.postsService.listRecentPublic(), {
     initialValue: [] as RecentPost[],
   });
-
-  readonly searchQuery = signal('');
-  private mapInitialized = false;
+  readonly selectedSlug = signal<string | null>(null);
+  private readonly mapReady = signal(false);
+  private isTouchDevice = false;
 
   constructor() {
-    // Watch for salons + miniMap DOM element to both be ready
+    if (isPlatformBrowser(this.platformId)) {
+      this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    // Init map when DOM element is available
     effect(() => {
-      const salons = this.salons();
       const mapEl = this.miniMapRef()?.nativeElement;
-      if (salons.length > 0 && mapEl && !this.mapInitialized && isPlatformBrowser(this.platformId)) {
-        this.mapInitialized = true;
+      if (mapEl && !this.mapReady() && isPlatformBrowser(this.platformId)) {
         this.initMap();
+      }
+    });
+
+    // Plot salons when map is ready AND salons change
+    effect(() => {
+      const ready = this.mapReady();
+      const salons = this.salons();
+      if (ready && salons.length > 0) {
+        this.geocodeAndPlotSalons(salons);
       }
     });
   }
@@ -83,28 +97,6 @@ export class Home implements OnDestroy {
     return SALON_GRADIENTS[index % SALON_GRADIENTS.length];
   }
 
-  getPostGradient(type: string): string {
-    return POST_GRADIENTS[type] || POST_GRADIENTS['PHOTO'];
-  }
-
-  getPostTypeLabel(type: string): string {
-    switch (type) {
-      case 'BEFORE_AFTER':
-        return this.transloco.translate('posts.typeBeforeAfter');
-      case 'PHOTO':
-        return this.transloco.translate('posts.typePhoto');
-      case 'CAROUSEL':
-        return this.transloco.translate('posts.typeCarousel');
-      default:
-        return type;
-    }
-  }
-
-  getThumbnailUrl(post: RecentPost): string | null {
-    if (!post.thumbnailUrl) return null;
-    if (post.thumbnailUrl.startsWith('http')) return post.thumbnailUrl;
-    return `${this.apiBaseUrl}${post.thumbnailUrl}`;
-  }
 
   ngOnDestroy(): void {
     if (this.mapInstance) {
@@ -114,9 +106,52 @@ export class Home implements OnDestroy {
   }
 
   onSearch(): void {
-    const q = this.searchQuery().trim();
-    if (q) {
-      this.router.navigate(['/discover'], { queryParams: { q } });
+    // Search is handled reactively via toObservable(searchQuery) with debounce
+  }
+
+  onSalonCardClick(slug: string): void {
+    // Touch device: first tap selects (shows on map), second tap navigates
+    if (this.isTouchDevice) {
+      if (this.selectedSlug() === slug) {
+        this.router.navigate(['/salon', slug]);
+      } else {
+        this.selectedSlug.set(slug);
+        this.flyToSalon(slug);
+      }
+    } else {
+      // Desktop: click always navigates
+      this.router.navigate(['/salon', slug]);
+    }
+  }
+
+  onSalonHover(slug: string): void {
+    if (this.isTouchDevice) return;
+    this.selectedSlug.set(slug);
+    this.flyToSalon(slug);
+  }
+
+  onSalonLeave(): void {
+    if (this.isTouchDevice) return;
+    this.selectedSlug.set(null);
+    // Fit back to all markers
+    if (this.mapInstance && this.markerMap.size > 0) {
+      const bounds: [number, number][] = [];
+      for (const [, m] of this.markerMap) {
+        const pos = m.getLatLng();
+        bounds.push([pos.lat, pos.lng]);
+      }
+      if (bounds.length > 1) {
+        this.mapInstance.fitBounds(bounds, { padding: [20, 20], maxZoom: 13 });
+      }
+    }
+  }
+
+  private flyToSalon(slug: string): void {
+    const marker = this.markerMap.get(slug);
+    if (marker && this.mapInstance) {
+      const pos = marker.getLatLng();
+      this.mapInstance.flyTo([pos.lat, pos.lng], 14, { duration: 0.5 });
+      marker.openPopup();
     }
   }
 
@@ -126,12 +161,6 @@ export class Home implements OnDestroy {
 
   onDiscoverAll(): void {
     this.router.navigate(['/discover']);
-  }
-
-  onPostClick(post: RecentPost): void {
-    if (post.salonSlug) {
-      this.router.navigate(['/salon', post.salonSlug]);
-    }
   }
 
   onProCta(): void {
@@ -160,10 +189,11 @@ export class Home implements OnDestroy {
 
     this.locateUser();
 
-    const currentSalons = this.salons();
-    if (currentSalons.length > 0) {
-      this.geocodeAndPlotSalons(currentSalons);
-    }
+    // Signal map is ready — triggers salon plotting effect
+    setTimeout(() => {
+      this.mapInstance?.invalidateSize();
+      this.mapReady.set(true);
+    }, 250);
   }
 
   private locateUser(): void {
@@ -222,9 +252,12 @@ export class Home implements OnDestroy {
           iconAnchor: [10, 20],
         });
 
+        const popup = `<div style="font-family:Roboto,sans-serif"><strong style="font-size:12px">${salon.name}</strong></div>`;
+
         const marker = this.L
           .marker([coords.lat, coords.lng], { icon: salonIcon })
-          .addTo(this.mapInstance);
+          .addTo(this.mapInstance)
+          .bindPopup(popup);
 
         marker.on('click', () => {
           this.router.navigate(['/salon', salon.slug]);
