@@ -38,7 +38,8 @@ public class TenantMapper {
                 tenant.getSiret(),
                 tenant.getUpdatedAt(),
                 tenant.getEmployeesEnabled(),
-                tenant.getAnnualLeaveDays()
+                tenant.getAnnualLeaveDays(),
+                tenant.getClosedOnHolidays()
         );
     }
 
@@ -63,7 +64,13 @@ public class TenantMapper {
                 tenant.getDescription(),
                 logoUrl,
                 heroImageUrl,
-                categoryDtos
+                categoryDtos,
+                tenant.getAddressStreet(),
+                tenant.getAddressPostalCode(),
+                tenant.getAddressCity(),
+                tenant.getAddressCountry(),
+                tenant.getPhone(),
+                tenant.getContactEmail()
         );
     }
 

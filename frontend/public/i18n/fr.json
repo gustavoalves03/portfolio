@@ -314,7 +314,13 @@
       "leaveSection": "Congés",
       "annualLeaveDaysLabel": "Jours de congés annuels",
       "annualLeaveDaysDesc": "Nombre de jours de congés par an pour chaque employé",
-      "daysUnit": "jours"
+      "daysUnit": "jours",
+      "holidaysSection": "Jours fériés",
+      "closedOnHolidaysLabel": "Fermé les jours fériés",
+      "closedOnHolidaysDesc": "Bloquer automatiquement les jours fériés de votre pays",
+      "upcomingHolidays": "Prochains jours fériés",
+      "holidayClosed": "Fermé",
+      "holidayOpen": "Ouvert (exception)"
     },
     "availability": {
       "title": "Mes disponibilités",
@@ -381,6 +387,8 @@
   "salon": {
     "caresTab": "Soins",
     "postsTab": "Posts",
+    "contactTab": "Contact",
+    "noContact": "Aucune information de contact disponible",
     "public": {
       "noCares": "Aucun soin disponible pour le moment",
       "notFound": "Salon introuvable",

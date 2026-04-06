@@ -13,6 +13,7 @@ export class TenantFeaturesService {
 
   readonly employeesEnabled = signal<boolean>(false);
   readonly annualLeaveDays = signal<number>(25);
+  readonly closedOnHolidays = signal<boolean>(true);
 
   constructor() {
     effect(() => {
@@ -23,22 +24,29 @@ export class TenantFeaturesService {
       } else {
         this.employeesEnabled.set(false);
         this.annualLeaveDays.set(25);
+        this.closedOnHolidays.set(true);
       }
     });
   }
 
   private loadFeatures(): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
-    this.http.get<{ employeesEnabled: boolean; annualLeaveDays: number }>(`${base}/api/pro/tenant`).subscribe({
-      next: (r) => {
-        this.employeesEnabled.set(r.employeesEnabled ?? false);
-        this.annualLeaveDays.set(r.annualLeaveDays ?? 25);
-      },
-      error: () => {
-        this.employeesEnabled.set(false);
-        this.annualLeaveDays.set(25);
-      },
-    });
+    this.http
+      .get<{ employeesEnabled: boolean; annualLeaveDays: number; closedOnHolidays: boolean }>(
+        `${base}/api/pro/tenant`,
+      )
+      .subscribe({
+        next: (r) => {
+          this.employeesEnabled.set(r.employeesEnabled ?? false);
+          this.annualLeaveDays.set(r.annualLeaveDays ?? 25);
+          this.closedOnHolidays.set(r.closedOnHolidays ?? true);
+        },
+        error: () => {
+          this.employeesEnabled.set(false);
+          this.annualLeaveDays.set(25);
+          this.closedOnHolidays.set(true);
+        },
+      });
   }
 
   toggleEmployees(enabled: boolean): void {
@@ -53,5 +61,14 @@ export class TenantFeaturesService {
     this.http
       .put<{ annualLeaveDays: number }>(`${base}/api/pro/tenant/settings/annual-leave-days`, { days })
       .subscribe({ next: () => this.annualLeaveDays.set(days) });
+  }
+
+  toggleClosedOnHolidays(closed: boolean): void {
+    const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    this.http
+      .put<{ closedOnHolidays: boolean }>(`${base}/api/pro/tenant/settings/closed-on-holidays`, {
+        closedOnHolidays: closed,
+      })
+      .subscribe({ next: () => this.closedOnHolidays.set(closed) });
   }
 }

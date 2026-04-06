@@ -3,6 +3,7 @@ package com.prettyface.app.tenant.web;
 import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.availability.app.AvailabilityService;
 import com.prettyface.app.availability.app.BlockedSlotService;
+import com.prettyface.app.availability.app.HolidayAvailabilityService;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
@@ -42,6 +43,7 @@ public class PublicSalonController {
     private final AvailabilityService availabilityService;
     private final BlockedSlotService blockedSlotService;
     private final SlotAvailabilityService slotAvailabilityService;
+    private final HolidayAvailabilityService holidayAvailabilityService;
     private final CareBookingService careBookingService;
     private final UserRepository userRepository;
     private final ClientBookingHistoryService clientBookingHistoryService;
@@ -51,6 +53,7 @@ public class PublicSalonController {
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
                                  SlotAvailabilityService slotAvailabilityService,
+                                 HolidayAvailabilityService holidayAvailabilityService,
                                  CareBookingService careBookingService, UserRepository userRepository,
                                  ClientBookingHistoryService clientBookingHistoryService,
                                  EmployeeService employeeService, PostService postService) {
@@ -59,6 +62,7 @@ public class PublicSalonController {
         this.availabilityService = availabilityService;
         this.blockedSlotService = blockedSlotService;
         this.slotAvailabilityService = slotAvailabilityService;
+        this.holidayAvailabilityService = holidayAvailabilityService;
         this.careBookingService = careBookingService;
         this.userRepository = userRepository;
         this.clientBookingHistoryService = clientBookingHistoryService;
@@ -121,8 +125,14 @@ public class PublicSalonController {
         return tenantService.findBySlug(slug)
                 .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
                 .map(tenant -> {
+                    // Check if salon is closed for a public holiday
+                    boolean closedOnHolidays = Boolean.TRUE.equals(tenant.getClosedOnHolidays());
                     TenantContext.setCurrentTenant(tenant.getSlug());
                     try {
+                        if (holidayAvailabilityService.isClosedForHoliday(
+                                date, tenant.getAddressCountry(), closedOnHolidays)) {
+                            return ResponseEntity.ok(List.<SlotAvailabilityService.TimeSlot>of());
+                        }
                         return ResponseEntity.ok(slotAvailabilityService.getAvailableSlots(date, careId));
                     } finally {
                         TenantContext.clear();

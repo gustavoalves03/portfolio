@@ -18,5 +18,6 @@ public record TenantResponse(
         String siret,
         LocalDateTime updatedAt,
         Boolean employeesEnabled,
-        Integer annualLeaveDays
+        Integer annualLeaveDays,
+        Boolean closedOnHolidays
 ) {}

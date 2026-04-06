@@ -82,6 +82,10 @@ public class Tenant {
     @Column(name = "annual_leave_days")
     private Integer annualLeaveDays = 25;
 
+    @Builder.Default
+    @Column(name = "closed_on_holidays")
+    private Boolean closedOnHolidays = true;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

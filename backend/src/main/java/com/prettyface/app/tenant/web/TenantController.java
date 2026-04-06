@@ -106,6 +106,18 @@ public class TenantController {
         return Map.of("annualLeaveDays", days);
     }
 
+    @PutMapping("/settings/closed-on-holidays")
+    public Map<String, Boolean> toggleClosedOnHolidays(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody Map<String, Boolean> body) {
+        Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        boolean closed = Boolean.TRUE.equals(body.get("closedOnHolidays"));
+        tenant.setClosedOnHolidays(closed);
+        tenantRepository.save(tenant);
+        return Map.of("closedOnHolidays", closed);
+    }
+
     @PutMapping("/settings/employees")
     public Map<String, Boolean> toggleEmployees(
             @AuthenticationPrincipal UserPrincipal principal,

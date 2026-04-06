@@ -50,6 +50,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
+		<!-- Jollyday: public holidays by country -->
+		<dependency>
+			<groupId>de.focus-shift</groupId>
+			<artifactId>jollyday-jaxb</artifactId>
+			<version>0.35.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>

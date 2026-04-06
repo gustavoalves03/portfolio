@@ -310,7 +310,13 @@
       "leaveSection": "Leave policy",
       "annualLeaveDaysLabel": "Annual leave days",
       "annualLeaveDaysDesc": "Number of leave days per year for each employee",
-      "daysUnit": "days"
+      "daysUnit": "days",
+      "holidaysSection": "Public holidays",
+      "closedOnHolidaysLabel": "Closed on public holidays",
+      "closedOnHolidaysDesc": "Automatically block public holidays for your country",
+      "upcomingHolidays": "Upcoming holidays",
+      "holidayClosed": "Closed",
+      "holidayOpen": "Open (exception)"
     },
     "availability": {
       "title": "My availability",
@@ -377,6 +383,8 @@
   "salon": {
     "caresTab": "Services",
     "postsTab": "Posts",
+    "contactTab": "Contact",
+    "noContact": "No contact information available",
     "public": {
       "noCares": "No services available at this time",
       "notFound": "Salon not found",

@@ -100,6 +100,9 @@ public class TenantService {
         if (request.annualLeaveDays() != null) {
             tenant.setAnnualLeaveDays(request.annualLeaveDays());
         }
+        if (request.closedOnHolidays() != null) {
+            tenant.setClosedOnHolidays(request.closedOnHolidays());
+        }
 
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);

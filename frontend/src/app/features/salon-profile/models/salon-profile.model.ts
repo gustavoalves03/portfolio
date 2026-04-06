@@ -15,6 +15,7 @@ export interface TenantResponse {
   siret: string | null;
   updatedAt: string | null;
   employeesEnabled: boolean | null;
+  closedOnHolidays: boolean | null;
 }
 
 export interface UpdateTenantRequest {
@@ -30,6 +31,17 @@ export interface UpdateTenantRequest {
   contactEmail: string | null;
   siret: string | null;
   employeesEnabled?: boolean | null;
+  closedOnHolidays?: boolean | null;
+}
+
+export interface HolidayInfo {
+  date: string;
+  name: string;
+}
+
+export interface HolidayExceptionInfo {
+  date: string;
+  open: boolean;
 }
 
 export interface PublicCareDto {
@@ -58,6 +70,12 @@ export interface PublicSalonResponse {
   logoUrl: string | null;
   heroImageUrl: string | null;
   categories: PublicCategoryDto[];
+  addressStreet: string | null;
+  addressPostalCode: string | null;
+  addressCity: string | null;
+  addressCountry: string | null;
+  phone: string | null;
+  contactEmail: string | null;
 }
 
 export interface ClientBookingRequest {
