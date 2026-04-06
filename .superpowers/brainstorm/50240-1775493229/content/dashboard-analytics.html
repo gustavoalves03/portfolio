@@ -1,0 +1,285 @@
+<h2>Dashboard PRO — Historique & Clients fidèles</h2>
+<p class="subtitle">Clique sur le design que tu préfères</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Tabs: Activité / Clients / Prestations</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Dashboard avec onglets, graphique en barres, table clients fidèles</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:20px;font-family:system-ui,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+
+          <!-- Period selector -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="font-size:18px;font-weight:600;color:#333;margin:0;">Dashboard</h2>
+            <div style="display:flex;gap:4px;background:#f5f5f5;border-radius:8px;padding:2px;">
+              <button style="padding:5px 12px;border:none;border-radius:6px;font-size:11px;background:#fff;color:#333;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.08);cursor:pointer;">Semaine</button>
+              <button style="padding:5px 12px;border:none;border-radius:6px;font-size:11px;background:transparent;color:#888;cursor:pointer;">Mois</button>
+              <button style="padding:5px 12px;border:none;border-radius:6px;font-size:11px;background:transparent;color:#888;cursor:pointer;">Année</button>
+            </div>
+          </div>
+
+          <!-- KPI cards -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+            <div style="background:#f0fdf4;border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:#166534;">24</div>
+              <div style="font-size:10px;color:#888;margin-top:2px;">RDV cette semaine</div>
+            </div>
+            <div style="background:#fff7ed;border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:#c2410c;">1 320 €</div>
+              <div style="font-size:10px;color:#888;margin-top:2px;">Chiffre d'affaires</div>
+            </div>
+            <div style="background:#fef2f8;border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:22px;font-weight:700;color:#a8385d;">92%</div>
+              <div style="font-size:10px;color:#888;margin-top:2px;">Taux de présence</div>
+            </div>
+          </div>
+
+          <!-- Chart (bar chart mockup) -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:8px;">Rendez-vous par jour</div>
+            <div style="display:flex;align-items:flex-end;gap:6px;height:100px;padding:0 4px;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:40px;"></div>
+                <span style="font-size:9px;color:#999;">Lun</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:65px;"></div>
+                <span style="font-size:9px;color:#999;">Mar</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:50px;"></div>
+                <span style="font-size:9px;color:#999;">Mer</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:80px;"></div>
+                <span style="font-size:9px;color:#999;">Jeu</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:90px;"></div>
+                <span style="font-size:9px;color:#999;">Ven</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:55px;"></div>
+                <span style="font-size:9px;color:#999;">Sam</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <div style="width:100%;background:#f0f0f0;border-radius:4px 4px 0 0;height:5px;"></div>
+                <span style="font-size:9px;color:#999;">Dim</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top clients -->
+          <div>
+            <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:8px;">Clients fidèles</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fafafa;border-radius:8px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.8);flex-shrink:0;">M</div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:500;color:#333;">Marie Leroy</div>
+                  <div style="font-size:10px;color:#888;">12 visites · 0 annulations</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:12px;font-weight:600;color:#c06;">660 €</div>
+                  <div style="font-size:9px;color:#52b788;">100% présence</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fafafa;border-radius:8px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.8);flex-shrink:0;">J</div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:500;color:#333;">Julie Petit</div>
+                  <div style="font-size:10px;color:#888;">8 visites · 1 annulation</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:12px;font-weight:600;color:#c06;">440 €</div>
+                  <div style="font-size:9px;color:#52b788;">88% présence</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fafafa;border-radius:8px;">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.8);flex-shrink:0;">C</div>
+                <div style="flex:1;">
+                  <div style="font-size:13px;font-weight:500;color:#333;">Clara Moreau</div>
+                  <div style="font-size:10px;color:#888;">5 visites · 3 annulations</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:12px;font-weight:600;color:#c06;">275 €</div>
+                  <div style="font-size:9px;color:#ef5350;">63% présence</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top prestations (separate card) -->
+        <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-top:12px;">
+          <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:8px;">Prestations les plus demandées</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;font-size:12px;color:#333;">Soin hydratant visage</div>
+              <div style="width:120px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="width:80%;height:100%;background:linear-gradient(90deg,#a8385d,#c06);border-radius:3px;"></div>
+              </div>
+              <span style="font-size:11px;font-weight:500;color:#666;width:24px;text-align:right;">12</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;font-size:12px;color:#333;">Massage relaxant</div>
+              <div style="width:120px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="width:60%;height:100%;background:linear-gradient(90deg,#a8385d,#c06);border-radius:3px;"></div>
+              </div>
+              <span style="font-size:11px;font-weight:500;color:#666;width:24px;text-align:right;">9</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;font-size:12px;color:#333;">Épilation jambes</div>
+              <div style="width:120px;height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                <div style="width:40%;height:100%;background:linear-gradient(90deg,#a8385d,#c06);border-radius:3px;"></div>
+              </div>
+              <span style="font-size:11px;font-weight:500;color:#666;width:24px;text-align:right;">6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Scroll unique — KPIs + graphe + clients + prestations</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Tout en une seule page scrollable, cards empilées, compact</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:20px;font-family:system-ui,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;">
+
+        <!-- Header with period selector -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h2 style="font-size:18px;font-weight:600;color:#333;margin:0;">Dashboard</h2>
+          <select style="padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;color:#666;background:#fff;">
+            <option>Cette semaine</option>
+            <option>Ce mois</option>
+            <option>Cette année</option>
+          </select>
+        </div>
+
+        <!-- KPI row (horizontal scroll on mobile) -->
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;">
+          <div style="min-width:110px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <div style="font-size:10px;color:#888;">RDV</div>
+            <div style="font-size:24px;font-weight:700;color:#333;">24</div>
+            <div style="font-size:9px;color:#52b788;">+12% vs sem. dern.</div>
+          </div>
+          <div style="min-width:110px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <div style="font-size:10px;color:#888;">CA</div>
+            <div style="font-size:24px;font-weight:700;color:#333;">1 320 €</div>
+            <div style="font-size:9px;color:#52b788;">+8%</div>
+          </div>
+          <div style="min-width:110px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <div style="font-size:10px;color:#888;">Présence</div>
+            <div style="font-size:24px;font-weight:700;color:#333;">92%</div>
+            <div style="font-size:9px;color:#ef5350;">-3%</div>
+          </div>
+          <div style="min-width:110px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <div style="font-size:10px;color:#888;">Annulations</div>
+            <div style="font-size:24px;font-weight:700;color:#333;">2</div>
+            <div style="font-size:9px;color:#52b788;">-50%</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:14px;">
+          <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:10px;">RDV par jour</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:80px;">
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:35%;"></div>
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:55%;"></div>
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:45%;"></div>
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:70%;"></div>
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:85%;"></div>
+            <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:4px 4px 0 0;height:50%;"></div>
+            <div style="flex:1;background:#f0f0f0;border-radius:4px 4px 0 0;height:5%;"></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">L</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">M</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">M</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">J</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">V</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">S</span>
+            <span style="flex:1;text-align:center;font-size:8px;color:#bbb;">D</span>
+          </div>
+        </div>
+
+        <!-- Clients fidèles -->
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:500;color:#888;">Clients fidèles</div>
+            <span style="font-size:10px;color:#c06;cursor:pointer;">Voir tout →</span>
+          </div>
+          <!-- Client rows -->
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.8);flex-shrink:0;">M</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#333;">Marie Leroy</div>
+            </div>
+            <div style="font-size:10px;color:#888;">12 visites</div>
+            <div style="padding:2px 6px;border-radius:6px;background:#f0fdf4;font-size:9px;color:#166534;font-weight:500;">100%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.8);flex-shrink:0;">J</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#333;">Julie Petit</div>
+            </div>
+            <div style="font-size:10px;color:#888;">8 visites</div>
+            <div style="padding:2px 6px;border-radius:6px;background:#f0fdf4;font-size:9px;color:#166534;font-weight:500;">88%</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.8);flex-shrink:0;">C</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#333;">Clara Moreau</div>
+            </div>
+            <div style="font-size:10px;color:#888;">5 visites</div>
+            <div style="padding:2px 6px;border-radius:6px;background:#fef2f2;font-size:9px;color:#dc2626;font-weight:500;">63%</div>
+          </div>
+        </div>
+
+        <!-- Top prestations -->
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+          <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:10px;">Top prestations</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:14px;font-weight:700;color:#c06;width:20px;">1</span>
+              <div style="flex:1;font-size:12px;color:#333;">Soin hydratant visage</div>
+              <span style="font-size:11px;font-weight:600;color:#666;">12 rdv</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:14px;font-weight:700;color:#e8a0b0;width:20px;">2</span>
+              <div style="flex:1;font-size:12px;color:#333;">Massage relaxant</div>
+              <span style="font-size:11px;font-weight:600;color:#666;">9 rdv</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:14px;font-weight:700;color:#f0c0c0;width:20px;">3</span>
+              <div style="flex:1;font-size:12px;color:#333;">Épilation jambes</div>
+              <span style="font-size:11px;font-weight:600;color:#666;">6 rdv</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

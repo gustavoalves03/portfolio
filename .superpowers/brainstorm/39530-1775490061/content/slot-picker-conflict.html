@@ -1,0 +1,226 @@
+<h2>Slot Picker avec conflits cross-salon — 3 propositions</h2>
+<p class="subtitle">Comment afficher les créneaux où le client a déjà un RDV ailleurs. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Créneaux en orange avec badge salon</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Les créneaux occupés sont orangés avec le nom du salon en conflit. Clic → dialog d'annulation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:340px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:12px;">Choisissez un créneau — Lun 14 avril</div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <!-- Normal available slots -->
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">09:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">09:30</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">10:00</div>
+            </div>
+
+            <!-- Booked slot (no conflict) - greyed out -->
+            <div style="padding:10px 6px;border-radius:10px;background:#f5f5f5;border:1.5px solid #e0e0e0;text-align:center;opacity:0.5;">
+              <div style="font-size:13px;font-weight:600;color:#999;">10:30</div>
+            </div>
+
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">11:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">11:30</div>
+            </div>
+
+            <!-- CONFLICT: client has booking at another salon 14:00-15:00 -->
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">14:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#fff7ed;border:1.5px solid #fb923c;text-align:center;cursor:pointer;position:relative;">
+              <div style="font-size:13px;font-weight:600;color:#c2410c;">14:30</div>
+              <div style="font-size:8px;color:#ea580c;margin-top:1px;">Salon Rose</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#fff7ed;border:1.5px solid #fb923c;text-align:center;cursor:pointer;position:relative;">
+              <div style="font-size:13px;font-weight:600;color:#c2410c;">15:00</div>
+              <div style="font-size:8px;color:#ea580c;margin-top:1px;">Salon Rose</div>
+            </div>
+
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">15:30</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">16:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">16:30</div>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div style="display:flex;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f0;font-size:10px;color:#888;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:10px;height:10px;border-radius:3px;background:#f0fdf4;border:1px solid #86efac;"></div> Disponible
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:10px;height:10px;border-radius:3px;background:#fff7ed;border:1px solid #fb923c;"></div> Conflit autre salon
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:10px;height:10px;border-radius:3px;background:#f5f5f5;border:1px solid #e0e0e0;"></div> Indisponible
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialog when clicking conflict slot -->
+        <div style="margin-top:16px;background:#fff;border-radius:14px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,0.12);border:2px solid #fb923c;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:16px;">&#9888;</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#333;">Conflit d'horaire</div>
+          </div>
+          <p style="font-size:13px;color:#666;line-height:1.5;margin:0 0 12px;">
+            Vous avez un RDV de <strong>14:30 à 15:30</strong> chez <strong>Salon Rose</strong> (Manucure).
+          </p>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:8px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:12px;font-weight:500;color:#666;cursor:pointer;">Choisir un autre créneau</button>
+            <button style="flex:1;padding:8px;border-radius:10px;border:none;background:linear-gradient(135deg,#a8385d,#c06);color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Annuler l'autre RDV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Timeline verticale avec barre de conflit</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Vue chronologique avec barre orange indiquant le RDV existant</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:340px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:12px;">Lun 14 avril</div>
+
+          <!-- Timeline -->
+          <div style="position:relative;padding-left:50px;">
+            <!-- Time labels -->
+            <div style="position:relative;padding:8px 0;">
+              <span style="position:absolute;left:-50px;font-size:11px;color:#888;width:40px;text-align:right;">09:00</span>
+              <div style="padding:8px 12px;border-radius:8px;background:#f0fdf4;border-left:3px solid #86efac;font-size:12px;color:#166534;cursor:pointer;">Disponible</div>
+            </div>
+            <div style="position:relative;padding:8px 0;">
+              <span style="position:absolute;left:-50px;font-size:11px;color:#888;width:40px;text-align:right;">10:00</span>
+              <div style="padding:8px 12px;border-radius:8px;background:#f0fdf4;border-left:3px solid #86efac;font-size:12px;color:#166534;cursor:pointer;">Disponible</div>
+            </div>
+
+            <!-- Existing booking elsewhere (conflict bar) -->
+            <div style="position:relative;padding:8px 0;">
+              <span style="position:absolute;left:-50px;font-size:11px;color:#ea580c;width:40px;text-align:right;font-weight:600;">14:30</span>
+              <div style="padding:8px 12px;border-radius:8px;background:#fff7ed;border-left:3px solid #fb923c;cursor:pointer;">
+                <div style="font-size:12px;font-weight:500;color:#c2410c;">RDV chez Salon Rose</div>
+                <div style="font-size:10px;color:#ea580c;">14:30 - 15:30 · Manucure</div>
+              </div>
+            </div>
+
+            <div style="position:relative;padding:8px 0;">
+              <span style="position:absolute;left:-50px;font-size:11px;color:#888;width:40px;text-align:right;">16:00</span>
+              <div style="padding:8px 12px;border-radius:8px;background:#f0fdf4;border-left:3px solid #86efac;font-size:12px;color:#166534;cursor:pointer;">Disponible</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Vue chronologique claire — on voit le RDV existant dans le flux<br>
+      <strong>+</strong> Le conflit est visible en contexte (entre les créneaux disponibles)<br>
+      <strong>&minus;</strong> Prend plus de place verticalement<br>
+      <strong>&minus;</strong> Changement important du slot picker actuel (grille → timeline)
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Grille + bannière de conflit en haut</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Bannière d'avertissement en haut + slots en orange, grille inchangée</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:340px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:10px;">Lun 14 avril</div>
+
+          <!-- Warning banner -->
+          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+            <span style="font-size:16px;flex-shrink:0;margin-top:1px;">&#9888;</span>
+            <div>
+              <div style="font-size:12px;font-weight:500;color:#c2410c;">Vous avez un RDV ce jour</div>
+              <div style="font-size:11px;color:#ea580c;margin-top:2px;">14:30-15:30 chez <strong>Salon Rose</strong> (Manucure)</div>
+              <button style="margin-top:6px;padding:3px 10px;border-radius:8px;border:1px solid #fb923c;background:#fff;color:#ea580c;font-size:10px;font-weight:500;cursor:pointer;">Annuler ce RDV</button>
+            </div>
+          </div>
+
+          <!-- Normal grid with conflict slots highlighted -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">09:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">10:00</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">11:00</div>
+            </div>
+
+            <!-- Conflict slots - still clickable but orange -->
+            <div style="padding:10px 6px;border-radius:10px;background:#fff7ed;border:1.5px solid #fb923c;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#c2410c;">14:30</div>
+            </div>
+            <div style="padding:10px 6px;border-radius:10px;background:#fff7ed;border:1.5px solid #fb923c;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#c2410c;">15:00</div>
+            </div>
+
+            <div style="padding:10px 6px;border-radius:10px;background:#f0fdf4;border:1.5px solid #86efac;text-align:center;cursor:pointer;">
+              <div style="font-size:13px;font-weight:600;color:#166534;">16:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Bannière bien visible en haut avec option d'annulation directe<br>
+      <strong>+</strong> Grille de slots quasi-inchangée (juste les couleurs)<br>
+      <strong>+</strong> Le client comprend immédiatement qu'il a un conflit<br>
+      <strong>&minus;</strong> La bannière prend de la place<br>
+      <strong>&minus;</strong> Si plusieurs conflits, la bannière devient longue
+    </div>
+  </div>
+</div>

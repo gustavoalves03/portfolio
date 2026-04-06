@@ -1,0 +1,249 @@
+<h2>Gestion des jours fériés — 3 propositions</h2>
+<p class="subtitle">Comment intégrer les jours fériés dans les paramètres PRO. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Toggle simple</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Un seul toggle "Fermé les jours fériés" — tout ou rien</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:500px;margin:0 auto;">
+        <!-- Settings card mockup -->
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:16px;">Horaires & disponibilités</div>
+
+          <!-- Toggle existant -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #f5f5f5;">
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#333;">Gestion des employés</div>
+              <div style="font-size:12px;color:#999;margin-top:2px;">Activer la gestion d'équipe</div>
+            </div>
+            <div style="width:36px;height:20px;border-radius:10px;background:#ccc;position:relative;">
+              <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+            </div>
+          </div>
+
+          <!-- Nouveau toggle jours fériés -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #f5f5f5;">
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#333;">Fermé les jours fériés</div>
+              <div style="font-size:12px;color:#999;margin-top:2px;">Bloquer automatiquement les jours fériés de votre pays</div>
+            </div>
+            <div style="width:36px;height:20px;border-radius:10px;background:#c06;position:relative;">
+              <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+            </div>
+          </div>
+
+          <!-- Info pays -->
+          <div style="padding:10px 0 0;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:16px;">🇫🇷</span>
+            <span style="font-size:12px;color:#888;">Jours fériés de la France (basé sur l'adresse du salon)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Très simple, un seul toggle<br>
+      <strong>+</strong> Le pays est détecté automatiquement depuis l'adresse du salon<br>
+      <strong>&minus;</strong> Pas de granularité — impossible d'ouvrir pour un jour férié spécifique
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Toggle + liste des jours fériés à venir</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Toggle global + aperçu des prochains jours fériés avec possibilité d'ouvrir individuellement</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:500px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:16px;">Jours fériés</div>
+
+          <!-- Toggle global -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+            <div>
+              <div style="font-size:14px;font-weight:500;color:#333;">Fermé les jours fériés</div>
+              <div style="font-size:12px;color:#999;margin-top:2px;">
+                <span style="font-size:14px;">🇫🇷</span> France — détecté depuis l'adresse
+              </div>
+            </div>
+            <div style="width:36px;height:20px;border-radius:10px;background:#c06;position:relative;">
+              <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div>
+            </div>
+          </div>
+
+          <!-- Liste des prochains jours fériés -->
+          <div style="margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px;">
+            <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:10px;">Prochains jours fériés</div>
+
+            <!-- Jour férié 1 — fermé (par défaut) -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:40px;text-align:center;">
+                  <div style="font-size:18px;font-weight:700;color:#333;line-height:1;">1</div>
+                  <div style="font-size:9px;color:#888;text-transform:uppercase;">Mai</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:#333;">Fête du Travail</div>
+                  <div style="font-size:11px;color:#c06;">Fermé</div>
+                </div>
+              </div>
+              <div style="width:32px;height:18px;border-radius:9px;background:#c06;position:relative;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>
+              </div>
+            </div>
+
+            <!-- Jour férié 2 — ouvert (exception) -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #f8f8f8;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:40px;text-align:center;">
+                  <div style="font-size:18px;font-weight:700;color:#333;line-height:1;">8</div>
+                  <div style="font-size:9px;color:#888;text-transform:uppercase;">Mai</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:#333;">Victoire 1945</div>
+                  <div style="font-size:11px;color:#52b788;">Ouvert (exception)</div>
+                </div>
+              </div>
+              <div style="width:32px;height:18px;border-radius:9px;background:#ccc;position:relative;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>
+              </div>
+            </div>
+
+            <!-- Jour férié 3 — fermé -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #f8f8f8;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:40px;text-align:center;">
+                  <div style="font-size:18px;font-weight:700;color:#333;line-height:1;">29</div>
+                  <div style="font-size:9px;color:#888;text-transform:uppercase;">Mai</div>
+                </div>
+                <div>
+                  <div style="font-size:13px;color:#333;">Ascension</div>
+                  <div style="font-size:11px;color:#c06;">Fermé</div>
+                </div>
+              </div>
+              <div style="width:32px;height:18px;border-radius:9px;background:#c06;position:relative;">
+                <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,0.2);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Vue claire des prochains jours fériés avec dates<br>
+      <strong>+</strong> Possibilité d'ouvrir pour un jour férié spécifique (exceptions)<br>
+      <strong>+</strong> Le pro voit exactement quand il sera fermé<br>
+      <strong>&minus;</strong> Plus complexe à implémenter (table d'exceptions par jour)
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Calendrier visuel avec jours fériés colorés</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Calendrier mensuel où les jours fériés sont marqués, cliquables pour toggle open/closed</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#fafafa;padding:24px;font-family:system-ui,sans-serif;">
+      <div style="max-width:500px;margin:0 auto;">
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:12px;">Jours fériés — Mai 2026</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+            <span style="font-size:16px;">🇫🇷</span>
+            <span style="font-size:12px;color:#888;">France</span>
+            <div style="margin-left:auto;display:flex;gap:4px;">
+              <button style="border:none;background:#f5f5f5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;">&larr;</button>
+              <button style="border:none;background:#f5f5f5;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;">&rarr;</button>
+            </div>
+          </div>
+
+          <!-- Mini calendrier -->
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:11px;">
+            <!-- Header jours -->
+            <div style="color:#999;font-weight:500;padding:4px;">L</div>
+            <div style="color:#999;font-weight:500;padding:4px;">M</div>
+            <div style="color:#999;font-weight:500;padding:4px;">M</div>
+            <div style="color:#999;font-weight:500;padding:4px;">J</div>
+            <div style="color:#999;font-weight:500;padding:4px;">V</div>
+            <div style="color:#999;font-weight:500;padding:4px;">S</div>
+            <div style="color:#999;font-weight:500;padding:4px;">D</div>
+
+            <!-- Semaine 1 (vides + 1 mai) -->
+            <div style="padding:6px;color:#ddd;">28</div>
+            <div style="padding:6px;color:#ddd;">29</div>
+            <div style="padding:6px;color:#ddd;">30</div>
+            <div style="padding:6px;border-radius:6px;background:#fce4ec;color:#c06;font-weight:700;cursor:pointer;position:relative;">1<div style="position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#c06;"></div></div>
+            <div style="padding:6px;color:#333;">2</div>
+            <div style="padding:6px;color:#333;">3</div>
+            <div style="padding:6px;color:#999;">4</div>
+
+            <!-- Semaine 2 -->
+            <div style="padding:6px;color:#333;">5</div>
+            <div style="padding:6px;color:#333;">6</div>
+            <div style="padding:6px;color:#333;">7</div>
+            <div style="padding:6px;border-radius:6px;background:#e8f5e9;color:#52b788;font-weight:700;cursor:pointer;position:relative;">8<div style="position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#52b788;"></div></div>
+            <div style="padding:6px;color:#333;">9</div>
+            <div style="padding:6px;color:#333;">10</div>
+            <div style="padding:6px;color:#999;">11</div>
+
+            <!-- ... more weeks abbreviated -->
+            <div style="padding:6px;color:#333;">12</div>
+            <div style="padding:6px;color:#333;">13</div>
+            <div style="padding:6px;color:#333;">14</div>
+            <div style="padding:6px;color:#333;">15</div>
+            <div style="padding:6px;color:#333;">16</div>
+            <div style="padding:6px;color:#333;">17</div>
+            <div style="padding:6px;color:#999;">18</div>
+          </div>
+
+          <!-- Légende -->
+          <div style="display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f0;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:10px;height:10px;border-radius:3px;background:#fce4ec;"></div>
+              <span style="font-size:10px;color:#888;">Fermé (jour férié)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div style="width:10px;height:10px;border-radius:3px;background:#e8f5e9;"></div>
+              <span style="font-size:10px;color:#888;">Ouvert (exception)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Très visuel, le pro voit tout d'un coup<br>
+      <strong>+</strong> Clic sur un jour férié pour toggle open/closed<br>
+      <strong>+</strong> Navigation par mois<br>
+      <strong>&minus;</strong> Plus complexe à implémenter<br>
+      <strong>&minus;</strong> Peut être redondant avec la gestion des blocked slots existante
+    </div>
+  </div>
+</div>

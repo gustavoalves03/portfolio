@@ -1,0 +1,399 @@
+<h2>Dashboard PRO complet — 3 layouts</h2>
+<p class="subtitle">Toutes les métriques : financières, activité, employés, clients. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A: Scrollable sections ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Sections scrollables avec filtres globaux</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Barre de filtres sticky en haut, sections empilées, scroll continu. Desktop: 2 colonnes. Mobile: 1 colonne.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#f5f4f2;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="max-width:700px;margin:0 auto;">
+
+        <!-- Sticky filter bar -->
+        <div style="background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <select style="padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;color:#666;background:#fff;">
+            <option>Cette semaine</option><option>Ce mois</option><option>Ce trimestre</option><option>Cette année</option><option>Personnalisé...</option>
+          </select>
+          <select style="padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;color:#666;background:#fff;">
+            <option>Tous les employés</option><option>Sophie</option><option>Marie</option>
+          </select>
+          <select style="padding:5px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:11px;color:#666;background:#fff;">
+            <option>Toutes prestations</option><option>Soins visage</option><option>Massage</option>
+          </select>
+        </div>
+
+        <!-- KPIs row -->
+        <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;">
+          <div style="min-width:100px;flex:1;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">RDV</div>
+            <div style="font-size:22px;font-weight:700;color:#333;">24</div>
+            <div style="font-size:9px;color:#52b788;">▲ 12%</div>
+          </div>
+          <div style="min-width:100px;flex:1;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">CA</div>
+            <div style="font-size:22px;font-weight:700;color:#333;">1 320€</div>
+            <div style="font-size:9px;color:#52b788;">▲ 8%</div>
+          </div>
+          <div style="min-width:100px;flex:1;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Présence</div>
+            <div style="font-size:22px;font-weight:700;color:#333;">92%</div>
+            <div style="font-size:9px;color:#ef5350;">▼ 3%</div>
+          </div>
+          <div style="min-width:100px;flex:1;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Occupation</div>
+            <div style="font-size:22px;font-weight:700;color:#333;">78%</div>
+            <div style="font-size:9px;color:#52b788;">▲ 5%</div>
+          </div>
+          <div style="min-width:100px;flex:1;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Panier moy.</div>
+            <div style="font-size:22px;font-weight:700;color:#333;">55€</div>
+            <div style="font-size:9px;color:#888;">= stable</div>
+          </div>
+        </div>
+
+        <!-- 2-col grid on desktop -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+          <!-- Graphe CA -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11px;font-weight:600;color:#888;">Chiffre d'affaires</span>
+              <div style="display:flex;gap:2px;">
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#c06;cursor:pointer;">Barres</button>
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#888;cursor:pointer;">Ligne</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:70px;">
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:35%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:55%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:45%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:70%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:90%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#a8385d,#e8a0b0);border-radius:3px 3px 0 0;height:50%;"></div>
+              <div style="flex:1;background:#f0f0f0;border-radius:3px 3px 0 0;height:3%;"></div>
+            </div>
+          </div>
+
+          <!-- Heatmap créneaux -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <span style="font-size:11px;font-weight:600;color:#888;">Créneaux les plus demandés</span>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:8px;">
+              <!-- Header -->
+              <div style="font-size:7px;color:#bbb;text-align:center;">L</div>
+              <div style="font-size:7px;color:#bbb;text-align:center;">M</div>
+              <div style="font-size:7px;color:#bbb;text-align:center;">M</div>
+              <div style="font-size:7px;color:#bbb;text-align:center;">J</div>
+              <div style="font-size:7px;color:#bbb;text-align:center;">V</div>
+              <div style="font-size:7px;color:#bbb;text-align:center;">S</div>
+              <!-- 9h row -->
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.1);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.3);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.2);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.4);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.5);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.3);"></div>
+              <!-- 10h -->
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.3);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.6);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.5);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.7);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.8);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.4);"></div>
+              <!-- 11h -->
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.5);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.8);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.9);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.7);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.6);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.3);"></div>
+              <!-- 14h -->
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.4);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.6);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.5);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.5);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.7);"></div>
+              <div style="height:10px;border-radius:2px;background:rgba(192,0,102,0.2);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:7px;color:#bbb;">9h</span>
+              <span style="font-size:7px;color:#bbb;">11h</span>
+              <span style="font-size:7px;color:#bbb;">14h</span>
+              <span style="font-size:7px;color:#bbb;">16h</span>
+            </div>
+          </div>
+
+          <!-- Employés -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11px;font-weight:600;color:#888;">Performance employés</span>
+              <div style="display:flex;gap:2px;">
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#c06;cursor:pointer;">CA</button>
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#888;cursor:pointer;">RDV</button>
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#888;cursor:pointer;">Taux</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.8);">S</div>
+                <div style="flex:1;font-size:11px;color:#333;">Sophie</div>
+                <div style="width:80px;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                  <div style="width:85%;height:100%;background:#c06;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:10px;font-weight:600;color:#333;width:45px;text-align:right;">820€</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,0.8);">M</div>
+                <div style="flex:1;font-size:11px;color:#333;">Marie</div>
+                <div style="width:80px;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                  <div style="width:55%;height:100%;background:#c06;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:10px;font-weight:600;color:#333;width:45px;text-align:right;">500€</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clients fidèles -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11px;font-weight:600;color:#888;">Clients fidèles</span>
+              <div style="display:flex;gap:2px;">
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#c06;cursor:pointer;">Visites</button>
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#888;cursor:pointer;">CA</button>
+                <button style="padding:2px 6px;border:1px solid #e0e0e0;border-radius:4px;font-size:9px;background:#fff;color:#888;cursor:pointer;">Fiabilité</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="display:flex;align-items:center;gap:6px;padding:4px 0;">
+                <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,0.8);">M</div>
+                <div style="flex:1;font-size:11px;color:#333;">Marie L.</div>
+                <span style="font-size:9px;color:#888;">12 vis.</span>
+                <div style="padding:1px 5px;border-radius:4px;background:#f0fdf4;font-size:8px;color:#166534;font-weight:600;">100%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:4px 0;">
+                <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,0.8);">J</div>
+                <div style="flex:1;font-size:11px;color:#333;">Julie P.</div>
+                <span style="font-size:9px;color:#888;">8 vis.</span>
+                <div style="padding:1px 5px;border-radius:4px;background:#f0fdf4;font-size:8px;color:#166534;font-weight:600;">88%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;padding:4px 0;">
+                <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;font-size:8px;color:rgba(255,255,255,0.8);">C</div>
+                <div style="flex:1;font-size:11px;color:#333;">Clara M.</div>
+                <span style="font-size:9px;color:#888;">5 vis.</span>
+                <div style="padding:1px 5px;border-radius:4px;background:#fef2f2;font-size:8px;color:#dc2626;font-weight:600;">63%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top prestations -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <span style="font-size:11px;font-weight:600;color:#888;">Top prestations</span>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="flex:1;font-size:11px;color:#333;">Soin hydratant</div>
+                <div style="width:70px;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                  <div style="width:80%;height:100%;background:#c06;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:10px;color:#666;width:20px;">12</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="flex:1;font-size:11px;color:#333;">Massage</div>
+                <div style="width:70px;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                  <div style="width:60%;height:100%;background:#c06;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:10px;color:#666;width:20px;">9</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="flex:1;font-size:11px;color:#333;">Épilation</div>
+                <div style="width:70px;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;">
+                  <div style="width:40%;height:100%;background:#c06;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:10px;color:#666;width:20px;">6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Répartition RDV (camembert) -->
+          <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <span style="font-size:11px;font-weight:600;color:#888;">Répartition des RDV</span>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:10px;">
+              <!-- Simple donut mockup -->
+              <div style="width:60px;height:60px;border-radius:50%;background:conic-gradient(#c06 0% 50%, #e8a0b0 50% 75%, #f0d0d8 75% 92%, #f5f5f5 92% 100%);position:relative;flex-shrink:0;">
+                <div style="position:absolute;inset:15px;border-radius:50%;background:#fff;"></div>
+              </div>
+              <div style="font-size:10px;color:#666;line-height:1.6;">
+                <div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#c06;margin-right:4px;"></span>Confirmé 50%</div>
+                <div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#e8a0b0;margin-right:4px;"></span>En attente 25%</div>
+                <div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f0d0d8;margin-right:4px;"></span>Annulé 17%</div>
+                <div><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f5f5f5;margin-right:4px;"></span>No-show 8%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prévision CA (full width) -->
+        <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-top:12px;">
+          <span style="font-size:11px;font-weight:600;color:#888;">Prévision CA (basée sur RDV confirmés)</span>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+            <div style="font-size:28px;font-weight:700;color:#333;">2 450 €</div>
+            <div style="font-size:11px;color:#888;line-height:1.4;">estimé ce mois<br><span style="color:#52b788;font-weight:500;">+15% vs mois dernier</span></div>
+          </div>
+        </div>
+
+        <!-- Clients à risque -->
+        <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);margin-top:12px;">
+          <span style="font-size:11px;font-weight:600;color:#888;">Clients à risque (pas venus depuis 60j+)</span>
+          <div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto;">
+            <div style="min-width:120px;padding:8px 10px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+              <div style="font-size:11px;font-weight:500;color:#333;">Clara M.</div>
+              <div style="font-size:9px;color:#ef5350;">Dernière visite : il y a 87j</div>
+            </div>
+            <div style="min-width:120px;padding:8px 10px;background:#fef2f2;border-radius:8px;border:1px solid #fecaca;">
+              <div style="font-size:11px;font-weight:500;color:#333;">Thomas D.</div>
+              <div style="font-size:9px;color:#ef5350;">Dernière visite : il y a 62j</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Tout visible d'un coup en grille 2 colonnes (desktop)<br>
+      <strong>+</strong> Filtres globaux en haut qui impactent toutes les sections<br>
+      <strong>+</strong> Chaque section a ses propres sous-filtres (CA/RDV/Taux)<br>
+      <strong>+</strong> Heatmap créneaux très visuel<br>
+      <strong>+</strong> Mobile : passe en 1 colonne naturellement<br>
+      <strong>&minus;</strong> Beaucoup d'infos, peut être overwhelming au début
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B: Tabs par domaine ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Onglets par domaine</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">KPIs toujours visibles + 4 onglets : Activité / Finances / Équipe / Clients. Chaque onglet a ses graphes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#f5f4f2;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="max-width:600px;margin:0 auto;">
+
+        <!-- KPIs always visible -->
+        <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;">
+          <div style="min-width:80px;flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:18px;font-weight:700;color:#333;">24</div>
+            <div style="font-size:8px;color:#888;">RDV</div>
+          </div>
+          <div style="min-width:80px;flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:18px;font-weight:700;color:#333;">1.3k€</div>
+            <div style="font-size:8px;color:#888;">CA</div>
+          </div>
+          <div style="min-width:80px;flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:18px;font-weight:700;color:#333;">92%</div>
+            <div style="font-size:8px;color:#888;">Présence</div>
+          </div>
+          <div style="min-width:80px;flex:1;background:#fff;border-radius:8px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:18px;font-weight:700;color:#333;">78%</div>
+            <div style="font-size:8px;color:#888;">Occup.</div>
+          </div>
+        </div>
+
+        <!-- Period + Tabs -->
+        <div style="background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">
+          <!-- Period selector -->
+          <div style="padding:10px 14px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:flex-end;">
+            <select style="padding:4px 8px;border:1px solid #e0e0e0;border-radius:6px;font-size:10px;color:#666;background:#fff;">
+              <option>Cette semaine</option><option>Ce mois</option><option>Cette année</option>
+            </select>
+          </div>
+
+          <!-- Tab bar -->
+          <div style="display:flex;border-bottom:1px solid #f0f0f0;">
+            <button style="flex:1;padding:10px 0;border:none;background:transparent;font-size:11px;font-weight:500;color:#c06;border-bottom:2px solid #c06;cursor:pointer;">Activité</button>
+            <button style="flex:1;padding:10px 0;border:none;background:transparent;font-size:11px;color:#888;cursor:pointer;">Finances</button>
+            <button style="flex:1;padding:10px 0;border:none;background:transparent;font-size:11px;color:#888;cursor:pointer;">Équipe</button>
+            <button style="flex:1;padding:10px 0;border:none;background:transparent;font-size:11px;color:#888;cursor:pointer;">Clients</button>
+          </div>
+
+          <!-- Active tab content: Activité -->
+          <div style="padding:14px;">
+            <!-- Chart toggle -->
+            <div style="display:flex;gap:4px;margin-bottom:10px;">
+              <button style="padding:3px 8px;border-radius:6px;border:1px solid #c06;background:#fef2f8;font-size:9px;color:#c06;font-weight:500;cursor:pointer;">RDV/jour</button>
+              <button style="padding:3px 8px;border-radius:6px;border:1px solid #e0e0e0;background:#fff;font-size:9px;color:#888;cursor:pointer;">Heatmap</button>
+              <button style="padding:3px 8px;border-radius:6px;border:1px solid #e0e0e0;background:#fff;font-size:9px;color:#888;cursor:pointer;">Statuts</button>
+            </div>
+
+            <!-- Bar chart -->
+            <div style="display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:12px;">
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:40%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:60%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:45%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:75%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:90%;"></div>
+              <div style="flex:1;background:linear-gradient(to top,#c06,#e8a0b0);border-radius:3px 3px 0 0;height:50%;"></div>
+              <div style="flex:1;background:#f0f0f0;border-radius:3px 3px 0 0;height:5%;"></div>
+            </div>
+
+            <!-- Quick stats below chart -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="padding:8px;background:#fafafa;border-radius:8px;">
+                <div style="font-size:9px;color:#888;">Nouveau clients</div>
+                <div style="font-size:16px;font-weight:600;color:#333;">5</div>
+              </div>
+              <div style="padding:8px;background:#fafafa;border-radius:8px;">
+                <div style="font-size:9px;color:#888;">Clients récurrents</div>
+                <div style="font-size:16px;font-weight:600;color:#333;">19</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Organisé par domaine — pas overwhelming<br>
+      <strong>+</strong> KPIs toujours visibles en haut<br>
+      <strong>+</strong> Chaque onglet a ses propres graphes switchables<br>
+      <strong>+</strong> Mobile-first : les tabs fonctionnent bien sur petit écran<br>
+      <strong>&minus;</strong> Faut naviguer entre tabs pour voir tout<br>
+      <strong>&minus;</strong> Pas de vue d'ensemble en un coup d'oeil
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C: Hybrid — KPIs + scrollable widgets ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Hybride — KPIs + widgets configurables</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">KPIs en haut, puis widgets que le pro peut réorganiser. Desktop: grille adaptative. Mobile: stack.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Le pro personnalise son dashboard (drag & drop widgets)<br>
+      <strong>+</strong> Chaque widget est indépendant avec son propre filtre<br>
+      <strong>+</strong> Adaptable : petits widgets 1 col ou grands 2 cols<br>
+      <strong>&minus;</strong> Plus complexe à implémenter (drag & drop, persistence layout)<br>
+      <strong>&minus;</strong> Overengineered pour une première version
+    </div>
+  </div>
+</div>

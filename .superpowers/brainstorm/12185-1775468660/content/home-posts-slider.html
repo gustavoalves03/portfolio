@@ -1,0 +1,192 @@
+<h2>Section "Derniers Posts" sur la Home — 3 propositions</h2>
+<p class="subtitle">Slider vertical snap (comme la page salon) avec logo + nom du salon. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">A</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Logo + nom au-dessus de la caption</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Ligne salon (logo rond + nom) juste au-dessus du texte descriptif, dans l'overlay gradient</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mockup du slider -->
+    <div style="max-width:340px;margin:20px auto;font-family:system-ui,sans-serif;">
+      <div style="position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#000;">
+        <!-- Image de fond -->
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#e8c8b0 0%,#d4a088 100%);"></div>
+
+        <!-- Gradient overlay bas -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,transparent 100%);z-index:2;"></div>
+
+        <!-- Info overlay -->
+        <div style="position:absolute;bottom:16px;left:16px;right:60px;z-index:3;">
+          <!-- Type pill -->
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:500;margin-bottom:8px;">
+            <span style="font-size:12px;">&#9679;</span> Photo
+          </div>
+
+          <!-- Salon identity -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);border:2px solid rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.8);font-weight:300;">S</span>
+            </div>
+            <span style="font-size:12px;color:rgba(255,255,255,0.9);font-weight:600;">L'Atelier de Sophie</span>
+          </div>
+
+          <!-- Caption -->
+          <div style="font-size:13px;color:#fff;line-height:1.4;">Résultat soin éclat visage</div>
+
+          <!-- Care tag -->
+          <div style="margin-top:5px;">
+            <span style="padding:2px 8px;border-radius:10px;background:rgba(192,0,102,0.6);color:#fff;font-size:11px;">Soin hydratant</span>
+          </div>
+
+          <!-- Date -->
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;">5 avr. 2026</div>
+        </div>
+
+        <!-- Progress dots -->
+        <div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:6px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Logo + nom directement intégré dans l'overlay existant<br>
+      <strong>+</strong> Hiérarchie claire : type pill &rarr; salon &rarr; caption &rarr; tag &rarr; date<br>
+      <strong>+</strong> Cohérent avec le slider de la page salon (mêmes styles)<br>
+      <strong>&minus;</strong> Beaucoup d'infos empilées en bas
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#52b788);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">B</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Header salon en haut + caption en bas</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Logo + nom du salon en haut de l'image (style Instagram stories), caption en bas</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width:340px;margin:20px auto;font-family:system-ui,sans-serif;">
+      <div style="position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#000;">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#d4a8c0,#c08898);"></div>
+
+        <!-- Top gradient -->
+        <div style="position:absolute;top:0;left:0;right:0;height:30%;background:linear-gradient(to bottom,rgba(0,0,0,0.5) 0%,transparent 100%);z-index:2;"></div>
+
+        <!-- Salon header (TOP) -->
+        <div style="position:absolute;top:12px;left:14px;right:14px;z-index:3;display:flex;align-items:center;gap:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);border:2px solid rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:300;">S</span>
+          </div>
+          <div>
+            <div style="font-size:13px;color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.3);">L'Atelier de Sophie</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.7);">Paris</div>
+          </div>
+        </div>
+
+        <!-- Bottom gradient -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 100%);z-index:2;"></div>
+
+        <!-- Bottom info -->
+        <div style="position:absolute;bottom:16px;left:16px;right:60px;z-index:3;">
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:500;margin-bottom:6px;">
+            <span style="font-size:12px;">&#9679;</span> Photo
+          </div>
+          <div style="font-size:13px;color:#fff;line-height:1.4;">Résultat soin éclat visage</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;">5 avr. 2026</div>
+        </div>
+
+        <!-- Progress dots -->
+        <div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:6px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Salon bien visible en haut (style Instagram/TikTok)<br>
+      <strong>+</strong> Image plus dégagée au centre<br>
+      <strong>+</strong> Bottom overlay plus léger (moins d'infos)<br>
+      <strong>&minus;</strong> Deux zones de gradient (haut + bas) réduisent la visibilité de l'image
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:32px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:16px 20px;border-bottom:1px solid #eee;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2980b9);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">C</div>
+        <div>
+          <h3 style="margin:0;font-size:16px;">Logo flottant + carte sous le slider</h3>
+          <p style="margin:2px 0 0;font-size:12px;color:#888;">Le slider est clean (juste l'image + type), les infos salon sont dans une carte sous le viewport</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="max-width:340px;margin:20px auto;font-family:system-ui,sans-serif;">
+      <!-- Slider viewport -->
+      <div style="position:relative;aspect-ratio:3/4;border-radius:16px 16px 0 0;overflow:hidden;background:#000;">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#b8d0c8,#90b0a0);"></div>
+
+        <!-- Minimal overlay -->
+        <div style="position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 100%);z-index:2;"></div>
+
+        <!-- Just type pill -->
+        <div style="position:absolute;bottom:14px;left:14px;z-index:3;">
+          <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:500;">
+            <span style="font-size:12px;">&#9679;</span> Photo
+          </div>
+        </div>
+
+        <!-- Logo floating at bottom-right, overlapping the card below -->
+        <div style="position:absolute;bottom:-18px;right:16px;z-index:5;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:14px;color:rgba(255,255,255,0.8);font-weight:300;">S</span>
+        </div>
+
+        <!-- Progress dots -->
+        <div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:3;display:flex;flex-direction:column;gap:6px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+        </div>
+      </div>
+
+      <!-- Info card below -->
+      <div style="background:#fff;border-radius:0 0 16px 16px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="font-size:13px;font-weight:600;color:#333;">L'Atelier de Sophie</div>
+        <div style="font-size:12px;color:#666;margin-top:3px;line-height:1.4;">Résultat soin éclat visage</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+          <span style="padding:2px 8px;border-radius:10px;background:rgba(192,0,102,0.1);color:#c06;font-size:10px;font-weight:500;">Soin hydratant</span>
+          <span style="font-size:10px;color:#bbb;">5 avr. 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #eee;font-size:12px;color:#666;line-height:1.6;">
+      <strong>+</strong> Image maximalement visible (overlay minimal)<br>
+      <strong>+</strong> Infos salon bien lisibles sur fond blanc<br>
+      <strong>+</strong> Logo flottant crée un lien visuel entre image et carte<br>
+      <strong>&minus;</strong> Plus de hauteur totale (image + carte)<br>
+      <strong>&minus;</strong> Moins "immersif" que les options avec overlay
+    </div>
+  </div>
+</div>
