@@ -32,20 +32,14 @@ export class WebSocketService {
       reconnectDelay: 1000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
-      debug: (str) => console.log('[STOMP]', str),
       onConnect: () => {
-        console.log('[WS] Connected, subscribing to /user/queue/notifications');
         this.client!.subscribe('/user/queue/notifications', (message: IMessage) => {
-          console.log('[WS] Notification received:', message.body);
           const notification: NotificationResponse = JSON.parse(message.body);
           this.notification$.next(notification);
         });
       },
       onStompError: (frame) => {
-        console.error('[WS] STOMP error:', frame.headers['message']);
-      },
-      onWebSocketClose: (event) => {
-        console.warn('[WS] Connection closed:', event);
+        console.error('STOMP error:', frame.headers['message']);
       },
     });
 

@@ -27,11 +27,9 @@ export class App {
 
   constructor() {
     const isBrowser = isPlatformBrowser(this.platformId);
-    console.log('[App] constructor, isBrowser:', isBrowser);
 
     effect(() => {
       const isAuth = this.authService.isAuthenticated();
-      console.log('[App] auth effect, isAuthenticated:', isAuth, 'isBrowser:', isBrowser);
       if (isBrowser && isAuth) {
         this.notificationsStore.loadUnreadCount();
         this.notificationsStore.connectWebSocket();
