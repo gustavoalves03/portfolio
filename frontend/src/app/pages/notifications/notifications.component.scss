@@ -68,27 +68,34 @@
 
   &.read {
     background: white;
-    opacity: 0.55;
 
     .notif-icon {
-      background: #e5e7eb;
+      background: #dda0b5;
 
       mat-icon {
-        color: #9ca3af;
+        color: white;
       }
     }
 
+    &.is-cancelled .notif-icon {
+      background: #ef9a9a;
+    }
+
     .notif-title {
-      color: #6b7280;
-      font-weight: 500;
+      color: #4b5563;
+      font-weight: 600;
     }
 
     .notif-message {
-      color: #9ca3af;
+      color: #6b7280;
     }
 
     .notif-time {
       color: #9ca3af;
+    }
+
+    .status-badge {
+      opacity: 0.7;
     }
   }
 }
