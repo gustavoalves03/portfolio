@@ -22,6 +22,26 @@
                   <p class="booking-datetime">{{ formatDate(booking.appointmentDate) }} — {{ booking.appointmentTime }}</p>
                   <p class="booking-meta">{{ formatDuration(booking.careDuration) }} · {{ formatPrice(booking.carePrice) }}</p>
                 </div>
+                <div class="booking-actions">
+                  @if (confirmingCancelId() === booking.id) {
+                    <p class="cancel-confirm-text">{{ 'clientBookings.cancelConfirm' | transloco }}</p>
+                    <div class="cancel-confirm-actions">
+                      <button mat-button class="cancel-dismiss-btn" (click)="onCancelDismiss($event)">
+                        {{ 'common.back' | transloco }}
+                      </button>
+                      <button mat-flat-button color="warn" class="cancel-confirm-btn"
+                              [disabled]="store.cancellingId() === booking.bookingId"
+                              (click)="onCancelConfirm($event, booking.tenantSlug, booking.bookingId)">
+                        {{ 'clientBookings.cancel' | transloco }}
+                      </button>
+                    </div>
+                  } @else {
+                    <button mat-stroked-button class="cancel-btn" (click)="onCancelClick($event, booking.id)">
+                      {{ 'clientBookings.cancel' | transloco }}
+                    </button>
+                    <span class="modify-hint">{{ 'clientBookings.modifyHint' | transloco }}</span>
+                  }
+                </div>
               </div>
             }
           </div>
@@ -37,7 +57,11 @@
 
       <!-- Past tab -->
       <mat-tab [label]="'clientBookings.past' | transloco">
-        @if (store.past().length > 0) {
+        @if (store.pastPending()) {
+          <div class="loading">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+        } @else if (store.past().length > 0) {
           <div class="bookings-list">
             @for (booking of store.past(); track booking.id) {
               <div class="booking-card past">

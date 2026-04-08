@@ -22,8 +22,8 @@ import { LeavesComponent } from '../../features/leaves/leaves.component';
         </div>
     `,
     styles: [`
-        .employees-page { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
-        .page-title { font-size: 20px; font-weight: 600; color: #333; margin: 0 0 16px; }
+        .employees-page { background: #f5f4f2; padding: 16px; max-width: 800px; margin: 0 auto; }
+        .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .tab-content { padding-top: 16px; }
         ::ng-deep .mat-mdc-tab-labels { justify-content: center; }
     `],

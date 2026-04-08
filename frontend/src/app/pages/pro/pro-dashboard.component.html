@@ -7,7 +7,7 @@
     <!-- Header -->
     <div class="dashboard-header">
       <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-medium text-neutral-800">
+        <h1 class="page-title">
           {{ 'pro.dashboard.title' | transloco }}
         </h1>
         @if (store.isDraft()) {
@@ -280,7 +280,7 @@
                 @for (client of sortedClients(); track client.id) {
                   <div class="ranking-item">
                     <div class="ranking-info">
-                      <span class="ranking-name">{{ client.name }}</span>
+                      <a class="ranking-name client-link" [routerLink]="['/pro/clients', client.id]">{{ client.name }}</a>
                       <span class="ranking-detail">
                         {{ client.visitCount }} {{ 'pro.dashboard.analytics.clients.sortVisits' | transloco | lowercase }}
                         &middot; {{ formatCurrency(client.revenue) }}

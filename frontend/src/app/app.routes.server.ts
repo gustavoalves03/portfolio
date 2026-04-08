@@ -6,6 +6,26 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'pro/clients/:userId',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'my-evolution',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'feed',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'pro/manage',
+    renderMode: RenderMode.Server
+  },
+  {
+    path: 'pro/camera',
+    renderMode: RenderMode.Server
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender
   },

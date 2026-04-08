@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ClientBookingsStore } from '../../features/client-bookings/client-bookings.store';
 
 @Component({
@@ -17,6 +17,9 @@ import { ClientBookingsStore } from '../../features/client-bookings/client-booki
 export class ClientBookingsComponent {
   protected readonly store = inject(ClientBookingsStore);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+
+  protected readonly confirmingCancelId = signal<number | null>(null);
 
   onTabChange(index: number): void {
     if (index === 1) {
@@ -30,6 +33,22 @@ export class ClientBookingsComponent {
 
   onSalonClick(slug: string): void {
     this.router.navigate(['/salon', slug]);
+  }
+
+  onCancelClick(event: Event, bookingId: number): void {
+    event.stopPropagation();
+    this.confirmingCancelId.set(bookingId);
+  }
+
+  onCancelConfirm(event: Event, slug: string, bookingId: number): void {
+    event.stopPropagation();
+    this.store.cancelBooking({ slug, bookingId });
+    this.confirmingCancelId.set(null);
+  }
+
+  onCancelDismiss(event: Event): void {
+    event.stopPropagation();
+    this.confirmingCancelId.set(null);
   }
 
   formatDuration(minutes: number): string {

@@ -87,6 +87,12 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
     path: '/bookings',
     icon: 'calendar_month',
     requiresAuth: true
+  },
+  {
+    label: 'nav.client.evolution',
+    path: '/my-evolution',
+    icon: 'auto_awesome',
+    requiresAuth: true
   }
 ];
 

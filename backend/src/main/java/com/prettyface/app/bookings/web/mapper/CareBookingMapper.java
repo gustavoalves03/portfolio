@@ -22,6 +22,10 @@ public class CareBookingMapper {
     }
 
     public static CareBookingDetailedResponse toDetailedResponse(CareBooking b) {
+        return toDetailedResponse(b, null);
+    }
+
+    public static CareBookingDetailedResponse toDetailedResponse(CareBooking b, String employeeName) {
         UserInfo userInfo = new UserInfo(
                 b.getUser().getId(),
                 b.getUser().getName(),
@@ -43,7 +47,9 @@ public class CareBookingMapper {
                 b.getAppointmentDate(),
                 b.getAppointmentTime(),
                 b.getStatus(),
-                b.getCreatedAt()
+                b.getCreatedAt(),
+                b.getEmployeeId(),
+                employeeName
         );
     }
 

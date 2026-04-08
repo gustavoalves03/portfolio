@@ -164,8 +164,8 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
         </div>
     `,
     styles: [`
-        .settings-page { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
-        .page-title { font-size: 20px; font-weight: 600; color: #333; margin: 0 0 1.5rem; }
+        .settings-page { background: #f5f4f2; padding: 16px; max-width: 800px; margin: 0 auto; }
+        .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .settings-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .section-title { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid #f5f5f5; }

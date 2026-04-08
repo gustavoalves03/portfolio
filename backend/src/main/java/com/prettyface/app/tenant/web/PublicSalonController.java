@@ -9,6 +9,8 @@ import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import com.prettyface.app.bookings.app.CareBookingService;
 import com.prettyface.app.bookings.app.ClientBookingHistoryService;
+import com.prettyface.app.bookings.domain.CareBooking;
+import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
 import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.category.domain.Category;
@@ -164,6 +166,45 @@ public class PublicSalonController {
         } finally {
             TenantContext.clear();
         }
+    }
+
+    @PostMapping("/{slug}/bookings/{bookingId}/cancel")
+    public ResponseEntity<Void> cancelBooking(@PathVariable String slug,
+                                               @PathVariable Long bookingId,
+                                               @AuthenticationPrincipal UserPrincipal principal) {
+        var tenant = tenantService.findBySlug(slug)
+                .filter(t -> t.getStatus() == TenantStatus.ACTIVE)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon not found"));
+
+        // Cancel in tenant schema
+        TenantContext.setCurrentTenant(slug);
+        try {
+            CareBooking booking = careBookingService.findById(bookingId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+
+            // Security: only the booking owner can cancel
+            if (!booking.getUser().getId().equals(principal.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your booking");
+            }
+
+            // Cannot cancel past bookings
+            if (LocalDate.now().isAfter(booking.getAppointmentDate())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel a past appointment");
+            }
+
+            if (booking.getStatus() == CareBookingStatus.CANCELLED) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking already cancelled");
+            }
+
+            careBookingService.cancelBooking(bookingId);
+        } finally {
+            TenantContext.clear();
+        }
+
+        // Update mirror in shared schema
+        clientBookingHistoryService.updateMirrorStatus(slug, bookingId, "CANCELLED");
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{slug}/book")

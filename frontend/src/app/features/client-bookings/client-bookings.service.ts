@@ -15,4 +15,11 @@ export class ClientBookingsService {
       { params: { tab } }
     );
   }
+
+  cancelBooking(slug: string, bookingId: number): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiBaseUrl}/api/salon/${slug}/bookings/${bookingId}/cancel`,
+      {}
+    );
+  }
 }

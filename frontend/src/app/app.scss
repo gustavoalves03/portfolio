@@ -1,1 +1,14 @@
 // App styles
+
+// On mobile, remove main padding so management pages fill the screen
+@media (max-width: 767px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .main-content {
+    padding: 0 !important;
+    padding-bottom: 70px !important; // Space for bottom nav
+    max-width: 100% !important;
+  }
+}

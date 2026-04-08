@@ -70,15 +70,15 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
         LEFT JOIN FETCH b.user
         LEFT JOIN FETCH b.care
         WHERE (:status IS NULL OR b.status = :status)
-        AND (:from IS NULL OR b.createdAt >= :from)
-        AND (:to IS NULL OR b.createdAt <= :to)
+        AND (:from IS NULL OR b.appointmentDate >= :from)
+        AND (:to IS NULL OR b.appointmentDate <= :to)
         AND (:userId IS NULL OR b.user.id = :userId)
-        ORDER BY b.createdAt DESC
+        ORDER BY b.appointmentDate ASC, b.appointmentTime ASC
         """)
     Page<CareBooking> findByFilters(
         @Param("status") CareBookingStatus status,
-        @Param("from") LocalDateTime from,
-        @Param("to") LocalDateTime to,
+        @Param("from") LocalDate from,
+        @Param("to") LocalDate to,
         @Param("userId") Long userId,
         Pageable pageable
     );

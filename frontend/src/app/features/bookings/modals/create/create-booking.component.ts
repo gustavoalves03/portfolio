@@ -109,7 +109,8 @@ export class CreateBookingComponent implements OnInit {
     const labels: Record<CareBookingStatus, string> = {
       [CareBookingStatus.PENDING]: 'En attente',
       [CareBookingStatus.CONFIRMED]: 'Confirmé',
-      [CareBookingStatus.CANCELLED]: 'Annulé'
+      [CareBookingStatus.CANCELLED]: 'Annulé',
+      [CareBookingStatus.NO_SHOW]: 'Absent',
     };
     return labels[status];
   }

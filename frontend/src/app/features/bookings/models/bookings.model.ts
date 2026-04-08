@@ -2,6 +2,7 @@ export enum CareBookingStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
   CANCELLED = 'CANCELLED',
+  NO_SHOW = 'NO_SHOW',
 }
 
 export interface CareBooking {
@@ -37,6 +38,8 @@ export interface CareBookingDetailed {
   appointmentTime: string; // ISO time string (HH:mm:ss)
   status: CareBookingStatus;
   createdAt: string; // ISO date string
+  employeeId: number | null;
+  employeeName: string | null;
 }
 
 export interface CreateCareBookingRequest {

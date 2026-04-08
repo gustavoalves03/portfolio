@@ -14,5 +14,7 @@ public record CareBookingDetailedResponse(
     LocalDate appointmentDate,
     LocalTime appointmentTime,
     CareBookingStatus status,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Long employeeId,
+    String employeeName
 ) {}

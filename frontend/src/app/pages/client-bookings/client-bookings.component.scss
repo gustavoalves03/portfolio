@@ -104,3 +104,42 @@
   background-color: #e91e63;
   color: white;
 }
+
+.booking-actions {
+  border-top: 1px solid #f0f0f0;
+  margin-top: 12px;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cancel-btn {
+  font-size: 13px;
+}
+
+.modify-hint {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+.cancel-confirm-text {
+  font-size: 13px;
+  color: #d32f2f;
+  margin: 0;
+}
+
+.cancel-confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.cancel-dismiss-btn {
+  font-size: 13px;
+}
+
+.cancel-confirm-btn {
+  font-size: 13px;
+}
