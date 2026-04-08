@@ -15,6 +15,7 @@ import com.prettyface.app.bookings.web.mapper.CareBookingMapper;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.domain.Tenant;
@@ -33,6 +34,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CareBookingService {
@@ -43,11 +45,17 @@ public class CareBookingService {
     private final EmailService emailService;
     private final TenantRepository tenantRepository;
     private final ClientBookingHistoryRepository clientBookingHistoryRepository;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
+    private final com.prettyface.app.employee.repo.EmployeeRepository employeeRepository;
+    private final com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
                                EmailService emailService, TenantRepository tenantRepository,
-                               ClientBookingHistoryRepository clientBookingHistoryRepository) {
+                               ClientBookingHistoryRepository clientBookingHistoryRepository,
+                               ApplicationSchemaExecutor applicationSchemaExecutor,
+                               com.prettyface.app.employee.repo.EmployeeRepository employeeRepository,
+                               com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -55,6 +63,9 @@ public class CareBookingService {
         this.emailService = emailService;
         this.tenantRepository = tenantRepository;
         this.clientBookingHistoryRepository = clientBookingHistoryRepository;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
+        this.employeeRepository = employeeRepository;
+        this.notificationDispatcher = notificationDispatcher;
     }
 
     @Transactional(readOnly = true)
@@ -74,13 +85,27 @@ public class CareBookingService {
     @Transactional(readOnly = true)
     public Page<CareBookingDetailedResponse> listDetailed(
             CareBookingStatus status,
-            LocalDateTime from,
-            LocalDateTime to,
+            LocalDate from,
+            LocalDate to,
             Long userId,
             Pageable pageable
     ) {
-        return repo.findByFilters(status, from, to, userId, pageable)
-                .map(CareBookingMapper::toDetailedResponse);
+        Page<CareBooking> bookings = repo.findByFilters(status, from, to, userId, pageable);
+
+        // Resolve employee names in batch
+        java.util.Set<Long> employeeIds = bookings.getContent().stream()
+                .map(CareBooking::getEmployeeId)
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+
+        java.util.Map<Long, String> employeeNames = new java.util.HashMap<>();
+        if (!employeeIds.isEmpty()) {
+            employeeRepository.findAllById(employeeIds)
+                    .forEach(e -> employeeNames.put(e.getId(), e.getName()));
+        }
+
+        return bookings.map(b -> CareBookingMapper.toDetailedResponse(b,
+                b.getEmployeeId() != null ? employeeNames.get(b.getEmployeeId()) : null));
     }
 
     @Transactional(readOnly = true)
@@ -186,9 +211,14 @@ public class CareBookingService {
             }
         }
 
-        // Check for time overlap across all salons (shared schema)
-        List<ClientBookingHistory> clientDayBookings = clientBookingHistoryRepository
-                .findByUserIdAndAppointmentDateAndStatusNot(client.getId(), req.appointmentDate(), "CANCELLED");
+        // Cross-salon history lives in the shared application schema, so query it in
+        // a separate transaction with TenantContext cleared.
+        List<ClientBookingHistory> clientDayBookings = applicationSchemaExecutor.call(() ->
+                clientBookingHistoryRepository.findByUserIdAndAppointmentDateAndStatusNot(
+                        client.getId(),
+                        req.appointmentDate(),
+                        "CANCELLED")
+        );
 
         for (ClientBookingHistory existing : clientDayBookings) {
             LocalTime existingStart = existing.getAppointmentTime();
@@ -241,6 +271,25 @@ public class CareBookingService {
         emailService.sendBookingConfirmationEmail(client, booking, care, salonName);
         emailService.sendNewBookingNotificationEmail(owner, booking, care, client.getName());
 
+        // Real-time notification to PRO + assigned employee
+        java.util.List<Long> recipients = new java.util.ArrayList<>();
+        recipients.add(owner.getId());
+        if (booking.getEmployeeId() != null) {
+            employeeRepository.findById(booking.getEmployeeId()).ifPresent(emp ->
+                    userRepository.findById(emp.getUserId()).ifPresent(empUser ->
+                            recipients.add(empUser.getId())));
+        }
+        notificationDispatcher.dispatch(
+                recipients,
+                TenantContext.getCurrentTenant(),
+                com.prettyface.app.notification.domain.NotificationType.NEW_BOOKING,
+                com.prettyface.app.notification.domain.NotificationCategory.BOOKING,
+                "Nouveau rendez-vous",
+                client.getName() + " - " + care.getName() + ", " + booking.getAppointmentTime(),
+                booking.getId(),
+                com.prettyface.app.notification.domain.ReferenceType.BOOKING
+        );
+
         return new ClientBookingResponse(
                 booking.getId(),
                 care.getName(),
@@ -251,6 +300,45 @@ public class CareBookingService {
                 booking.getStatus().name(),
                 salonName
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CareBooking> findById(Long id) {
+        return repo.findById(id);
+    }
+
+    @Transactional
+    public void cancelBooking(Long bookingId) {
+        CareBooking booking = repo.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+        booking.setStatus(CareBookingStatus.CANCELLED);
+        repo.save(booking);
+
+        // Real-time notification to PRO + assigned employee
+        String tenantSlug = TenantContext.getCurrentTenant();
+        Tenant tenant = tenantRepository.findBySlug(tenantSlug)
+                .orElse(null);
+        if (tenant != null) {
+            java.util.List<Long> recipients = new java.util.ArrayList<>();
+            recipients.add(tenant.getOwnerId());
+            if (booking.getEmployeeId() != null) {
+                employeeRepository.findById(booking.getEmployeeId()).ifPresent(emp ->
+                        userRepository.findById(emp.getUserId()).ifPresent(empUser ->
+                                recipients.add(empUser.getId())));
+            }
+            Care care = booking.getCare();
+            User client = booking.getUser();
+            notificationDispatcher.dispatch(
+                    recipients,
+                    tenantSlug,
+                    com.prettyface.app.notification.domain.NotificationType.BOOKING_CANCELLED,
+                    com.prettyface.app.notification.domain.NotificationCategory.BOOKING,
+                    "Rendez-vous annulé",
+                    (client != null ? client.getName() : "Client") + " - " + (care != null ? care.getName() : "Soin") + ", " + booking.getAppointmentDate(),
+                    booking.getId(),
+                    com.prettyface.app.notification.domain.ReferenceType.BOOKING
+            );
+        }
     }
 
     @Transactional
@@ -264,4 +352,3 @@ public class CareBookingService {
         return futureBookings.size();
     }
 }
-

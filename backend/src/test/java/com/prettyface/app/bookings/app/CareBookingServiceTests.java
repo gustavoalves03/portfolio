@@ -11,6 +11,7 @@ import com.prettyface.app.bookings.web.dto.ClientBookingResponse;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.domain.Tenant;
@@ -33,6 +34,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,6 +52,9 @@ class CareBookingServiceTests {
     @Mock private EmailService emailService;
     @Mock private TenantRepository tenantRepository;
     @Mock private ClientBookingHistoryRepository clientBookingHistoryRepository;
+    @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
+    @Mock private com.prettyface.app.employee.repo.EmployeeRepository employeeRepository;
+    @Mock private com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher;
 
     @InjectMocks
     private CareBookingService service;
@@ -74,6 +79,8 @@ class CareBookingServiceTests {
         // Default: no existing cross-salon bookings
         lenient().when(clientBookingHistoryRepository.findByUserIdAndAppointmentDateAndStatusNot(
                 any(Long.class), any(LocalDate.class), any(String.class))).thenReturn(List.of());
+        lenient().when(applicationSchemaExecutor.call(any()))
+                .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
     }
 
     @AfterEach
@@ -411,6 +418,20 @@ class CareBookingServiceTests {
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.CONFLICT))
                 .hasMessageContaining("You already have a booking from 09:00 to 09:30 at Other Salon");
+    }
+
+    @Test
+    @DisplayName("Cross-salon lookup runs through application schema executor")
+    void crossSalonLookup_usesApplicationSchemaExecutor() {
+        TenantContext.setCurrentTenant("test-salon");
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        mockSaveBooking();
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+        service.createClientBooking(client, owner, "Salon", req);
+
+        verify(applicationSchemaExecutor).call(any());
     }
 
     @Test
