@@ -10,6 +10,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'employee/clients/:userId',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'my-evolution',
     renderMode: RenderMode.Server
   },
