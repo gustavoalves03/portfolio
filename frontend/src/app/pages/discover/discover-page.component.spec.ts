@@ -9,8 +9,8 @@ import { DiscoveryService } from '../../features/discovery/discovery.service';
 import { of } from 'rxjs';
 
 const mockSalons = [
-  { name: 'Atelier Lumière', slug: 'atelier-lumiere', description: 'Soins visage', logoUrl: null, categoryNames: 'Soins visage' },
-  { name: 'Rose & Thé', slug: 'rose-et-the', description: 'Ongles', logoUrl: null, categoryNames: 'Ongles' },
+  { name: 'Atelier Lumière', slug: 'atelier-lumiere', description: 'Soins visage', logoUrl: null, categoryNames: 'Soins visage', addressCity: 'Paris', fullAddress: '1 rue de la Paix, 75001 Paris' },
+  { name: 'Rose & Thé', slug: 'rose-et-the', description: 'Ongles', logoUrl: null, categoryNames: 'Ongles', addressCity: 'Lyon', fullAddress: '5 rue Victor Hugo, 69002 Lyon' },
 ];
 
 function createRoute(params: Record<string, string> = {}) {

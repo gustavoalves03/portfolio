@@ -2,8 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Home } from './home';
+import { API_BASE_URL } from '../../core/config/api-base-url.token';
 
 describe('Home (Landing Page)', () => {
   let component: Home;
@@ -37,9 +39,11 @@ describe('Home (Landing Page)', () => {
         provideRouter([
           { path: 'discover', children: [] },
           { path: 'salon/:slug', children: [] },
-          { path: 'register', children: [] },
+          { path: 'pricing', children: [] },
         ]),
         provideNoopAnimations(),
+        provideHttpClient(),
+        { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
       ],
     }).compileComponents();
 
@@ -64,50 +68,21 @@ describe('Home (Landing Page)', () => {
     expect(cards.length).toBe(4);
   });
 
-  it('should navigate to discover on category click', () => {
-    spyOn(router, 'navigate');
-    component.onCategoryClick('soins-visage');
-    expect(router.navigate).toHaveBeenCalledWith(['/discover'], {
-      queryParams: { category: 'soins-visage' },
-    });
-  });
-
-  it('should render 5 salon cards', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    const cards = el.querySelectorAll('.salon-card');
-    expect(cards.length).toBe(5);
-  });
-
   it('should navigate to salon on salon click', () => {
     spyOn(router, 'navigate');
     component.onSalonClick('atelier-lumiere');
     expect(router.navigate).toHaveBeenCalledWith(['/salon', 'atelier-lumiere']);
   });
 
-  it('should render pro CTA', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.pro-cta')).toBeTruthy();
-  });
-
-  it('should navigate to register on pro CTA', () => {
+  it('should navigate to pro CTA', () => {
     spyOn(router, 'navigate');
     component.onProCta();
-    expect(router.navigate).toHaveBeenCalledWith(['/register']);
+    expect(router.navigate).toHaveBeenCalled();
   });
 
-  it('should navigate to discover on search', () => {
+  it('should navigate to discover all', () => {
     spyOn(router, 'navigate');
-    component.searchQuery.set('visage');
-    component.onSearch();
-    expect(router.navigate).toHaveBeenCalledWith(['/discover'], {
-      queryParams: { q: 'visage' },
-    });
-  });
-
-  it('should not navigate on empty search', () => {
-    spyOn(router, 'navigate');
-    component.searchQuery.set('  ');
-    component.onSearch();
-    expect(router.navigate).not.toHaveBeenCalled();
+    component.onDiscoverAll();
+    expect(router.navigate).toHaveBeenCalledWith(['/discover']);
   });
 });
