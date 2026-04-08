@@ -6,7 +6,6 @@ import { NotFound } from './pages/not-found/not-found';
 import { About } from './pages/about/about';
 import { CaresComponent } from './features/cares/cares.component';
 import { UsersComponent } from './features/users/users.component';
-import { BookingsComponent } from './features/bookings/bookings.component';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { OAuth2RedirectComponent } from './pages/auth/oauth2-redirect/oauth2-redirect.component';
 import { RegisterComponent } from './pages/auth/register/register.component';
@@ -66,7 +65,13 @@ export const routes: Routes = [
         path: 'planning',
         loadComponent: () => import('./pages/pro/pro-planning.component').then(m => m.ProPlanningComponent),
       },
-      { path: 'bookings', component: BookingsComponent },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./pages/pro/pro-bookings.component').then(
+            (m) => m.ProBookingsComponent
+          ),
+      },
       {
         path: 'employees',
         loadComponent: () =>
@@ -79,6 +84,28 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/pro/pro-settings.component').then(
             (m) => m.ProSettingsComponent
+          ),
+      },
+      {
+        path: 'manage',
+        loadComponent: () =>
+          import('./pages/pro/pro-manage.component').then(
+            (m) => m.ProManageComponent
+          ),
+        data: { hideBottomNav: true },
+      },
+      {
+        path: 'camera',
+        loadComponent: () =>
+          import('./pages/pro/pro-camera.component').then(
+            (m) => m.ProCameraComponent
+          ),
+      },
+      {
+        path: 'clients/:userId',
+        loadComponent: () =>
+          import('./pages/pro/pro-client-detail.component').then(
+            (m) => m.ProClientDetailComponent
           ),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -122,9 +149,24 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/client-bookings/client-bookings.component').then(m => m.ClientBookingsComponent),
   },
   {
+    path: 'my-evolution',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/client-evolution/client-evolution.component').then(m => m.ClientEvolutionComponent),
+  },
+  {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+  },
+  {
     path: 'users',
     canActivate: [authGuard, roleGuard(Role.ADMIN)],
     component: UsersComponent,
+  },
+
+  {
+    path: 'feed',
+    loadComponent: () => import('./pages/feed/feed.component').then(m => m.FeedComponent),
   },
 
   { path: '**', component: NotFound },

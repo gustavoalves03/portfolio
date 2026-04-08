@@ -1,0 +1,25 @@
+<div class="notifications-page">
+  <h1 class="page-title">{{ 'notifications.title' | transloco }}</h1>
+
+  @if (store.notifications().length === 0) {
+    <div class="empty-state">
+      <p>{{ 'notifications.empty' | transloco }}</p>
+    </div>
+  } @else {
+    <div class="notification-list">
+      @for (notif of store.notifications(); track notif.id) {
+        <div
+          class="notification-item"
+          [class.unread]="!notif.read"
+          (click)="onNotificationClick(notif)">
+          <div class="notification-dot" [class.visible]="!notif.read"></div>
+          <div class="notification-content">
+            <div class="notification-title">{{ notif.title }}</div>
+            <div class="notification-message">{{ notif.message }}</div>
+            <div class="notification-time">{{ notif.createdAt | date:'short' }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
