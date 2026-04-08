@@ -740,11 +740,23 @@
     "reminderCreated": "Reminder scheduled",
     "allergiesAlert": "Allergies",
     "lastVisit": "Last visit",
-    "showLess": "Show less",
     "viewAll": "View all",
+    "showLess": "Show less",
     "modifiedBy": "Modified by",
+    "addedBy": "Added by",
+    "createdBy": "Created by",
     "clientInfo": "Client info",
-    "reminder": "Next reminder"
+    "reminder": "Reminder"
+  },
+  "permissions": {
+    "title": "Permissions",
+    "profile": "Client profile",
+    "visits": "Visits",
+    "photos": "Photos",
+    "reminders": "Reminders",
+    "none": "None",
+    "read": "Read",
+    "write": "Write"
   },
   "bottomNav": {
     "pro": {
