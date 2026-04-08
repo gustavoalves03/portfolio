@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { MatIconModule } from '@angular/material/icon';
 import { NotificationsStore } from '../../features/notifications/store/notifications.store';
 import { NotificationResponse } from '../../features/notifications/models/notification.model';
 import { DatePipe } from '@angular/common';
@@ -8,7 +9,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [TranslocoPipe, DatePipe],
+  imports: [TranslocoPipe, DatePipe, MatIconModule],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss',
 })

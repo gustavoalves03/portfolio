@@ -3,20 +3,45 @@
 
   @if (store.notifications().length === 0) {
     <div class="empty-state">
+      <mat-icon class="empty-icon">notifications_none</mat-icon>
       <p>{{ 'notifications.empty' | transloco }}</p>
     </div>
   } @else {
     <div class="notification-list">
       @for (notif of store.notifications(); track notif.id) {
         <div
-          class="notification-item"
+          class="notification-card"
           [class.unread]="!notif.read"
+          [class.read]="notif.read"
+          [class.is-cancelled]="notif.type === 'BOOKING_CANCELLED'"
           (click)="onNotificationClick(notif)">
-          <div class="notification-dot" [class.visible]="!notif.read"></div>
-          <div class="notification-content">
-            <div class="notification-title">{{ notif.title }}</div>
-            <div class="notification-message">{{ notif.message }}</div>
-            <div class="notification-time">{{ notif.createdAt | date:'short' }}</div>
+
+          <!-- Icon -->
+          <div class="notif-icon" [class.icon-cancelled]="notif.type === 'BOOKING_CANCELLED'">
+            @if (notif.type === 'BOOKING_CANCELLED') {
+              <mat-icon>close</mat-icon>
+            } @else {
+              <mat-icon>calendar_today</mat-icon>
+            }
+          </div>
+
+          <!-- Content -->
+          <div class="notif-content">
+            <div class="notif-header">
+              <span class="notif-title">{{ notif.title }}</span>
+              @if (!notif.read) {
+                <span class="unread-dot"></span>
+              }
+            </div>
+            <div class="notif-message">{{ notif.message }}</div>
+            <div class="notif-footer">
+              <span class="notif-time">{{ notif.createdAt | date:'short' }}</span>
+              @if (notif.type === 'BOOKING_CANCELLED') {
+                <span class="status-badge cancelled">{{ 'notifications.bookingCancelled' | transloco }}</span>
+              } @else if (notif.type === 'NEW_BOOKING') {
+                <span class="status-badge pending">{{ 'notifications.newBooking' | transloco }}</span>
+              }
+            </div>
           </div>
         </div>
       }
