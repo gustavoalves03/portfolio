@@ -1,31 +1,32 @@
-import { Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 import { filter } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
-import { BookingsDrawerComponent } from './bookings-drawer/bookings-drawer.component';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
+import { NotificationsStore } from '../../../features/notifications/store/notifications.store';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, SidenavOverlay, BookingsDrawerComponent, MatMenuModule, MatButtonModule, TranslocoPipe],
+  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
 export class Header {
   protected readonly sidenavService = inject(SidenavService);
   protected readonly authService = inject(AuthService);
+  protected readonly notificationsStore = inject(NotificationsStore);
   protected readonly dialog = inject(MatDialog);
-  protected readonly bookingsDrawer = viewChild.required(BookingsDrawerComponent);
-
   protected readonly isPro = computed(() => {
     const role = this.authService.user()?.role;
     return role === Role.PRO || role === Role.ADMIN || role === Role.EMPLOYEE;
@@ -35,6 +36,15 @@ export class Header {
   protected readonly salonSlug = signal('');
   private readonly salonService = inject(SalonProfileService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
+
+  // Detect management pages (no bottom nav, show back arrow on mobile)
+  protected readonly isManagePage = signal(false);
+  private static readonly MANAGE_PATHS = [
+    '/pro/manage', '/pro/settings', '/pro/planning', '/pro/employees',
+    '/pro/cares', '/pro/dashboard', '/pro/clients/',
+    '/employee/leaves', '/employee/documents',
+  ];
 
   // Salon name shown when visiting /salon/:slug as a client
   protected readonly visitingSalonName = signal('');
@@ -72,11 +82,18 @@ export class Header {
       }
     });
 
-    // Detect /salon/:slug route to show visiting salon name
+    // Detect current route for manage pages and salon visits
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)
     ).subscribe((e) => {
-      const match = e.urlAfterRedirects.match(/^\/salon\/([^/?]+)/);
+      const url = e.urlAfterRedirects;
+
+      // Detect manage pages (show back arrow on mobile)
+      this.isManagePage.set(
+        Header.MANAGE_PATHS.some(p => url.startsWith(p))
+      );
+
+      const match = url.match(/^\/salon\/([^/?]+)/);
       if (match) {
         const slug = match[1];
         this.visitingSalonSlug.set(slug);
@@ -91,12 +108,12 @@ export class Header {
     });
   }
 
-  protected toggleSidenav(): void {
-    this.sidenavService.toggle();
+  protected goBack(): void {
+    this.location.back();
   }
 
-  protected toggleBookingsDrawer(): void {
-    this.bookingsDrawer().toggle();
+  protected toggleSidenav(): void {
+    this.sidenavService.toggle();
   }
 
   protected openLoginModal(): void {

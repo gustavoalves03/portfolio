@@ -1,19 +1,30 @@
 <!-- Sidenav overlay -->
 <app-sidenav-overlay></app-sidenav-overlay>
 
-<!-- Bookings drawer -->
-<app-bookings-drawer></app-bookings-drawer>
-
 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
   <div class="mx-auto max-w-[1440px] px-6">
     <div class="h-20 grid grid-cols-3 items-center">
-      <!-- Left: burger + About (hidden for PRO) -->
+      <!-- Left: back arrow (mobile manage pages) OR burger (desktop) -->
       <div class="flex items-center gap-4">
+        @if (isManagePage()) {
+          <!-- Mobile: back arrow on manage/settings pages -->
+          <button
+            type="button"
+            aria-label="Retour"
+            (click)="goBack()"
+            class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none transition-colors duration-150 show-on-mobile-only"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+        }
+        <!-- Desktop: burger menu -->
         <button
           type="button"
           aria-label="Ouvrir le menu"
           (click)="toggleSidenav()"
-          class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300 transition-colors duration-150"
+          class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300 transition-colors duration-150 hide-on-mobile"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
@@ -42,6 +53,23 @@
       <!-- Right: actions rapides -->
       <div class="flex items-center justify-end gap-1">
         @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/notifications"
+            aria-label="Notifications"
+            class="notification-bell p-2 rounded-full hover:bg-neutral-100 focus:outline-none transition-colors duration-150 relative">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+            </svg>
+            @if (notificationsStore.hasUnread()) {
+              <span class="notification-badge">
+                @if (notificationsStore.unreadCount() > 1) {
+                  {{ notificationsStore.badgeLabel() }}
+                }
+              </span>
+            }
+          </a>
+        }
+        @if (authService.isAuthenticated()) {
           <button
             type="button"
             [matMenuTriggerFor]="userMenu"
@@ -55,12 +83,22 @@
             <div class="px-4 py-2 text-sm text-neutral-500 border-b">
               {{ authService.user()?.name }}
             </div>
-            <button mat-menu-item routerLink="/pro/dashboard">
-              {{ 'auth.userMenu.dashboard' | transloco }}
-            </button>
-            <button mat-menu-item routerLink="/pro/salon">
-              {{ 'pro.salon.title' | transloco }}
-            </button>
+            @if (isPro()) {
+              <button mat-menu-item routerLink="/pro/dashboard">
+                {{ 'auth.userMenu.dashboard' | transloco }}
+              </button>
+              <button mat-menu-item routerLink="/pro/salon">
+                {{ 'pro.salon.title' | transloco }}
+              </button>
+            }
+            @if (!isPro()) {
+              <button mat-menu-item routerLink="/bookings">
+                {{ 'nav.client.bookings' | transloco }}
+              </button>
+              <button mat-menu-item routerLink="/my-evolution">
+                {{ 'nav.client.evolution' | transloco }}
+              </button>
+            }
             <button mat-menu-item (click)="logout()">
               {{ 'auth.userMenu.logout' | transloco }}
             </button>
@@ -77,16 +115,12 @@
           </button>
         }
         @if (authService.user()?.role === 'PRO' || authService.user()?.role === 'ADMIN') {
-          <button
-            type="button"
-            (click)="toggleBookingsDrawer()"
-            aria-label="Mes rendez-vous"
+          <a
+            routerLink="/pro/manage"
+            aria-label="Gérer"
             class="p-2 rounded-full hover:bg-neutral-100 focus:outline-none focus:ring-1 focus:ring-neutral-300 transition-colors duration-150">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 2v3M17 2v3M3 9h18"/>
-              <rect x="3" y="5" width="18" height="16" rx="2"/>
-            </svg>
-          </button>
+            <mat-icon style="font-size:20px;width:20px;height:20px;color:#888;">settings</mat-icon>
+          </a>
         }
       </div>
     </div>
