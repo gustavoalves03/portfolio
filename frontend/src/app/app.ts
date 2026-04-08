@@ -1,4 +1,5 @@
-import { Component, signal, inject, afterNextRender, effect } from '@angular/core';
+import { Component, signal, inject, effect, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { Header } from './shared/layout/header/header';
 import { Footer } from './shared/layout/footer/footer';
@@ -22,22 +23,22 @@ export class App {
 
   private readonly notificationsStore = inject(NotificationsStore);
   private readonly authService = inject(AuthService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
-    // Only connect WebSocket on the browser (not during SSR)
-    afterNextRender(() => {
-      console.log('[App] afterNextRender - setting up notifications');
-      effect(() => {
-        const isAuth = this.authService.isAuthenticated();
-        console.log('[App] auth effect fired, isAuthenticated:', isAuth);
-        if (isAuth) {
-          this.notificationsStore.loadUnreadCount();
-          this.notificationsStore.connectWebSocket();
-        } else {
-          this.notificationsStore.disconnectWebSocket();
-          this.notificationsStore.reset();
-        }
-      });
+    const isBrowser = isPlatformBrowser(this.platformId);
+    console.log('[App] constructor, isBrowser:', isBrowser);
+
+    effect(() => {
+      const isAuth = this.authService.isAuthenticated();
+      console.log('[App] auth effect, isAuthenticated:', isAuth, 'isBrowser:', isBrowser);
+      if (isBrowser && isAuth) {
+        this.notificationsStore.loadUnreadCount();
+        this.notificationsStore.connectWebSocket();
+      } else if (isBrowser && !isAuth) {
+        this.notificationsStore.disconnectWebSocket();
+        this.notificationsStore.reset();
+      }
     });
   }
 }
