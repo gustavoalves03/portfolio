@@ -117,7 +117,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**") // Disable CSRF for OAuth2 and auth endpoints
+                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**") // Disable CSRF for OAuth2, auth, and WebSocket endpoints
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     var c = new CorsConfiguration();
@@ -139,6 +139,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
+                        .requestMatchers("/ws/**").permitAll() // WebSocket handshake (auth handled by WebSocketAuthInterceptor)
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Public categories
                         .requestMatchers(HttpMethod.POST, "/api/salon/*/book").authenticated()
