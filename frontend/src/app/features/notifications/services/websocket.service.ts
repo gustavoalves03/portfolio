@@ -17,11 +17,11 @@ export class WebSocketService {
 
   connect(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (this.client?.active) return; // Already connected
 
     const token = this.authService.getToken();
     if (!token) return;
 
-    // Derive WS URL from API base URL
     const wsUrl = this.apiBaseUrl.replace(/^http/, 'ws') + '/ws';
 
     this.client = new Client({
@@ -32,17 +32,20 @@ export class WebSocketService {
       reconnectDelay: 1000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
+      debug: (str) => console.log('[STOMP]', str),
       onConnect: () => {
+        console.log('[WS] Connected, subscribing to /user/queue/notifications');
         this.client!.subscribe('/user/queue/notifications', (message: IMessage) => {
+          console.log('[WS] Notification received:', message.body);
           const notification: NotificationResponse = JSON.parse(message.body);
           this.notification$.next(notification);
         });
       },
       onStompError: (frame) => {
-        console.error('STOMP error:', frame.headers['message']);
+        console.error('[WS] STOMP error:', frame.headers['message']);
       },
-      onWebSocketClose: () => {
-        // Reconnection handled automatically by stompjs with exponential backoff
+      onWebSocketClose: (event) => {
+        console.warn('[WS] Connection closed:', event);
       },
     });
 
