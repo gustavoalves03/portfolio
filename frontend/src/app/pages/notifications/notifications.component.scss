@@ -45,29 +45,33 @@
 .notification-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: white;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 16px;
+  background: linear-gradient(135deg, #fff 60%, #fdf2f8);
+  border-radius: 14px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  border-left: 3px solid #c06;
   cursor: pointer;
-  transition: box-shadow 150ms, opacity 150ms;
+  transition: box-shadow 150ms, transform 150ms;
 
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &.is-cancelled {
-    border-left-color: #ef5350;
+    background: linear-gradient(135deg, #fff 60%, #fef2f2);
   }
 
   &.read {
-    opacity: 0.65;
-    border-left-color: #e5e7eb;
+    background: white;
+    opacity: 0.55;
 
     .notif-icon {
-      background: #f3f4f6;
+      background: #e5e7eb;
 
       mat-icon {
         color: #9ca3af;
@@ -78,32 +82,36 @@
       color: #6b7280;
       font-weight: 500;
     }
+
+    .notif-message {
+      color: #9ca3af;
+    }
+
+    .notif-time {
+      color: #9ca3af;
+    }
   }
 }
 
 .notif-icon {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: #fdf2f8;
+  background: #c06;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: #c06;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: white;
   }
 
   &.icon-cancelled {
-    background: #fef2f2;
-
-    mat-icon {
-      color: #ef5350;
-    }
+    background: #ef5350;
   }
 }
 
@@ -116,26 +124,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .notif-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a2e;
 }
 
 .unread-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: #c06;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .notif-message {
-  font-size: 13px;
-  color: #4b5563;
+  font-size: 13.5px;
+  color: #1f2937;
   margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -150,22 +158,21 @@
 
 .notif-time {
   font-size: 11px;
-  color: #9ca3af;
+  color: #6b7280;
 }
 
 .status-badge {
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: white;
 
   &.pending {
-    background: #fff7ed;
-    color: #c2410c;
+    background: #c06;
   }
 
   &.cancelled {
-    background: #fef2f2;
-    color: #dc2626;
+    background: #ef5350;
   }
 }
