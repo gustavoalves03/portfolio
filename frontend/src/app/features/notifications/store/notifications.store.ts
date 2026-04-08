@@ -1,11 +1,10 @@
-import { computed, effect, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
+import { computed, inject } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, EMPTY, catchError } from 'rxjs';
 import { NotificationsService } from '../services/notifications.service';
 import { WebSocketService } from '../services/websocket.service';
 import { NotificationResponse } from '../models/notification.model';
-import { AuthService } from '../../../core/auth/auth.service';
 
 type NotificationsState = {
   notifications: NotificationResponse[];
@@ -31,7 +30,6 @@ export const NotificationsStore = signalStore(
   withMethods((store,
     notificationsService = inject(NotificationsService),
     webSocketService = inject(WebSocketService),
-    authService = inject(AuthService),
   ) => ({
     loadUnreadCount: rxMethod<void>(
       pipe(
@@ -86,18 +84,8 @@ export const NotificationsStore = signalStore(
     clearLatestNotification(): void {
       patchState(store, { latestNotification: null });
     },
-  })),
-  withHooks((store, authService = inject(AuthService)) => ({
-    onInit() {
-      effect(() => {
-        if (authService.isAuthenticated()) {
-          store.loadUnreadCount();
-          store.connectWebSocket();
-        } else {
-          store.disconnectWebSocket();
-          patchState(store, { notifications: [], unreadCount: 0, latestNotification: null });
-        }
-      });
+    reset(): void {
+      patchState(store, { notifications: [], unreadCount: 0, latestNotification: null });
     },
-  }))
+  })),
 );
