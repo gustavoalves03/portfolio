@@ -138,6 +138,10 @@ export const routes: Routes = [
             (m) => m.EmployeeDocumentsComponent
           ),
       },
+      {
+        path: 'clients/:userId',
+        loadComponent: () => import('./pages/employee/employee-client-detail.component').then(m => m.EmployeeClientDetailComponent),
+      },
       { path: '', redirectTo: 'bookings', pathMatch: 'full' },
     ],
   },
