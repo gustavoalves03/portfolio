@@ -410,6 +410,37 @@
         "7": "Sunday"
       }
     },
+    "manage": {
+      "title": "Manage",
+      "planning": "Schedule",
+      "planningDesc": "Hours & slots",
+      "team": "Team",
+      "teamDesc": "Employees & leave",
+      "cares": "Services",
+      "caresDesc": "Treatments & prices",
+      "stats": "Statistics",
+      "statsDesc": "Dashboard & revenue",
+      "holidays": "Holidays",
+      "holidaysDesc": "Closures & exceptions",
+      "settings": "Settings",
+      "settingsDesc": "Booking & limits"
+    },
+    "bookings": {
+      "title": "Appointments",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "thisWeek": "Week",
+      "thisMonth": "Month",
+      "estimated": "Est. revenue",
+      "occupied": "Time occupied",
+      "empty": "No appointments",
+      "noShow": "No-show"
+    },
+    "camera": {
+      "title": "Take a photo",
+      "takePhoto": "Take a photo",
+      "loading": "Opening camera..."
+    },
     "posts": {
       "title": "My Posts",
       "newPost": "New post",
@@ -493,6 +524,12 @@
     "emptyUpcoming": "No upcoming appointments",
     "emptyPast": "No past appointments",
     "discoverCta": "Discover salons",
+    "cancel": "Cancel",
+    "cancelConfirm": "Are you sure you want to cancel this appointment?",
+    "cancelSuccess": "Appointment cancelled",
+    "cancelError": "Error cancelling appointment",
+    "modify": "Modify",
+    "modifyHint": "To change the time, cancel and rebook.",
     "status": {
       "CONFIRMED": "Confirmed",
       "CANCELLED": "Cancelled"
@@ -620,7 +657,8 @@
       "settings": "Settings"
     },
     "client": {
-      "bookings": "My bookings"
+      "bookings": "My bookings",
+      "evolution": "My Evolution"
     },
     "employee": {
       "dashboard": "Dashboard",
@@ -637,6 +675,103 @@
       "bookingsCancelled": "booking(s) cancelled",
       "cancelFailed": "Error cancelling bookings"
     }
+  },
+  "evolution": {
+    "title": "My Evolution",
+    "visits": "visits",
+    "salons": "salons",
+    "compare": "Compare",
+    "vs": "vs",
+    "share": "Share my evolution",
+    "shareSuccess": "Link copied!",
+    "reminder": "Your next treatment is recommended in",
+    "weeks": "weeks",
+    "rate": "Rate this visit",
+    "rateTitle": "Your feedback",
+    "rateSubmit": "Submit",
+    "rateSuccess": "Thank you for your feedback!",
+    "consent": {
+      "title": "My photo data",
+      "allowPhotos": "Allow before/after photos",
+      "allowPhotosDesc": "The practitioner can take photos",
+      "allowPublicShare": "Public sharing (posts)",
+      "allowPublicShareDesc": "The salon can publish your before/after photos",
+      "deleteAll": "Delete all my photos",
+      "deleteConfirm": "Are you sure? This action is irreversible.",
+      "deleteSuccess": "All your photos have been deleted",
+      "rgpdNote": "In accordance with GDPR, your photos will be permanently deleted"
+    },
+    "noVisits": "No visits recorded",
+    "noPhotos": "No photos available"
+  },
+  "tracking": {
+    "title": "Client tracking",
+    "clientSince": "Client since",
+    "visits": "visits",
+    "loyal": "Loyal",
+    "tabs": {
+      "photos": "Photos",
+      "notes": "Notes",
+      "products": "Products",
+      "info": "Info"
+    },
+    "addPhotos": "Add photos",
+    "newVisit": "New visit",
+    "practitionerNotes": "Practitioner notes (confidential)",
+    "productsUsed": "Products used",
+    "satisfaction": "Client satisfaction",
+    "before": "Before",
+    "after": "After",
+    "progress": "Progress",
+    "skinType": "Skin type",
+    "hairType": "Hair type",
+    "allergies": "Allergies",
+    "preferences": "Preferences",
+    "save": "Save",
+    "remindIn": "Remind in",
+    "weeks": "weeks",
+    "visitDate": "Visit date",
+    "selectCare": "Associated service",
+    "noVisits": "No visits recorded",
+    "noProducts": "No products used",
+    "notesHistory": "Notes history",
+    "visitCreated": "Visit recorded",
+    "saveSuccess": "Profile updated",
+    "reminderCreated": "Reminder scheduled"
+  },
+  "bottomNav": {
+    "pro": {
+      "bookings": "Appts",
+      "myPosts": "My Posts",
+      "feed": "Feed",
+      "salon": "Salon"
+    },
+    "employee": {
+      "bookings": "Appts",
+      "leaves": "Leave",
+      "documents": "Docs"
+    },
+    "client": {
+      "bookings": "Appts",
+      "salons": "Salons",
+      "posts": "Posts",
+      "evolution": "Evolution"
+    },
+    "prospect": {
+      "home": "Home",
+      "salons": "Salons",
+      "posts": "Posts"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "newBooking": "New appointment",
+    "bookingCancelled": "Appointment cancelled",
+    "markAsRead": "Mark as read"
+  },
+  "feed": {
+    "empty": "No posts yet"
   },
   "drawer": {
     "title": "My bookings",

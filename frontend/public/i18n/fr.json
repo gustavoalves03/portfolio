@@ -414,6 +414,37 @@
         "7": "Dimanche"
       }
     },
+    "manage": {
+      "title": "Gérer",
+      "planning": "Planning",
+      "planningDesc": "Horaires & créneaux",
+      "team": "Équipe",
+      "teamDesc": "Employés & congés",
+      "cares": "Soins",
+      "caresDesc": "Prestations & tarifs",
+      "stats": "Statistiques",
+      "statsDesc": "Dashboard & CA",
+      "holidays": "Jours fériés",
+      "holidaysDesc": "Fermetures & exceptions",
+      "settings": "Paramètres",
+      "settingsDesc": "Réservation & limites"
+    },
+    "bookings": {
+      "title": "Rendez-vous",
+      "today": "Aujourd'hui",
+      "tomorrow": "Demain",
+      "thisWeek": "Semaine",
+      "thisMonth": "Mois",
+      "estimated": "CA estimé",
+      "occupied": "Temps occupé",
+      "empty": "Aucun rendez-vous",
+      "noShow": "Absent"
+    },
+    "camera": {
+      "title": "Prendre une photo",
+      "takePhoto": "Prendre une photo",
+      "loading": "Ouverture de l'appareil photo..."
+    },
     "posts": {
       "title": "Mes Posts",
       "newPost": "Nouveau post",
@@ -497,6 +528,12 @@
     "emptyUpcoming": "Aucun rendez-vous à venir",
     "emptyPast": "Aucun rendez-vous passé",
     "discoverCta": "Découvrir les salons",
+    "cancel": "Annuler",
+    "cancelConfirm": "Voulez-vous vraiment annuler ce rendez-vous ?",
+    "cancelSuccess": "Rendez-vous annulé",
+    "cancelError": "Erreur lors de l'annulation",
+    "modify": "Modifier",
+    "modifyHint": "Pour modifier l'heure, annulez puis réservez à nouveau.",
     "status": {
       "CONFIRMED": "Confirmé",
       "CANCELLED": "Annulé"
@@ -624,7 +661,8 @@
       "settings": "Paramètres"
     },
     "client": {
-      "bookings": "Mes rendez-vous"
+      "bookings": "Mes rendez-vous",
+      "evolution": "Mon évolution"
     },
     "employee": {
       "dashboard": "Dashboard",
@@ -641,6 +679,103 @@
       "bookingsCancelled": "rendez-vous annulé(s)",
       "cancelFailed": "Erreur lors de l'annulation des rendez-vous"
     }
+  },
+  "evolution": {
+    "title": "Mon évolution",
+    "visits": "visites",
+    "salons": "salons",
+    "compare": "Comparer",
+    "vs": "vs",
+    "share": "Partager mon évolution",
+    "shareSuccess": "Lien copié !",
+    "reminder": "Votre prochain soin est recommandé dans",
+    "weeks": "semaines",
+    "rate": "Notez cette visite",
+    "rateTitle": "Votre avis",
+    "rateSubmit": "Envoyer",
+    "rateSuccess": "Merci pour votre avis !",
+    "consent": {
+      "title": "Mes données photos",
+      "allowPhotos": "Autoriser les photos avant/après",
+      "allowPhotosDesc": "Le praticien peut prendre des photos",
+      "allowPublicShare": "Partage public (posts)",
+      "allowPublicShareDesc": "Le salon peut publier vos avant/après",
+      "deleteAll": "Supprimer toutes mes photos",
+      "deleteConfirm": "Êtes-vous sûr ? Cette action est irréversible.",
+      "deleteSuccess": "Toutes vos photos ont été supprimées",
+      "rgpdNote": "Conformément au RGPD, vos photos seront supprimées définitivement"
+    },
+    "noVisits": "Aucune visite enregistrée",
+    "noPhotos": "Aucune photo disponible"
+  },
+  "tracking": {
+    "title": "Suivi client",
+    "clientSince": "Client(e) depuis",
+    "visits": "visites",
+    "loyal": "Fidele",
+    "tabs": {
+      "photos": "Photos",
+      "notes": "Notes",
+      "products": "Produits",
+      "info": "Infos"
+    },
+    "addPhotos": "Ajouter photos",
+    "newVisit": "Nouvelle visite",
+    "practitionerNotes": "Notes praticien (confidentiel)",
+    "productsUsed": "Produits utilises",
+    "satisfaction": "Satisfaction client",
+    "before": "Avant",
+    "after": "Apres",
+    "progress": "Progression",
+    "skinType": "Type de peau",
+    "hairType": "Type de cheveux",
+    "allergies": "Allergies",
+    "preferences": "Preferences",
+    "save": "Enregistrer",
+    "remindIn": "Rappeler dans",
+    "weeks": "semaines",
+    "visitDate": "Date de visite",
+    "selectCare": "Prestation associee",
+    "noVisits": "Aucune visite enregistree",
+    "noProducts": "Aucun produit utilise",
+    "notesHistory": "Historique des notes",
+    "visitCreated": "Visite enregistree",
+    "saveSuccess": "Profil mis a jour",
+    "reminderCreated": "Rappel programme"
+  },
+  "bottomNav": {
+    "pro": {
+      "bookings": "RDV",
+      "myPosts": "Mes Posts",
+      "feed": "Feed",
+      "salon": "Salon"
+    },
+    "employee": {
+      "bookings": "RDV",
+      "leaves": "Congés",
+      "documents": "Documents"
+    },
+    "client": {
+      "bookings": "RDV",
+      "salons": "Salons",
+      "posts": "Posts",
+      "evolution": "\u00c9volution"
+    },
+    "prospect": {
+      "home": "Accueil",
+      "salons": "Salons",
+      "posts": "Posts"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "Aucune notification pour le moment",
+    "newBooking": "Nouveau rendez-vous",
+    "bookingCancelled": "Rendez-vous annulé",
+    "markAsRead": "Marquer comme lu"
+  },
+  "feed": {
+    "empty": "Aucun post pour le moment"
   },
   "drawer": {
     "title": "Mes rendez-vous",
