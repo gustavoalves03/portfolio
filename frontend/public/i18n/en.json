@@ -737,7 +737,14 @@
     "notesHistory": "Notes history",
     "visitCreated": "Visit recorded",
     "saveSuccess": "Profile updated",
-    "reminderCreated": "Reminder scheduled"
+    "reminderCreated": "Reminder scheduled",
+    "allergiesAlert": "Allergies",
+    "lastVisit": "Last visit",
+    "showLess": "Show less",
+    "viewAll": "View all",
+    "modifiedBy": "Modified by",
+    "clientInfo": "Client info",
+    "reminder": "Next reminder"
   },
   "bottomNav": {
     "pro": {

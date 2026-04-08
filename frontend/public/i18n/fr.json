@@ -741,7 +741,14 @@
     "notesHistory": "Historique des notes",
     "visitCreated": "Visite enregistree",
     "saveSuccess": "Profil mis a jour",
-    "reminderCreated": "Rappel programme"
+    "reminderCreated": "Rappel programme",
+    "allergiesAlert": "Allergies",
+    "lastVisit": "Derniere visite",
+    "showLess": "Voir moins",
+    "viewAll": "Voir tout",
+    "modifiedBy": "Modifie par",
+    "clientInfo": "Infos client",
+    "reminder": "Prochain rappel"
   },
   "bottomNav": {
     "pro": {
