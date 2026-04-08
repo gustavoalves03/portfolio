@@ -23,6 +23,7 @@ import {provideTranslocoLocale} from '@jsverse/transloco-locale';
 import {TranslocoHttpLoader} from './i18n/transloco-http.loader';
 import {LANG_TO_LOCALE} from './i18n/locale.config';
 import { firstValueFrom } from 'rxjs';
+import { NotificationsStore } from './features/notifications/store/notifications.store';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -43,6 +44,7 @@ export const appConfig: ApplicationConfig = {
       deps: [CsrfService],
       multi: true
     },
+    NotificationsStore,
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes), provideClientHydration(withEventReplay()),
