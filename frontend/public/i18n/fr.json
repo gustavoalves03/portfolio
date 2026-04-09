@@ -576,6 +576,28 @@
     "book": "Réserver",
     "chooseEmployee": "Choisir un collaborateur",
     "noPreference": "Pas de préférence",
+    "stepper": {
+      "step1": "Prestation",
+      "step2": "Date & heure",
+      "step3": "Client",
+      "next": "Suivant",
+      "back": "Retour",
+      "confirm": "Confirmer le rendez-vous",
+      "selectDate": "Choisir une date"
+    },
+    "client": {
+      "existing": "Client existant",
+      "existingDesc": "Rechercher dans vos clients",
+      "new": "Nouveau client",
+      "newDesc": "Créer une fiche client",
+      "search": "Rechercher un client...",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "email": "Email",
+      "dateOfBirth": "Date de naissance",
+      "notes": "Notes",
+      "createAndConfirm": "Créer le client et confirmer"
+    },
     "dialog": {
       "title": "Choisir un créneau",
       "selectDate": "Choisir une date",

@@ -572,6 +572,28 @@
     "book": "Book",
     "chooseEmployee": "Choose a practitioner",
     "noPreference": "No preference",
+    "stepper": {
+      "step1": "Service",
+      "step2": "Date & time",
+      "step3": "Client",
+      "next": "Next",
+      "back": "Back",
+      "confirm": "Confirm appointment",
+      "selectDate": "Select a date"
+    },
+    "client": {
+      "existing": "Existing client",
+      "existingDesc": "Search your clients",
+      "new": "New client",
+      "newDesc": "Create a client record",
+      "search": "Search for a client...",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "dateOfBirth": "Date of birth",
+      "notes": "Notes",
+      "createAndConfirm": "Create client and confirm"
+    },
     "dialog": {
       "title": "Choose a time slot",
       "selectDate": "Select a date",
