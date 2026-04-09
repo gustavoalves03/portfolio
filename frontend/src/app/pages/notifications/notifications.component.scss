@@ -120,6 +120,14 @@
   &.icon-cancelled {
     background: #ef5350;
   }
+
+  &.icon-link {
+    background: #7c3aed;
+  }
+
+  &.icon-birthday {
+    background: #f59e0b;
+  }
 }
 
 .notif-content {
@@ -181,5 +189,29 @@
 
   &.cancelled {
     background: #ef5350;
+  }
+
+  &.match {
+    background: #7c3aed;
+  }
+
+  &.birthday {
+    background: #f59e0b;
+  }
+}
+
+.link-btn {
+  background: #c06;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+
+  &:hover {
+    background: #a05;
   }
 }

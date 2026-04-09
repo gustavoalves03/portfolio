@@ -596,7 +596,8 @@
       "email": "Email",
       "dateOfBirth": "Date de naissance",
       "notes": "Notes",
-      "createAndConfirm": "Créer le client et confirmer"
+      "createAndConfirm": "Créer le client et confirmer",
+      "link": "Associer"
     },
     "dialog": {
       "title": "Choisir un créneau",
@@ -813,7 +814,9 @@
     "empty": "Aucune notification pour le moment",
     "newBooking": "Nouveau rendez-vous",
     "bookingCancelled": "Rendez-vous annulé",
-    "markAsRead": "Marquer comme lu"
+    "markAsRead": "Marquer comme lu",
+    "clientAccountMatch": "Correspondance client",
+    "clientBirthday": "Anniversaire client"
   },
   "feed": {
     "empty": "Aucun post pour le moment"

@@ -17,9 +17,17 @@
           (click)="onNotificationClick(notif)">
 
           <!-- Icon -->
-          <div class="notif-icon" [class.icon-cancelled]="notif.type === 'BOOKING_CANCELLED'">
+          <div
+            class="notif-icon"
+            [class.icon-cancelled]="notif.type === 'BOOKING_CANCELLED'"
+            [class.icon-link]="notif.type === 'CLIENT_ACCOUNT_MATCH'"
+            [class.icon-birthday]="notif.type === 'CLIENT_BIRTHDAY'">
             @if (notif.type === 'BOOKING_CANCELLED') {
               <mat-icon>close</mat-icon>
+            } @else if (notif.type === 'CLIENT_ACCOUNT_MATCH') {
+              <mat-icon>link</mat-icon>
+            } @else if (notif.type === 'CLIENT_BIRTHDAY') {
+              <mat-icon>cake</mat-icon>
             } @else {
               <mat-icon>calendar_today</mat-icon>
             }
@@ -40,6 +48,15 @@
                 <span class="status-badge cancelled">{{ 'notifications.bookingCancelled' | transloco }}</span>
               } @else if (notif.type === 'NEW_BOOKING') {
                 <span class="status-badge pending">{{ 'notifications.newBooking' | transloco }}</span>
+              } @else if (notif.type === 'CLIENT_ACCOUNT_MATCH') {
+                <span class="status-badge match">{{ 'notifications.clientAccountMatch' | transloco }}</span>
+              } @else if (notif.type === 'CLIENT_BIRTHDAY') {
+                <span class="status-badge birthday">{{ 'notifications.clientBirthday' | transloco }}</span>
+              }
+              @if (notif.type === 'CLIENT_ACCOUNT_MATCH' && !notif.read) {
+                <button class="link-btn" (click)="onLinkClient(notif); $event.stopPropagation()">
+                  {{ 'booking.client.link' | transloco }}
+                </button>
               }
             </div>
           </div>

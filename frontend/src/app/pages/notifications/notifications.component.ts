@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { NotificationsStore } from '../../features/notifications/store/notifications.store';
 import { NotificationResponse } from '../../features/notifications/models/notification.model';
 import { DatePipe } from '@angular/common';
+import { SalonClientService } from '../../features/salon-clients/salon-client.service';
 
 @Component({
   selector: 'app-notifications-page',
@@ -16,6 +17,7 @@ import { DatePipe } from '@angular/common';
 export class NotificationsComponent {
   protected readonly store = inject(NotificationsStore);
   private readonly router = inject(Router);
+  private readonly salonClientService = inject(SalonClientService);
 
   constructor() {
     this.store.loadNotifications();
@@ -28,12 +30,20 @@ export class NotificationsComponent {
     this.navigateToReference(notification);
   }
 
+  onLinkClient(notif: NotificationResponse): void {
+    this.store.markAsRead(notif.id);
+    this.router.navigate(['/pro/clients', notif.referenceId]);
+  }
+
   private navigateToReference(notification: NotificationResponse): void {
     switch (notification.referenceType) {
       case 'BOOKING':
         this.router.navigate(['/pro/bookings'], {
           queryParams: { highlight: notification.referenceId },
         });
+        break;
+      case 'SALON_CLIENT':
+        this.router.navigate(['/pro/clients', notification.referenceId]);
         break;
       default:
         break;

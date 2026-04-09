@@ -592,7 +592,8 @@
       "email": "Email",
       "dateOfBirth": "Date of birth",
       "notes": "Notes",
-      "createAndConfirm": "Create client and confirm"
+      "createAndConfirm": "Create client and confirm",
+      "link": "Associate"
     },
     "dialog": {
       "title": "Choose a time slot",
@@ -809,7 +810,9 @@
     "empty": "No notifications yet",
     "newBooking": "New appointment",
     "bookingCancelled": "Appointment cancelled",
-    "markAsRead": "Mark as read"
+    "markAsRead": "Mark as read",
+    "clientAccountMatch": "Client match",
+    "clientBirthday": "Client birthday"
   },
   "feed": {
     "empty": "No posts yet"
