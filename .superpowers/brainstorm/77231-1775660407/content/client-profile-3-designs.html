@@ -1,0 +1,204 @@
+<h2>3 propositions — Redesign page Profil Client</h2>
+<p class="subtitle">Plus de couleur, meilleure lisibilite, coherent avec le reste de l'app</p>
+
+<div class="cards">
+
+  <!-- DESIGN A: Card header with gradient -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:0;min-height:540px;max-width:380px;margin:0 auto;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;">
+
+      <!-- Gradient header -->
+      <div style="background:linear-gradient(135deg,#fdf2f8,#fce7f3,#fecdd3);padding:24px 20px 32px;text-align:center;position:relative;">
+        <div style="width:72px;height:72px;border-radius:50%;background:white;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(192,0,102,0.15);">
+          <span style="font-size:28px;font-weight:700;color:#c06;">ML</span>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:#1a1a2e;">Marie Leroy</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:4px;">Cliente depuis avril 2026</div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:12px;">
+          <span style="font-size:11px;padding:4px 12px;background:white;color:#c06;border-radius:20px;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.06);">6 visites</span>
+          <span style="font-size:11px;padding:4px 12px;background:white;color:#7b2cbf;border-radius:20px;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.06);">Fidele</span>
+        </div>
+      </div>
+
+      <!-- Quick info cards -->
+      <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:white;border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Type de peau</div>
+          <div style="font-size:13px;color:#333;font-weight:600;margin-top:4px;">Mixte</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.5px;">Allergies</div>
+          <div style="font-size:13px;color:#ef5350;font-weight:600;margin-top:4px;">Parabens</div>
+        </div>
+      </div>
+
+      <!-- Tabs preview -->
+      <div style="padding:0 16px;">
+        <div style="display:flex;border-bottom:2px solid #f0f0f0;gap:0;">
+          <div style="padding:10px 16px;font-size:12px;font-weight:600;color:#c06;border-bottom:2px solid #c06;margin-bottom:-2px;">Visites</div>
+          <div style="padding:10px 16px;font-size:12px;color:#9ca3af;">Photos</div>
+          <div style="padding:10px 16px;font-size:12px;color:#9ca3af;">Notes</div>
+          <div style="padding:10px 16px;font-size:12px;color:#9ca3af;">Info</div>
+        </div>
+      </div>
+
+      <!-- Visit card -->
+      <div style="padding:12px 16px;">
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);border-left:3px solid #c06;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;color:#1a1a2e;">Soin visage hydratant</span>
+            <span style="font-size:10px;padding:3px 8px;background:#f0fdf4;color:#166534;border-radius:8px;">Termine</span>
+          </div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">8 avril 2026 · Par Sophie D.</div>
+          <div style="font-size:12px;color:#4b5563;margin-top:6px;font-style:italic;">"Peau reactive au niveau des joues, utilise creme apaisante."</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Header gradient rose</h3>
+      <p>En-tete avec degrade rose nacre, avatar initiales, badges, infos rapides en grille 2x2 sous le header. Onglets reorganises (Visites en premier). Visites en cards avec border-left.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Compact profile + full-width sections -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:16px;min-height:540px;max-width:380px;margin:0 auto;font-family:system-ui,-apple-system,sans-serif;">
+
+      <!-- Compact profile row -->
+      <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;gap:14px;align-items:center;margin-bottom:12px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:22px;font-weight:700;color:white;">ML</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:17px;font-weight:700;color:#1a1a2e;">Marie Leroy</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px;">Cliente depuis avril 2026</div>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <span style="font-size:10px;padding:2px 8px;background:#fdf2f8;color:#c06;border-radius:8px;font-weight:600;">6 visites</span>
+            <span style="font-size:10px;padding:2px 8px;background:#f3e8ff;color:#7b2cbf;border-radius:8px;font-weight:600;">Fidele</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert card (allergies) -->
+      <div style="background:#fef2f2;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;border:1px solid #fecaca;">
+        <span style="font-size:16px;">⚠️</span>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:#dc2626;">Allergies</div>
+          <div style="font-size:12px;color:#7f1d1d;">Parabens, silicones</div>
+        </div>
+      </div>
+
+      <!-- Section: Derniere visite -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span>Derniere visite</span>
+          <span style="font-size:11px;color:#c06;font-weight:600;cursor:pointer;">Voir tout →</span>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:14px;font-weight:600;color:#1a1a2e;">Soin visage</span>
+            <span style="font-size:12px;color:#6b7280;">8 avr.</span>
+          </div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">Par Sophie D. · 45min</div>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <div style="width:48px;height:48px;border-radius:8px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;color:#9ca3af;">Avant</span></div>
+            <div style="width:48px;height:48px;border-radius:8px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;"><span style="font-size:10px;color:#9ca3af;">Apres</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Notes -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px;">Notes praticien</div>
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="font-size:13px;color:#4b5563;line-height:1.5;">Peau reactive, eviter les acides forts. Prefere les soins doux. Prochaine seance: focus hydratation.</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:6px;">Modifie par Sophie D. · 8 avr. 2026</div>
+        </div>
+      </div>
+
+      <!-- Section: Infos -->
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px;">Fiche client</div>
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;">Peau</div><div style="font-size:13px;color:#333;font-weight:500;">Mixte</div></div>
+          <div><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;">Cheveux</div><div style="font-size:13px;color:#333;font-weight:500;">Sec</div></div>
+          <div><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;">Preferences</div><div style="font-size:13px;color:#333;font-weight:500;">Bio, sans parfum</div></div>
+          <div><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;">Rappel</div><div style="font-size:13px;color:#c06;font-weight:500;">Dans 4 sem.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Dashboard scrollable</h3>
+      <p>Profil compact en haut, alerte allergies, puis sections empilees (pas d'onglets) : derniere visite, notes, fiche client. Tout visible d'un coup en scrollant. Audit trail visible ("Modifie par Sophie D.").</p>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Tabs with colored header -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:0;min-height:540px;max-width:380px;margin:0 auto;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;">
+
+      <!-- Colored header bar -->
+      <div style="background:#c06;padding:20px 20px 48px;position:relative;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,0.4);">
+            <span style="font-size:20px;font-weight:700;color:white;">ML</span>
+          </div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:white;">Marie Leroy</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">6 visites · Cliente depuis avr. 2026</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row overlapping header -->
+      <div style="margin:-28px 16px 0;display:flex;gap:8px;">
+        <div style="flex:1;background:white;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <div style="font-size:20px;font-weight:700;color:#c06;">6</div>
+          <div style="font-size:10px;color:#6b7280;">Visites</div>
+        </div>
+        <div style="flex:1;background:white;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <div style="font-size:20px;font-weight:700;color:#7b2cbf;">⭐</div>
+          <div style="font-size:10px;color:#6b7280;">Fidele</div>
+        </div>
+        <div style="flex:1;background:white;border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <div style="font-size:20px;font-weight:700;color:#ef5350;">!</div>
+          <div style="font-size:10px;color:#6b7280;">Allergies</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="padding:16px 16px 0;">
+        <div style="display:flex;background:#f3f4f6;border-radius:10px;padding:3px;">
+          <div style="flex:1;padding:8px;text-align:center;font-size:12px;font-weight:600;background:white;border-radius:8px;color:#1a1a2e;box-shadow:0 1px 2px rgba(0,0,0,0.05);">Visites</div>
+          <div style="flex:1;padding:8px;text-align:center;font-size:12px;color:#6b7280;">Photos</div>
+          <div style="flex:1;padding:8px;text-align:center;font-size:12px;color:#6b7280;">Notes</div>
+          <div style="flex:1;padding:8px;text-align:center;font-size:12px;color:#6b7280;">Info</div>
+        </div>
+      </div>
+
+      <!-- Visit list -->
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;color:#1a1a2e;">Soin visage hydratant</span>
+            <span style="font-size:10px;padding:3px 8px;background:#f0fdf4;color:#166534;border-radius:8px;">Termine</span>
+          </div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">8 avr. 2026 · Sophie D.</div>
+          <div style="font-size:12px;color:#4b5563;margin-top:6px;font-style:italic;">"Peau reactive, creme apaisante appliquee"</div>
+        </div>
+        <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;color:#1a1a2e;">Gommage corps</span>
+            <span style="font-size:10px;padding:3px 8px;background:#f0fdf4;color:#166534;border-radius:8px;">Termine</span>
+          </div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">1 avr. 2026 · Marie P.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Header plein couleur + stats</h3>
+      <p>Header fond rose plein (#c06) avec nom/avatar en blanc, 3 stat cards chevauchant le header, onglets style iOS (pilule), visites en cards blanches. Bold et moderne.</p>
+    </div>
+  </div>
+
+</div>

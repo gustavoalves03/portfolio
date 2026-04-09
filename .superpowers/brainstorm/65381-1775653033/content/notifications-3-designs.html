@@ -1,0 +1,183 @@
+<h2>3 propositions de design — Page Notifications</h2>
+<p class="subtitle">Plus de couleur, textes plus lisibles, plus de contraste</p>
+
+<div class="cards">
+
+  <!-- DESIGN A: Gradient accent -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:16px;min-height:420px;">
+      <div style="font-size:18px;font-weight:600;color:#333;margin-bottom:14px;">Notifications</div>
+
+      <!-- Unread - new booking -->
+      <div style="background:white;border-radius:14px;box-shadow:0 2px 8px rgba(192,0,102,0.08);padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;border-left:4px solid #c06;">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#fdf2f8,#fce7f3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:20px;">📅</span>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:14px;font-weight:700;color:#1a1a2e;">Nouveau rendez-vous</span>
+            <span style="width:10px;height:10px;background:linear-gradient(135deg,#c06,#a8385d);border-radius:50%;box-shadow:0 0 6px rgba(192,0,102,0.3);"></span>
+          </div>
+          <div style="font-size:13px;color:#374151;font-weight:500;margin-bottom:6px;">Marie Leroy — Soin visage hydratant</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#6b7280;font-weight:500;">Aujourd'hui, 14:30</span>
+            <span style="font-size:10px;padding:3px 10px;background:linear-gradient(135deg,#fdf2f8,#fce7f3);color:#a8385d;border-radius:10px;font-weight:600;">Nouveau</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread - cancelled -->
+      <div style="background:white;border-radius:14px;box-shadow:0 2px 8px rgba(239,83,80,0.08);padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;border-left:4px solid #ef5350;">
+        <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#fef2f2,#fecaca);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:20px;">❌</span>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:14px;font-weight:700;color:#1a1a2e;">Rendez-vous annule</span>
+            <span style="width:10px;height:10px;background:linear-gradient(135deg,#ef5350,#dc2626);border-radius:50%;box-shadow:0 0 6px rgba(239,83,80,0.3);"></span>
+          </div>
+          <div style="font-size:13px;color:#374151;font-weight:500;margin-bottom:6px;">Marie Leroy — Test, 14 avril</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#6b7280;font-weight:500;">Aujourd'hui, 14:52</span>
+            <span style="font-size:10px;padding:3px 10px;background:#fef2f2;color:#dc2626;border-radius:10px;font-weight:600;">Annule</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read -->
+      <div style="background:#fafafa;border-radius:14px;padding:16px;display:flex;gap:14px;align-items:flex-start;border-left:4px solid transparent;">
+        <div style="width:42px;height:42px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:20px;opacity:0.5;">📅</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:#9ca3af;margin-bottom:5px;">Nouveau rendez-vous</div>
+          <div style="font-size:13px;color:#b0b5bd;margin-bottom:6px;">Marie Leroy — Test, 12:00</div>
+          <div style="font-size:11px;color:#b0b5bd;">Hier, 14:48</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Gradient & emojis</h3>
+      <p>Icones emoji, gradient doux sur les badges et les dots, ombre teintee par type. Fond #fafafa pour les lues. Plus vivant et colore.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Colored background cards -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:16px;min-height:420px;">
+      <div style="font-size:18px;font-weight:600;color:#333;margin-bottom:14px;">Notifications</div>
+
+      <!-- Unread - new booking -->
+      <div style="background:linear-gradient(135deg,#fff 60%,#fdf2f8);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:14px;font-weight:700;color:#1a1a2e;">Nouveau rendez-vous</span>
+            <span style="width:10px;height:10px;background:#c06;border-radius:50%;"></span>
+          </div>
+          <div style="font-size:13.5px;color:#1f2937;margin-bottom:6px;">Marie Leroy — Soin visage hydratant</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#6b7280;">Aujourd'hui, 14:30</span>
+            <span style="font-size:10px;padding:3px 10px;background:#c06;color:white;border-radius:10px;font-weight:600;">Nouveau</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread - cancelled -->
+      <div style="background:linear-gradient(135deg,#fff 60%,#fef2f2);border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:16px;display:flex;gap:14px;align-items:flex-start;margin-bottom:10px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:#ef5350;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" fill="none"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+            <span style="font-size:14px;font-weight:700;color:#1a1a2e;">Rendez-vous annule</span>
+            <span style="width:10px;height:10px;background:#ef5350;border-radius:50%;"></span>
+          </div>
+          <div style="font-size:13.5px;color:#1f2937;margin-bottom:6px;">Marie Leroy — Test, 14 avril</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:#6b7280;">Aujourd'hui, 14:52</span>
+            <span style="font-size:10px;padding:3px 10px;background:#ef5350;color:white;border-radius:10px;font-weight:600;">Annule</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read -->
+      <div style="background:white;border-radius:14px;padding:16px;display:flex;gap:14px;align-items:flex-start;opacity:0.55;">
+        <div style="width:42px;height:42px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;color:#6b7280;margin-bottom:5px;">Nouveau rendez-vous</div>
+          <div style="font-size:13px;color:#9ca3af;margin-bottom:6px;">Marie Leroy — Test, 12:00</div>
+          <div style="font-size:11px;color:#9ca3af;">Hier, 14:48</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Icones pleines & gradient de fond</h3>
+      <p>Icones cercle colore plein (blanc sur fond), fond degrade leger rose/rouge sur les cartes non lues, badges colores pleins (blanc sur fond). Textes plus fonces et lisibles.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Bold & minimal -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f5f4f2;padding:16px;min-height:420px;">
+      <div style="font-size:18px;font-weight:600;color:#333;margin-bottom:14px;">Notifications</div>
+
+      <!-- Unread - new booking -->
+      <div style="background:white;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:0;display:flex;align-items:stretch;margin-bottom:10px;overflow:hidden;">
+        <div style="width:56px;background:linear-gradient(180deg,#fdf2f8,#fce7f3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+        </div>
+        <div style="flex:1;padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:15px;font-weight:700;color:#1a1a2e;">Nouveau rendez-vous</span>
+            <span style="width:10px;height:10px;background:#c06;border-radius:50%;"></span>
+          </div>
+          <div style="font-size:13.5px;color:#374151;font-weight:500;margin-bottom:8px;">Marie Leroy — Soin visage hydratant</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:12px;color:#6b7280;">Aujourd'hui, 14:30</span>
+            <span style="font-size:11px;padding:4px 12px;background:#fdf2f8;color:#a8385d;border-radius:20px;font-weight:600;border:1px solid #fce7f3;">Nouveau</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unread - cancelled -->
+      <div style="background:white;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);padding:0;display:flex;align-items:stretch;margin-bottom:10px;overflow:hidden;">
+        <div style="width:56px;background:linear-gradient(180deg,#fef2f2,#fecaca);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef5350" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <div style="flex:1;padding:14px 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:15px;font-weight:700;color:#1a1a2e;">Rendez-vous annule</span>
+            <span style="width:10px;height:10px;background:#ef5350;border-radius:50%;"></span>
+          </div>
+          <div style="font-size:13.5px;color:#374151;font-weight:500;margin-bottom:8px;">Marie Leroy — Test, 14 avril</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:12px;color:#6b7280;">Aujourd'hui, 14:52</span>
+            <span style="font-size:11px;padding:4px 12px;background:#fef2f2;color:#dc2626;border-radius:20px;font-weight:600;border:1px solid #fecaca;">Annule</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read -->
+      <div style="background:white;border-radius:14px;padding:0;display:flex;align-items:stretch;margin-bottom:10px;overflow:hidden;opacity:0.5;">
+        <div style="width:56px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b0b5bd" stroke-width="2"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+        </div>
+        <div style="flex:1;padding:14px 16px;">
+          <div style="font-size:15px;font-weight:500;color:#9ca3af;margin-bottom:4px;">Nouveau rendez-vous</div>
+          <div style="font-size:13px;color:#b0b5bd;margin-bottom:8px;">Marie Leroy — Test, 12:00</div>
+          <div style="font-size:12px;color:#b0b5bd;">Hier, 14:48</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Bande laterale large</h3>
+      <p>Icone dans une bande coloree a gauche (56px), pas de cercle. Badge avec bordure pill. Layout plus spacieux, textes plus grands (15px titre). Effet "app native".</p>
+    </div>
+  </div>
+
+</div>

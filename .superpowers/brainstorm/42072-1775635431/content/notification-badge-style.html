@@ -1,0 +1,95 @@
+<h2>Style du badge de notification</h2>
+<p class="subtitle">Comment visualisez-vous la bulle de notification dans la barre de navigation ?</p>
+
+<div class="cards">
+  <!-- Option A: Badge simple sur icône cloche -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="display:flex;align-items:center;justify-content:center;min-height:200px;background:#fdf2f8;position:relative;">
+      <div style="position:relative;display:inline-block;">
+        <!-- Bell icon -->
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#be185d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <!-- Badge -->
+        <div style="position:absolute;top:-4px;right:-8px;background:#e11d48;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;box-shadow:0 0 0 2px white;">3</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Badge rond sur cloche</h3>
+      <p>Classique et universel. Icone cloche avec pastille rouge arrondie affichant le nombre. Style Instagram/Facebook.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Badge pill allongé -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="display:flex;align-items:center;justify-content:center;min-height:200px;background:#fdf2f8;position:relative;">
+      <div style="position:relative;display:inline-flex;align-items:center;gap:8px;">
+        <!-- Bell icon -->
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#be185d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <!-- Pill badge -->
+        <div style="background:#e11d48;color:white;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:700;box-shadow:0 0 0 2px white;">3 new</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Badge pill avec texte</h3>
+      <p>Badge allonge a cote de l'icone avec "3 new". Plus informatif mais prend plus de place. Style Slack.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Dot simple + nombre séparé -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="display:flex;align-items:center;justify-content:center;min-height:200px;background:#fdf2f8;position:relative;">
+      <div style="position:relative;display:inline-block;">
+        <!-- Bell icon -->
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#be185d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <!-- Simple dot -->
+        <div style="position:absolute;top:2px;right:2px;background:#e11d48;border-radius:50%;width:10px;height:10px;box-shadow:0 0 0 2px white;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Point simple (dot)</h3>
+      <p>Minimaliste. Un simple point rouge sans chiffre, indiquant qu'il y a des notifications non lues. Style Apple/Google clean.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:32px;">
+  <h3>Drawer de notification en temps reel</h3>
+  <p class="subtitle">Apercu du toast/drawer horizontal qui apparait quand une notification arrive en direct</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Notification toast - apparition temporaire (5s)</div>
+    <div class="mockup-body" style="position:relative;min-height:120px;background:#fdf2f8;overflow:hidden;">
+      <!-- Top notification bar -->
+      <div style="position:absolute;top:0;left:0;right:0;background:white;border-bottom:2px solid #fda4af;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 12px rgba(0,0,0,0.08);animation:slideDown 0.3s ease-out;">
+        <!-- Avatar circle -->
+        <div style="width:40px;height:40px;border-radius:50%;background:#fda4af;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">MC</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;color:#1a1a2e;font-size:14px;">Nouveau rendez-vous</div>
+          <div style="color:#6b7280;font-size:13px;">Marie Claire - Soin visage hydratant, 14h30</div>
+        </div>
+        <div style="color:#9ca3af;font-size:12px;flex-shrink:0;">a l'instant</div>
+        <div style="color:#9ca3af;cursor:pointer;padding:4px;flex-shrink:0;">&times;</div>
+      </div>
+      <!-- Page content behind -->
+      <div style="margin-top:80px;padding:12px 20px;opacity:0.4;">
+        <div style="height:12px;background:#e5e7eb;border-radius:4px;width:60%;margin-bottom:8px;"></div>
+        <div style="height:12px;background:#e5e7eb;border-radius:4px;width:80%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+</style>

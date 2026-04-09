@@ -1,0 +1,139 @@
+<h2>Point de notification sur la navigation du bas</h2>
+<p class="subtitle">Le point rouge apparait sur le label du tab, et disparait quand on entre dans la section</p>
+
+<div class="section">
+  <h3>Vue PRO / ADMIN</h3>
+  <div class="mockup">
+    <div class="mockup-header">Bottom nav - PRO avec notification sur "Bookings"</div>
+    <div class="mockup-body" style="background:#fafafa;padding:0;position:relative;min-height:320px;">
+      <!-- Fake page content -->
+      <div style="padding:20px;">
+        <div style="height:14px;background:#e5e7eb;border-radius:4px;width:50%;margin-bottom:12px;"></div>
+        <div style="height:14px;background:#e5e7eb;border-radius:4px;width:70%;margin-bottom:12px;"></div>
+        <div style="height:14px;background:#e5e7eb;border-radius:4px;width:40%;margin-bottom:24px;"></div>
+        <div style="height:80px;background:#f3f4f6;border-radius:12px;margin-bottom:12px;"></div>
+        <div style="height:80px;background:#f3f4f6;border-radius:12px;"></div>
+      </div>
+      <!-- Bottom nav bar -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:56px;background:white;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-around;padding:0 4px;">
+        <!-- Bookings tab WITH dot -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;min-width:56px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:#fef2f8;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#c06"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5zm2 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#c06;font-weight:600;position:relative;">
+            Bookings
+            <!-- RED DOT on the label -->
+            <span style="position:absolute;top:-2px;right:-8px;width:8px;height:8px;background:#e11d48;border-radius:50%;display:block;"></span>
+          </span>
+        </div>
+        <!-- My Posts tab -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;">
+          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;">My Posts</span>
+        </div>
+        <!-- Camera tab (special) -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;margin-top:-16px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(192,102,0,0.3);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 15.2c1.77 0 3.2-1.43 3.2-3.2S13.77 8.8 12 8.8 8.8 10.23 8.8 12s1.43 3.2 3.2 3.2zM9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9z"/></svg>
+          </div>
+        </div>
+        <!-- Feed tab -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;">
+          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;">Feed</span>
+        </div>
+        <!-- Salon tab -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;">
+          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M20 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;">Salon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <h3>Vue EMPLOYEE</h3>
+  <div class="mockup">
+    <div class="mockup-header">Bottom nav - Employee avec notification sur "Bookings"</div>
+    <div class="mockup-body" style="background:#fafafa;padding:0;position:relative;min-height:200px;">
+      <!-- Fake page content -->
+      <div style="padding:20px;">
+        <div style="height:14px;background:#e5e7eb;border-radius:4px;width:55%;margin-bottom:12px;"></div>
+        <div style="height:80px;background:#f3f4f6;border-radius:12px;"></div>
+      </div>
+      <!-- Bottom nav bar -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:56px;background:white;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-around;padding:0 4px;">
+        <!-- Bookings WITH dot -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;">
+          <div style="width:32px;height:32px;border-radius:10px;background:#fef2f8;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#c06"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#c06;font-weight:600;position:relative;">
+            Bookings
+            <span style="position:absolute;top:-2px;right:-8px;width:8px;height:8px;background:#e11d48;border-radius:50%;display:block;"></span>
+          </span>
+        </div>
+        <!-- Leaves -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;">
+          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M13.127 14.56l1.43-1.43 6.44 6.443L19.57 21l-6.443-6.44zm-3.59-2.395a3.04 3.04 0 01-4.292 0L2.37 9.29a3.035 3.035 0 010-4.29L5.24 2.13a3.04 3.04 0 014.29 0l2.875 2.875a3.04 3.04 0 010 4.29l-.71.71 7.07 7.07-1.41 1.42-7.07-7.071-.707.71z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;">Leaves</span>
+        </div>
+        <!-- Documents -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;">
+          <div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          </div>
+          <span style="font-size:10px;color:#9ca3af;">Documents</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <h3>Comportement du point</h3>
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">AVANT - point visible (pas sur la page Bookings)</div>
+      <div class="mockup-body" style="background:#fafafa;padding:0;min-height:80px;">
+        <div style="height:56px;background:white;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-around;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M19 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+            <span style="font-size:10px;color:#c06;font-weight:600;">Salon</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M19 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+            <span style="font-size:10px;color:#9ca3af;position:relative;">Bookings<span style="position:absolute;top:-2px;right:-8px;width:8px;height:8px;background:#e11d48;border-radius:50%;display:block;"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mockup">
+      <div class="mockup-header">APRES - point disparu (on est sur Bookings)</div>
+      <div class="mockup-body" style="background:#fafafa;padding:0;min-height:80px;">
+        <div style="height:56px;background:white;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-around;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#9ca3af"><path d="M19 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+            <span style="font-size:10px;color:#9ca3af;">Salon</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+            <div style="width:32px;height:32px;border-radius:10px;background:#fef2f8;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#c06"><path d="M19 4H4v2h16V4zm1 10v-2l-1-5H4l-1 5v2h1v6h10v-6h4v6h2v-6h1zm-9 4H6v-4h6v4z"/></svg>
+            </div>
+            <span style="font-size:10px;color:#c06;font-weight:600;">Bookings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

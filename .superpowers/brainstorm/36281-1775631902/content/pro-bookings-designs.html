@@ -1,0 +1,335 @@
+<h2>Page RDV PRO — 3 propositions</h2>
+<p class="subtitle">Vue des rendez-vous à venir pour le professionnel. Clique sur ton préféré.</p>
+
+<!-- ====== OPTION A: Timeline par jour ====== -->
+<div class="card" data-choice="a" onclick="toggleSelect(this)" style="margin-bottom:28px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:14px 20px;border-bottom:1px solid #eee;">
+      <h3 style="margin:0;font-size:15px;">A — Timeline par jour avec heure visuelle</h3>
+      <p style="margin:4px 0 0;font-size:11px;color:#888;">RDV groupés par jour, barre horaire à gauche, cards compactes à droite</p>
+    </div>
+
+    <div style="background:#f5f4f2;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="max-width:380px;margin:0 auto;">
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h1 style="font-size:18px;font-weight:600;color:#333;margin:0;">Rendez-vous</h1>
+          <div style="display:flex;gap:4px;">
+            <button style="padding:4px 10px;border-radius:8px;border:none;background:#c06;color:#fff;font-size:10px;font-weight:500;">Aujourd'hui</button>
+            <button style="padding:4px 10px;border-radius:8px;border:1px solid #e0e0e0;background:#fff;color:#888;font-size:10px;">Semaine</button>
+            <button style="padding:4px 10px;border-radius:8px;border:1px solid #e0e0e0;background:#fff;color:#888;font-size:10px;">Mois</button>
+          </div>
+        </div>
+
+        <!-- Today -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:600;color:#c06;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#c06;"></div>
+            Aujourd'hui — Lundi 7 avril
+          </div>
+
+          <!-- Timeline items -->
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:12px;border-left:2px solid #f0e0e8;">
+
+            <div style="display:flex;gap:10px;align-items:stretch;">
+              <div style="width:44px;text-align:right;flex-shrink:0;padding-top:10px;">
+                <div style="font-size:16px;font-weight:700;color:#333;line-height:1;">09:00</div>
+                <div style="font-size:8px;color:#888;">60 min</div>
+              </div>
+              <div style="flex:1;background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:3px solid #c06;">
+                <div style="display:flex;justify-content:space-between;align-items:start;">
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#333;">Marie Leroy</div>
+                    <div style="font-size:11px;color:#888;">Soin hydratant visage</div>
+                  </div>
+                  <span style="padding:2px 8px;border-radius:6px;background:#f0fdf4;font-size:9px;color:#166534;font-weight:500;">Confirmé</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:#888;">
+                  <span>55,00 €</span>
+                  <span>·</span>
+                  <span>09:00 — 10:00</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:stretch;">
+              <div style="width:44px;text-align:right;flex-shrink:0;padding-top:10px;">
+                <div style="font-size:16px;font-weight:700;color:#333;line-height:1;">10:30</div>
+                <div style="font-size:8px;color:#888;">60 min</div>
+              </div>
+              <div style="flex:1;background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:3px solid #52b788;">
+                <div style="display:flex;justify-content:space-between;align-items:start;">
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#333;">Julie Petit</div>
+                    <div style="font-size:11px;color:#888;">Massage relaxant</div>
+                  </div>
+                  <span style="padding:2px 8px;border-radius:6px;background:#f0fdf4;font-size:9px;color:#166534;font-weight:500;">Confirmé</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:#888;">
+                  <span>60,00 €</span>
+                  <span>·</span>
+                  <span>10:30 — 11:30</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:stretch;">
+              <div style="width:44px;text-align:right;flex-shrink:0;padding-top:10px;">
+                <div style="font-size:16px;font-weight:700;color:#333;line-height:1;">14:00</div>
+                <div style="font-size:8px;color:#888;">75 min</div>
+              </div>
+              <div style="flex:1;background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:3px solid #fb923c;">
+                <div style="display:flex;justify-content:space-between;align-items:start;">
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#333;">Clara Moreau</div>
+                    <div style="font-size:11px;color:#888;">Soin anti-âge premium</div>
+                  </div>
+                  <span style="padding:2px 8px;border-radius:6px;background:#fff7ed;font-size:9px;color:#c2410c;font-weight:500;">En attente</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:#888;">
+                  <span>85,00 €</span>
+                  <span>·</span>
+                  <span>14:00 — 15:15</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tomorrow -->
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#888;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#ccc;"></div>
+            Demain — Mardi 8 avril
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px;padding-left:12px;border-left:2px solid #e8e8e8;">
+            <div style="display:flex;gap:10px;align-items:stretch;">
+              <div style="width:44px;text-align:right;flex-shrink:0;padding-top:10px;">
+                <div style="font-size:16px;font-weight:700;color:#999;line-height:1;">09:00</div>
+                <div style="font-size:8px;color:#bbb;">45 min</div>
+              </div>
+              <div style="flex:1;background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.04);border-left:3px solid #e0e0e0;opacity:0.75;">
+                <div style="font-size:13px;font-weight:600;color:#333;">Thomas R.</div>
+                <div style="font-size:11px;color:#888;">Gommage corps</div>
+                <div style="font-size:10px;color:#888;margin-top:4px;">50,00 € · 09:00 — 09:45</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary bar -->
+        <div style="margin-top:16px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.04);display:flex;justify-content:space-around;text-align:center;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#333;">4</div>
+            <div style="font-size:9px;color:#888;">RDV aujourd'hui</div>
+          </div>
+          <div style="width:1px;background:#f0f0f0;"></div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#c06;">200 €</div>
+            <div style="font-size:9px;color:#888;">CA estimé</div>
+          </div>
+          <div style="width:1px;background:#f0f0f0;"></div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#52b788;">3h15</div>
+            <div style="font-size:9px;color:#888;">Temps occupé</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:10px 20px;border-top:1px solid #eee;font-size:11px;color:#666;line-height:1.6;">
+      <strong>+</strong> Timeline visuelle — on voit l'enchaînement des RDV<br>
+      <strong>+</strong> Heure en gros à gauche, facile à scanner<br>
+      <strong>+</strong> Bordure colorée par statut (rose confirmé, orange en attente)<br>
+      <strong>+</strong> Barre résumé en bas (nb RDV, CA, temps occupé)<br>
+      <strong>+</strong> Groupé par jour avec séparateurs
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION B: Cards compactes avec avatar ====== -->
+<div class="card" data-choice="b" onclick="toggleSelect(this)" style="margin-bottom:28px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:14px 20px;border-bottom:1px solid #eee;">
+      <h3 style="margin:0;font-size:15px;">B — Cards horizontales avec avatar client</h3>
+      <p style="margin:4px 0 0;font-size:11px;color:#888;">Avatar + nom + soin + heure en une ligne, scroll rapide</p>
+    </div>
+
+    <div style="background:#f5f4f2;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="max-width:380px;margin:0 auto;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h1 style="font-size:18px;font-weight:600;color:#333;margin:0;">Rendez-vous</h1>
+          <select style="padding:4px 8px;border:1px solid #e0e0e0;border-radius:8px;font-size:10px;color:#666;background:#fff;">
+            <option>Aujourd'hui</option><option>Cette semaine</option><option>Ce mois</option>
+          </select>
+        </div>
+
+        <!-- Quick stats -->
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+          <div style="flex:1;background:#fff;border-radius:8px;padding:8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <div style="font-size:18px;font-weight:700;color:#333;">4</div>
+            <div style="font-size:8px;color:#888;">RDV</div>
+          </div>
+          <div style="flex:1;background:#fff;border-radius:8px;padding:8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <div style="font-size:18px;font-weight:700;color:#c06;">200€</div>
+            <div style="font-size:8px;color:#888;">CA</div>
+          </div>
+          <div style="flex:1;background:#fff;border-radius:8px;padding:8px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <div style="font-size:18px;font-weight:700;color:#52b788;">75%</div>
+            <div style="font-size:8px;color:#888;">Taux</div>
+          </div>
+        </div>
+
+        <!-- Status tabs -->
+        <div style="display:flex;gap:4px;margin-bottom:12px;background:#fff;border-radius:8px;padding:3px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+          <button style="flex:1;padding:6px;border:none;border-radius:6px;background:#c06;color:#fff;font-size:10px;font-weight:500;">Tous (4)</button>
+          <button style="flex:1;padding:6px;border:none;border-radius:6px;background:transparent;color:#888;font-size:10px;">Confirmé (3)</button>
+          <button style="flex:1;padding:6px;border:none;border-radius:6px;background:transparent;color:#888;font-size:10px;">En attente (1)</button>
+        </div>
+
+        <!-- Booking cards -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:10px;align-items:center;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e8d5c4,#f0e0d0);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,0.8);flex-shrink:0;">M</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;font-weight:600;color:#333;">Marie Leroy</span>
+                <span style="font-size:12px;font-weight:600;color:#333;">09:00</span>
+              </div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">Soin hydratant visage · 60 min · 55€</div>
+            </div>
+            <div style="width:4px;height:32px;border-radius:2px;background:#52b788;flex-shrink:0;"></div>
+          </div>
+
+          <div style="background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:10px;align-items:center;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#d5e0d2,#e0ead5);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,0.8);flex-shrink:0;">J</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;font-weight:600;color:#333;">Julie Petit</span>
+                <span style="font-size:12px;font-weight:600;color:#333;">10:30</span>
+              </div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">Massage relaxant · 60 min · 60€</div>
+            </div>
+            <div style="width:4px;height:32px;border-radius:2px;background:#52b788;flex-shrink:0;"></div>
+          </div>
+
+          <div style="background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:10px;align-items:center;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#d5d5e8,#e0e0f0);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(255,255,255,0.8);flex-shrink:0;">C</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:13px;font-weight:600;color:#333;">Clara Moreau</span>
+                <span style="font-size:12px;font-weight:600;color:#c2410c;">14:00</span>
+              </div>
+              <div style="font-size:11px;color:#888;margin-top:1px;">Soin anti-âge · 75 min · 85€</div>
+            </div>
+            <div style="width:4px;height:32px;border-radius:2px;background:#fb923c;flex-shrink:0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:10px 20px;border-top:1px solid #eee;font-size:11px;color:#666;line-height:1.6;">
+      <strong>+</strong> Avatar du client — rapide à identifier visuellement<br>
+      <strong>+</strong> Heure alignée à droite — scan rapide de l'agenda<br>
+      <strong>+</strong> Barre de statut colorée à droite (vert/orange)<br>
+      <strong>+</strong> Filtres par statut en pills switchables<br>
+      <strong>+</strong> KPIs compacts en haut
+    </div>
+  </div>
+</div>
+
+<!-- ====== OPTION C: Agenda visuel avec blocs horaires ====== -->
+<div class="card" data-choice="c" onclick="toggleSelect(this)" style="margin-bottom:28px;">
+  <div class="card-body" style="padding:0;">
+    <div style="padding:14px 20px;border-bottom:1px solid #eee;">
+      <h3 style="margin:0;font-size:15px;">C — Agenda visuel avec blocs proportionnels</h3>
+      <p style="margin:4px 0 0;font-size:11px;color:#888;">Vue calendrier vertical, hauteur des blocs proportionnelle à la durée</p>
+    </div>
+
+    <div style="background:#f5f4f2;padding:16px;font-family:system-ui,sans-serif;">
+      <div style="max-width:380px;margin:0 auto;">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h1 style="font-size:18px;font-weight:600;color:#333;margin:0;">Aujourd'hui</h1>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+            <span style="font-size:12px;font-weight:500;color:#333;">Lun 7 avril</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Time column + blocks -->
+        <div style="background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+          <div style="position:relative;">
+            <!-- Time markers -->
+            <div style="display:flex;flex-direction:column;gap:0;">
+              <!-- 09:00 block -->
+              <div style="display:flex;min-height:60px;">
+                <div style="width:36px;flex-shrink:0;font-size:10px;color:#bbb;padding-top:2px;text-align:right;padding-right:8px;">09:00</div>
+                <div style="flex:1;border-top:1px solid #f5f5f5;padding:4px 0 4px 8px;">
+                  <div style="background:linear-gradient(135deg,#fef2f8,#fce8f0);border-radius:8px;padding:8px 10px;border-left:3px solid #c06;height:52px;">
+                    <div style="font-size:11px;font-weight:600;color:#333;">Marie L. — Soin visage</div>
+                    <div style="font-size:9px;color:#888;margin-top:2px;">09:00 - 10:00 · 55€</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 10:00 gap -->
+              <div style="display:flex;min-height:30px;">
+                <div style="width:36px;flex-shrink:0;font-size:10px;color:#bbb;padding-top:2px;text-align:right;padding-right:8px;">10:00</div>
+                <div style="flex:1;border-top:1px dashed #f0f0f0;padding:8px;display:flex;align-items:center;justify-content:center;">
+                  <span style="font-size:9px;color:#ccc;">30 min libre</span>
+                </div>
+              </div>
+              <!-- 10:30 block -->
+              <div style="display:flex;min-height:60px;">
+                <div style="width:36px;flex-shrink:0;font-size:10px;color:#bbb;padding-top:2px;text-align:right;padding-right:8px;">10:30</div>
+                <div style="flex:1;border-top:1px solid #f5f5f5;padding:4px 0 4px 8px;">
+                  <div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:8px;padding:8px 10px;border-left:3px solid #52b788;height:52px;">
+                    <div style="font-size:11px;font-weight:600;color:#333;">Julie P. — Massage</div>
+                    <div style="font-size:9px;color:#888;margin-top:2px;">10:30 - 11:30 · 60€</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 12:00 gap (lunch) -->
+              <div style="display:flex;min-height:40px;">
+                <div style="width:36px;flex-shrink:0;font-size:10px;color:#bbb;padding-top:2px;text-align:right;padding-right:8px;">12:00</div>
+                <div style="flex:1;border-top:1px dashed #f0f0f0;padding:8px;display:flex;align-items:center;justify-content:center;">
+                  <span style="font-size:9px;color:#ccc;background:#fafafa;padding:2px 8px;border-radius:4px;">Pause déjeuner</span>
+                </div>
+              </div>
+              <!-- 14:00 block -->
+              <div style="display:flex;min-height:70px;">
+                <div style="width:36px;flex-shrink:0;font-size:10px;color:#bbb;padding-top:2px;text-align:right;padding-right:8px;">14:00</div>
+                <div style="flex:1;border-top:1px solid #f5f5f5;padding:4px 0 4px 8px;">
+                  <div style="background:linear-gradient(135deg,#fff7ed,#fef3c7);border-radius:8px;padding:8px 10px;border-left:3px solid #fb923c;height:60px;">
+                    <div style="font-size:11px;font-weight:600;color:#333;">Clara M. — Anti-âge</div>
+                    <div style="font-size:9px;color:#888;margin-top:2px;">14:00 - 15:15 · 85€</div>
+                    <div style="margin-top:3px;"><span style="padding:1px 6px;border-radius:4px;background:rgba(251,146,60,0.15);font-size:8px;color:#c2410c;font-weight:500;">En attente</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Now indicator -->
+            <div style="position:absolute;left:36px;right:0;top:55px;display:flex;align-items:center;z-index:2;">
+              <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div>
+              <div style="flex:1;height:1.5px;background:#ef4444;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:10px 20px;border-top:1px solid #eee;font-size:11px;color:#666;line-height:1.6;">
+      <strong>+</strong> Vue calendrier — visualise les trous entre les RDV<br>
+      <strong>+</strong> Blocs colorés par statut<br>
+      <strong>+</strong> Indicateur "maintenant" (ligne rouge)<br>
+      <strong>+</strong> Pause déjeuner visible<br>
+      <strong>+</strong> Navigation jour par jour avec flèches<br>
+      <strong>&minus;</strong> Plus complexe, pas de filtrage par statut
+    </div>
+  </div>
+</div>

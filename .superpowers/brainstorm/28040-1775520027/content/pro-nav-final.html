@@ -1,0 +1,245 @@
+<h2>PRO Navigation mobile — Version finale</h2>
+<p class="subtitle">5 onglets : RDV à venir · Gérer · 📷 Caméra (natif) · Posts (feed plein écran) · Salon. La page "Gérer" regroupe Planning, Congés, Employés, Stats, Paramètres — sans bottom nav.</p>
+
+<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:16px;font-family:system-ui,sans-serif;background:#f5f4f2;">
+
+  <!-- ═══ Screen 1: RDV à venir ═══ -->
+  <div style="width:190px;">
+    <div style="background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.08);border:1.5px solid #eee;">
+      <div style="height:14px;background:#fafafa;"></div>
+      <!-- Header -->
+      <div style="height:36px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;">
+        <div style="line-height:1;">
+          <div style="font-size:5px;font-weight:600;letter-spacing:0.3em;color:#c06;">PRETTY</div>
+          <div style="font-size:10px;font-weight:200;letter-spacing:0.08em;color:#333;">FACE</div>
+        </div>
+        <div style="display:flex;gap:4px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:#f8f8f8;display:flex;align-items:center;justify-content:center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/></svg>
+          </div>
+          <div style="width:22px;height:22px;border-radius:50%;background:#f8f8f8;display:flex;align-items:center;justify-content:center;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.5 0-8 2.3-8 5v1h16v-1c0-2.7-3.5-5-8-5Z"/></svg>
+          </div>
+        </div>
+      </div>
+      <!-- Content: RDV à venir -->
+      <div style="height:240px;background:#f5f4f2;padding:8px;overflow-y:auto;">
+        <div style="font-size:11px;font-weight:600;color:#333;margin-bottom:6px;">Aujourd'hui</div>
+        <div style="background:#fff;border-radius:8px;padding:7px 9px;margin-bottom:4px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:7px;align-items:center;">
+          <div style="width:26px;height:26px;border-radius:7px;background:#fef2f8;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#c06;">9h</div>
+          <div style="flex:1;"><div style="font-size:9px;font-weight:500;color:#333;">Marie L. — Soin visage</div><div style="font-size:7px;color:#888;">09:00 - 10:00 · 55€</div></div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:7px 9px;margin-bottom:4px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:7px;align-items:center;">
+          <div style="width:26px;height:26px;border-radius:7px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#166534;">10h</div>
+          <div style="flex:1;"><div style="font-size:9px;font-weight:500;color:#333;">Julie P. — Massage</div><div style="font-size:7px;color:#888;">10:30 - 11:30 · 60€</div></div>
+        </div>
+        <div style="background:#fff;border-radius:8px;padding:7px 9px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:7px;align-items:center;">
+          <div style="width:26px;height:26px;border-radius:7px;background:#fff7ed;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#c2410c;">14h</div>
+          <div style="flex:1;"><div style="font-size:9px;font-weight:500;color:#333;">Clara M. — Anti-âge</div><div style="font-size:7px;color:#888;">14:00 - 15:15 · 85€</div></div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:#333;margin-bottom:4px;">Demain</div>
+        <div style="background:#fff;border-radius:8px;padding:7px 9px;box-shadow:0 1px 2px rgba(0,0,0,0.03);display:flex;gap:7px;align-items:center;opacity:0.6;">
+          <div style="width:26px;height:26px;border-radius:7px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#999;">9h</div>
+          <div style="flex:1;"><div style="font-size:9px;font-weight:500;color:#333;">Thomas R.</div><div style="font-size:7px;color:#888;">09:00 - 09:45</div></div>
+        </div>
+      </div>
+      <!-- Bottom bar -->
+      <div style="height:48px;background:#fff;border-top:1px solid #f0f0f0;display:flex;align-items:center;position:relative;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <div style="padding:1px 9px;border-radius:10px;background:#fef2f8;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <span style="font-size:7px;font-weight:600;color:#c06;">RDV</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44"/><circle cx="12" cy="12" r="3"/></svg>
+          <span style="font-size:7px;color:#999;">Gérer</span>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(192,0,102,0.25);margin-top:-8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>
+          <span style="font-size:7px;color:#999;">Posts</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span style="font-size:7px;color:#999;">Salon</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:9px;color:#c06;font-weight:500;margin-top:5px;">RDV à venir</div>
+  </div>
+
+  <!-- ═══ Screen 2: Page "Gérer" (pas de bottom nav) ═══ -->
+  <div style="width:190px;">
+    <div style="background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.08);border:1.5px solid #eee;">
+      <div style="height:14px;background:#fafafa;"></div>
+      <!-- Header with back button -->
+      <div style="height:36px;background:#fff;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;padding:0 10px;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span style="font-size:12px;font-weight:600;color:#333;">Gérer</span>
+      </div>
+      <!-- Content: Grid of management items (NO bottom nav) -->
+      <div style="height:288px;background:#f5f4f2;padding:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <!-- Planning -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Planning</div>
+            <div style="font-size:7px;color:#888;">Horaires & créneaux</div>
+          </div>
+          <!-- Employés -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Équipe</div>
+            <div style="font-size:7px;color:#888;">Employés & congés</div>
+          </div>
+          <!-- Soins -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Soins</div>
+            <div style="font-size:7px;color:#888;">Prestations & tarifs</div>
+          </div>
+          <!-- Stats -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Statistiques</div>
+            <div style="font-size:7px;color:#888;">Dashboard & CA</div>
+          </div>
+          <!-- Jours fériés -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Jours fériés</div>
+            <div style="font-size:7px;color:#888;">Fermetures & exceptions</div>
+          </div>
+          <!-- Paramètres -->
+          <div style="background:#fff;border-radius:10px;padding:14px 10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44"/></svg>
+            <div style="font-size:10px;font-weight:500;color:#333;">Paramètres</div>
+            <div style="font-size:7px;color:#888;">Réservation & limites</div>
+          </div>
+        </div>
+      </div>
+      <!-- PAS DE BOTTOM NAV -->
+    </div>
+    <div style="text-align:center;font-size:9px;font-weight:500;margin-top:5px;">
+      <span style="color:#c06;">Gérer</span>
+      <span style="color:#888;"> — pas de bottom nav, bouton retour ←</span>
+    </div>
+  </div>
+
+  <!-- ═══ Screen 3: Posts feed plein écran ═══ -->
+  <div style="width:190px;">
+    <div style="background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.08);border:1.5px solid #eee;">
+      <div style="height:14px;background:#fafafa;"></div>
+      <div style="height:36px;background:transparent;position:relative;z-index:3;">
+        <div style="position:absolute;top:8px;left:10px;display:flex;align-items:center;gap:4px;">
+          <div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.5);"></div>
+          <span style="font-size:8px;color:#fff;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,0.4);">L'Atelier de Sophie</span>
+        </div>
+        <div style="position:absolute;top:8px;right:10px;">
+          <button style="padding:2px 7px;border-radius:6px;border:none;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);color:#fff;font-size:7px;font-weight:500;">+ Publier</button>
+        </div>
+      </div>
+      <div style="height:240px;background:#000;position:relative;margin-top:-36px;">
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#d4a088 0%,#c89878 100%);"></div>
+        <div style="position:absolute;top:0;left:0;right:0;height:30%;background:linear-gradient(to bottom,rgba(0,0,0,0.4),transparent);z-index:2;"></div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:40%;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);z-index:2;"></div>
+        <div style="position:absolute;bottom:10px;left:10px;right:30px;z-index:3;">
+          <div style="padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.15);display:inline-flex;font-size:7px;color:#fff;margin-bottom:3px;">Photo</div>
+          <div style="font-size:9px;color:#fff;line-height:1.3;">Résultat soin éclat visage</div>
+          <div style="margin-top:2px;"><span style="padding:1px 5px;border-radius:5px;background:rgba(192,0,102,0.5);font-size:7px;color:#fff;">Soin hydratant</span></div>
+        </div>
+        <div style="position:absolute;right:5px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px;z-index:3;">
+          <div style="width:4px;height:4px;border-radius:50%;background:#fff;"></div>
+          <div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+          <div style="width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.35);"></div>
+        </div>
+      </div>
+      <!-- Bottom bar -->
+      <div style="height:48px;background:#fff;border-top:1px solid #f0f0f0;display:flex;align-items:center;position:relative;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span style="font-size:7px;color:#999;">RDV</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18"/></svg>
+          <span style="font-size:7px;color:#999;">Gérer</span>
+        </div>
+        <div style="flex:1;display:flex;justify-content:center;">
+          <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(192,0,102,0.25);margin-top:-8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <div style="padding:1px 9px;border-radius:10px;background:#fef2f8;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg></div>
+          <span style="font-size:7px;font-weight:600;color:#c06;">Posts</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span style="font-size:7px;color:#999;">Salon</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:9px;color:#c06;font-weight:500;margin-top:5px;">Posts (feed plein écran)</div>
+  </div>
+
+  <!-- ═══ Screen 4: Caméra (natif) ═══ -->
+  <div style="width:190px;">
+    <div style="background:#000;border-radius:22px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.08);border:1.5px solid #333;">
+      <div style="height:14px;background:#111;"></div>
+      <!-- Camera viewfinder -->
+      <div style="height:324px;background:#1a1a1a;position:relative;display:flex;align-items:center;justify-content:center;">
+        <!-- Camera grid overlay -->
+        <div style="position:absolute;inset:20px;border:1px solid rgba(255,255,255,0.1);">
+          <div style="position:absolute;left:33%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.08);"></div>
+          <div style="position:absolute;left:66%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.08);"></div>
+          <div style="position:absolute;top:33%;left:0;right:0;height:1px;background:rgba(255,255,255,0.08);"></div>
+          <div style="position:absolute;top:66%;left:0;right:0;height:1px;background:rgba(255,255,255,0.08);"></div>
+        </div>
+        <!-- Focus circle -->
+        <div style="width:50px;height:50px;border:1.5px solid rgba(255,255,255,0.3);border-radius:50%;"></div>
+        <!-- Top controls -->
+        <div style="position:absolute;top:8px;left:10px;right:10px;display:flex;justify-content:space-between;">
+          <div style="display:flex;gap:6px;">
+            <span style="font-size:8px;color:#fff;padding:3px 8px;border-radius:12px;background:rgba(192,0,102,0.6);font-weight:500;">Avant</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);padding:3px 8px;">Après</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </div>
+        <!-- Bottom: shutter -->
+        <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;">
+          <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);"></div>
+          <div style="width:52px;height:52px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#a8385d,#c06);"></div>
+          </div>
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </div>
+        </div>
+        <!-- Client tag selector -->
+        <div style="position:absolute;bottom:80px;left:10px;right:10px;">
+          <div style="background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius:10px;padding:6px 10px;display:flex;align-items:center;gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.5 0-8 2.3-8 5v1h16v-1c0-2.7-3.5-5-8-5Z"/></svg>
+            <span style="font-size:8px;color:rgba(255,255,255,0.8);">Taguer un client...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:9px;font-weight:500;margin-top:5px;">
+      <span style="color:#c06;">Caméra</span>
+      <span style="color:#888;"> — appareil photo natif, tag client, avant/après</span>
+    </div>
+  </div>
+
+</div>
+
+<div style="padding:12px 20px;font-size:11px;color:#666;line-height:1.8;background:#fff;border-radius:10px;margin:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+  <strong>Récapitulatif des 5 onglets PRO :</strong><br>
+  <strong style="color:#c06;">RDV</strong> — Rendez-vous du jour + à venir (remplace "Agenda")<br>
+  <strong style="color:#c06;">Gérer</strong> — Grille : Planning, Équipe, Soins, Stats, Jours fériés, Paramètres. <strong>Pas de bottom nav</strong> dans cette page, bouton retour ←<br>
+  <strong style="color:#c06;">📷 Caméra</strong> — Ouvre l'appareil photo natif. Toggle Avant/Après. Tag un client. Bouton shutter rose.<br>
+  <strong style="color:#c06;">Posts</strong> — Feed plein écran (scroll vertical snap). Bouton "+ Publier" en haut.<br>
+  <strong style="color:#c06;">Salon</strong> — Profil du salon (nom, adresse, logo, description)
+</div>
