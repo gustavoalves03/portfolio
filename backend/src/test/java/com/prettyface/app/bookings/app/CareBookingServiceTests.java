@@ -55,6 +55,7 @@ class CareBookingServiceTests {
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
     @Mock private com.prettyface.app.employee.repo.EmployeeRepository employeeRepository;
     @Mock private com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher;
+    @Mock private com.prettyface.app.tracking.app.SalonClientService salonClientService;
 
     @InjectMocks
     private CareBookingService service;
@@ -81,6 +82,12 @@ class CareBookingServiceTests {
                 any(Long.class), any(LocalDate.class), any(String.class))).thenReturn(List.of());
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
+
+        // Default: SalonClient auto-creation returns a client with id=1
+        com.prettyface.app.tracking.domain.SalonClient defaultSalonClient = new com.prettyface.app.tracking.domain.SalonClient();
+        defaultSalonClient.setId(1L);
+        lenient().when(salonClientService.getOrCreateForUser(any(Long.class), any(String.class), any()))
+                .thenReturn(defaultSalonClient);
     }
 
     @AfterEach
@@ -259,8 +266,8 @@ class CareBookingServiceTests {
         assertThat(result.appointmentTime()).isEqualTo("09:00");
         assertThat(result.status()).isEqualTo("CONFIRMED");
 
-        // Verify the booking was saved
-        verify(bookingRepo).save(any(CareBooking.class));
+        // Verify the booking was saved (initial save + salonClientId update)
+        verify(bookingRepo, times(2)).save(any(CareBooking.class));
     }
 
     @Test
@@ -597,7 +604,7 @@ class CareBookingServiceTests {
                         1L, 10L, 1,
                         LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
-                        CareBookingStatus.CANCELLED);
+                        CareBookingStatus.CANCELLED, null);
 
         assertThatThrownBy(() -> service.update(100L, cancelReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -624,7 +631,7 @@ class CareBookingServiceTests {
                         1L, 10L, 1,
                         LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
-                        CareBookingStatus.NO_SHOW);
+                        CareBookingStatus.NO_SHOW, null);
 
         var result = service.update(100L, noShowReq);
         assertThat(result.status()).isEqualTo(CareBookingStatus.NO_SHOW);
@@ -649,7 +656,7 @@ class CareBookingServiceTests {
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED);
+                        CareBookingStatus.CONFIRMED, null);
 
         assertThatThrownBy(() -> service.update(100L, moveReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -678,7 +685,7 @@ class CareBookingServiceTests {
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(3, 0),
-                        CareBookingStatus.CONFIRMED);
+                        CareBookingStatus.CONFIRMED, null);
 
         assertThatThrownBy(() -> service.update(101L, moveReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -706,7 +713,7 @@ class CareBookingServiceTests {
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(14, 0),
-                        CareBookingStatus.CONFIRMED);
+                        CareBookingStatus.CONFIRMED, null);
 
         var result = service.update(101L, moveReq);
         assertThat(result.appointmentTime()).isEqualTo(LocalTime.of(14, 0));
@@ -734,7 +741,7 @@ class CareBookingServiceTests {
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 20L, 1, futureDate,
                         LocalTime.of(17, 30),
-                        CareBookingStatus.CONFIRMED);
+                        CareBookingStatus.CONFIRMED, null);
 
         assertThatThrownBy(() -> service.update(102L, changeReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -761,7 +768,7 @@ class CareBookingServiceTests {
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED);
+                        CareBookingStatus.CONFIRMED, null);
 
         var result = service.update(103L, confirmReq);
         assertThat(result.status()).isEqualTo(CareBookingStatus.CONFIRMED);
