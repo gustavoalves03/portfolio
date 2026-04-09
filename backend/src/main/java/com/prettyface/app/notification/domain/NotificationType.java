@@ -5,5 +5,7 @@ public enum NotificationType {
     BOOKING_CANCELLED,
     LEAVE_REQUEST,
     SICK_LEAVE,
-    POST_LIKED
+    POST_LIKED,
+    CLIENT_ACCOUNT_MATCH,
+    CLIENT_BIRTHDAY
 }

@@ -2,6 +2,7 @@ package com.prettyface.app.bookings.app;
 
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
+import com.prettyface.app.tracking.app.SalonClientService;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.domain.ClientBookingHistory;
 import com.prettyface.app.bookings.repo.CareBookingRepository;
@@ -48,6 +49,7 @@ public class CareBookingService {
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
     private final com.prettyface.app.employee.repo.EmployeeRepository employeeRepository;
     private final com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher;
+    private final SalonClientService salonClientService;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
@@ -55,7 +57,8 @@ public class CareBookingService {
                                ClientBookingHistoryRepository clientBookingHistoryRepository,
                                ApplicationSchemaExecutor applicationSchemaExecutor,
                                com.prettyface.app.employee.repo.EmployeeRepository employeeRepository,
-                               com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher) {
+                               com.prettyface.app.notification.app.NotificationDispatcher notificationDispatcher,
+                               SalonClientService salonClientService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -66,6 +69,7 @@ public class CareBookingService {
         this.applicationSchemaExecutor = applicationSchemaExecutor;
         this.employeeRepository = employeeRepository;
         this.notificationDispatcher = notificationDispatcher;
+        this.salonClientService = salonClientService;
     }
 
     @Transactional(readOnly = true)
@@ -125,6 +129,9 @@ public class CareBookingService {
         b.setUser(user);
         b.setCare(care);
         CareBookingMapper.updateEntity(b, req);
+        if (req.salonClientId() != null) {
+            b.setSalonClientId(req.salonClientId());
+        }
         return CareBookingMapper.toResponse(repo.save(b));
     }
 
@@ -266,6 +273,11 @@ public class CareBookingService {
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
         }
+
+        // Auto-create/find SalonClient for this user
+        var salonClient = salonClientService.getOrCreateForUser(client.getId(), client.getName(), null);
+        booking.setSalonClientId(salonClient.getId());
+        repo.save(booking);
 
         // Async emails (fire-and-forget)
         emailService.sendBookingConfirmationEmail(client, booking, care, salonName);

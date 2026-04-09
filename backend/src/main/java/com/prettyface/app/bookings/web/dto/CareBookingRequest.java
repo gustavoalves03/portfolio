@@ -13,6 +13,7 @@ public record CareBookingRequest(
         @NotNull @Min(1) Integer quantity,
         @NotNull LocalDate appointmentDate,
         @NotNull LocalTime appointmentTime,
-        @NotNull CareBookingStatus status
+        @NotNull CareBookingStatus status,
+        Long salonClientId
 ) {}
 
