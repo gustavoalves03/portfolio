@@ -565,8 +565,8 @@ public class TenantSchemaManager {
     private void dropTenantTables(String schemaName) {
         // Reverse order to respect FK dependencies
         List<String> reverseTables = List.of(
-                "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS", "CLIENT_PROFILES",
-                "SALON_CLIENTS",
+                "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS",
+                "SALON_CLIENTS", "CLIENT_PROFILES",
                 "HOLIDAY_EXCEPTIONS",
                 "POST_IMAGES", "POSTS",
                 "EMPLOYEE_DOCUMENTS", "LEAVE_REQUESTS", "EMPLOYEE_CARES",
@@ -911,8 +911,8 @@ public class TenantSchemaManager {
 
     private void dropTenantTablesH2(Statement stmt) throws SQLException {
         List<String> reverseTables = List.of(
-                "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS", "CLIENT_PROFILES",
-                "SALON_CLIENTS",
+                "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS",
+                "SALON_CLIENTS", "CLIENT_PROFILES",
                 "HOLIDAY_EXCEPTIONS",
                 "POST_IMAGES", "POSTS",
                 "EMPLOYEE_DOCUMENTS", "LEAVE_REQUESTS", "EMPLOYEE_CARES",
