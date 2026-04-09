@@ -5,7 +5,7 @@ import { BookingsStore } from './store/bookings.store';
 import { CrudTable } from '../../shared/uis/crud-table/crud-table';
 import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { CreateBookingComponent } from './modals/create/create-booking.component';
+import { BookingStepperComponent } from './components/booking-stepper/booking-stepper.component';
 
 @Component({
   selector: 'app-bookings',
@@ -47,15 +47,16 @@ export class BookingsComponent {
   ]);
 
   onAddBooking() {
-    const dialogRef = this.dialog.open(CreateBookingComponent, {
-      width: '600px',
+    const dialogRef = this.dialog.open(BookingStepperComponent, {
+      width: '700px',
+      maxHeight: '90vh',
       disableClose: false,
       autoFocus: true
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.store.createBooking(result);
+        this.store.getBookings();
       }
     });
   }

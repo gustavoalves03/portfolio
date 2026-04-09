@@ -49,6 +49,7 @@ export interface CreateCareBookingRequest {
   appointmentDate: string; // ISO date string (YYYY-MM-DD)
   appointmentTime: string; // ISO time string (HH:mm:ss)
   status: CareBookingStatus;
+  salonClientId?: number;
 }
 
 export type UpdateCareBookingRequest = CreateCareBookingRequest;
