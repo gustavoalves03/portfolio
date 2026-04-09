@@ -51,6 +51,9 @@ public class CareBooking {
     @Column(name = "employee_id")
     private Long employeeId; // null = unassigned
 
+    @Column(name = "salon_client_id")
+    private Long salonClientId;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
