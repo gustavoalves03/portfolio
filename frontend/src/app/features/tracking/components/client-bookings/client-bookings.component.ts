@@ -111,7 +111,7 @@ import {
                 <div class="past-actions">
                   @if (booking.status === CareBookingStatus.CONFIRMED) {
                     <button class="no-show-btn" (click)="confirmNoShow(booking)">
-                      No-Show
+                      {{ 'tracking.bookings.status.NO_SHOW' | transloco }}
                     </button>
                   } @else {
                     <span class="status-badge" [attr.data-status]="booking.status">
