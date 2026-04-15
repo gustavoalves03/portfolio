@@ -434,7 +434,8 @@
       "estimated": "Est. revenue",
       "occupied": "Time occupied",
       "empty": "No appointments",
-      "noShow": "No-show"
+      "noShow": "No-show",
+      "addBooking": "New booking"
     },
     "camera": {
       "title": "Take a photo",
@@ -769,7 +770,27 @@
     "addedBy": "Added by",
     "createdBy": "Created by",
     "clientInfo": "Client info",
-    "reminder": "Reminder"
+    "reminder": "Reminder",
+    "bookings": {
+      "title": "Appointments",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "today": "Today",
+      "empty": "No appointments",
+      "noShow": {
+        "title": "Confirm No-Show",
+        "message": "Mark \"{{careName}}\" on {{date}} as no-show?",
+        "cancel": "Cancel",
+        "submit": "Confirm No-Show",
+        "success": "Appointment marked as no-show"
+      },
+      "status": {
+        "CONFIRMED": "Confirmed",
+        "PENDING": "Pending",
+        "CANCELLED": "Cancelled",
+        "NO_SHOW": "No-Show"
+      }
+    }
   },
   "permissions": {
     "title": "Permissions",

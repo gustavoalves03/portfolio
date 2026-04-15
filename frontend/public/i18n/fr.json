@@ -438,7 +438,8 @@
       "estimated": "CA estimé",
       "occupied": "Temps occupé",
       "empty": "Aucun rendez-vous",
-      "noShow": "Absent"
+      "noShow": "Absent",
+      "addBooking": "Nouveau RDV"
     },
     "camera": {
       "title": "Prendre une photo",
@@ -773,7 +774,27 @@
     "addedBy": "Ajouté par",
     "createdBy": "Créé par",
     "clientInfo": "Fiche client",
-    "reminder": "Rappel"
+    "reminder": "Rappel",
+    "bookings": {
+      "title": "Rendez-vous",
+      "upcoming": "À venir",
+      "past": "Passés",
+      "today": "Aujourd'hui",
+      "empty": "Aucun rendez-vous",
+      "noShow": {
+        "title": "Confirmer No-Show",
+        "message": "Marquer « {{careName}} » du {{date}} comme absent(e) ?",
+        "cancel": "Annuler",
+        "submit": "Confirmer No-Show",
+        "success": "Rendez-vous marqué comme no-show"
+      },
+      "status": {
+        "CONFIRMED": "Confirmé",
+        "PENDING": "En attente",
+        "CANCELLED": "Annulé",
+        "NO_SHOW": "Absent"
+      }
+    }
   },
   "permissions": {
     "title": "Permissions",
