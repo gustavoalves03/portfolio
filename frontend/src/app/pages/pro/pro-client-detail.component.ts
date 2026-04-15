@@ -16,6 +16,7 @@ import { ClientHeaderComponent } from '../../features/tracking/components/client
 import { ClientVisitsComponent } from '../../features/tracking/components/client-visits/client-visits.component';
 import { ClientNotesComponent } from '../../features/tracking/components/client-notes/client-notes.component';
 import { ClientInfoComponent } from '../../features/tracking/components/client-info/client-info.component';
+import { ClientBookingsComponent } from '../../features/tracking/components/client-bookings/client-bookings.component';
 
 @Component({
   selector: 'app-pro-client-detail',
@@ -28,6 +29,7 @@ import { ClientInfoComponent } from '../../features/tracking/components/client-i
     ClientVisitsComponent,
     ClientNotesComponent,
     ClientInfoComponent,
+    ClientBookingsComponent,
   ],
   template: `
     @if (loading()) {
@@ -46,6 +48,8 @@ import { ClientInfoComponent } from '../../features/tracking/components/client-i
           [allergies]="history()!.profile.allergies"
           [visitCount]="history()!.visits.length"
           [createdAt]="history()!.profile.createdAt" />
+
+        <app-client-bookings [userId]="userId" />
 
         <app-client-visits
           [visits]="history()!.visits"
@@ -106,7 +110,7 @@ export class ProClientDetailComponent {
   readonly history = signal<ClientHistoryResponse | null>(null);
   readonly cares = signal<Care[]>([]);
 
-  private userId = 0;
+  userId = 0;
 
   constructor() {
     this.route.params.subscribe((p) => {
