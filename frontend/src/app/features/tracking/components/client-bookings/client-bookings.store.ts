@@ -38,19 +38,19 @@ export const ClientBookingsStore = signalStore(
   }),
   withRequestStatus(),
   withComputed((store) => {
-    const today = computed(() => todayStr());
+    const today = todayStr();
 
     const todayBookings = computed(() =>
       store
         .bookings()
-        .filter((b) => b.appointmentDate === today())
+        .filter((b) => b.appointmentDate === today)
         .sort((a, b) => a.appointmentTime.localeCompare(b.appointmentTime))
     );
 
     const upcomingBookings = computed(() =>
       store
         .bookings()
-        .filter((b) => b.appointmentDate > today())
+        .filter((b) => b.appointmentDate > today)
         .sort(
           (a, b) =>
             a.appointmentDate.localeCompare(b.appointmentDate) ||
@@ -61,7 +61,7 @@ export const ClientBookingsStore = signalStore(
     const pastBookings = computed(() =>
       store
         .bookings()
-        .filter((b) => b.appointmentDate < today())
+        .filter((b) => b.appointmentDate < today)
         .sort(
           (a, b) =>
             b.appointmentDate.localeCompare(a.appointmentDate) ||
@@ -80,76 +80,68 @@ export const ClientBookingsStore = signalStore(
     };
   }),
   withMethods(
-    (store, bookingsService = inject(BookingsService)) => {
-      let currentUserId = 0;
-
-      return {
-        loadBookings: rxMethod<number>(
-          pipe(
-            tap((userId) => {
-              currentUserId = userId;
-              patchState(store, setPending());
-            }),
-            switchMap((userId) =>
-              bookingsService
-                .listDetailed({ userId }, { size: 100, sort: 'appointmentDate,desc' })
-                .pipe(
-                  tap((page) =>
-                    patchState(store, { bookings: page.content }, setFulfilled())
-                  ),
-                  catchError(() => {
-                    patchState(store, setError('Error loading bookings'));
-                    return EMPTY;
-                  })
-                )
-            )
-          )
-        ),
-
-        markNoShow: rxMethod<CareBookingDetailed>(
-          pipe(
-            tap(() => patchState(store, setPending())),
-            switchMap((booking) =>
-              bookingsService
-                .update(booking.id, {
-                  userId: booking.user.id,
-                  careId: booking.care.id,
-                  quantity: booking.quantity,
-                  appointmentDate: booking.appointmentDate,
-                  appointmentTime: booking.appointmentTime,
-                  status: CareBookingStatus.NO_SHOW,
-                  salonClientId: booking.salonClientId ?? undefined,
+    (store, bookingsService = inject(BookingsService)) => ({
+      loadBookings: rxMethod<number>(
+        pipe(
+          tap(() => patchState(store, setPending())),
+          switchMap((userId) =>
+            bookingsService
+              .listDetailed({ userId }, { size: 100, sort: 'appointmentDate,desc' })
+              .pipe(
+                tap((page) =>
+                  patchState(store, { bookings: page.content }, setFulfilled())
+                ),
+                catchError(() => {
+                  patchState(store, setError('Error loading bookings'));
+                  return EMPTY;
                 })
-                .pipe(
-                  switchMap(() =>
-                    bookingsService
-                      .listDetailed(
-                        { userId: currentUserId },
-                        { size: 100, sort: 'appointmentDate,desc' }
-                      )
-                      .pipe(
-                        tap((page) =>
-                          patchState(
-                            store,
-                            { bookings: page.content },
-                            setFulfilled()
-                          )
-                        )
-                      )
-                  ),
-                  catchError(() => {
-                    patchState(store, setError('Error marking no-show'));
-                    return EMPTY;
-                  })
-                )
-            )
+              )
           )
-        ),
+        )
+      ),
 
-        setActiveTab(tab: ActiveTab): void {
-          patchState(store, { activeTab: tab });
-        },
-      };
-    }
+      markNoShow: rxMethod<CareBookingDetailed>(
+        pipe(
+          tap((booking) =>
+            patchState(store, {
+              bookings: store.bookings().map((b) =>
+                b.id === booking.id
+                  ? { ...b, status: CareBookingStatus.NO_SHOW }
+                  : b
+              ),
+            })
+          ),
+          switchMap((booking) =>
+            bookingsService
+              .update(booking.id, {
+                userId: booking.user.id,
+                careId: booking.care.id,
+                quantity: booking.quantity,
+                appointmentDate: booking.appointmentDate,
+                appointmentTime: booking.appointmentTime,
+                status: CareBookingStatus.NO_SHOW,
+                salonClientId: booking.salonClientId ?? undefined,
+              })
+              .pipe(
+                tap(() => patchState(store, setFulfilled())),
+                catchError(() => {
+                  patchState(store, {
+                    bookings: store.bookings().map((b) =>
+                      b.id === booking.id
+                        ? { ...b, status: CareBookingStatus.CONFIRMED }
+                        : b
+                    ),
+                  }, setError('Error marking no-show'));
+                  return EMPTY;
+                })
+              )
+          )
+        )
+      ),
+
+      setActiveTab(tab: ActiveTab): void {
+        patchState(store, { activeTab: tab });
+      },
+    })
   )
 );
