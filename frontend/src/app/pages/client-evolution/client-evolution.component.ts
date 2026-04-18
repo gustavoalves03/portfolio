@@ -23,6 +23,7 @@ import {
 } from '../../features/tracking/tracking.model';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { RateVisitDialogComponent } from './rate-visit-dialog.component';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 
 @Component({
   selector: 'app-client-evolution',
@@ -909,10 +910,10 @@ export class ClientEvolutionComponent {
   // -- Rating --
 
   openRateDialog(visit: VisitRecordResponse): void {
-    const ref = this.dialog.open(RateVisitDialogComponent, {
+    const ref = this.dialog.open(RateVisitDialogComponent, bottomSheetConfig({
       width: '400px',
       data: { visitId: visit.id, careName: visit.careName },
-    });
+    }));
 
     ref.afterClosed().subscribe((result: { score: number; comment: string } | undefined) => {
       if (result) {

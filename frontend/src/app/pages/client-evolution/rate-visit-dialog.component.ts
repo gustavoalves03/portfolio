@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SheetHandleComponent } from '../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface RateVisitDialogData {
   visitId: number;
@@ -23,8 +24,10 @@ export interface RateVisitDialogData {
     MatFormFieldModule,
     MatInputModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   template: `
+    <app-sheet-handle />
     <h2 mat-dialog-title>{{ 'evolution.rateTitle' | transloco }}</h2>
     <mat-dialog-content>
       @if (data.careName) {
