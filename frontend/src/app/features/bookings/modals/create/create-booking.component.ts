@@ -7,12 +7,14 @@ import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 import { CaresStore } from '../../../cares/store/cares.store';
 import { UsersStore } from '../../../users/store/users.store';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 @Component({
   selector: 'app-create-booking',
   standalone: true,
-  imports: [ModalForm, DynamicForm],
+  imports: [ModalForm, DynamicForm, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <modal-form
       title="Créer une réservation"
       icon="event"
