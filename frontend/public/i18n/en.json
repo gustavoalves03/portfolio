@@ -18,7 +18,8 @@
     "save": "Save",
     "loading": "Loading...",
     "comingSoon": "Coming soon",
-    "back": "Back"
+    "back": "Back",
+    "apply": "Apply"
   },
   "auth": {
     "modal": {
@@ -387,7 +388,13 @@
       "maxClientHoursDesc": "Maximum hours of appointments per client per day",
       "hoursUnit": "h",
       "minutesUnit": "min",
-      "daysAdvanceUnit": "days"
+      "daysAdvanceUnit": "days",
+      "history": {
+        "card": {
+          "title": "Booking history",
+          "desc": "Browse past appointments"
+        }
+      }
     },
     "availability": {
       "title": "My availability",
@@ -436,6 +443,29 @@
       "empty": "No appointments",
       "noShow": "No-show",
       "addBooking": "New booking"
+    },
+    "history": {
+      "title": "Booking history",
+      "empty": "No bookings in this period",
+      "search": "Search a client...",
+      "filter": {
+        "period": {
+          "30days": "Last 30 days",
+          "3months": "Last 3 months",
+          "6months": "Last 6 months",
+          "custom": "Custom",
+          "from": "From",
+          "to": "To"
+        },
+        "status": {
+          "all": "All statuses",
+          "selected": "{{count}} selected"
+        },
+        "employee": {
+          "all": "All employees"
+        }
+      },
+      "endOfList": "End of list"
     },
     "camera": {
       "title": "Take a photo",

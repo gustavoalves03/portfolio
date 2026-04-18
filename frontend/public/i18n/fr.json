@@ -18,7 +18,8 @@
     "save": "Enregistrer",
     "loading": "Chargement...",
     "comingSoon": "Bientôt disponible",
-    "back": "Retour"
+    "back": "Retour",
+    "apply": "Appliquer"
   },
   "auth": {
     "modal": {
@@ -391,7 +392,13 @@
       "maxClientHoursDesc": "Nombre maximum d'heures de prestations par client par jour",
       "hoursUnit": "h",
       "minutesUnit": "min",
-      "daysAdvanceUnit": "jours"
+      "daysAdvanceUnit": "jours",
+      "history": {
+        "card": {
+          "title": "Historique des bookings",
+          "desc": "Consulter les rendez-vous passés"
+        }
+      }
     },
     "availability": {
       "title": "Mes disponibilités",
@@ -440,6 +447,29 @@
       "empty": "Aucun rendez-vous",
       "noShow": "Absent",
       "addBooking": "Nouveau RDV"
+    },
+    "history": {
+      "title": "Historique des bookings",
+      "empty": "Aucun booking dans cet historique",
+      "search": "Rechercher un client...",
+      "filter": {
+        "period": {
+          "30days": "30 derniers jours",
+          "3months": "3 derniers mois",
+          "6months": "6 derniers mois",
+          "custom": "Personnalisé",
+          "from": "Du",
+          "to": "Au"
+        },
+        "status": {
+          "all": "Tous les statuts",
+          "selected": "{{count}} sélectionnés"
+        },
+        "employee": {
+          "all": "Tous les employés"
+        }
+      },
+      "endOfList": "Plus rien à charger"
     },
     "camera": {
       "title": "Prendre une photo",
