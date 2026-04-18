@@ -14,6 +14,7 @@ import { BookingFilters, CareBookingDetailed, CareBookingStatus } from '../../..
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { formatDate as formatDateUtil } from '../../../../core/utils/date-format';
 
 type DateFilter = 'all' | 'today' | 'week' | 'month';
 
@@ -171,14 +172,7 @@ export class BookingsDrawerComponent {
   }
 
   protected formatDate(isoDate: string): string {
-    const date = new Date(isoDate);
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    return formatDateUtil(isoDate);
   }
 
   protected formatPrice(price: number): string {
