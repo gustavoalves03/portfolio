@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
@@ -22,8 +21,6 @@ import { ClientBookingsComponent } from '../../features/tracking/components/clie
   selector: 'app-pro-client-detail',
   standalone: true,
   imports: [
-    RouterLink,
-    MatIconModule,
     MatProgressSpinnerModule,
     ClientHeaderComponent,
     ClientVisitsComponent,
@@ -38,11 +35,6 @@ import { ClientBookingsComponent } from '../../features/tracking/components/clie
       </div>
     } @else if (history()) {
       <div class="client-detail-page">
-        <a routerLink="/pro/dashboard" class="back-link">
-          <mat-icon>arrow_back</mat-icon>
-          <span>Retour</span>
-        </a>
-
         <app-client-header
           [clientName]="history()!.clientName"
           [allergies]="history()!.profile.allergies"
@@ -83,18 +75,6 @@ import { ClientBookingsComponent } from '../../features/tracking/components/clie
       max-width: 600px;
       margin: 0 auto;
       padding-bottom: 80px;
-    }
-
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: #6b7280;
-      text-decoration: none;
-      font-size: 13px;
-      margin-bottom: 12px;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
-      &:hover { color: #c06; }
     }
   `],
 })
