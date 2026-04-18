@@ -15,6 +15,7 @@ import {
   NoShowConfirmDialogComponent,
   NoShowConfirmData,
 } from './no-show-confirm-dialog.component';
+import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sheet.config';
 
 @Component({
   selector: 'app-client-bookings',
@@ -285,13 +286,13 @@ export class ClientBookingsComponent {
   }
 
   confirmNoShow(booking: CareBookingDetailed): void {
-    const dialogRef = this.dialog.open(NoShowConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(NoShowConfirmDialogComponent, bottomSheetConfig({
       data: {
         careName: booking.care.name,
         appointmentDate: booking.appointmentDate,
       } satisfies NoShowConfirmData,
       width: '360px',
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {

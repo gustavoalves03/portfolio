@@ -6,6 +6,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface NoShowConfirmData {
   careName: string;
@@ -15,8 +16,9 @@ export interface NoShowConfirmData {
 @Component({
   selector: 'app-no-show-confirm-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslocoPipe],
+  imports: [MatDialogModule, MatButtonModule, TranslocoPipe, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <h2 mat-dialog-title>{{ 'tracking.bookings.noShow.title' | transloco }}</h2>
     <mat-dialog-content>
       <p class="message">
