@@ -10,6 +10,7 @@ import { PostsService } from '../../features/posts/posts.service';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PostResponse, PostType } from '../../features/posts/posts.model';
 import { CaresService } from '../../features/cares/services/cares.service';
+import { formatDate as formatDateUtil } from '../../core/utils/date-format';
 
 interface ImagePreview {
   file: File;
@@ -301,16 +302,7 @@ export class ProPostsComponent implements OnInit {
   }
 
   formatDate(isoString: string): string {
-    try {
-      const d = new Date(isoString);
-      return d.toLocaleDateString(this.transloco.getActiveLang(), {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
-    } catch {
-      return isoString;
-    }
+    return formatDateUtil(isoString);
   }
 
   private loadPosts(): void {
