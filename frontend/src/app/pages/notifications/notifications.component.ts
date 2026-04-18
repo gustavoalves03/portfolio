@@ -20,7 +20,7 @@ export class NotificationsComponent {
   private readonly salonClientService = inject(SalonClientService);
 
   constructor() {
-    this.store.loadNotifications();
+    this.store.loadInitial();
   }
 
   onNotificationClick(notification: NotificationResponse): void {

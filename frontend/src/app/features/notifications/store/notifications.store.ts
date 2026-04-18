@@ -6,10 +6,16 @@ import { NotificationsService } from '../services/notifications.service';
 import { WebSocketService } from '../services/websocket.service';
 import { NotificationResponse } from '../models/notification.model';
 
+const PAGE_SIZE = 20;
+const RECENT_WINDOW_MS = 48 * 60 * 60 * 1000;
+
 type NotificationsState = {
   notifications: NotificationResponse[];
   unreadCount: number;
   latestNotification: NotificationResponse | null;
+  page: number;
+  hasMore: boolean;
+  mode: 'recent' | 'full';
 };
 
 export const NotificationsStore = signalStore(
@@ -17,6 +23,9 @@ export const NotificationsStore = signalStore(
     notifications: [],
     unreadCount: 0,
     latestNotification: null,
+    page: 0,
+    hasMore: false,
+    mode: 'recent',
   }),
   withComputed((store) => ({
     hasUnread: computed(() => store.unreadCount() > 0),
@@ -26,6 +35,7 @@ export const NotificationsStore = signalStore(
       if (count > 99) return '99+';
       return count.toString();
     }),
+    emptyState: computed(() => store.notifications().length === 0 && store.mode() === 'full'),
   })),
   withMethods((store,
     notificationsService = inject(NotificationsService),
@@ -38,13 +48,58 @@ export const NotificationsStore = signalStore(
         catchError(() => EMPTY)
       )
     ),
-    loadNotifications: rxMethod<void>(
-      pipe(
-        switchMap(() => notificationsService.list(undefined, 0, 50)),
-        tap((page) => patchState(store, { notifications: page.content })),
-        catchError(() => EMPTY)
-      )
-    ),
+    loadInitial(): void {
+      const since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
+      patchState(store, { notifications: [], page: 0, mode: 'recent', hasMore: false });
+      notificationsService.list({ since, page: 0, size: PAGE_SIZE }).subscribe({
+        next: (res: any) => {
+          patchState(store, {
+            notifications: res.content,
+            page: 0,
+            hasMore: !res.last,
+          });
+        },
+        error: () => {},
+      });
+    },
+    loadNextPage(): void {
+      if (store.hasMore()) {
+        const nextPage = store.page() + 1;
+        const args: any = { page: nextPage, size: PAGE_SIZE };
+        if (store.mode() === 'recent') {
+          args.since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
+        }
+        notificationsService.list(args).subscribe({
+          next: (res: any) => {
+            patchState(store, {
+              notifications: [...store.notifications(), ...res.content],
+              page: nextPage,
+              hasMore: !res.last,
+            });
+          },
+          error: () => {},
+        });
+        return;
+      }
+      if (store.mode() === 'recent') {
+        patchState(store, { mode: 'full', page: 0 });
+        notificationsService.list({ page: 0, size: PAGE_SIZE }).subscribe({
+          next: (res: any) => {
+            const existingIds = new Set(store.notifications().map((n) => n.id));
+            const merged = [
+              ...store.notifications(),
+              ...res.content.filter((n: NotificationResponse) => !existingIds.has(n.id)),
+            ];
+            patchState(store, {
+              notifications: merged,
+              page: 0,
+              hasMore: !res.last,
+            });
+          },
+          error: () => {},
+        });
+      }
+    },
     markAsRead: rxMethod<number>(
       pipe(
         switchMap((id) =>
@@ -62,6 +117,19 @@ export const NotificationsStore = signalStore(
         )
       )
     ),
+    dismiss(id: number): void {
+      const item = store.notifications().find((n) => n.id === id);
+      const wasUnread = item ? !item.read : false;
+      notificationsService.markAsRead(id).subscribe({
+        next: () => {
+          patchState(store, {
+            notifications: store.notifications().filter((n) => n.id !== id),
+            unreadCount: wasUnread ? Math.max(0, store.unreadCount() - 1) : store.unreadCount(),
+          });
+        },
+        error: () => {},
+      });
+    },
     connectWebSocket(): void {
       webSocketService.connect();
       webSocketService.notification$.subscribe((notification) => {
@@ -70,7 +138,6 @@ export const NotificationsStore = signalStore(
           unreadCount: store.unreadCount() + 1,
           latestNotification: notification,
         });
-        // Clear latest after 4s (toast duration + buffer)
         setTimeout(() => {
           if (store.latestNotification()?.id === notification.id) {
             patchState(store, { latestNotification: null });
@@ -85,7 +152,7 @@ export const NotificationsStore = signalStore(
       patchState(store, { latestNotification: null });
     },
     reset(): void {
-      patchState(store, { notifications: [], unreadCount: 0, latestNotification: null });
+      patchState(store, { notifications: [], unreadCount: 0, latestNotification: null, page: 0, hasMore: false, mode: 'recent' });
     },
   })),
 );

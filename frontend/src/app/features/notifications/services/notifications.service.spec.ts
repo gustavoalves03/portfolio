@@ -28,7 +28,7 @@ describe('NotificationsService', () => {
   });
 
   it('list calls GET /api/notifications with params', () => {
-    service.list(false, 0, 20).subscribe();
+    service.list({ read: false, page: 0, size: 20 }).subscribe();
     const req = httpTesting.expectOne((r) => r.url === `${apiUrl}/api/notifications`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('read')).toBe('false');
