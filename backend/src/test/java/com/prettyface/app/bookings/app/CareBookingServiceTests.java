@@ -851,6 +851,81 @@ class CareBookingServiceTests {
     }
 
     // ══════════════════════════════════════════════════════════════
+    // ── Sec3: Double-booking race ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: The happy-path race guard exists at two layers in createClientBooking():
+    //  (a) pre-save availability check via SlotAvailabilityService;
+    //  (b) a DataIntegrityViolationException catch around repo.save() that maps to 409,
+    //      backed by UK_BOOKING_SLOT (appointment_date, appointment_time, care_id).
+    // The tests below strengthen coverage of the single-thread "slot already taken" case
+    // AND document the gap on the admin create(CareBookingRequest) method which has
+    // neither pre-check nor DB-exception handling.
+
+    @Test
+    @DisplayName("Sec3: create_rejectsDoubleBooking_whenSlotAlreadyTaken (createClientBooking happy-race)")
+    void create_rejectsDoubleBooking_whenSlotAlreadyTaken() {
+        // First booking occupies 09:00 → availability service now returns empty for that slot.
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of()); // slot already taken
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT))
+                .hasMessageContaining("Slot no longer available");
+
+        verify(bookingRepo, never()).save(any(CareBooking.class));
+    }
+
+    @Test
+    @DisplayName("Sec3: create_raceConditionBetweenCheckAndPersist — check passes, save throws → 409")
+    void create_raceConditionBetweenCheckAndPersist() {
+        // NOTE-SEC: demonstrates check-then-act window closure via UK_BOOKING_SLOT.
+        // Two threads pass the availability check simultaneously; the first save wins,
+        // the second save raises DataIntegrityViolationException which the service maps
+        // to HttpStatus.CONFLICT with the same "Slot no longer available" message.
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT))
+                .hasMessageContaining("Slot no longer available");
+    }
+
+    @Test
+    @DisplayName("Sec3: create_WARN_adminCreateMethodHasNoRaceGuard — admin POST /api/bookings does NOT catch unique-constraint")
+    void create_WARN_adminCreateMethodHasNoRaceGuard() {
+        // TODO-SEC: CareBookingService.create(CareBookingRequest) used by admin/pro endpoints
+        // performs NO slot availability check and does NOT wrap save() to translate
+        // DataIntegrityViolationException into 409. The DB unique constraint still protects
+        // against actual double-booking, but the error surfacing to the client is a raw
+        // DataIntegrityViolationException (500-class) rather than a clean 409.
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
+
+        com.prettyface.app.bookings.web.dto.CareBookingRequest req =
+                new com.prettyface.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(9, 0),
+                        CareBookingStatus.CONFIRMED, null);
+
+        // Raw DataIntegrityViolationException bubbles out — NOT translated to 409.
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    // ══════════════════════════════════════════════════════════════
     // ── Sec1: Cross-tenant IDOR on bookings ──
     // ══════════════════════════════════════════════════════════════
     // NOTE-SEC: CareBooking has NO tenantSlug/tenantId column (see CareBooking.java).
