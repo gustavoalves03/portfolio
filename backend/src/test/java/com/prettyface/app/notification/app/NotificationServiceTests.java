@@ -87,10 +87,82 @@ class NotificationServiceTests {
 
         when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
 
-        org.junit.jupiter.api.Assertions.assertThrows(
-                org.springframework.web.server.ResponseStatusException.class,
-                () -> notificationService.markAsRead(10L, 1L)
-        );
+        // Sec5: strengthened — assert the exact HTTP status.
+        // NOTE-SEC: Current implementation returns 403 FORBIDDEN when the recipient mismatches
+        // (see NotificationService.markAsRead). 403 is acceptable; a case could also be made
+        // for 404 (pretending the notification doesn't exist is safer because it hides the ID
+        // existence from a scanner). This assertion pins the current contract so a future
+        // change is a conscious decision.
+        org.springframework.web.server.ResponseStatusException ex =
+                org.junit.jupiter.api.Assertions.assertThrows(
+                        org.springframework.web.server.ResponseStatusException.class,
+                        () -> notificationService.markAsRead(10L, 1L)
+                );
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        // Side-effect guard: save() must NOT be called for a rejected caller.
+        verify(notificationRepository, never()).save(any(Notification.class));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Sec5: mark-as-read cross-user + idempotency ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("Sec5: markAsRead_isIdempotent_whenCalledMultipleTimes — documents current behaviour")
+    void markAsRead_isIdempotent_whenCalledMultipleTimes() {
+        // TODO-SEC: markAsRead always sets read=true and calls save() — even if the notification
+        // is already read. It's idempotent at the data-level (end state is identical) but save()
+        // is called BOTH times. This writes an extra UPDATE, generates an audit trail entry in
+        // any auditing listener, and could decrement an unread-count cache TWICE if one exists.
+        // This test pins current behaviour; a future optimisation should skip save() when already
+        // read AND the unread-count is NOT decremented twice.
+        Notification notification = Notification.builder()
+                .id(10L)
+                .recipientId(1L)
+                .tenantSlug("salon-a")
+                .type(NotificationType.NEW_BOOKING)
+                .category(NotificationCategory.BOOKING)
+                .title("New booking")
+                .message("Test message")
+                .referenceId(100L)
+                .referenceType(ReferenceType.BOOKING)
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
+
+        // First call: read false → true, save called.
+        notificationService.markAsRead(10L, 1L);
+        assertThat(notification.isRead()).isTrue();
+
+        // Second call: notification already read. Service still writes.
+        notificationService.markAsRead(10L, 1L);
+
+        // Documents: save is called TWICE. If later optimised, flip to times(1).
+        verify(notificationRepository, times(2)).save(notification);
+        assertThat(notification.isRead()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Sec5: markAsRead_crossUser_statusIs403NotBecauseOfMissingResource")
+    void markAsRead_crossUser_statusIs403() {
+        // NOTE-SEC: explicitly asserts the 403 vs 404 distinction. 403 leaks existence of
+        // the notification ID to a scanner. Pinning current contract.
+        Notification notification = Notification.builder()
+                .id(10L)
+                .recipientId(99L) // belongs to someone else
+                .read(false)
+                .build();
+        when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
+
+        org.springframework.web.server.ResponseStatusException ex =
+                org.junit.jupiter.api.Assertions.assertThrows(
+                        org.springframework.web.server.ResponseStatusException.class,
+                        () -> notificationService.markAsRead(10L, 1L)
+                );
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(ex.getReason()).isEqualTo("Access denied");
     }
 
     @Test
