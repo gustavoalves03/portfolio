@@ -1,15 +1,15 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AppDateTimePipe } from '../../../../shared/pipes/app-datetime.pipe';
 import { AccessLevel } from '../../tracking.model';
 
 @Component({
   selector: 'app-client-notes',
   standalone: true,
-  imports: [FormsModule, DatePipe, MatButtonModule, MatIconModule, TranslocoPipe],
+  imports: [FormsModule, AppDateTimePipe, MatButtonModule, MatIconModule, TranslocoPipe],
   template: `
     <div class="section">
       <div class="section-header">
@@ -31,7 +31,7 @@ import { AccessLevel } from '../../tracking.model';
           <div class="notes-text">{{ notes() || '—' }}</div>
         }
         @if (updatedByName()) {
-          <div class="audit-line">{{ 'tracking.modifiedBy' | transloco }} {{ updatedByName() }} · {{ updatedAt() | date:'mediumDate' }}</div>
+          <div class="audit-line">{{ 'tracking.modifiedBy' | transloco }} {{ updatedByName() }} · {{ updatedAt() | appDateTime }}</div>
         }
       </div>
     </div>

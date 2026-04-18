@@ -1,5 +1,5 @@
 import { Component, effect, inject, input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '../../../../shared/pipes/app-date.pipe';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,7 +21,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
   selector: 'app-client-bookings',
   standalone: true,
   imports: [
-    DatePipe,
+    AppDatePipe,
     MatButtonToggleModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -80,7 +80,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
                 <div class="booking-info">
                   <div class="care-name">{{ booking.care.name }}</div>
                   <div class="booking-meta">
-                    {{ booking.appointmentDate | date:'d MMM' }} · {{ booking.appointmentTime.slice(0, 5) }}
+                    {{ booking.appointmentDate | appDate }} · {{ booking.appointmentTime.slice(0, 5) }}
                     @if (booking.employeeName) {
                       · {{ booking.employeeName }}
                     }
@@ -103,7 +103,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
                 <div class="booking-info">
                   <div class="care-name">{{ booking.care.name }}</div>
                   <div class="booking-meta">
-                    {{ booking.appointmentDate | date:'d MMM' }} · {{ booking.appointmentTime.slice(0, 5) }}
+                    {{ booking.appointmentDate | appDate }} · {{ booking.appointmentTime.slice(0, 5) }}
                     @if (booking.employeeName) {
                       · {{ booking.employeeName }}
                     }

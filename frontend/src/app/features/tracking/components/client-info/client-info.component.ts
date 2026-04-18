@@ -1,15 +1,15 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AppDateTimePipe } from '../../../../shared/pipes/app-datetime.pipe';
 import { ClientProfileResponse, AccessLevel, UpdateProfileRequest } from '../../tracking.model';
 
 @Component({
   selector: 'app-client-info',
   standalone: true,
-  imports: [FormsModule, DatePipe, MatButtonModule, MatIconModule, TranslocoPipe],
+  imports: [FormsModule, AppDateTimePipe, MatButtonModule, MatIconModule, TranslocoPipe],
   template: `
     <div class="section">
       <div class="section-header">
@@ -65,7 +65,7 @@ import { ClientProfileResponse, AccessLevel, UpdateProfileRequest } from '../../
           </div>
         }
         @if (profile().updatedByName) {
-          <div class="audit-line">{{ 'tracking.modifiedBy' | transloco }} {{ profile().updatedByName }} · {{ profile().updatedAt | date:'mediumDate' }}</div>
+          <div class="audit-line">{{ 'tracking.modifiedBy' | transloco }} {{ profile().updatedByName }} · {{ profile().updatedAt | appDateTime }}</div>
         }
       </div>
     </div>

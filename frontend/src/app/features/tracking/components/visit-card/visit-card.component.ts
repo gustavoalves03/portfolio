@@ -1,17 +1,17 @@
 import { Component, input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDateTimePipe } from '../../../../shared/pipes/app-datetime.pipe';
 import { VisitRecordResponse } from '../../tracking.model';
 
 @Component({
   selector: 'app-visit-card',
   standalone: true,
-  imports: [DatePipe],
+  imports: [AppDateTimePipe],
   template: `
     <div class="visit-card">
       <div class="visit-top">
         <span class="care-name">{{ visit().careName }}</span>
       </div>
-      <div class="visit-meta">{{ visit().visitDate | date:'mediumDate' }} · {{ visit().updatedByName ?? '' }}</div>
+      <div class="visit-meta">{{ visit().visitDate | appDateTime }} · {{ visit().updatedByName ?? '' }}</div>
       @if (visit().practitionerNotes) {
         <div class="visit-notes">"{{ visit().practitionerNotes }}"</div>
       }
