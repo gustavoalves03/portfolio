@@ -100,11 +100,11 @@ class NotificationControllerTests {
                 "Your booking is confirmed", 10L, "BOOKING",
                 false, "salon-slug", LocalDateTime.now());
 
-        when(notificationService.listForRecipient(eq(1L), isNull(), any()))
+        when(notificationService.listForRecipient(eq(1L), isNull(), isNull(), any()))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
         // Use a page with actual content for assertion
-        when(notificationService.listForRecipient(eq(1L), any(), any()))
+        when(notificationService.listForRecipient(eq(1L), any(), any(), any()))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
         mvc.perform(get("/api/notifications").with(authentication(authToken)))

@@ -8,20 +8,27 @@ import com.prettyface.app.notification.repo.NotificationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,7 +100,7 @@ class NotificationServiceTests {
         when(notificationRepository.findByRecipientIdAndReadOrderByCreatedAtDesc(1L, false, Pageable.unpaged()))
                 .thenReturn(page);
 
-        Page<Notification> result = notificationService.listForRecipient(1L, false, Pageable.unpaged());
+        Page<Notification> result = notificationService.listForRecipient(1L, false, null, Pageable.unpaged());
 
         assertThat(result).isEqualTo(page);
         verify(notificationRepository).findByRecipientIdAndReadOrderByCreatedAtDesc(1L, false, Pageable.unpaged());
@@ -107,7 +114,7 @@ class NotificationServiceTests {
         when(notificationRepository.findByRecipientIdOrderByCreatedAtDesc(1L, Pageable.unpaged()))
                 .thenReturn(page);
 
-        Page<Notification> result = notificationService.listForRecipient(1L, null, Pageable.unpaged());
+        Page<Notification> result = notificationService.listForRecipient(1L, null, null, Pageable.unpaged());
 
         assertThat(result).isEqualTo(page);
         verify(notificationRepository).findByRecipientIdOrderByCreatedAtDesc(1L, Pageable.unpaged());
@@ -136,5 +143,46 @@ class NotificationServiceTests {
 
         assertThat(result).isEqualTo(notification);
         verify(notificationRepository).save(notification);
+    }
+
+    @Test
+    void listForRecipient_withSinceOnly_callsSinceQuery() {
+        Instant since = Instant.parse("2026-04-16T00:00:00Z");
+        Pageable pageable = PageRequest.of(0, 20);
+        when(notificationRepository.findByRecipientIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(any(), any(), any()))
+                .thenReturn(Page.empty());
+
+        notificationService.listForRecipient(1L, null, since, pageable);
+
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        Mockito.verify(notificationRepository)
+                .findByRecipientIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                        eq(1L), captor.capture(), eq(pageable));
+        assertThat(captor.getValue()).isEqualTo(LocalDateTime.of(2026, 4, 16, 0, 0, 0));
+    }
+
+    @Test
+    void listForRecipient_withReadAndSince_callsCombinedQuery() {
+        Instant since = Instant.parse("2026-04-16T00:00:00Z");
+        Pageable pageable = PageRequest.of(0, 20);
+        when(notificationRepository.findByRecipientIdAndReadAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(any(), anyBoolean(), any(), any()))
+                .thenReturn(Page.empty());
+
+        notificationService.listForRecipient(1L, false, since, pageable);
+
+        Mockito.verify(notificationRepository)
+                .findByRecipientIdAndReadAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                        eq(1L), eq(false), any(), eq(pageable));
+    }
+
+    @Test
+    void listForRecipient_withoutSince_callsExistingQuery() {
+        Pageable pageable = PageRequest.of(0, 20);
+        when(notificationRepository.findByRecipientIdOrderByCreatedAtDesc(any(), any()))
+                .thenReturn(Page.empty());
+
+        notificationService.listForRecipient(1L, null, null, pageable);
+
+        Mockito.verify(notificationRepository).findByRecipientIdOrderByCreatedAtDesc(eq(1L), eq(pageable));
     }
 }
