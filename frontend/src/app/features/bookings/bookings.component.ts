@@ -6,6 +6,7 @@ import { CrudTable } from '../../shared/uis/crud-table/crud-table';
 import { TableColumn, TableAction } from '../../shared/uis/crud-table/crud-table.models';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BookingStepperComponent } from './components/booking-stepper/booking-stepper.component';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 
 @Component({
   selector: 'app-bookings',
@@ -47,12 +48,11 @@ export class BookingsComponent {
   ]);
 
   onAddBooking() {
-    const dialogRef = this.dialog.open(BookingStepperComponent, {
-      width: '700px',
+    const dialogRef = this.dialog.open(BookingStepperComponent, bottomSheetConfig({
       maxHeight: '90vh',
       disableClose: false,
-      autoFocus: true
-    });
+      autoFocus: true,
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

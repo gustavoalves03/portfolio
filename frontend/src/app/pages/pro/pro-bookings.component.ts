@@ -13,6 +13,7 @@ import {
   CareBookingStatus,
 } from '../../features/bookings/models/bookings.model';
 import { BookingStepperComponent } from '../../features/bookings/components/booking-stepper/booking-stepper.component';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 
 type PeriodFilter = 'today' | 'week' | 'month';
 
@@ -601,14 +602,11 @@ export class ProBookingsComponent {
   }
 
   protected onAddBooking(): void {
-    const dialogRef = this.dialog.open(BookingStepperComponent, {
-      width: '100%',
-      maxWidth: '480px',
+    const dialogRef = this.dialog.open(BookingStepperComponent, bottomSheetConfig({
       maxHeight: '90vh',
-      panelClass: 'booking-stepper-dialog',
       disableClose: false,
       autoFocus: true,
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {

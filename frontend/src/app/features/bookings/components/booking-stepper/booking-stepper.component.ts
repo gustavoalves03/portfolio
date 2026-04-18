@@ -10,6 +10,7 @@ import { CareBookingStatus } from '../../models/bookings.model';
 import { StepCareComponent } from '../step-care/step-care.component';
 import { StepDatetimeComponent } from '../step-datetime/step-datetime.component';
 import { StepClientComponent } from '../step-client/step-client.component';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 @Component({
   selector: 'app-booking-stepper',
@@ -20,9 +21,11 @@ import { StepClientComponent } from '../step-client/step-client.component';
     StepCareComponent,
     StepDatetimeComponent,
     StepClientComponent,
+    SheetHandleComponent,
   ],
   providers: [CaresStore, UsersStore],
   template: `
+    <app-sheet-handle />
     <!-- Header -->
     <div class="stepper-header">
       <button class="btn-close" (click)="dialogRef.close()">
