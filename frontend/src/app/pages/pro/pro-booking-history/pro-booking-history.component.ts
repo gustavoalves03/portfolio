@@ -16,6 +16,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
 import { PeriodFilterSheetComponent, PeriodResult } from './filters/period-filter-sheet.component';
 import { StatusFilterSheetComponent } from './filters/status-filter-sheet.component';
 import { EmployeeFilterSheetComponent } from './filters/employee-filter-sheet.component';
+import { BackButtonComponent } from '../../../shared/uis/back-button/back-button.component';
 
 @Component({
   selector: 'app-pro-booking-history',
@@ -29,12 +30,13 @@ import { EmployeeFilterSheetComponent } from './filters/employee-filter-sheet.co
     MatProgressSpinnerModule,
     TranslocoPipe,
     BookingCardComponent,
+    BackButtonComponent,
   ],
   providers: [BookingHistoryStore],
   template: `
     <div class="history-page">
       <header class="page-header">
-        <button class="back" (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+        <app-back-button fallbackUrl="/pro/manage" [showLabel]="false" />
         <h1>{{ 'pro.history.title' | transloco }}</h1>
       </header>
 
@@ -94,10 +96,6 @@ import { EmployeeFilterSheetComponent } from './filters/employee-filter-sheet.co
     }
     .page-header h1 {
       font-size: 18px; font-weight: 600; margin: 0; color: #333;
-    }
-    .back {
-      background: none; border: none; color: #666; cursor: pointer;
-      padding: 4px; display: flex; align-items: center;
     }
     .search-box {
       background: white; border-radius: 10px;
@@ -192,10 +190,6 @@ export class ProBookingHistoryComponent implements AfterViewInit, OnDestroy {
 
   protected openClient(b: CareBookingDetailed): void {
     this.router.navigate(['/pro/clients', b.user.id]);
-  }
-
-  protected goBack(): void {
-    this.router.navigate(['/pro/manage']);
   }
 
   protected openPeriod(): void {
