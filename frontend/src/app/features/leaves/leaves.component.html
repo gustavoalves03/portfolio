@@ -99,7 +99,7 @@
               <div class="card-info">
                 <div class="card-name">{{ leave.employeeName }}</div>
                 <div class="card-dates">
-                  {{ leave.startDate | date: 'dd/MM/yyyy' }} — {{ leave.endDate | date: 'dd/MM/yyyy' }}
+                  {{ leave.startDate | appDate }} — {{ leave.endDate | appDate }}
                   · {{ getDayCount(leave) }}
                   {{ getDayCount(leave) > 1 ? ('pro.leaves.days' | transloco) : ('pro.leaves.day' | transloco) }}
                 </div>
@@ -158,7 +158,7 @@
               <div class="card-info">
                 <div class="card-name">{{ leave.employeeName }}</div>
                 <div class="card-dates">
-                  {{ leave.startDate | date: 'dd/MM/yyyy' }} — {{ leave.endDate | date: 'dd/MM/yyyy' }}
+                  {{ leave.startDate | appDate }} — {{ leave.endDate | appDate }}
                   · {{ getDayCount(leave) }}
                   {{ getDayCount(leave) > 1 ? ('pro.leaves.days' | transloco) : ('pro.leaves.day' | transloco) }}
                 </div>
@@ -195,7 +195,7 @@
 
             @if (leave.reviewedAt) {
               <div class="card-reviewed">
-                {{ 'pro.leaves.reviewedAt' | transloco }} {{ leave.reviewedAt | date: 'dd/MM/yyyy' }}
+                {{ 'pro.leaves.reviewedAt' | transloco }} {{ leave.reviewedAt | appDate }}
               </div>
             }
           </div>

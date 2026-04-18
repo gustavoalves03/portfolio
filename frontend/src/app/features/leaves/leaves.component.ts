@@ -1,9 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AppDatePipe } from '../../shared/pipes/app-date.pipe';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { LeavesStore } from './leaves.store';
 import { LeaveResponse, LeaveStatus, LeaveType } from './leaves.model';
@@ -16,7 +16,7 @@ import {
 @Component({
   selector: 'app-leaves',
   standalone: true,
-  imports: [DatePipe, TranslocoPipe, MatIconModule, MatProgressSpinnerModule],
+  imports: [AppDatePipe, TranslocoPipe, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './leaves.component.html',
   styleUrl: './leaves.component.scss',
   providers: [LeavesStore],
