@@ -51,7 +51,7 @@ export const NotificationsStore = signalStore(
     loadInitial(): void {
       const since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
       patchState(store, { notifications: [], page: 0, mode: 'recent', hasMore: false });
-      notificationsService.list({ since, page: 0, size: PAGE_SIZE }).subscribe({
+      notificationsService.list({ read: false, since, page: 0, size: PAGE_SIZE }).subscribe({
         next: (res: any) => {
           patchState(store, {
             notifications: res.content,
@@ -65,7 +65,7 @@ export const NotificationsStore = signalStore(
     loadNextPage(): void {
       if (store.hasMore()) {
         const nextPage = store.page() + 1;
-        const args: any = { page: nextPage, size: PAGE_SIZE };
+        const args: any = { read: false, page: nextPage, size: PAGE_SIZE };
         if (store.mode() === 'recent') {
           args.since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
         }
@@ -83,7 +83,7 @@ export const NotificationsStore = signalStore(
       }
       if (store.mode() === 'recent') {
         patchState(store, { mode: 'full', page: 0 });
-        notificationsService.list({ page: 0, size: PAGE_SIZE }).subscribe({
+        notificationsService.list({ read: false, page: 0, size: PAGE_SIZE }).subscribe({
           next: (res: any) => {
             const existingIds = new Set(store.notifications().map((n) => n.id));
             const merged = [

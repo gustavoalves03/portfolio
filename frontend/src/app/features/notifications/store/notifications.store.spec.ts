@@ -48,10 +48,11 @@ describe('NotificationsStore', () => {
   it('loadInitial calls service with since=now-48h, page=0, size=20 and sets mode=recent', () => {
     store.loadInitial();
 
-    const args = service.list.calls.mostRecent().args[0] as { page: number; size: number; since?: string };
+    const args = service.list.calls.mostRecent().args[0] as { page: number; size: number; since?: string; read?: boolean };
     expect(args.page).toBe(0);
     expect(args.size).toBe(20);
     expect(args.since).toBeDefined();
+    expect(args.read).toBeFalse();
 
     const sinceMs = new Date(args.since!).getTime();
     const expected = Date.now() - 48 * 60 * 60 * 1000;
@@ -117,8 +118,9 @@ describe('NotificationsStore', () => {
     store.loadNextPage();
 
     expect(store.mode()).toBe('full');
-    const args = service.list.calls.mostRecent().args[0] as { since?: string };
+    const args = service.list.calls.mostRecent().args[0] as { since?: string; read?: boolean };
     expect(args.since).toBeUndefined();
+    expect(args.read).toBeFalse();
     const ids = store.notifications().map(n => n.id).sort();
     expect(ids).toEqual([1, 2, 3, 4]);
   });
