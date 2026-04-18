@@ -7,9 +7,12 @@ import com.prettyface.app.notification.web.dto.NotificationResponse;
 import com.prettyface.app.notification.web.mapper.NotificationMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -28,9 +31,10 @@ public class NotificationController {
     public Page<NotificationResponse> list(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(required = false) Boolean read,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant since,
             Pageable pageable) {
         return applicationSchemaExecutor.call(() ->
-                notificationService.listForRecipient(principal.getId(), read, pageable)
+                notificationService.listForRecipient(principal.getId(), read, since, pageable)
                         .map(NotificationMapper::toResponse));
     }
 
