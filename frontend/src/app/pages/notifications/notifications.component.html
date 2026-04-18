@@ -43,7 +43,7 @@
             </div>
             <div class="notif-message">{{ notif.message }}</div>
             <div class="notif-footer">
-              <span class="notif-time">{{ notif.createdAt | date:'short' }}</span>
+              <span class="notif-time">{{ notif.createdAt | appDateTime }}</span>
               @if (notif.type === 'BOOKING_CANCELLED') {
                 <span class="status-badge cancelled">{{ 'notifications.bookingCancelled' | transloco }}</span>
               } @else if (notif.type === 'NEW_BOOKING') {

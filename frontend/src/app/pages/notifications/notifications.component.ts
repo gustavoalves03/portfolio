@@ -4,13 +4,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { MatIconModule } from '@angular/material/icon';
 import { NotificationsStore } from '../../features/notifications/store/notifications.store';
 import { NotificationResponse } from '../../features/notifications/models/notification.model';
-import { DatePipe } from '@angular/common';
+import { AppDateTimePipe } from '../../shared/pipes/app-datetime.pipe';
 import { SalonClientService } from '../../features/salon-clients/salon-client.service';
 
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [TranslocoPipe, DatePipe, MatIconModule],
+  imports: [TranslocoPipe, AppDateTimePipe, MatIconModule],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss',
 })
