@@ -13,6 +13,7 @@ import { AvailabilityService } from '../../../features/availability/availability
 import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
+import { SheetHandleComponent } from '../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface BookingDialogData {
   slug: string;
@@ -31,6 +32,7 @@ export interface BookingDialogData {
     MatFormFieldModule,
     MatInputModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   providers: [provideNativeDateAdapter()],
   templateUrl: './booking-dialog.component.html',

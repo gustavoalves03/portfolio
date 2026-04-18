@@ -10,6 +10,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../features/salon-profile/services/salon-profile.service';
 import { PublicSalonResponse, PublicCareDto } from '../../features/salon-profile/models/salon-profile.model';
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog/booking-dialog.component';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
 
 @Component({
@@ -179,10 +180,9 @@ export class SalonPageComponent implements OnDestroy {
     const slug = this.salon()?.slug;
     if (!slug) return;
 
-    this.dialog.open(BookingDialogComponent, {
-      width: '360px',
+    this.dialog.open(BookingDialogComponent, bottomSheetConfig({
       disableClose: false,
       data: { slug, care } as BookingDialogData,
-    });
+    }));
   }
 }
