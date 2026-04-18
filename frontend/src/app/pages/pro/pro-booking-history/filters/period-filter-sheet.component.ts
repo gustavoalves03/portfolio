@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { toYMD, addDays } from '../../../../core/utils/date-format';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -113,15 +114,3 @@ export class PeriodFilterSheetComponent {
   }
 }
 
-function addDays(d: Date, days: number): Date {
-  const r = new Date(d);
-  r.setDate(r.getDate() + days);
-  return r;
-}
-
-function toYMD(d: Date): string {
-  const y = d.getFullYear();
-  const m = `${d.getMonth() + 1}`.padStart(2, '0');
-  const day = `${d.getDate()}`.padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}

@@ -22,6 +22,7 @@ import {
   CareBookingDetailed,
   CareBookingStatus,
 } from '../../../features/bookings/models/bookings.model';
+import { toYMD, addDays, formatDate } from '../../../core/utils/date-format';
 
 export interface HistoryFilters {
   statuses: CareBookingStatus[];
@@ -53,21 +54,12 @@ const ALL_STATUSES: CareBookingStatus[] = [
   CareBookingStatus.NO_SHOW,
 ];
 
-function toYMD(d: Date): string {
-  const y = d.getFullYear();
-  const m = `${d.getMonth() + 1}`.padStart(2, '0');
-  const day = `${d.getDate()}`.padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
 function today(): string {
   return toYMD(new Date());
 }
 
 function daysAgo(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return toYMD(d);
+  return toYMD(addDays(new Date(), -n));
 }
 
 function initialFilters(): HistoryFilters {
@@ -78,11 +70,6 @@ function initialFilters(): HistoryFilters {
     clientQuery: '',
     employeeId: null,
   };
-}
-
-function formatDay(ymd: string): string {
-  const [y, m, d] = ymd.split('-');
-  return `${d}/${m}/${y}`;
 }
 
 function groupByDay(items: CareBookingDetailed[]): DayGroup[] {
@@ -96,7 +83,7 @@ function groupByDay(items: CareBookingDetailed[]): DayGroup[] {
     .sort((a, b) => (a[0] < b[0] ? 1 : -1))
     .map(([date, dayItems]) => ({
       date,
-      label: formatDay(date),
+      label: formatDate(date),
       items: [...dayItems].sort((a, b) => (a.appointmentTime < b.appointmentTime ? 1 : -1)),
     }));
 }
