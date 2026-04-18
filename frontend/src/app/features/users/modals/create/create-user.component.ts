@@ -5,12 +5,14 @@ import { CreateUserRequest } from '../../models/users.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 @Component({
   selector: 'app-create-user',
   standalone: true,
-  imports: [ModalForm, DynamicForm],
+  imports: [ModalForm, DynamicForm, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <modal-form
       title="Créer un utilisateur"
       icon="person_add"
