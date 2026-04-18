@@ -147,6 +147,12 @@
       "quantity": "Quantity",
       "status": "Status",
       "createdAt": "Created At"
+    },
+    "status": {
+      "CONFIRMED": "Confirmed",
+      "PENDING": "Pending",
+      "CANCELLED": "Cancelled",
+      "NO_SHOW": "No-show"
     }
   },
   "users": {
