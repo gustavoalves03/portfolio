@@ -14,6 +14,7 @@ import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
 import { SheetHandleComponent } from '../../../shared/uis/sheet-handle/sheet-handle.component';
+import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet.config';
 
 export interface BookingDialogData {
   slug: string;
@@ -164,7 +165,7 @@ export class BookingDialogComponent {
   }
 
   private openAuthAndMaybeSubmit(): void {
-    const authRef = this.matDialog.open(AuthModalComponent, { width: '480px' });
+    const authRef = this.matDialog.open(AuthModalComponent, bottomSheetConfig({ width: '480px' }));
     authRef.afterClosed().subscribe((result: AuthModalResult) => {
       if (!result?.authenticated) return;
       if (result.action === 'login') {
