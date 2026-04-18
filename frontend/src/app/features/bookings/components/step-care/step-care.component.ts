@@ -36,12 +36,12 @@ import { CaresStore } from '../../../cares/store/cares.store';
       .step-care {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
       }
 
       h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 600;
         color: #333;
       }
@@ -49,8 +49,8 @@ import { CaresStore } from '../../../cares/store/cares.store';
       .care-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        max-height: 320px;
+        gap: 8px;
+        max-height: 50vh;
         overflow-y: auto;
       }
 
@@ -58,9 +58,10 @@ import { CaresStore } from '../../../cares/store/cares.store';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 18px;
-        border: 2px solid #e0e0e0;
-        border-radius: 12px;
+        padding: 10px 14px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        background: white;
         cursor: pointer;
         transition:
           border-color 200ms ease,
@@ -80,25 +81,25 @@ import { CaresStore } from '../../../cares/store/cares.store';
 
       .care-name {
         font-weight: 500;
-        font-size: 15px;
+        font-size: 14px;
         color: #333;
       }
 
       .care-details {
         display: flex;
-        gap: 12px;
-        font-size: 13px;
-        color: #666;
+        gap: 10px;
+        font-size: 12px;
+        color: #888;
       }
 
       .btn-next {
-        align-self: flex-end;
+        align-self: stretch;
         background: #c06;
         color: white;
         border: none;
         border-radius: 8px;
         padding: 10px 24px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         cursor: pointer;
         transition: background 200ms ease;

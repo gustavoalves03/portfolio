@@ -138,6 +138,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 }
 
+// Booking stepper dialog — compact, no padding, responsive
+.booking-stepper-dialog {
+  margin: 12px !important;
+
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    padding: 0 !important;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+}
+
 // Select dropdown
 .mat-mdc-select {
   font-size: 14px;

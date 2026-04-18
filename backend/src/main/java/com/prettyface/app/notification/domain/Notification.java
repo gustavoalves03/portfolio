@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.NumericBooleanConverter;
 
 import java.time.LocalDateTime;
 
@@ -47,7 +48,8 @@ public class Notification {
     @Column(name = "REFERENCE_TYPE", nullable = false, length = 50)
     private ReferenceType referenceType;
 
-    @Column(name = "IS_READ", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "IS_READ", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean read;
 
     @Column(name = "CREATED_AT", nullable = false)

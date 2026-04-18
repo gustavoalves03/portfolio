@@ -79,6 +79,11 @@ public class SalonClientService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public List<SalonClient> findAllByIds(java.util.Collection<Long> ids) {
+        return salonClientRepo.findAllById(ids);
+    }
+
     private SalonClientResponse toResponse(SalonClient c) {
         String createdByName = null;
         if (c.getCreatedBy() != null) {

@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { BookingsStore } from '../../store/bookings.store';
+import { BookingsService } from '../../services/bookings.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { CaresStore } from '../../../cares/store/cares.store';
 import { UsersStore } from '../../../users/store/users.store';
 import { CareBookingStatus } from '../../models/bookings.model';
@@ -12,21 +14,27 @@ import { StepClientComponent } from '../step-client/step-client.component';
 @Component({
   selector: 'app-booking-stepper',
   standalone: true,
-  imports: [TranslocoPipe, StepCareComponent, StepDatetimeComponent, StepClientComponent],
-  providers: [BookingsStore, CaresStore, UsersStore],
+  imports: [
+    TranslocoPipe,
+    MatIconModule,
+    StepCareComponent,
+    StepDatetimeComponent,
+    StepClientComponent,
+  ],
+  providers: [CaresStore, UsersStore],
   template: `
-    <!-- Progress indicator -->
-    <div class="stepper-progress">
-      @for (step of steps; track step.number) {
-        <div class="step-indicator" [class.active]="currentStep() === step.number"
-             [class.completed]="currentStep() > step.number">
-          <div class="step-circle">{{ step.number }}</div>
-          <span class="step-label">{{ step.labelKey | transloco }}</span>
-        </div>
-        @if (!$last) {
-          <div class="step-connector" [class.completed]="currentStep() > step.number"></div>
-        }
-      }
+    <!-- Header -->
+    <div class="stepper-header">
+      <button class="btn-close" (click)="dialogRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <span class="stepper-title">{{ 'booking.stepper.confirm' | transloco }}</span>
+      <span class="step-counter">{{ currentStep() }}/3</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="progressPercent()"></div>
     </div>
 
     <!-- Step content -->
@@ -36,7 +44,7 @@ import { StepClientComponent } from '../step-client/step-client.component';
           <app-step-care (careSelected)="onCareSelected($event)" />
         }
         @case (2) {
-          <app-step-datetime (datetimeSelected)="onDatetimeSelected($event)" />
+          <app-step-datetime [careId]="selectedCareId()" (datetimeSelected)="onDatetimeSelected($event)" />
         }
         @case (3) {
           <app-step-client (clientSelected)="onClientSelected($event)" />
@@ -44,125 +52,108 @@ import { StepClientComponent } from '../step-client/step-client.component';
       }
     </div>
 
-    <!-- Navigation buttons -->
-    <div class="stepper-actions">
-      @if (currentStep() > 1) {
-        <button class="btn btn-back" (click)="goBack()">
-          {{ 'booking.stepper.back' | transloco }}
-        </button>
-      }
-    </div>
+    <!-- Back button -->
+    @if (currentStep() > 1) {
+      <button class="btn-back" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'booking.stepper.back' | transloco }}
+      </button>
+    }
   `,
   styles: [
     `
       :host {
-        display: block;
-        background: #f5f4f2;
-        padding: 24px;
-        min-width: 600px;
-        min-height: 400px;
-      }
-
-      .stepper-progress {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 32px;
-      }
-
-      .step-indicator {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 6px;
+        background: #f5f4f2;
+        overflow-y: auto;
+        max-height: 80vh;
       }
 
-      .step-circle {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
+      .stepper-header {
         display: flex;
         align-items: center;
-        justify-content: center;
+        padding: 12px 16px;
+        background: white;
+        border-bottom: 1px solid #eee;
+        gap: 8px;
+      }
+
+      .btn-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        color: #666;
+      }
+
+      .btn-close mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .stepper-title {
+        flex: 1;
+        font-size: 15px;
         font-weight: 600;
-        font-size: 14px;
-        background: #e0e0e0;
-        color: #888;
-        transition: background 200ms ease, color 200ms ease;
-      }
-
-      .step-indicator.active .step-circle,
-      .step-indicator.completed .step-circle {
-        background: #c06;
-        color: white;
-      }
-
-      .step-label {
-        font-size: 12px;
-        color: #888;
-        white-space: nowrap;
-        transition: color 200ms ease;
-      }
-
-      .step-indicator.active .step-label {
-        color: #c06;
-        font-weight: 600;
-      }
-
-      .step-indicator.completed .step-label {
         color: #333;
       }
 
-      .step-connector {
-        width: 48px;
-        height: 2px;
-        background: #e0e0e0;
-        margin-bottom: 20px;
-        transition: background 200ms ease;
+      .step-counter {
+        font-size: 12px;
+        color: #999;
+        font-weight: 500;
       }
 
-      .step-connector.completed {
+      .progress-bar {
+        height: 3px;
+        background: #e0e0e0;
+      }
+
+      .progress-fill {
+        height: 100%;
         background: #c06;
+        transition: width 250ms ease;
       }
 
       .step-content {
         flex: 1;
-        min-height: 250px;
-      }
-
-      .stepper-actions {
-        display: flex;
-        justify-content: flex-start;
-        padding-top: 16px;
-        border-top: 1px solid #e0e0e0;
-        margin-top: 16px;
-      }
-
-      .btn {
-        padding: 8px 20px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background 200ms ease;
+        padding: 16px;
+        overflow-y: auto;
       }
 
       .btn-back {
-        background: #e0e0e0;
-        color: #333;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 16px;
+        background: white;
+        border: none;
+        border-top: 1px solid #eee;
+        cursor: pointer;
+        font-size: 13px;
+        color: #666;
+        font-weight: 500;
       }
 
       .btn-back:hover {
-        background: #d0d0d0;
+        background: #f5f5f5;
+      }
+
+      .btn-back mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
       }
     `,
   ],
 })
 export class BookingStepperComponent {
-  private readonly dialogRef = inject(MatDialogRef<BookingStepperComponent>);
-  private readonly bookingsStore = inject(BookingsStore);
+  readonly dialogRef = inject(MatDialogRef<BookingStepperComponent>);
+  private readonly bookingsService = inject(BookingsService);
+  private readonly authService = inject(AuthService);
 
   readonly currentStep = signal(1);
   readonly selectedCareId = signal<number | null>(null);
@@ -170,14 +161,9 @@ export class BookingStepperComponent {
   readonly selectedDate = signal<string | null>(null);
   readonly selectedTime = signal<string | null>(null);
   readonly selectedSalonClientId = signal<number | null>(null);
+  readonly submitting = signal(false);
 
-  readonly steps = [
-    { number: 1, labelKey: 'booking.stepper.step1' },
-    { number: 2, labelKey: 'booking.stepper.step2' },
-    { number: 3, labelKey: 'booking.stepper.step3' },
-  ];
-
-  readonly canGoBack = computed(() => this.currentStep() > 1);
+  readonly progressPercent = computed(() => (this.currentStep() / 3) * 100);
 
   onCareSelected(event: { careId: number; employeeId: number }): void {
     this.selectedCareId.set(event.careId);
@@ -207,25 +193,28 @@ export class BookingStepperComponent {
     const appointmentDate = this.selectedDate();
     const appointmentTime = this.selectedTime();
 
-    if (careId == null || appointmentDate == null || appointmentTime == null) {
+    if (careId == null || appointmentDate == null || appointmentTime == null || this.submitting()) {
       return;
     }
 
-    this.bookingsStore.createBooking({
+    this.submitting.set(true);
+
+    const userId = this.authService.user()?.id;
+    if (!userId) return;
+
+    this.bookingsService.create({
       careId,
-      userId: this.selectedEmployeeId() ?? 0,
+      userId,
       quantity: 1,
       appointmentDate,
-      appointmentTime,
+      appointmentTime: appointmentTime + ':00',
       status: CareBookingStatus.PENDING,
-    });
-
-    this.dialogRef.close({
-      careId,
-      employeeId: this.selectedEmployeeId(),
-      appointmentDate,
-      appointmentTime,
-      salonClientId: this.selectedSalonClientId(),
+      salonClientId: this.selectedSalonClientId() ?? undefined,
+    }).subscribe({
+      next: () => this.dialogRef.close(true),
+      error: () => {
+        this.submitting.set(false);
+      },
     });
   }
 }

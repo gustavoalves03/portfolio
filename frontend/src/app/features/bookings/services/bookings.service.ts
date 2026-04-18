@@ -10,6 +10,11 @@ import {
 import { BaseCrudService } from '../../../core/data/base-crud.service';
 import { Page } from '../../../shared/models/page.model';
 
+export interface AvailableSlot {
+  startTime: string;
+  endTime: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BookingsService extends BaseCrudService<
   CareBooking,
@@ -42,5 +47,12 @@ export class BookingsService extends BaseCrudService<
 
     const url = `${this.apiBaseUrl}/api/bookings/detailed`;
     return this.http.get<Page<CareBookingDetailed>>(url, { params: queryParams });
+  }
+
+  getAvailableSlots(careId: number, date: string): Observable<AvailableSlot[]> {
+    return this.http.get<AvailableSlot[]>(
+      `${this.apiBaseUrl}/api/pro/opening-hours/available-slots`,
+      { params: { careId: careId.toString(), date } }
+    );
   }
 }

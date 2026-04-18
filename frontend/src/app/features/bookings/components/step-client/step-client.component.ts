@@ -60,6 +60,8 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
                     <div class="client-phone">{{ client.phone }}</div>
                   </div>
                 </div>
+              } @empty {
+                <div class="empty-clients">Aucun client trouvé</div>
               }
             </div>
           </div>
@@ -211,6 +213,14 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
       .client-phone {
         font-size: 12px;
         color: #888;
+      }
+
+      .empty-clients {
+        text-align: center;
+        color: #999;
+        font-size: 13px;
+        padding: 24px 0;
+        font-style: italic;
       }
 
       .btn-confirm {

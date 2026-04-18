@@ -138,7 +138,20 @@ export class BookingDialogComponent {
 
     this.salonService.getAvailableSlots(this.slug, this.care.id, this.formatDate(date)).subscribe({
       next: (slots) => {
-        this.slots.set(slots);
+        // Filter out past slots if the selected date is today
+        const now = new Date();
+        const isToday = date.getFullYear() === now.getFullYear()
+            && date.getMonth() === now.getMonth()
+            && date.getDate() === now.getDate();
+        if (isToday) {
+          const currentMinutes = now.getHours() * 60 + now.getMinutes();
+          this.slots.set(slots.filter(s => {
+            const [h, m] = s.startTime.split(':').map(Number);
+            return h * 60 + m > currentMinutes;
+          }));
+        } else {
+          this.slots.set(slots);
+        }
         this.loadingSlots.set(false);
       },
       error: () => {

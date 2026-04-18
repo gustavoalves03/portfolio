@@ -108,8 +108,21 @@ public class CareBookingService {
                     .forEach(e -> employeeNames.put(e.getId(), e.getName()));
         }
 
+        // Resolve salon client names in batch
+        java.util.Set<Long> salonClientIds = bookings.getContent().stream()
+                .map(CareBooking::getSalonClientId)
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
+
+        java.util.Map<Long, String> salonClientNames = new java.util.HashMap<>();
+        if (!salonClientIds.isEmpty()) {
+            salonClientService.findAllByIds(salonClientIds)
+                    .forEach(sc -> salonClientNames.put(sc.getId(), sc.getName()));
+        }
+
         return bookings.map(b -> CareBookingMapper.toDetailedResponse(b,
-                b.getEmployeeId() != null ? employeeNames.get(b.getEmployeeId()) : null));
+                b.getEmployeeId() != null ? employeeNames.get(b.getEmployeeId()) : null,
+                b.getSalonClientId() != null ? salonClientNames.get(b.getSalonClientId()) : null));
     }
 
     @Transactional(readOnly = true)

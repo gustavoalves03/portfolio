@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -11,6 +12,7 @@ import {
   CareBookingDetailed,
   CareBookingStatus,
 } from '../../features/bookings/models/bookings.model';
+import { BookingStepperComponent } from '../../features/bookings/components/booking-stepper/booking-stepper.component';
 
 type PeriodFilter = 'today' | 'week' | 'month';
 
@@ -29,6 +31,14 @@ interface DayGroup {
   template: `
     <div class="bookings-page">
       <h1 class="page-title">{{ 'pro.bookings.title' | transloco }}</h1>
+
+      <!-- Add booking button -->
+      <div class="add-booking-row">
+        <button class="btn-add-booking" (click)="onAddBooking()">
+          <mat-icon>add</mat-icon>
+          {{ 'pro.bookings.addBooking' | transloco }}
+        </button>
+      </div>
 
       <!-- Period pills -->
       <div class="period-pills">
@@ -127,7 +137,7 @@ interface DayGroup {
                         </span>
                       </div>
                       <div class="card-people">
-                        <span class="client-name">{{ booking.user.name }}</span>
+                        <span class="client-name">{{ booking.salonClientName || booking.user.name }}</span>
                         @if (booking.employeeName) {
                           <span class="people-sep">&middot;</span>
                           <span class="employee-name">{{ booking.employeeName }}</span>
@@ -433,6 +443,38 @@ interface DayGroup {
       color: #666;
     }
 
+    /* Add booking row */
+    .add-booking-row {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .btn-add-booking {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #c06;
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+
+    .btn-add-booking:hover {
+      background: #a05;
+    }
+
+    .btn-add-booking mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
     /* Highlight fade animation after navigation from notification */
     .highlight-fade {
       background-color: #fdf2f8 !important;
@@ -445,6 +487,7 @@ export class ProBookingsComponent {
   private readonly i18n = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly CareBookingStatus = CareBookingStatus;
 
@@ -555,6 +598,23 @@ export class ProBookingsComponent {
   protected setPeriod(period: PeriodFilter): void {
     this.selectedPeriod.set(period);
     this.loadBookings();
+  }
+
+  protected onAddBooking(): void {
+    const dialogRef = this.dialog.open(BookingStepperComponent, {
+      width: '100%',
+      maxWidth: '480px',
+      maxHeight: '90vh',
+      panelClass: 'booking-stepper-dialog',
+      disableClose: false,
+      autoFocus: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadBookings();
+      }
+    });
   }
 
   protected openClient(userId: number): void {

@@ -40,6 +40,8 @@ export interface CareBookingDetailed {
   createdAt: string; // ISO date string
   employeeId: number | null;
   employeeName: string | null;
+  salonClientId: number | null;
+  salonClientName: string | null;
 }
 
 export interface CreateCareBookingRequest {
