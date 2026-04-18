@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 interface DeleteCareDialogData {
   careName: string;
@@ -9,7 +10,7 @@ interface DeleteCareDialogData {
 @Component({
   selector: 'app-delete-care',
   standalone: true,
-  imports: [ModalForm],
+  imports: [ModalForm, SheetHandleComponent],
   templateUrl: './delete-care.component.html',
   styleUrl: './delete-care.component.scss'
 })

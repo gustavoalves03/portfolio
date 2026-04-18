@@ -9,6 +9,7 @@ import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/form-field.model';
 import { ImageManager } from '../../../../shared/uis/image-manager/image-manager.component';
 import { ImageCarousel } from '../../../../shared/uis/image-carousel/image-carousel.component';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 interface CreateCareDialogData {
   categories: Category[];
@@ -24,7 +25,8 @@ interface CreateCareDialogData {
     DynamicForm,
     MatTabsModule,
     ImageManager,
-    ImageCarousel
+    ImageCarousel,
+    SheetHandleComponent
   ],
   templateUrl: './create-care.component.html',
   styleUrl: './create-care.component.scss'

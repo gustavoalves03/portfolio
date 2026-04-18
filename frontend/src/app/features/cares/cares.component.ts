@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -197,14 +198,13 @@ export class CaresComponent {
   }
 
   onAddCare() {
-    const dialogRef = this.dialog.open(CreateCare, {
-      width: '500px',
+    const dialogRef = this.dialog.open(CreateCare, bottomSheetConfig({
       disableClose: false,
       autoFocus: true,
       data: {
         categories: this.categoriesStore.categories(),
       },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -220,15 +220,14 @@ export class CaresComponent {
         console.log('[CaresComponent] Fresh care loaded for edit:', freshCare);
         console.log('[CaresComponent] Images:', freshCare.images);
 
-        const dialogRef = this.dialog.open(CreateCare, {
-          width: '500px',
+        const dialogRef = this.dialog.open(CreateCare, bottomSheetConfig({
           disableClose: false,
           autoFocus: true,
           data: {
             categories: this.categoriesStore.categories(),
             care: freshCare,
           },
-        });
+        }));
 
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
@@ -250,14 +249,13 @@ export class CaresComponent {
   }
 
   onDeleteCare(care: Care) {
-    const dialogRef = this.dialog.open(DeleteCareComponent, {
-      width: '420px',
+    const dialogRef = this.dialog.open(DeleteCareComponent, bottomSheetConfig({
       disableClose: true,
       autoFocus: false,
       data: {
         careName: care.name,
       },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -323,8 +321,7 @@ export class CaresComponent {
         console.log('[CaresComponent] Images:', freshCare.images);
 
         // Open dialog with fresh data
-        this.dialog.open(CreateCare, {
-          width: '500px',
+        this.dialog.open(CreateCare, bottomSheetConfig({
           disableClose: false,
           autoFocus: false,
           data: {
@@ -332,7 +329,7 @@ export class CaresComponent {
             categories: this.categoriesStore.categories(),
             viewOnly: true,
           },
-        });
+        }));
       },
       error: err => {
         console.error('Error loading care details:', err);
