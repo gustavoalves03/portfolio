@@ -109,6 +109,7 @@ export class ProManageComponent {
     { labelKey: 'pro.manage.team', descKey: 'pro.manage.teamDesc', icon: 'people', path: '/pro/employees' },
     { labelKey: 'pro.manage.cares', descKey: 'pro.manage.caresDesc', icon: 'spa', path: '/pro/cares' },
     { labelKey: 'pro.manage.stats', descKey: 'pro.manage.statsDesc', icon: 'bar_chart', path: '/pro/dashboard' },
+    { labelKey: 'pro.manage.history', descKey: 'pro.manage.historyDesc', icon: 'history', path: '/pro/settings/history' },
     { labelKey: 'pro.manage.settings', descKey: 'pro.manage.settingsDesc', icon: 'settings', path: '/pro/settings' },
   ];
 

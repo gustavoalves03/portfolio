@@ -439,6 +439,8 @@
       "statsDesc": "Dashboard & CA",
       "holidays": "Jours fériés",
       "holidaysDesc": "Fermetures & exceptions",
+      "history": "Historique",
+      "historyDesc": "Rendez-vous passés",
       "settings": "Paramètres",
       "settingsDesc": "Réservation & limites"
     },

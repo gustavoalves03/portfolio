@@ -195,7 +195,7 @@ export class ProBookingHistoryComponent implements AfterViewInit, OnDestroy {
   }
 
   protected goBack(): void {
-    this.router.navigate(['/pro/settings']);
+    this.router.navigate(['/pro/manage']);
   }
 
   protected openPeriod(): void {

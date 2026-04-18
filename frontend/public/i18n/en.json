@@ -435,6 +435,8 @@
       "statsDesc": "Dashboard & revenue",
       "holidays": "Holidays",
       "holidaysDesc": "Closures & exceptions",
+      "history": "History",
+      "historyDesc": "Past appointments",
       "settings": "Settings",
       "settingsDesc": "Booking & limits"
     },
