@@ -95,4 +95,20 @@ describe('BottomSheetDragDirective', () => {
 
     expect(dialogRef.close).not.toHaveBeenCalled();
   });
+
+  it('closes the dialog on a flick gesture (velocity > 0.5 px/ms)', (done) => {
+    setMobileViewport(true);
+    const el = host.handle.nativeElement;
+
+    el.dispatchEvent(makePointerEvent('pointerdown', 100));
+    // Wait > 50ms so MIN_FLICK_DURATION_MS gate passes; move 40px in ~60ms = ~0.67 px/ms (above 0.5)
+    setTimeout(() => {
+      el.dispatchEvent(makePointerEvent('pointerup', 140));
+      // Give the 200ms dismiss animation timer time to fire
+      setTimeout(() => {
+        expect(dialogRef.close).toHaveBeenCalled();
+        done();
+      }, 250);
+    }, 60);
+  });
 });
