@@ -10,6 +10,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
+import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
@@ -117,10 +118,10 @@ export class Header {
   }
 
   protected openLoginModal(): void {
-    this.dialog.open(LoginModalComponent, {
+    this.dialog.open(LoginModalComponent, bottomSheetConfig({
       width: '500px',
-      disableClose: false
-    });
+      disableClose: false,
+    }));
   }
 
   protected logout(): void {

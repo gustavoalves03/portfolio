@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
 
 @Component({
   selector: 'app-login-modal',
@@ -18,7 +19,8 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    TranslocoPipe
+    TranslocoPipe,
+    SheetHandleComponent,
   ],
   templateUrl: './login-modal.component.html',
   styleUrl: './login-modal.component.scss'

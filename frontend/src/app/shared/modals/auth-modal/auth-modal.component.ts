@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
+import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
 
 export interface AuthModalResult {
   authenticated: boolean;
@@ -31,6 +32,7 @@ export interface AuthModalResult {
     MatTabsModule,
     ReactiveFormsModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   templateUrl: './auth-modal.component.html',
   styleUrl: './auth-modal.component.scss',
