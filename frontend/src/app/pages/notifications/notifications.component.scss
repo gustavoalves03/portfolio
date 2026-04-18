@@ -11,19 +11,26 @@
   padding-bottom: 80px;
 }
 
-.page-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px;
-  color: #333;
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
 }
 
-.empty-state {
+.empty {
   text-align: center;
   padding: 4rem 1rem;
   color: #9ca3af;
 
-  .empty-icon {
+  mat-icon {
     font-size: 48px;
     width: 48px;
     height: 48px;
@@ -36,182 +43,13 @@
   }
 }
 
-.notification-list {
+.sentinel {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.notification-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
-  background: linear-gradient(135deg, #fff 60%, #fdf2f8);
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
-  transition: box-shadow 150ms, transform 150ms;
-
-  &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &.is-cancelled {
-    background: linear-gradient(135deg, #fff 60%, #fef2f2);
-  }
-
-  &.read {
-    background: white;
-
-    .notif-icon {
-      background: #dda0b5;
-
-      mat-icon {
-        color: white;
-      }
-    }
-
-    &.is-cancelled .notif-icon {
-      background: #ef9a9a;
-    }
-
-    .notif-title {
-      color: #4b5563;
-      font-weight: 600;
-    }
-
-    .notif-message {
-      color: #6b7280;
-    }
-
-    .notif-time {
-      color: #9ca3af;
-    }
-
-    .status-badge {
-      opacity: 0.7;
-    }
-  }
-}
-
-.notif-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #c06;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-
-  mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    color: white;
-  }
-
-  &.icon-cancelled {
-    background: #ef5350;
-  }
-
-  &.icon-link {
-    background: #7c3aed;
-  }
-
-  &.icon-birthday {
-    background: #f59e0b;
-  }
+  padding: 16px 0;
 }
 
-.notif-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.notif-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.notif-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1a2e;
-}
-
-.unread-dot {
-  width: 10px;
-  height: 10px;
-  background: #c06;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.notif-message {
-  font-size: 13.5px;
-  color: #1f2937;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.notif-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.notif-time {
-  font-size: 11px;
-  color: #6b7280;
-}
-
-.status-badge {
-  font-size: 10px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-weight: 600;
-  color: white;
-
-  &.pending {
-    background: #c06;
-  }
-
-  &.cancelled {
-    background: #ef5350;
-  }
-
-  &.match {
-    background: #7c3aed;
-  }
-
-  &.birthday {
-    background: #f59e0b;
-  }
-}
-
-.link-btn {
-  background: #c06;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 14px;
+.end {
   font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: auto;
-
-  &:hover {
-    background: #a05;
-  }
+  color: #9ca3af;
 }

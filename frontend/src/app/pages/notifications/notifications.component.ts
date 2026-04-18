@@ -1,38 +1,62 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, afterNextRender, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationsStore } from '../../features/notifications/store/notifications.store';
 import { NotificationResponse } from '../../features/notifications/models/notification.model';
-import { AppDateTimePipe } from '../../shared/pipes/app-datetime.pipe';
-import { SalonClientService } from '../../features/salon-clients/salon-client.service';
+import { NotificationRowComponent } from '../../features/notifications/components/notification-row/notification-row.component';
+import { BackButtonComponent } from '../../shared/uis/back-button/back-button.component';
 
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [TranslocoPipe, AppDateTimePipe, MatIconModule],
+  imports: [
+    TranslocoPipe,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    NotificationRowComponent,
+    BackButtonComponent,
+  ],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss',
 })
-export class NotificationsComponent {
+export class NotificationsComponent implements AfterViewInit, OnDestroy {
   protected readonly store = inject(NotificationsStore);
   private readonly router = inject(Router);
-  private readonly salonClientService = inject(SalonClientService);
+
+  @ViewChild('sentinel') sentinel?: ElementRef<HTMLElement>;
+  private observer?: IntersectionObserver;
 
   constructor() {
     this.store.loadInitial();
+    afterNextRender(() => this.setupObserver());
   }
 
-  onNotificationClick(notification: NotificationResponse): void {
+  ngAfterViewInit(): void {
+    this.setupObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
+
+  private setupObserver(): void {
+    if (typeof IntersectionObserver === 'undefined' || !this.sentinel) return;
+    this.observer?.disconnect();
+    this.observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        this.store.loadNextPage();
+      }
+    }, { rootMargin: '200px' });
+    this.observer.observe(this.sentinel.nativeElement);
+  }
+
+  protected onRowClick(notification: NotificationResponse): void {
     if (!notification.read) {
       this.store.markAsRead(notification.id);
     }
     this.navigateToReference(notification);
-  }
-
-  onLinkClient(notif: NotificationResponse): void {
-    this.store.markAsRead(notif.id);
-    this.router.navigate(['/pro/clients', notif.referenceId]);
   }
 
   private navigateToReference(notification: NotificationResponse): void {
