@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { LowerCasePipe, SlicePipe } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { parseYMD } from '../../core/utils/date-format';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
@@ -395,10 +396,9 @@ export class ProDashboardComponent {
     return this.transloco.translate(`pro.availability.days.${day}`);
   }
 
-  private formatDateLabel(date: string): string {
-    // date format: "YYYY-MM-DD" -> "DD/MM"
-    const parts = date.split('-');
-    if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
-    return date;
+  private formatDateLabel(ymd: string): string {
+    const d = parseYMD(ymd);
+    if (!d) return '';
+    return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
   }
 }
