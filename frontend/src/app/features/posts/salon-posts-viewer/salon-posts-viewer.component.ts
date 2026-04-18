@@ -21,6 +21,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { CreatePostModalComponent } from '../create-post-modal/create-post-modal.component';
+import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet.config';
 
 @Component({
   selector: 'app-salon-posts-viewer',
@@ -757,11 +758,11 @@ export class SalonPostsViewerComponent {
   }
 
   openCreateModal(): void {
-    const ref = this.dialog.open(CreatePostModalComponent, {
+    const ref = this.dialog.open(CreatePostModalComponent, bottomSheetConfig({
       width: '520px',
       maxHeight: '90vh',
       disableClose: false,
-    });
+    }));
 
     ref.afterClosed().subscribe((created: PostResponse | undefined) => {
       if (created) {

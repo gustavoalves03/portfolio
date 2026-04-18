@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PostsService } from '../posts.service';
 import { PostResponse, PostType } from '../posts.model';
+import { SheetHandleComponent } from '../../../shared/uis/sheet-handle/sheet-handle.component';
 
 interface ImagePreview {
   file: File;
@@ -23,8 +24,10 @@ interface ImagePreview {
     MatProgressSpinnerModule,
     FormsModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   template: `
+    <app-sheet-handle />
     <div class="create-post-modal">
       <div class="modal-header">
         <h2>{{ 'posts.createTitle' | transloco }}</h2>
