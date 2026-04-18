@@ -7,6 +7,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { BookingsService } from '../../features/bookings/services/bookings.service';
+import { toYMD } from '../../core/utils/date-format';
 import {
   BookingFilters,
   CareBookingDetailed,
@@ -712,9 +713,6 @@ export class ProBookingsComponent {
 
   /** Format a Date to YYYY-MM-DD string in local timezone */
   private toLocalDateString(date: Date): string {
-    const y = date.getFullYear();
-    const m = (date.getMonth() + 1).toString().padStart(2, '0');
-    const d = date.getDate().toString().padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return toYMD(date);
   }
 }
