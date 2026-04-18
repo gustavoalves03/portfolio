@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -16,4 +17,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     long countByRecipientIdAndReadFalse(Long recipientId);
 
     List<Notification> findByRecipientIdAndReadFalseOrderByCreatedAtDesc(Long recipientId);
+
+    Page<Notification> findByRecipientIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+        Long recipientId, LocalDateTime since, Pageable pageable);
+
+    Page<Notification> findByRecipientIdAndReadAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+        Long recipientId, boolean read, LocalDateTime since, Pageable pageable);
 }
