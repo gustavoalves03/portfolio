@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Category } from '../../models/categories.model';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface ReassignCategoryDialogData {
   categoryId: number;
@@ -17,8 +18,9 @@ export interface ReassignCategoryDialogData {
 @Component({
   selector: 'app-reassign-category-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatSelectModule, MatFormFieldModule, FormsModule, TranslocoPipe],
+  imports: [MatDialogModule, MatButtonModule, MatSelectModule, MatFormFieldModule, FormsModule, TranslocoPipe, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <h2 mat-dialog-title>{{ 'pro.categories.reassign.title' | transloco }}</h2>
     <mat-dialog-content>
       <p class="mb-4 text-sm text-neutral-600">

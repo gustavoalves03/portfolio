@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CategoriesStore } from './store/categories.store';
 import { CrudTable } from '../../shared/uis/crud-table/crud-table';
@@ -47,11 +48,10 @@ export class CategoriesComponent {
   ]);
 
   onAddCategory() {
-    const dialogRef = this.dialog.open(CreateCategoryComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(CreateCategoryComponent, bottomSheetConfig({
       disableClose: false,
       autoFocus: true
-    });
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

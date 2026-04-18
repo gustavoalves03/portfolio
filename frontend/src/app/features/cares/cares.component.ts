@@ -123,11 +123,10 @@ export class CaresComponent {
   }
 
   onAddCategory(): void {
-    const dialogRef = this.dialog.open(CreateCategoryComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(CreateCategoryComponent, bottomSheetConfig({
       disableClose: false,
       autoFocus: true,
-    });
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -140,12 +139,11 @@ export class CaresComponent {
   }
 
   onEditCategory(category: Category): void {
-    const dialogRef = this.dialog.open(CreateCategoryComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(CreateCategoryComponent, bottomSheetConfig({
       disableClose: false,
       autoFocus: true,
       data: { category },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -161,8 +159,7 @@ export class CaresComponent {
     const caresInCategory = this.store.cares().filter(c => c.category.id === category.id);
 
     if (caresInCategory.length > 0) {
-      const dialogRef = this.dialog.open(ReassignCategoryDialogComponent, {
-        width: '450px',
+      const dialogRef = this.dialog.open(ReassignCategoryDialogComponent, bottomSheetConfig({
         disableClose: true,
         data: {
           categoryId: category.id,
@@ -170,7 +167,7 @@ export class CaresComponent {
           careCount: caresInCategory.length,
           availableCategories: this.categoriesStore.categories(),
         },
-      });
+      }));
 
       dialogRef.afterClosed().subscribe(targetId => {
         if (targetId) {

@@ -6,6 +6,7 @@ import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface CategoryDialogData {
   category?: Category;
@@ -14,8 +15,9 @@ export interface CategoryDialogData {
 @Component({
   selector: 'app-create-category',
   standalone: true,
-  imports: [ModalForm, DynamicForm],
+  imports: [ModalForm, DynamicForm, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <modal-form
       [title]="dialogTitle"
       icon="category"
