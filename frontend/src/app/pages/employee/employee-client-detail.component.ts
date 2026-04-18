@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { BackButtonComponent } from '../../shared/uis/back-button/back-button.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TrackingService } from '../../features/tracking/tracking.service';
@@ -17,7 +17,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-employee-client-detail',
   standalone: true,
   imports: [
-    RouterLink, MatIconModule, MatProgressSpinnerModule, TranslocoPipe,
+    BackButtonComponent, MatProgressSpinnerModule, TranslocoPipe,
     ClientHeaderComponent, ClientVisitsComponent, ClientNotesComponent, ClientInfoComponent,
   ],
   template: `
@@ -27,10 +27,7 @@ import { forkJoin } from 'rxjs';
       </div>
     } @else if (history()) {
       <div class="client-detail-page">
-        <a routerLink="/employee/bookings" class="back-link">
-          <mat-icon>arrow_back</mat-icon>
-          <span>{{ 'common.back' | transloco }}</span>
-        </a>
+        <app-back-button fallbackUrl="/employee/bookings" />
 
         <app-client-header
           [clientName]="history()!.clientName"
@@ -73,17 +70,6 @@ import { forkJoin } from 'rxjs';
       max-width: 600px;
       margin: 0 auto;
       padding-bottom: 80px;
-    }
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      color: #6b7280;
-      text-decoration: none;
-      font-size: 13px;
-      margin-bottom: 12px;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
-      &:hover { color: #c06; }
     }
   `
 })
