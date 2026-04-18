@@ -850,6 +850,82 @@ class CareBookingServiceTests {
                 .appointmentDate()).isEqualTo("2028-01-01");
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── Sec1: Cross-tenant IDOR on bookings ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: CareBooking has NO tenantSlug/tenantId column (see CareBooking.java).
+    // Multi-tenancy is enforced via Hibernate per-tenant schemas (schema router).
+    // The service methods below perform NO explicit tenant check — they trust that
+    // TenantContext has routed the query to the correct schema. This means that if
+    // the schema router is bypassed (bug, misconfig, test code, background job),
+    // there is no second line of defense. These tests DOCUMENT that gap.
+
+    @Test
+    @DisplayName("Sec1: delete_WARN_doesNotCheckTenantOwnership — relies on schema isolation only")
+    void delete_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: service does not verify tenant ownership; relies on tenant schema isolation
+        // If a pro from salon A is somehow authenticated in salon B's schema context (bug / bypass),
+        // they can delete ANY booking by ID — the service does not validate ownership.
+        Long bookingId = 999L;
+
+        // delete() simply forwards to repo.deleteById() without any tenant/owner guard
+        service.delete(bookingId);
+
+        verify(bookingRepo).deleteById(bookingId);
+        // No ResponseStatusException thrown, no tenant/owner lookup — documents the gap.
+    }
+
+    @Test
+    @DisplayName("Sec1: update_WARN_doesNotCheckTenantOwnership — cross-tenant modify possible if schema router fails")
+    void update_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: service does not verify tenant ownership on update; relies on tenant schema isolation
+        CareBooking booking = new CareBooking();
+        booking.setId(500L);
+        booking.setUser(client);
+        booking.setCare(care30min);
+        booking.setQuantity(1);
+        booking.setAppointmentDate(futureDate);
+        booking.setAppointmentTime(LocalTime.of(9, 0));
+        booking.setStatus(CareBookingStatus.PENDING);
+
+        when(bookingRepo.findById(500L)).thenReturn(Optional.of(booking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        com.prettyface.app.bookings.web.dto.CareBookingRequest req =
+                new com.prettyface.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(9, 0),
+                        CareBookingStatus.CONFIRMED, null);
+
+        // Update goes through without asking "is this booking in the caller's tenant?"
+        var result = service.update(500L, req);
+        assertThat(result.status()).isEqualTo(CareBookingStatus.CONFIRMED);
+        verify(bookingRepo).save(any(CareBooking.class));
+    }
+
+    @Test
+    @DisplayName("Sec1: cancelBooking_WARN_doesNotCheckTenantOwnership — returns the booking regardless of tenant")
+    void cancelBooking_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: cancelBooking does not verify tenant ownership; relies on tenant schema isolation
+        CareBooking booking = new CareBooking();
+        booking.setId(501L);
+        booking.setUser(client);
+        booking.setCare(care30min);
+        booking.setAppointmentDate(futureDate);
+        booking.setAppointmentTime(LocalTime.of(9, 0));
+        booking.setStatus(CareBookingStatus.CONFIRMED);
+
+        when(bookingRepo.findById(501L)).thenReturn(Optional.of(booking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tenantRepository.findBySlug(any())).thenReturn(Optional.empty());
+
+        // Acts as if we're the rightful owner; no cross-check vs caller's tenant or owner id
+        service.cancelBooking(501L);
+
+        assertThat(booking.getStatus()).isEqualTo(CareBookingStatus.CANCELLED);
+        verify(bookingRepo).save(booking);
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
