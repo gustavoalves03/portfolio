@@ -5,6 +5,7 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface ReviewLeaveDialogData {
   action: 'APPROVED' | 'REJECTED';
@@ -26,8 +27,10 @@ export interface ReviewLeaveDialogResult {
     MatFormFieldModule,
     MatInputModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   template: `
+    <app-sheet-handle />
     <h2 mat-dialog-title>
       {{
         (data.action === 'APPROVED' ? 'pro.leaves.approveTitle' : 'pro.leaves.rejectTitle')

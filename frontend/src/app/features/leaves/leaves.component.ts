@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { LeavesStore } from './leaves.store';
 import { LeaveResponse, LeaveStatus, LeaveType } from './leaves.model';
 import {
@@ -89,10 +90,10 @@ export class LeavesComponent {
       employeeName: leave.employeeName,
     };
 
-    const dialogRef = this.dialog.open(ReviewLeaveDialogComponent, {
+    const dialogRef = this.dialog.open(ReviewLeaveDialogComponent, bottomSheetConfig({
       width: '420px',
       data,
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((result: ReviewLeaveDialogResult | undefined) => {
       if (result) {
