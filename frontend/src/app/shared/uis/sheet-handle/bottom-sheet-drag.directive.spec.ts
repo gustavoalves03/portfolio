@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { BottomSheetDragDirective } from './bottom-sheet-drag.directive';
@@ -47,7 +47,10 @@ describe('BottomSheetDragDirective', () => {
     dialogRef = jasmine.createSpyObj<MatDialogRef<unknown>>('MatDialogRef', ['close']);
     await TestBed.configureTestingModule({
       imports: [HostComponent],
-      providers: [{ provide: MatDialogRef, useValue: dialogRef }],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: MatDialogRef, useValue: dialogRef },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
