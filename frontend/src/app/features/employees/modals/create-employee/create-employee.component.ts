@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Care } from '../../../cares/models/cares.model';
 import { CreateEmployeeRequest } from '../../employees.model';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 interface CreateEmployeeDialogData {
   cares: Care[];
@@ -31,6 +32,7 @@ interface CreateEmployeeDialogData {
     MatCheckboxModule,
     MatIconModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   templateUrl: './create-employee.component.html',
   styleUrl: './create-employee.component.scss',

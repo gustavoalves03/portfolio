@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Care } from '../../../cares/models/cares.model';
 import { Employee, UpdateEmployeeRequest } from '../../employees.model';
+import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
 interface EmployeeDetailDialogData {
   employee: Employee;
@@ -23,6 +24,7 @@ interface EmployeeDetailDialogData {
     MatCheckboxModule,
     MatIconModule,
     TranslocoPipe,
+    SheetHandleComponent,
   ],
   templateUrl: './employee-detail.component.html',
   styleUrl: './employee-detail.component.scss',

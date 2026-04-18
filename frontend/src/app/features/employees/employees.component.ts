@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
@@ -31,12 +32,11 @@ export class EmployeesComponent {
   private readonly dialog = inject(MatDialog);
 
   onAdd(): void {
-    const dialogRef = this.dialog.open(CreateEmployeeComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(CreateEmployeeComponent, bottomSheetConfig({
       disableClose: false,
       autoFocus: true,
       data: { cares: this.caresStore.availableCares() },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -46,12 +46,11 @@ export class EmployeesComponent {
   }
 
   onCardClick(employee: Employee): void {
-    const dialogRef = this.dialog.open(EmployeeDetailComponent, {
-      width: '500px',
+    const dialogRef = this.dialog.open(EmployeeDetailComponent, bottomSheetConfig({
       disableClose: false,
       autoFocus: false,
       data: { employee, cares: this.caresStore.availableCares() },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.delete) {
