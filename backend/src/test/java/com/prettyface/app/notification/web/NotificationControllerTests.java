@@ -140,17 +140,12 @@ class NotificationControllerTests {
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @org.junit.jupiter.api.DisplayName("Sec4: list_withMalformedSince — documents GlobalExceptionHandler maps to 404 (FINDING)")
+    @org.junit.jupiter.api.DisplayName("Sec4: list_withMalformedSince returns 400")
     void list_withMalformedSince_returns400() throws Exception {
-        // TODO-SEC: A malformed `since` parameter triggers MethodArgumentTypeMismatchException,
-        // which wraps an IllegalArgumentException. GlobalExceptionHandler.notFound() catches
-        // IllegalArgumentException and returns 404 — which is SEMANTICALLY WRONG for a
-        // malformed input (should be 400). This test documents current behaviour so a
-        // future fix can flip the assertion to isBadRequest().
         mvc.perform(get("/api/notifications")
                         .param("since", "not-a-date")
                         .with(authentication(authToken)))
-                .andExpect(status().isNotFound()); // actually returns 404 — see TODO-SEC
+                .andExpect(status().isBadRequest());
     }
 
     @Test

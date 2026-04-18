@@ -86,26 +86,20 @@ class CareBookingControllerValidationTests {
     }
 
     @Test
-    @DisplayName("Sec4: listDetailed_withInvalidDateFormat — returns 404 (FINDING: should be 400)")
+    @DisplayName("Sec4: listDetailed_withInvalidDateFormat returns 400")
     void listDetailed_withInvalidDateFormat_returns400() throws Exception {
-        // TODO-SEC: @DateTimeFormat parse failure → MethodArgumentTypeMismatchException →
-        // IllegalArgumentException → GlobalExceptionHandler.notFound() → 404. This is wrong
-        // (malformed client input is 400, not 404). Documents current behaviour; flip to
-        // isBadRequest() once the exception handling is fixed.
         mvc.perform(get("/api/bookings/detailed")
                         .param("from", "not-a-date")
                         .with(authentication(authToken)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("Sec4: listDetailed_withInvalidStatusEnum — returns 404 (FINDING: should be 400)")
+    @DisplayName("Sec4: listDetailed_withInvalidStatusEnum returns 400")
     void listDetailed_withInvalidStatusEnum_returns400() throws Exception {
-        // TODO-SEC: Same root cause as above — enum binding failure is translated to 404
-        // instead of 400 by the GlobalExceptionHandler catch-all on IllegalArgumentException.
         mvc.perform(get("/api/bookings/detailed")
                         .param("status", "NOT_A_REAL_STATUS")
                         .with(authentication(authToken)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 }
