@@ -7,7 +7,12 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:app": "node dist/app/server/server.mjs"
+    "serve:ssr:app": "node dist/app/server/server.mjs",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "e2e:pro": "playwright test e2e/pro",
+    "e2e:client": "playwright test e2e/client"
   },
   "prettier": {
     "printWidth": 100,
@@ -50,6 +55,7 @@
     "@angular/build": "~20.1.6",
     "@angular/cli": "~20.1.6",
     "@angular/compiler-cli": "~20.1.6",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
