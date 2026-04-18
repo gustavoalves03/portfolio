@@ -15,12 +15,25 @@ export class NotificationsService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
-  list(read?: boolean, page = 0, size = 20): Observable<Page<NotificationResponse>> {
-    let params = new HttpParams().set('page', page).set('size', size);
-    if (read !== undefined) {
-      params = params.set('read', read);
+  list(params: {
+    read?: boolean;
+    since?: string;
+    page?: number;
+    size?: number;
+  } = {}): Observable<Page<NotificationResponse>> {
+    let httpParams = new HttpParams()
+      .set('page', params.page ?? 0)
+      .set('size', params.size ?? 20);
+    if (params.read !== undefined) {
+      httpParams = httpParams.set('read', params.read);
     }
-    return this.http.get<Page<NotificationResponse>>(`${this.apiBaseUrl}/api/notifications`, { params });
+    if (params.since !== undefined) {
+      httpParams = httpParams.set('since', params.since);
+    }
+    return this.http.get<Page<NotificationResponse>>(
+      `${this.apiBaseUrl}/api/notifications`,
+      { params: httpParams },
+    );
   }
 
   unreadCount(): Observable<number> {
