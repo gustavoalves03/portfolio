@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { SheetHandleComponent } from '../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface ConfirmDialogData {
   title: string;
@@ -12,8 +13,9 @@ export interface ConfirmDialogData {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslocoPipe],
+  imports: [MatDialogModule, MatButtonModule, TranslocoPipe, SheetHandleComponent],
   template: `
+    <app-sheet-handle />
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>
       <p>{{ data.body }}</p>

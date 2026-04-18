@@ -13,6 +13,7 @@ import { LowerCasePipe, SlicePipe } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
+import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import {
   AnalyticsResponse,
@@ -305,13 +306,13 @@ export class ProDashboardComponent {
   }
 
   onUnpublish(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, bottomSheetConfig({
       data: {
         title: this.transloco.translate('pro.dashboard.unpublishConfirmTitle'),
         body: this.transloco.translate('pro.dashboard.unpublishConfirmBody'),
         action: this.transloco.translate('pro.dashboard.unpublishConfirmAction'),
       },
-    });
+    }));
 
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
