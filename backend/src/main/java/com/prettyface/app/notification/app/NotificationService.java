@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 @Service
 public class NotificationService {
 
@@ -19,9 +23,21 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Notification> listForRecipient(Long recipientId, Boolean read, Pageable pageable) {
+    public Page<Notification> listForRecipient(Long recipientId, Boolean read, Instant since, Pageable pageable) {
+        LocalDateTime sinceLdt = since != null
+                ? LocalDateTime.ofInstant(since, ZoneOffset.UTC)
+                : null;
+
+        if (read != null && sinceLdt != null) {
+            return notificationRepository.findByRecipientIdAndReadAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                    recipientId, read, sinceLdt, pageable);
+        }
         if (read != null) {
             return notificationRepository.findByRecipientIdAndReadOrderByCreatedAtDesc(recipientId, read, pageable);
+        }
+        if (sinceLdt != null) {
+            return notificationRepository.findByRecipientIdAndCreatedAtGreaterThanEqualOrderByCreatedAtDesc(
+                    recipientId, sinceLdt, pageable);
         }
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(recipientId, pageable);
     }
