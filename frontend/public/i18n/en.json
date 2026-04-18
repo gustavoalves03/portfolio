@@ -867,6 +867,7 @@
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications yet",
+    "endOfHistory": "End of history",
     "newBooking": "New appointment",
     "bookingCancelled": "Appointment cancelled",
     "markAsRead": "Mark as read",

@@ -871,6 +871,7 @@
   "notifications": {
     "title": "Notifications",
     "empty": "Aucune notification pour le moment",
+    "endOfHistory": "Plus rien à charger",
     "newBooking": "Nouveau rendez-vous",
     "bookingCancelled": "Rendez-vous annulé",
     "markAsRead": "Marquer comme lu",
