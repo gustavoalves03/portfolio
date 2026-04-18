@@ -13,6 +13,6 @@ export function bottomSheetConfig<T = unknown>(
     width: '480px',
     ...overrides,
     panelClass: ['bottom-sheet', ...asArray(overrides.panelClass)],
-    backdropClass: 'bottom-sheet-backdrop',
+    backdropClass: ['bottom-sheet-backdrop', ...asArray(overrides.backdropClass)],
   };
 }
