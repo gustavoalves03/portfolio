@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { TenantFeaturesService } from '../../core/tenant/tenant-features.service';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
@@ -15,12 +16,21 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
 @Component({
     selector: 'app-pro-settings',
     standalone: true,
-    imports: [FormsModule, MatSlideToggleModule, MatIconModule, MatFormFieldModule, MatInputModule, MatChipsModule, DatePipe, TranslocoPipe],
+    imports: [FormsModule, MatSlideToggleModule, MatIconModule, MatFormFieldModule, MatInputModule, MatChipsModule, DatePipe, RouterLink, TranslocoPipe],
     template: `
         <div class="settings-page">
             <h1 class="page-title">{{ 'pro.settings.title' | transloco }}</h1>
 
-            <div class="settings-card">
+            <a class="settings-card settings-nav-card" routerLink="/pro/settings/history">
+                <mat-icon class="nav-card-icon">history</mat-icon>
+                <div class="nav-card-content">
+                    <div class="setting-label">{{ 'pro.settings.history.card.title' | transloco }}</div>
+                    <div class="setting-desc">{{ 'pro.settings.history.card.desc' | transloco }}</div>
+                </div>
+                <mat-icon class="chevron">chevron_right</mat-icon>
+            </a>
+
+            <div class="settings-card" style="margin-top: 16px;">
                 <h2 class="section-title">{{ 'pro.settings.features' | transloco }}</h2>
 
                 <div class="setting-row">
@@ -165,6 +175,15 @@ import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/
     `,
     styles: [`
         .settings-page { background: #f5f4f2; padding: 16px; max-width: 800px; margin: 0 auto; }
+        a.settings-nav-card {
+            display: flex; align-items: center; gap: 14px;
+            text-decoration: none; color: inherit; cursor: pointer;
+            transition: box-shadow 150ms ease, background 150ms ease;
+        }
+        a.settings-nav-card:hover { background: #fdf8fb; box-shadow: 0 2px 8px rgba(0,0,0,0.09); }
+        .nav-card-icon { color: #c06; font-size: 22px; width: 22px; height: 22px; flex-shrink: 0; }
+        .nav-card-content { flex: 1; min-width: 0; }
+        .chevron { color: #bbb; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
         .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .settings-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .section-title { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 16px; }

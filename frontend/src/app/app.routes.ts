@@ -87,6 +87,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'settings/history',
+        loadComponent: () =>
+          import('./pages/pro/pro-booking-history/pro-booking-history.component').then(
+            (m) => m.ProBookingHistoryComponent
+          ),
+      },
+      {
         path: 'manage',
         loadComponent: () =>
           import('./pages/pro/pro-manage.component').then(
