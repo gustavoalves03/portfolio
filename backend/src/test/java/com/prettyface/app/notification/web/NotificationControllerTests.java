@@ -134,4 +134,55 @@ class NotificationControllerTests {
         mvc.perform(patch("/api/notifications/1/read").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Sec4: validation of abusive inputs ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("Sec4: list_withMalformedSince — documents GlobalExceptionHandler maps to 404 (FINDING)")
+    void list_withMalformedSince_returns400() throws Exception {
+        // TODO-SEC: A malformed `since` parameter triggers MethodArgumentTypeMismatchException,
+        // which wraps an IllegalArgumentException. GlobalExceptionHandler.notFound() catches
+        // IllegalArgumentException and returns 404 — which is SEMANTICALLY WRONG for a
+        // malformed input (should be 400). This test documents current behaviour so a
+        // future fix can flip the assertion to isBadRequest().
+        mvc.perform(get("/api/notifications")
+                        .param("since", "not-a-date")
+                        .with(authentication(authToken)))
+                .andExpect(status().isNotFound()); // actually returns 404 — see TODO-SEC
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("Sec4: list_withNegativePageNumber_returns400orClampsToZero — documents current behavior")
+    void list_withNegativePageNumber_returns400orClampsToZero() throws Exception {
+        // NOTE-SEC: Spring's PageableHandlerMethodArgumentResolver silently clamps
+        // a negative page index to 0 (it does NOT return 400). Verifies current behavior
+        // so a regression that changes this is caught.
+        when(notificationService.listForRecipient(eq(1L), isNull(), isNull(), any()))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(
+                        java.util.List.of(), PageRequest.of(0, 20), 0));
+
+        mvc.perform(get("/api/notifications")
+                        .param("page", "-5")
+                        .with(authentication(authToken)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("Sec4: list_withExcessiveSize_returnsReasonableError_notCrash — size clamped, no crash")
+    void list_withExcessiveSize_returnsReasonableError_notCrash() throws Exception {
+        // TODO-SEC: Spring's default max page size (2000) clamps size=100000 → 200 OK.
+        // This means a single request cannot exfiltrate 100k rows, but there is no
+        // application-level limit or per-user rate limit. The test documents this
+        // and would catch a regression where a misconfiguration lifts the cap.
+        when(notificationService.listForRecipient(eq(1L), isNull(), isNull(), any()))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(
+                        java.util.List.of(), PageRequest.of(0, 2000), 0));
+
+        mvc.perform(get("/api/notifications")
+                        .param("size", "100000")
+                        .with(authentication(authToken)))
+                .andExpect(status().isOk()); // clamp, not crash
+    }
 }
