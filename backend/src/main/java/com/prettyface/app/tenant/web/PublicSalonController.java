@@ -27,6 +27,8 @@ import com.prettyface.app.tenant.web.mapper.TenantMapper;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -158,11 +160,11 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}/posts")
-    public List<PostResponse> listPosts(@PathVariable String slug) {
+    public Page<PostResponse> listPosts(@PathVariable String slug, Pageable pageable) {
         tenantService.findBySlug(slug);
         TenantContext.setCurrentTenant(slug);
         try {
-            return postService.listAll();
+            return postService.listPublicPaged(pageable);
         } finally {
             TenantContext.clear();
         }
