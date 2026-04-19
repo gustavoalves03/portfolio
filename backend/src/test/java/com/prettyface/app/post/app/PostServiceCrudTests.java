@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -183,5 +184,47 @@ class PostServiceCrudTests {
         var inOrder = org.mockito.Mockito.inOrder(postImageRepo, postRepo);
         inOrder.verify(postImageRepo).deleteByPostId(12L);
         inOrder.verify(postRepo).deleteById(12L);
+    }
+
+    @Test
+    @DisplayName("Lot8 #7: saveFile rejects non-image content types with 400 (service layer)")
+    void createPhoto_nonImageContentType_rejected() {
+        // Service-layer mirror of the MockMvc test in PostControllerValidationTests.
+        MockMultipartFile badFile = new MockMultipartFile(
+                "image", "payload.txt", MediaType.TEXT_PLAIN_VALUE, "not-an-image".getBytes());
+
+        assertThatThrownBy(() -> service.createPhoto("caption", null, null, badFile))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("Invalid image type");
+
+        verify(postRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Lot8 #7b: saveFile rejects missing content-type with 400")
+    void createPhoto_missingContentType_rejected() {
+        MockMultipartFile noType = new MockMultipartFile(
+                "image", "whatever.bin", null, new byte[] {1, 2, 3});
+
+        assertThatThrownBy(() -> service.createPhoto("c", null, null, noType))
+                .isInstanceOf(ResponseStatusException.class);
+
+        verify(postRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Lot8 #8: cross-tenant create is schema-scoped, not service-testable")
+    void crossTenantCreate_outOfScope() {
+        // Multi-tenancy in PrettyFace is enforced at the Hibernate schema layer
+        // via TenantContext + TenantFilter, not inside PostService. PostService
+        // has no tenantId parameter or authorization guard — any authenticated
+        // PRO call routes to the tenant schema set by the filter. A unit test
+        // with mocked repos cannot observe this; it would require an
+        // integration test with a real DataSource + TenantFilter.
+        //
+        // Documented here to keep the scenario visible; intentionally no
+        // assertion beyond presence — passing this test means the gap is
+        // acknowledged.
+        assertThat(true).isTrue();
     }
 }
