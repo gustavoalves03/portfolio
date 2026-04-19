@@ -77,7 +77,7 @@ class NotificationServiceTests {
     }
 
     @Test
-    @DisplayName("markAsRead throws when notification belongs to another user")
+    @DisplayName("markAsRead throws NOT_FOUND when notification belongs to another user")
     void markAsRead_throwsWhenWrongRecipient() {
         Notification notification = Notification.builder()
                 .id(10L)
@@ -87,18 +87,13 @@ class NotificationServiceTests {
 
         when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
 
-        // Sec5: strengthened — assert the exact HTTP status.
-        // NOTE-SEC: Current implementation returns 403 FORBIDDEN when the recipient mismatches
-        // (see NotificationService.markAsRead). 403 is acceptable; a case could also be made
-        // for 404 (pretending the notification doesn't exist is safer because it hides the ID
-        // existence from a scanner). This assertion pins the current contract so a future
-        // change is a conscious decision.
+        // Sec5: cross-user access returns 404 (not 403) to avoid leaking notification existence.
         org.springframework.web.server.ResponseStatusException ex =
                 org.junit.jupiter.api.Assertions.assertThrows(
                         org.springframework.web.server.ResponseStatusException.class,
                         () -> notificationService.markAsRead(10L, 1L)
                 );
-        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         // Side-effect guard: save() must NOT be called for a rejected caller.
         verify(notificationRepository, never()).save(any(Notification.class));
     }
@@ -108,14 +103,8 @@ class NotificationServiceTests {
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Sec5: markAsRead_isIdempotent_whenCalledMultipleTimes — documents current behaviour")
+    @DisplayName("Sec5: markAsRead_isIdempotent_whenCalledMultipleTimes — save skipped when already read")
     void markAsRead_isIdempotent_whenCalledMultipleTimes() {
-        // TODO-SEC: markAsRead always sets read=true and calls save() — even if the notification
-        // is already read. It's idempotent at the data-level (end state is identical) but save()
-        // is called BOTH times. This writes an extra UPDATE, generates an audit trail entry in
-        // any auditing listener, and could decrement an unread-count cache TWICE if one exists.
-        // This test pins current behaviour; a future optimisation should skip save() when already
-        // read AND the unread-count is NOT decremented twice.
         Notification notification = Notification.builder()
                 .id(10L)
                 .recipientId(1L)
@@ -132,23 +121,21 @@ class NotificationServiceTests {
 
         when(notificationRepository.findById(10L)).thenReturn(Optional.of(notification));
 
-        // First call: read false → true, save called.
+        // First call: read false → true, save called once.
         notificationService.markAsRead(10L, 1L);
         assertThat(notification.isRead()).isTrue();
 
-        // Second call: notification already read. Service still writes.
+        // Second call: notification already read. Service skips save().
         notificationService.markAsRead(10L, 1L);
 
-        // Documents: save is called TWICE. If later optimised, flip to times(1).
-        verify(notificationRepository, times(2)).save(notification);
+        // save() is called exactly ONCE — idempotent, no redundant UPDATE.
+        verify(notificationRepository, times(1)).save(notification);
         assertThat(notification.isRead()).isTrue();
     }
 
     @Test
-    @DisplayName("Sec5: markAsRead_crossUser_statusIs403NotBecauseOfMissingResource")
-    void markAsRead_crossUser_statusIs403() {
-        // NOTE-SEC: explicitly asserts the 403 vs 404 distinction. 403 leaks existence of
-        // the notification ID to a scanner. Pinning current contract.
+    @DisplayName("Sec5: markAsRead_crossUser_statusIs404 — 404 avoids leaking notification existence")
+    void markAsRead_crossUser_statusIs404() {
         Notification notification = Notification.builder()
                 .id(10L)
                 .recipientId(99L) // belongs to someone else
@@ -161,8 +148,8 @@ class NotificationServiceTests {
                         org.springframework.web.server.ResponseStatusException.class,
                         () -> notificationService.markAsRead(10L, 1L)
                 );
-        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(ex.getReason()).isEqualTo("Access denied");
+        assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(ex.getReason()).isEqualTo("Notification not found");
     }
 
     @Test
