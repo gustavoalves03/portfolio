@@ -6,6 +6,7 @@ import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -117,5 +118,44 @@ class TenantServiceTests {
         String result = TenantService.sanitizeHtml(input);
 
         assertThat(result).isEqualTo(input);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot2 Sec1: Cross-tenant IDOR on salon settings ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: TenantService.updateProfile is keyed on ownerId. The controller
+    // passes the authenticated principal's id (@AuthenticationPrincipal), so
+    // the effective safety depends entirely on the controller layer. The
+    // service itself trusts whatever ownerId it receives and does NOT verify
+    // that it matches the authenticated caller. If a caller ever reached the
+    // service with an arbitrary ownerId (misconfigured controller, internal
+    // scheduled job, test bypass), they would modify the target tenant's
+    // settings without any service-level guard.
+
+    @Test
+    @DisplayName("Lot2#58: updateProfile_WARN_trustsOwnerIdArgWithoutCallerCheck (FINDING)")
+    void updateProfile_WARN_trustsOwnerIdArgWithoutCallerCheck() {
+        // TODO-SEC: TenantService.updateProfile has no way to verify that the
+        // ownerId argument belongs to the authenticated caller. It looks up the
+        // tenant by ownerId and mutates it. Documents the service-layer gap.
+        Tenant victim = Tenant.builder()
+                .id(2L)
+                .name("Victim Salon")
+                .slug("victim-salon")
+                .ownerId(99L)
+                .build();
+        when(tenantRepository.findByOwnerId(99L)).thenReturn(Optional.of(victim));
+        when(tenantRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UpdateTenantRequest request = new UpdateTenantRequest(
+                "Pwned Salon Name", null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null);
+
+        // Service accepts any ownerId and modifies that tenant's profile,
+        // with no cross-check against the caller.
+        TenantResponse response = tenantService.updateProfile(99L, request);
+
+        assertThat(response.name()).isEqualTo("Pwned Salon Name");
+        assertThat(victim.getName()).isEqualTo("Pwned Salon Name");
     }
 }

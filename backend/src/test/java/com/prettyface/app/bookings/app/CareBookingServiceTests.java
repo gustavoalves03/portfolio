@@ -1001,6 +1001,80 @@ class CareBookingServiceTests {
         verify(bookingRepo).save(booking);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot2 Sec1: Cross-employee IDOR on planning & markNoShow ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: There is no "/my-planning" endpoint scoped by the caller's
+    // employeeId. The listDetailed() method supports a userId filter but no
+    // employeeId / caller-scope filter. Similarly, update(bookingId, req) with
+    // status=NO_SHOW (the server-side primitive behind the frontend markNoShow
+    // flow) performs no check against booking.getEmployeeId vs the caller.
+
+    @Test
+    @DisplayName("Lot2#63: listDetailed_WARN_doesNotScopeByCallerEmployee — NO employee-scope check (FINDING)")
+    void listDetailed_WARN_doesNotScopeByCallerEmployee() {
+        // TODO-SEC: CareBookingService.listDetailed has no caller-employee
+        // filter. Any authenticated pro/employee in the tenant's schema can
+        // list every booking, including those assigned to other employees.
+        // Within a single tenant this exposes colleagues' schedules; across
+        // tenants it depends on schema router correctness only.
+        CareBooking otherEmployeeBooking = new CareBooking();
+        otherEmployeeBooking.setId(700L);
+        otherEmployeeBooking.setUser(client);
+        otherEmployeeBooking.setCare(care30min);
+        otherEmployeeBooking.setAppointmentDate(futureDate);
+        otherEmployeeBooking.setAppointmentTime(LocalTime.of(10, 0));
+        otherEmployeeBooking.setStatus(CareBookingStatus.CONFIRMED);
+        otherEmployeeBooking.setEmployeeId(42L); // assigned to "other" employee
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        when(bookingRepo.findByFilters(any(), any(), any(), any(), any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(otherEmployeeBooking)));
+
+        // Service returns the booking without asking "is the caller employee 42?"
+        var result = service.listDetailed(null, null, null, null, pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).employeeId()).isEqualTo(42L);
+        // No employee-scope filter applied — documents the gap.
+    }
+
+    @Test
+    @DisplayName("Lot2#65: markNoShow_WARN_doesNotCheckBookingEmployeeOwnership (FINDING)")
+    void markNoShow_WARN_doesNotCheckBookingEmployeeOwnership() {
+        // TODO-SEC: markNoShow is implemented as update(bookingId, req) with
+        // status=NO_SHOW. The service performs no check against
+        // booking.getEmployeeId — any authenticated caller whose schema
+        // context resolves the bookingId can mark it as no-show. This allows
+        // one employee to mark another employee's booking as NO_SHOW, which
+        // skews analytics and penalises the wrong client record.
+        CareBooking otherEmployeeBooking = new CareBooking();
+        otherEmployeeBooking.setId(800L);
+        otherEmployeeBooking.setUser(client);
+        otherEmployeeBooking.setCare(care30min);
+        otherEmployeeBooking.setQuantity(1);
+        otherEmployeeBooking.setAppointmentDate(LocalDate.now().minusDays(1)); // past → NO_SHOW is the only allowed transition
+        otherEmployeeBooking.setAppointmentTime(LocalTime.of(10, 0));
+        otherEmployeeBooking.setStatus(CareBookingStatus.CONFIRMED);
+        otherEmployeeBooking.setEmployeeId(42L); // assigned to employee 42
+
+        when(bookingRepo.findById(800L)).thenReturn(Optional.of(otherEmployeeBooking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // A caller who is NOT employee 42 invokes markNoShow — service does not complain.
+        com.prettyface.app.bookings.web.dto.CareBookingRequest noShowReq =
+                new com.prettyface.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, LocalDate.now().minusDays(1),
+                        LocalTime.of(10, 0),
+                        CareBookingStatus.NO_SHOW, null);
+
+        var result = service.update(800L, noShowReq);
+
+        assertThat(result.status()).isEqualTo(CareBookingStatus.NO_SHOW);
+        verify(bookingRepo).save(any(CareBooking.class));
+        // No check that the caller is employee 42 — documents the gap.
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
