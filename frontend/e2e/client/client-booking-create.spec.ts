@@ -80,4 +80,49 @@ test.describe('Client booking creation', () => {
     // Auth modal should appear with the login submit button visible
     await expect(page.getByTestId('login-submit')).toBeVisible();
   });
+
+  test('C3 — no slots available shows empty state', async ({ page }) => {
+    await loginAsClient(page);
+    await setupClientBookingMocks(page);
+
+    // Override slots endpoint to return empty
+    await page.route(`**/api/salon/${PUBLIC_SALON.slug}/available-slots*`, r =>
+      r.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([]),
+      })
+    );
+
+    await page.goto(`/salon/${PUBLIC_SALON.slug}`);
+    await page.locator('.care-card').first().getByRole('button').click();
+
+    await expect(page.getByTestId('booking-date-input')).toBeVisible();
+
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    const dayAriaLabel = `${months[target.getMonth()]} ${target.getDate()}, ${target.getFullYear()}`;
+    await page.locator('mat-datepicker-toggle').first().click();
+    await page.getByRole('button', { name: dayAriaLabel, exact: true }).click();
+
+    // Give the page a moment to update after the empty response
+    await page.waitForTimeout(300);
+
+    // No slot button should be present
+    await expect(page.getByTestId('booking-slot')).toHaveCount(0);
+
+    // Submit should be disabled OR hidden (it's only rendered when a slot is selected)
+    const submit = page.getByTestId('booking-submit');
+    const isVisible = await submit.isVisible();
+    if (isVisible) {
+      const isDisabled = await submit.evaluate((el: HTMLButtonElement) => el.disabled);
+      expect(isDisabled).toBe(true);
+    } else {
+      expect(isVisible).toBe(false);
+    }
+  });
 });
