@@ -12,7 +12,8 @@
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",
     "e2e:pro": "playwright test e2e/pro",
-    "e2e:client": "playwright test e2e/client"
+    "e2e:client": "playwright test e2e/client",
+    "e2e:smoke": "playwright test --config playwright.smoke.config.ts"
   },
   "prettier": {
     "printWidth": 100,
