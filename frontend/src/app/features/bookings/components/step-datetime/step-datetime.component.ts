@@ -3,7 +3,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideFrenchDateAdapter } from '../../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BookingsService, AvailableSlot } from '../../services/bookings.service';
 
@@ -17,7 +17,7 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
     MatProgressSpinnerModule,
     TranslocoPipe,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideFrenchDateAdapter()],
   template: `
     <div class="step-datetime">
       <h3>{{ 'booking.stepper.step2' | transloco }}</h3>
