@@ -40,6 +40,26 @@ export async function loginAsClient(page: Page): Promise<void> {
   );
 }
 
+export async function loginAsEmployee(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    localStorage.setItem('auth_token', 'fake-employee-token');
+  });
+  await page.route('**/api/auth/me', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 500,
+        email: 'employee@test.fr',
+        name: 'Employee Test',
+        role: 'EMPLOYEE',
+        provider: 'LOCAL',
+        tenantSlug: 'beaute-du-regard',
+      }),
+    })
+  );
+}
+
 export async function loggedOut(page: Page): Promise<void> {
   await page.route('**/api/auth/me', route => route.fulfill({ status: 401 }));
 }

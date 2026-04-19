@@ -20,7 +20,7 @@ import { Employee } from '../../features/employees/employees.model';
         TranslocoPipe,
     ],
     template: `
-        <div class="dashboard-page">
+        <div class="dashboard-page" data-testid="employee-dashboard-page">
             @if (loading()) {
                 <div class="loading-wrapper">
                     <mat-spinner diameter="40"></mat-spinner>

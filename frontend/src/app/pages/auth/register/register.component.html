@@ -5,12 +5,12 @@
       <p class="register-subtitle">{{ 'auth.register.subtitle' | transloco }}</p>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="register-form">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="register-form" data-testid="register-form">
 
       <!-- Name field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.register.name' | transloco }}</mat-label>
-        <input matInput formControlName="name" type="text" autocomplete="name" />
+        <input matInput formControlName="name" type="text" autocomplete="name" data-testid="register-name" />
         @if (nameControl?.invalid && nameControl?.touched) {
           <mat-error>{{ 'auth.errors.nameRequired' | transloco }}</mat-error>
         }
@@ -19,7 +19,7 @@
       <!-- Email field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.register.email' | transloco }}</mat-label>
-        <input matInput formControlName="email" type="email" autocomplete="email" />
+        <input matInput formControlName="email" type="email" autocomplete="email" data-testid="register-email" />
         @if (emailControl?.hasError('required') && emailControl?.touched) {
           <mat-error>{{ 'auth.errors.emailRequired' | transloco }}</mat-error>
         }
@@ -27,14 +27,14 @@
           <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
         }
         @if (emailConflictError) {
-          <mat-error>{{ 'auth.errors.emailAlreadyInUse' | transloco }}</mat-error>
+          <mat-error data-testid="register-email-conflict">{{ 'auth.errors.emailAlreadyInUse' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <!-- Password field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>
-        <input matInput formControlName="password" type="password" autocomplete="new-password" />
+        <input matInput formControlName="password" type="password" autocomplete="new-password" data-testid="register-password" />
         <mat-hint>{{ 'auth.register.passwordHint' | transloco }}</mat-hint>
         @if (passwordControl?.hasError('required') && passwordControl?.touched) {
           <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
@@ -46,7 +46,7 @@
 
       <!-- Consent checkbox (RGPD) -->
       <div class="consent-field">
-        <mat-checkbox formControlName="consent" color="primary">
+        <mat-checkbox formControlName="consent" color="primary" data-testid="register-consent">
           <span [innerHTML]="'auth.register.consent' | transloco"></span>
         </mat-checkbox>
         @if (consentControl?.invalid && consentControl?.touched) {
@@ -60,6 +60,7 @@
         color="primary"
         type="submit"
         class="submit-btn full-width"
+        data-testid="register-submit"
         [disabled]="isLoading">
         @if (isLoading) {
           <mat-spinner diameter="20" />

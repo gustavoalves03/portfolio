@@ -10,9 +10,9 @@
       <!-- Upcoming tab -->
       <mat-tab [label]="'clientBookings.upcoming' | transloco">
         @if (store.upcoming().length > 0) {
-          <div class="bookings-list">
+          <div class="bookings-list" data-testid="upcoming-bookings-list">
             @for (booking of store.upcoming(); track booking.id) {
-              <div class="booking-card" (click)="onSalonClick(booking.tenantSlug)">
+              <div class="booking-card" data-testid="upcoming-booking-card" (click)="onSalonClick(booking.tenantSlug)">
                 <div class="booking-header">
                   <span class="salon-name">{{ booking.salonName }}</span>
                   <span class="status-badge confirmed">{{ 'clientBookings.status.CONFIRMED' | transloco }}</span>
@@ -26,17 +26,18 @@
                   @if (confirmingCancelId() === booking.id) {
                     <p class="cancel-confirm-text">{{ 'clientBookings.cancelConfirm' | transloco }}</p>
                     <div class="cancel-confirm-actions">
-                      <button mat-button class="cancel-dismiss-btn" (click)="onCancelDismiss($event)">
+                      <button mat-button class="cancel-dismiss-btn" data-testid="cancel-dismiss-btn" (click)="onCancelDismiss($event)">
                         {{ 'common.back' | transloco }}
                       </button>
                       <button mat-flat-button color="warn" class="cancel-confirm-btn"
+                              data-testid="cancel-confirm-btn"
                               [disabled]="store.cancellingId() === booking.bookingId"
                               (click)="onCancelConfirm($event, booking.tenantSlug, booking.bookingId)">
                         {{ 'clientBookings.cancel' | transloco }}
                       </button>
                     </div>
                   } @else {
-                    <button mat-stroked-button class="cancel-btn" (click)="onCancelClick($event, booking.id)">
+                    <button mat-stroked-button class="cancel-btn" data-testid="cancel-booking-btn" (click)="onCancelClick($event, booking.id)">
                       {{ 'clientBookings.cancel' | transloco }}
                     </button>
                     <span class="modify-hint">{{ 'clientBookings.modifyHint' | transloco }}</span>

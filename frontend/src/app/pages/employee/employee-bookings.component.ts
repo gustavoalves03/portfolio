@@ -7,9 +7,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     standalone: true,
     imports: [MatIconModule, TranslocoPipe],
     template: `
-        <div class="bookings-page">
+        <div class="bookings-page" data-testid="employee-bookings-page">
             <h1 class="page-title">{{ 'employee.bookings.title' | transloco }}</h1>
-            <div class="empty-state">
+            <div class="empty-state" data-testid="employee-bookings-empty">
                 <mat-icon class="empty-icon">event_available</mat-icon>
                 <p class="empty-text">{{ 'employee.bookings.empty' | transloco }}</p>
             </div>
