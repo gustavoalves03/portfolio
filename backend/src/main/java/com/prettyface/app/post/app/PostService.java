@@ -3,9 +3,11 @@ package com.prettyface.app.post.app;
 import com.prettyface.app.post.domain.*;
 import com.prettyface.app.post.repo.*;
 import com.prettyface.app.post.web.dto.PostResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -15,6 +17,10 @@ import java.util.*;
 public class PostService {
 
     private static final String UPLOAD_BASE = "uploads/posts";
+
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/webp", "image/gif"
+    );
 
     private final PostRepository postRepo;
     private final PostImageRepository postImageRepo;
@@ -109,6 +115,11 @@ public class PostService {
     }
 
     private String saveFile(MultipartFile file, String prefix) {
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid image type. Allowed: JPEG, PNG, WebP, GIF");
+        }
         try {
             String ext = "";
             String orig = file.getOriginalFilename();

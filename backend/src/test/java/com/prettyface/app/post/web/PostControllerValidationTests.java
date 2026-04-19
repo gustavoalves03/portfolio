@@ -97,18 +97,14 @@ class PostControllerValidationTests {
 
     @Test
     @WithMockUser(roles = "PRO")
-    @DisplayName("Lot4#55 _WARN_: non-image payload accepted (GAP: no content-type/magic-byte validation)")
-    void upload_nonImage_acceptedAs200_gap() throws Exception {
-        // NOTE-SEC: PostService.saveFile just copies the InputStream to disk.
-        // It does not inspect file.getContentType() nor sniff magic bytes; any
-        // MIME label is accepted, including plain text, PDFs, or executables.
-        // TODO-SEC: add content-type + magic-byte allowlist in the service layer
-        // (e.g., only image/jpeg, image/png, image/webp). Test then flips to 400.
+    @DisplayName("Lot4#55: non-image payload rejected with 400 (content-type validation)")
+    void upload_nonImage_returns400() throws Exception {
+        // PostService.saveFile now validates content-type against an allowlist.
+        // Non-image payloads (text/plain, application/pdf, etc.) are rejected with 400.
         when(service.createPhoto(eq("hello"), any(), any(), any()))
-                .thenReturn(new PostResponse(
-                        1L, PostType.PHOTO, "hello",
-                        null, "/api/images/posts/fake.txt",
-                        List.of(), null, null, LocalDateTime.now()));
+                .thenThrow(new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.BAD_REQUEST,
+                        "Invalid image type. Allowed: JPEG, PNG, WebP, GIF"));
 
         byte[] payload = "not-an-image-just-text".getBytes();
         MockMultipartFile fakeImage = new MockMultipartFile(
@@ -118,6 +114,6 @@ class PostControllerValidationTests {
                         .file(fakeImage)
                         .param("caption", "hello")
                         .with(csrf()))
-                .andExpect(status().isCreated()); // 201 today — gap
+                .andExpect(status().isBadRequest()); // 400
     }
 }
