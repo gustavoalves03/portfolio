@@ -150,4 +150,34 @@ describe('NotificationsStore', () => {
     store.dismiss(1);
     expect(store.unreadCount()).toBe(initialCount);
   });
+
+  it('connectWebSocket prepends incoming notifications, increments unreadCount and sets latestNotification', () => {
+    // Seed store with an existing notification so we can assert prepend (not replace)
+    service.list.and.returnValue(of({
+      content: [notif(1)],
+      totalElements: 1, totalPages: 1,
+      last: true,
+    } as any));
+    store.loadInitial();
+    store.loadUnreadCount();
+    const initialUnread = store.unreadCount();
+
+    store.connectWebSocket();
+    expect(ws.connect).toHaveBeenCalled();
+
+    // Push an incoming notification through the mocked notification$ subject
+    const incoming = notif(99);
+    (ws.notification$ as unknown as { next: (n: NotificationResponse) => void }).next(incoming);
+
+    const ids = store.notifications().map((n) => n.id);
+    expect(ids[0]).toBe(99);              // prepended at the head
+    expect(ids).toContain(1);              // existing notifications preserved
+    expect(store.unreadCount()).toBe(initialUnread + 1);
+    expect(store.latestNotification()?.id).toBe(99);
+  });
+
+  it('disconnectWebSocket delegates to WebSocketService.disconnect', () => {
+    store.disconnectWebSocket();
+    expect(ws.disconnect).toHaveBeenCalled();
+  });
 });
