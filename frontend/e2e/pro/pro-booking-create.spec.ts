@@ -172,4 +172,50 @@ test.describe('Pro booking creation', () => {
 
     expect(postCount).toBe(0);
   });
+
+  test('P5 — server error on booking creation keeps dialog open', async ({ page }) => {
+    await loginAsPro(page);
+    await setupProBookingMocks(page);
+
+    // Override POST to fail (registered AFTER setup overrides the earlier route)
+    await page.route('**/api/bookings', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 500,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: 'Internal server error' }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.goto('/pro/bookings');
+    await page.getByTestId('add-booking-btn').click();
+
+    await page.getByTestId('step-care-item').first().click();
+    await page.getByTestId('step-next-btn').click();
+
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    const months = ['January','February','March','April','May','June',
+      'July','August','September','October','November','December'];
+    const dayAriaLabel = `${months[target.getMonth()]} ${target.getDate()}, ${target.getFullYear()}`;
+    await page.getByRole('button', { name: /open calendar|ouvrir le calendrier/i }).click();
+    await page.getByRole('button', { name: dayAriaLabel, exact: true }).click();
+    await expect(page.getByTestId('slot-btn').first()).toBeVisible();
+    await page.getByTestId('slot-btn').first().click();
+    await page.getByTestId('step-next-btn').click();
+
+    await page.getByTestId('client-mode-existing').click();
+    await expect(page.getByTestId('client-result').first()).toBeVisible();
+    await page.getByTestId('client-result').first().click();
+    await page.getByTestId('step-confirm-btn').click();
+
+    // Give time for the failed request to resolve
+    await page.waitForTimeout(500);
+
+    // Dialog should still be visible
+    await expect(page.getByTestId('booking-stepper')).toBeVisible();
+  });
 });
