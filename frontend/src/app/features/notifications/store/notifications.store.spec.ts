@@ -180,4 +180,50 @@ describe('NotificationsStore', () => {
     store.disconnectWebSocket();
     expect(ws.disconnect).toHaveBeenCalled();
   });
+
+  it('connectWebSocket twice does not double-subscribe (single patch per incoming notification)', () => {
+    service.list.and.returnValue(of({
+      content: [],
+      totalElements: 0, totalPages: 0,
+      last: true,
+    } as any));
+    store.loadInitial();
+    store.loadUnreadCount();
+    const initialUnread = store.unreadCount();
+
+    // Connect twice — second call must tear down the first subscription
+    // before subscribing again, otherwise an incoming notification would be
+    // patched into state TWICE (unreadCount += 2, duplicated in list).
+    store.connectWebSocket();
+    store.connectWebSocket();
+
+    const incoming = notif(77);
+    (ws.notification$ as unknown as { next: (n: NotificationResponse) => void }).next(incoming);
+
+    const ids = store.notifications().map((n) => n.id);
+    expect(ids.filter((id) => id === 77).length).toBe(1);
+    expect(store.unreadCount()).toBe(initialUnread + 1);
+  });
+
+  it('disconnectWebSocket unsubscribes so later notifications do not mutate state', () => {
+    service.list.and.returnValue(of({
+      content: [],
+      totalElements: 0, totalPages: 0,
+      last: true,
+    } as any));
+    store.loadInitial();
+    store.loadUnreadCount();
+    const initialUnread = store.unreadCount();
+
+    store.connectWebSocket();
+    store.disconnectWebSocket();
+    expect(ws.disconnect).toHaveBeenCalled();
+
+    // After disconnect, any late event from notification$ must NOT update state.
+    const stray = notif(123);
+    (ws.notification$ as unknown as { next: (n: NotificationResponse) => void }).next(stray);
+
+    expect(store.notifications().map((n) => n.id)).not.toContain(123);
+    expect(store.unreadCount()).toBe(initialUnread);
+  });
 });

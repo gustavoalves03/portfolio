@@ -1,7 +1,7 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, EMPTY, catchError } from 'rxjs';
+import { pipe, switchMap, tap, EMPTY, catchError, Subscription } from 'rxjs';
 import { NotificationsService } from '../services/notifications.service';
 import { WebSocketService } from '../services/websocket.service';
 import { NotificationResponse } from '../models/notification.model';
@@ -40,7 +40,12 @@ export const NotificationsStore = signalStore(
   withMethods((store,
     notificationsService = inject(NotificationsService),
     webSocketService = inject(WebSocketService),
-  ) => ({
+  ) => {
+    // Tracks the active WebSocket notification subscription so we can dispose of
+    // it cleanly and guarantee `connectWebSocket()` can be called more than once
+    // without double-subscribing (which would duplicate every inbound event).
+    let wsSubscription: Subscription | null = null;
+    return {
     loadUnreadCount: rxMethod<void>(
       pipe(
         switchMap(() => notificationsService.unreadCount()),
@@ -131,8 +136,12 @@ export const NotificationsStore = signalStore(
       });
     },
     connectWebSocket(): void {
+      // Defensive: tear down any existing subscription before connecting again.
+      // Otherwise a second call would double-subscribe and every notification
+      // would be patched into state twice.
+      wsSubscription?.unsubscribe();
       webSocketService.connect();
-      webSocketService.notification$.subscribe((notification) => {
+      wsSubscription = webSocketService.notification$.subscribe((notification) => {
         patchState(store, {
           notifications: [notification, ...store.notifications()],
           unreadCount: store.unreadCount() + 1,
@@ -146,6 +155,8 @@ export const NotificationsStore = signalStore(
       });
     },
     disconnectWebSocket(): void {
+      wsSubscription?.unsubscribe();
+      wsSubscription = null;
       webSocketService.disconnect();
     },
     clearLatestNotification(): void {
@@ -154,5 +165,6 @@ export const NotificationsStore = signalStore(
     reset(): void {
       patchState(store, { notifications: [], unreadCount: 0, latestNotification: null, page: 0, hasMore: false, mode: 'recent' });
     },
-  })),
+  };
+  }),
 );
