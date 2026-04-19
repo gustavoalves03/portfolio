@@ -1,5 +1,6 @@
 package com.prettyface.app.bookings.app;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
@@ -16,6 +17,7 @@ import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -1109,39 +1111,53 @@ class CareBookingServiceTests {
     }
 
     @Test
-    @DisplayName("Lot2#65: markNoShow_WARN_doesNotCheckBookingEmployeeOwnership (FINDING)")
-    void markNoShow_WARN_doesNotCheckBookingEmployeeOwnership() {
-        // TODO-SEC: markNoShow is implemented as update(bookingId, req) with
-        // status=NO_SHOW. The service performs no check against
-        // booking.getEmployeeId — any authenticated caller whose schema
-        // context resolves the bookingId can mark it as no-show. This allows
-        // one employee to mark another employee's booking as NO_SHOW, which
-        // skews analytics and penalises the wrong client record.
+    @DisplayName("Lot2#65: markNoShow_employeeNotAssigned_throwsForbidden — employee cannot mutate colleague's booking")
+    void markNoShow_employeeNotAssigned_throwsForbidden() {
+        // Gap 6 fix: CareBookingService.update(id, req, caller) now checks that
+        // an EMPLOYEE caller is the assigned employee on the booking before
+        // allowing the mutation. PRO/ADMIN callers bypass the check.
         CareBooking otherEmployeeBooking = new CareBooking();
         otherEmployeeBooking.setId(800L);
         otherEmployeeBooking.setUser(client);
         otherEmployeeBooking.setCare(care30min);
         otherEmployeeBooking.setQuantity(1);
-        otherEmployeeBooking.setAppointmentDate(LocalDate.now().minusDays(1)); // past → NO_SHOW is the only allowed transition
+        otherEmployeeBooking.setAppointmentDate(LocalDate.now().minusDays(1));
         otherEmployeeBooking.setAppointmentTime(LocalTime.of(10, 0));
         otherEmployeeBooking.setStatus(CareBookingStatus.CONFIRMED);
         otherEmployeeBooking.setEmployeeId(42L); // assigned to employee 42
 
         when(bookingRepo.findById(800L)).thenReturn(Optional.of(otherEmployeeBooking));
-        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // A caller who is NOT employee 42 invokes markNoShow — service does not complain.
+        // Caller is a DIFFERENT employee (id=99), with role EMPLOYEE.
+        Long callerUserId = 900L;
+        User callerUser = User.builder()
+                .id(callerUserId)
+                .name("Louise")
+                .email("louise@salon.fr")
+                .role(Role.EMPLOYEE)
+                .build();
+        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
+
+        com.prettyface.app.employee.domain.Employee callerEmployee = new com.prettyface.app.employee.domain.Employee();
+        callerEmployee.setId(99L);
+        callerEmployee.setUserId(callerUserId);
+        when(employeeRepository.findByUserId(callerUserId)).thenReturn(Optional.of(callerEmployee));
+
         com.prettyface.app.bookings.web.dto.CareBookingRequest noShowReq =
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
                         CareBookingStatus.NO_SHOW, null);
 
-        var result = service.update(800L, noShowReq);
+        UserPrincipal caller = new UserPrincipal(callerUserId, "louise@salon.fr", "Louise", null);
 
-        assertThat(result.status()).isEqualTo(CareBookingStatus.NO_SHOW);
-        verify(bookingRepo).save(any(CareBooking.class));
-        // No check that the caller is employee 42 — documents the gap.
+        assertThatThrownBy(() -> service.update(800L, noShowReq, caller))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN))
+                .hasMessageContaining("another employee");
+
+        verify(bookingRepo, never()).save(any(CareBooking.class));
     }
 
     // ══════════════════════════════════════════════════════════════

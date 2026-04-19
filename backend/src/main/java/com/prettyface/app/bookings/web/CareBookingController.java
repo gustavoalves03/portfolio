@@ -1,5 +1,6 @@
 package com.prettyface.app.bookings.web;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.bookings.app.CareBookingService;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.web.dto.CareBookingDetailedResponse;
@@ -9,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -57,8 +59,10 @@ public class CareBookingController {
     public CareBookingResponse create(@RequestBody @Valid CareBookingRequest req) { return service.create(req); }
 
     @PutMapping("/{id}")
-    public CareBookingResponse update(@PathVariable Long id, @RequestBody @Valid CareBookingRequest req) {
-        return service.update(id, req);
+    public CareBookingResponse update(@PathVariable Long id,
+                                      @RequestBody @Valid CareBookingRequest req,
+                                      @AuthenticationPrincipal UserPrincipal principal) {
+        return service.update(id, req, principal);
     }
 
     @DeleteMapping("/{id}")

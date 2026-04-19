@@ -1,5 +1,6 @@
 package com.prettyface.app.bookings.app;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
 import com.prettyface.app.tracking.app.SalonClientService;
@@ -21,6 +22,7 @@ import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.notification.app.EmailService;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -169,9 +171,23 @@ public class CareBookingService {
 
     @Transactional
     public CareBookingResponse update(Long id, CareBookingRequest req) {
+        return update(id, req, null);
+    }
+
+    /**
+     * Overload that enforces booking-ownership for EMPLOYEE callers: a plain
+     * employee can only mutate bookings assigned to themselves. PRO / ADMIN
+     * callers retain full access, matching the existing tenant-owner contract.
+     * Passing {@code null} disables the caller check (preserves behaviour for
+     * background jobs and existing tests).
+     */
+    @Transactional
+    public CareBookingResponse update(Long id, CareBookingRequest req, UserPrincipal caller) {
         TenantContext.requireActive();
         CareBooking b = repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+
+        requireCanMutateBooking(caller, b);
 
         LocalDateTime originalDateTime = LocalDateTime.of(b.getAppointmentDate(), b.getAppointmentTime());
         boolean isPast = originalDateTime.isBefore(LocalDateTime.now());
@@ -404,5 +420,34 @@ public class CareBookingService {
             repo.save(booking);
         }
         return futureBookings.size();
+    }
+
+    // -----------------------------------------------------------------------
+    // Authorisation helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * EMPLOYEE callers may only mutate bookings where they are the assigned
+     * employee. PRO / ADMIN (and a {@code null} caller, used for background
+     * flows and existing tests) keep full write access.
+     */
+    private void requireCanMutateBooking(UserPrincipal caller, CareBooking booking) {
+        if (caller == null) {
+            return;
+        }
+        Role role = userRepository.findById(caller.getId())
+                .map(User::getRole)
+                .orElse(null);
+        if (role == Role.PRO || role == Role.ADMIN) {
+            return;
+        }
+        Long callerEmployeeId = employeeRepository.findByUserId(caller.getId())
+                .map(com.prettyface.app.employee.domain.Employee::getId)
+                .orElse(null);
+        if (booking.getEmployeeId() != null
+                && !booking.getEmployeeId().equals(callerEmployeeId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot modify a booking assigned to another employee");
+        }
     }
 }
