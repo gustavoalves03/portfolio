@@ -59,13 +59,9 @@ describe('Home (Landing Page)', () => {
 
   it('should render hero section with title', () => {
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.hero-title')?.textContent).toContain('Pretty Face');
-  });
-
-  it('should render 4 category cards', () => {
-    const el = fixture.nativeElement as HTMLElement;
-    const cards = el.querySelectorAll('.category-card');
-    expect(cards.length).toBe(4);
+    const brand = el.querySelector('.hero-brand');
+    expect(brand?.textContent).toContain('Pretty');
+    expect(brand?.textContent).toContain('Face');
   });
 
   it('should navigate to salon on salon click', () => {

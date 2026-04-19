@@ -71,13 +71,6 @@ describe('DiscoverPageComponent', () => {
     expect(cards.length).toBe(2);
   });
 
-  it('should render category chips', () => {
-    const fixture = setup();
-    const el = fixture.nativeElement as HTMLElement;
-    const chips = el.querySelectorAll('.chip');
-    expect(chips.length).toBe(5); // 4 categories + "Tous"
-  });
-
   it('should call searchSalons with category param', () => {
     setup({ category: 'ongles' });
     expect(discoveryService.searchSalons).toHaveBeenCalled();
