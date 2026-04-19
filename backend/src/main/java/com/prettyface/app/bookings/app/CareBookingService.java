@@ -138,6 +138,17 @@ public class CareBookingService {
         var care = careRepository.findById(req.careId())
                 .orElseThrow(() -> new IllegalArgumentException("Care not found: " + req.careId()));
 
+        // Verify slot availability (opening hours + existing bookings)
+        boolean slotAvailable = slotAvailabilityService
+                .getAvailableSlots(req.appointmentDate(), req.careId())
+                .stream()
+                .anyMatch(slot -> LocalTime.parse(slot.startTime()).equals(req.appointmentTime()));
+
+        if (!slotAvailable) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "The requested time slot is not available.");
+        }
+
         CareBooking b = new CareBooking();
         b.setUser(user);
         b.setCare(care);
@@ -210,6 +221,11 @@ public class CareBookingService {
         Tenant tenant = null;
         if (slug != null) {
             tenant = tenantRepository.findBySlug(slug).orElse(null);
+        }
+
+        // Explicit past-date guard — safety net independent of minAdvanceMinutes or slot service
+        if (req.appointmentDate().isBefore(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot book in the past");
         }
 
         // Check minimum advance time

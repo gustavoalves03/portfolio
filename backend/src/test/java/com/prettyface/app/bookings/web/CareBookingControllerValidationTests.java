@@ -144,46 +144,33 @@ class CareBookingControllerValidationTests {
     }
 
     @Test
-    @DisplayName("Lot4#17: create_WARN_withBookingDateInPast — DTO has no @Future, controller accepts payload (GAP)")
-    void create_WARN_withBookingDateInPast_acceptedByController() throws Exception {
-        // NOTE-SEC: CareBookingRequest.appointmentDate lacks @Future / @FutureOrPresent.
-        // The admin create(CareBookingRequest) path in CareBookingService performs NO past-date
-        // guard (unlike update() which only blocks CANCELLED/reschedule of past bookings).
-        // Therefore a past date passes @Valid and is happily persisted. Documents the gap so
-        // a regression test flips to 400 once @Future is added.
-        when(service.create(any(CareBookingRequest.class)))
-                .thenReturn(new com.prettyface.app.bookings.web.dto.CareBookingResponse(
-                        1L, 1L, 10L, 1,
-                        LocalDate.now().minusDays(5), LocalTime.of(10, 0),
-                        CareBookingStatus.CONFIRMED, null));
-
+    @DisplayName("Lot4#17: create_withBookingDateInPast_returns400 — @FutureOrPresent rejects past dates")
+    void create_withBookingDateInPast_returns400() throws Exception {
+        // @FutureOrPresent on CareBookingRequest.appointmentDate causes @Valid to reject
+        // past dates at the controller layer with 400 Bad Request.
         CareBookingRequest req = new CareBookingRequest(
                 1L, 10L, 1,
                 LocalDate.now().minusDays(5),
                 LocalTime.of(10, 0),
                 CareBookingStatus.CONFIRMED, null);
 
-        // TODO-SEC: once @FutureOrPresent is added to appointmentDate, change to isBadRequest().
         mvc.perform(post("/api/bookings")
                         .with(authentication(authToken))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk()); // 200 today — gap
+                .andExpect(status().isBadRequest()); // 400
     }
 
     @Test
-    @DisplayName("Lot4#18: create_WARN_withTimeOutsideOpeningHours — admin path does NOT check opening hours (GAP)")
-    void create_WARN_withTimeOutsideOpeningHours_acceptedByController() throws Exception {
-        // NOTE-SEC: The admin create() flow on CareBookingService does NOT invoke
-        // SlotAvailabilityService / check opening hours (unlike createClientBooking()).
-        // A time outside business hours (e.g., 03:00) passes through. Documented so the
-        // gap is visible and a regression test flips to 400 once the guard is added.
+    @DisplayName("Lot4#18: create_withTimeOutsideOpeningHours_rejected — service enforces slot availability")
+    void create_withTimeOutsideOpeningHours_rejected() throws Exception {
+        // Admin create() now invokes SlotAvailabilityService; 03:00 is outside opening hours
+        // so the service throws CONFLICT, which GlobalExceptionHandler maps to 409.
         when(service.create(any(CareBookingRequest.class)))
-                .thenReturn(new com.prettyface.app.bookings.web.dto.CareBookingResponse(
-                        1L, 1L, 10L, 1,
-                        LocalDate.now().plusDays(7), LocalTime.of(3, 0),
-                        CareBookingStatus.CONFIRMED, null));
+                .thenThrow(new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "The requested time slot is not available."));
 
         CareBookingRequest req = new CareBookingRequest(
                 1L, 10L, 1,
@@ -191,13 +178,12 @@ class CareBookingControllerValidationTests {
                 LocalTime.of(3, 0), // 03:00 — well outside any realistic opening hours
                 CareBookingStatus.CONFIRMED, null);
 
-        // TODO-SEC: once admin create() enforces opening-hours/slot-availability, change to isBadRequest().
         mvc.perform(post("/api/bookings")
                         .with(authentication(authToken))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isOk()); // 200 today — gap
+                .andExpect(status().isConflict()); // 409
     }
 
     // ══════════════════════════════════════════════════════════════

@@ -142,18 +142,18 @@ class CareBookingServiceTests {
     }
 
     @Test
-    @DisplayName("Booking in the past — slot service returns empty → rejected")
+    @DisplayName("Booking in the past — explicit past-date guard → BAD_REQUEST")
     void bookingInPast_rejected() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
-        when(slotAvailabilityService.getAvailableSlots(yesterday, 10L))
-                .thenReturn(List.of()); // Past date → empty
 
         ClientBookingRequest req = new ClientBookingRequest(10L, yesterday, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Slot no longer available");
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Cannot book in the past");
     }
 
     @Test
@@ -904,13 +904,17 @@ class CareBookingServiceTests {
     @Test
     @DisplayName("Sec3: create_WARN_adminCreateMethodHasNoRaceGuard — admin POST /api/bookings does NOT catch unique-constraint")
     void create_WARN_adminCreateMethodHasNoRaceGuard() {
-        // TODO-SEC: CareBookingService.create(CareBookingRequest) used by admin/pro endpoints
-        // performs NO slot availability check and does NOT wrap save() to translate
+        // TODO-SEC: CareBookingService.create(CareBookingRequest) now performs a slot
+        // availability pre-check, but does NOT wrap save() to translate
         // DataIntegrityViolationException into 409. The DB unique constraint still protects
-        // against actual double-booking, but the error surfacing to the client is a raw
-        // DataIntegrityViolationException (500-class) rather than a clean 409.
+        // against actual double-booking in the concurrent window between check and save,
+        // but the error surfacing to the client is a raw DataIntegrityViolationException
+        // (500-class) rather than a clean 409.
         when(userRepository.findById(1L)).thenReturn(Optional.of(client));
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        // Slot is available (check passes), but concurrent save throws unique constraint violation
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
         when(bookingRepo.save(any(CareBooking.class)))
                 .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
 
@@ -1084,10 +1088,9 @@ class CareBookingServiceTests {
     // validations live in the service).
 
     @Test
-    @DisplayName("Lot4#91: clientBook_inThePast — past date → BAD_REQUEST via minAdvanceMinutes guard")
+    @DisplayName("Lot4#91: clientBook_inThePast — past date → BAD_REQUEST via explicit past-date guard")
     void lot4_91_clientBook_inThePast_rejected() {
-        // When the tenant has a minAdvanceMinutes constraint, a past date always
-        // fails that guard with 400. Tenant defaults ship with minAdvanceMinutes=120.
+        // Explicit past-date guard fires before minAdvanceMinutes check.
         TenantContext.setCurrentTenant("test-salon");
         Tenant tenant = new Tenant();
         tenant.setMinAdvanceMinutes(120);
@@ -1103,39 +1106,31 @@ class CareBookingServiceTests {
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.BAD_REQUEST))
-                .hasMessageContaining("at least 120 minutes in advance");
+                .hasMessageContaining("Cannot book in the past");
     }
 
     @Test
-    @DisplayName("Lot4#91: clientBook_WARN_pastDate_whenTenantHasNoMinAdvance — slot check is the only guard (GAP)")
-    void lot4_91_clientBook_pastDate_noMinAdvance_fallsBackToSlotCheck() {
-        // NOTE-SEC: If minAdvanceMinutes is null/0 the service falls back to the
-        // slot-availability check. SlotAvailabilityService happens to return an
-        // empty list for past dates (no opening hours in the past), so we still
-        // get a 409 "Slot no longer available" — but there is no explicit past-date
-        // guard in createClientBooking(). If the slot service behaviour ever
-        // changes, past bookings could slip through. Documents the gap.
+    @DisplayName("Lot4#91: lot4_91_clientBook_inThePast_alwaysRejected — explicit past-date guard returns 400 regardless of minAdvanceMinutes")
+    void lot4_91_clientBook_inThePast_alwaysRejected() {
+        // Explicit past-date guard in createClientBooking() now fires BEFORE the
+        // minAdvanceMinutes check and BEFORE slot availability — always BAD_REQUEST.
         TenantContext.setCurrentTenant("test-salon");
         Tenant tenant = new Tenant();
-        tenant.setMinAdvanceMinutes(0); // disabled
-        tenant.setMaxAdvanceDays(0);     // disabled
+        tenant.setMinAdvanceMinutes(0); // disabled — guard must not depend on this
+        tenant.setMaxAdvanceDays(0);
         tenant.setMaxClientHoursPerDay(0);
         when(tenantRepository.findBySlug("test-salon")).thenReturn(Optional.of(tenant));
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
 
         LocalDate yesterday = LocalDate.now().minusDays(1);
-        when(slotAvailabilityService.getAvailableSlots(yesterday, 10L))
-                .thenReturn(List.of()); // Empty → CONFLICT, not an explicit past-date 400
 
         ClientBookingRequest req = new ClientBookingRequest(10L, yesterday, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT))
-                .hasMessageContaining("Slot no longer available");
-        // TODO-SEC: add an explicit past-date guard in createClientBooking (not
-        // dependent on minAdvanceMinutes or slot service returning empty).
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Cannot book in the past");
     }
 
     @Test
