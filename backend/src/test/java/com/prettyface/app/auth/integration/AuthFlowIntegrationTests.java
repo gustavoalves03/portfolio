@@ -105,48 +105,17 @@ class AuthFlowIntegrationTests {
     }
 
     @Test
-    @DisplayName("/me without any Authorization header is rejected (no user data leaks)")
+    @DisplayName("/me without any Authorization header returns 401")
     void meEndpoint_noToken_isRejected() throws Exception {
-        // KNOWN BUG: /api/auth/me is permit-all in SecurityConfig (via "/api/auth/**")
-        // so no 401 is enforced by the filter chain. The controller then ClassCasts
-        // the anonymous String principal, producing a ServletException. The security
-        // contract still holds — no user data is returned — but the error surface is
-        // wrong and should be fixed (either tighten the matcher for /api/auth/me or
-        // have the controller check principal type before casting).
-        assertMeRejects(get("/api/auth/me"));
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("/me with a malformed Bearer token is rejected (no user data leaks)")
+    @DisplayName("/me with a malformed Bearer token returns 401")
     void meEndpoint_invalidToken_isRejected() throws Exception {
-        // Same known-bug path as above: JwtAuthenticationFilter silently drops an
-        // unparseable JWT (logs a warning), so the request arrives at /me with the
-        // anonymous principal — then same ClassCast as the no-token case.
-        assertMeRejects(get("/api/auth/me").header("Authorization", "Bearer not-a-real-jwt"));
-    }
-
-    /**
-     * Verifies an unauthenticated /me request never returns the user DTO, whether
-     * the response is a clean 401/403 or an exception escapes the controller. Both
-     * outcomes prove the security contract (no data leak); only the former proves
-     * the contract is enforced cleanly.
-     */
-    private void assertMeRejects(org.springframework.test.web.servlet.RequestBuilder request) throws Exception {
-        try {
-            MvcResult result = mockMvc.perform(request).andReturn();
-            int status = result.getResponse().getStatus();
-            assertThat(status)
-                    .as("unauthenticated /me must not return 200 with user data")
-                    .isNotEqualTo(200);
-            assertThat(result.getResponse().getContentAsString())
-                    .as("unauthenticated /me response body must not contain an email address")
-                    .doesNotContain(EMAIL)
-                    .doesNotContain("accessToken");
-        } catch (jakarta.servlet.ServletException servletFailure) {
-            // The ClassCast bug bubbles up as a ServletException — we still pass:
-            // the controller threw instead of returning a user DTO, so no leak.
-            assertThat(servletFailure).isNotNull();
-        }
+        mockMvc.perform(get("/api/auth/me").header("Authorization", "Bearer not-a-real-jwt"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

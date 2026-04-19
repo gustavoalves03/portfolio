@@ -138,6 +138,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
+                        .requestMatchers("/api/auth/me").authenticated() // Must come before /api/auth/** permitAll
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
                         .requestMatchers("/ws/**").permitAll() // WebSocket handshake (auth handled by WebSocketAuthInterceptor)
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
