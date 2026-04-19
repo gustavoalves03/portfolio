@@ -148,4 +148,28 @@ test.describe('Pro booking creation', () => {
     await page.getByTestId('step-next-btn').click();
     await expect(page.getByTestId('booking-date-input')).toBeVisible();
   });
+
+  test('P4 — cancel closes dialog with no booking created', async ({ page }) => {
+    await loginAsPro(page);
+    await setupProBookingMocks(page);
+
+    let postCount = 0;
+    await page.route('**/api/bookings', async route => {
+      if (route.request().method() === 'POST') {
+        postCount++;
+        await route.fulfill({ status: 201, body: '{}' });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.goto('/pro/bookings');
+    await page.getByTestId('add-booking-btn').click();
+    await expect(page.getByTestId('booking-stepper')).toBeVisible();
+
+    await page.getByTestId('stepper-close').click();
+    await expect(page.getByTestId('booking-stepper')).not.toBeVisible();
+
+    expect(postCount).toBe(0);
+  });
 });
