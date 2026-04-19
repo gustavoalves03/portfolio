@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -47,6 +48,7 @@ describe('RegisterComponent', () => {
         }),
       ],
       providers: [
+        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideRouter([]),
         provideNoopAnimations(),

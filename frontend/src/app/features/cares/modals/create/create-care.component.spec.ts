@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { CreateCare } from './create-care.component';
 
@@ -8,7 +11,13 @@ describe('Create', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CreateCare]
+      imports: [CreateCare],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideNoopAnimations(),
+        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MAT_DIALOG_DATA, useValue: { categories: [] } },
+      ],
     })
     .compileComponents();
 
