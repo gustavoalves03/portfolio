@@ -18,6 +18,7 @@ import com.prettyface.app.care.web.dto.CareResponse;
 import com.prettyface.app.care.web.mapper.CareMapper;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.multitenancy.TenantContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -237,6 +238,7 @@ public class CareService {
 
     @Transactional
     public void delete(Long id) {
+        TenantContext.requireActive();
         long futureBookings = careBookingRepository.countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
                 id, LocalDate.now(), CareBookingStatus.CANCELLED);
         if (futureBookings > 0) {

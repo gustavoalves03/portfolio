@@ -1,10 +1,12 @@
 package com.prettyface.app.tracking.app;
 
 import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tracking.domain.SalonClient;
 import com.prettyface.app.tracking.repo.SalonClientRepository;
 import com.prettyface.app.tracking.web.dto.SalonClientResponse;
 import com.prettyface.app.users.repo.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +39,12 @@ class SalonClientServiceTests {
     void setUp() {
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
+        TenantContext.setCurrentTenant("test-tenant");
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
     }
 
     @Test
@@ -75,27 +83,19 @@ class SalonClientServiceTests {
     // name/phone/email/notes of any SalonClient whose id they can guess.
 
     @Test
-    @DisplayName("Lot2#45: getById_WARN_doesNotCheckTenantOwnership — NO tenant check (FINDING)")
-    void getById_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: SalonClientService.getById performs no tenant ownership
-        // verification. The SalonClient's PII (phone, email, notes, DOB) is
-        // returned to any authenticated caller whose schema context resolves
-        // that id. Documents the gap.
-        SalonClient crossTenantClient = new SalonClient();
-        crossTenantClient.setId(1234L);
-        crossTenantClient.setName("Victim Client");
-        crossTenantClient.setPhone("+33700000000");
-        crossTenantClient.setEmail("victim@example.com");
-        crossTenantClient.setNotes("sensitive medical notes");
-        when(salonClientRepo.findById(1234L)).thenReturn(Optional.of(crossTenantClient));
+    @DisplayName("Lot2#45: getById_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void getById_requiresActiveTenant_throwsWhenUnset() {
+        // Fix3: SalonClientService.getById now calls TenantContext.requireActive()
+        // so sensitive SalonClient PII (phone, email, notes, DOB) cannot be
+        // returned when the schema router failed to set a tenant.
+        TenantContext.clear();
 
-        // Service returns the row without asking "is this client in the caller's tenant?"
-        SalonClientResponse result = service.getById(1234L);
+        assertThatThrownBy(() -> service.getById(1234L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        assertThat(result.name()).isEqualTo("Victim Client");
-        assertThat(result.phone()).isEqualTo("+33700000000");
-        assertThat(result.email()).isEqualTo("victim@example.com");
-        assertThat(result.notes()).isEqualTo("sensitive medical notes");
-        // No tenant/caller scope check — documents the gap.
+        verify(salonClientRepo, never()).findById(any());
     }
 }

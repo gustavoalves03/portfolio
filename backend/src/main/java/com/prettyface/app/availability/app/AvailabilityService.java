@@ -5,6 +5,7 @@ import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.availability.web.dto.OpeningHourRequest;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import com.prettyface.app.availability.web.mapper.OpeningHourMapper;
+import com.prettyface.app.multitenancy.TenantContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class AvailabilityService {
 
     @Transactional
     public List<OpeningHourResponse> replaceAll(List<OpeningHourRequest> requests) {
+        TenantContext.requireActive();
         for (OpeningHourRequest req : requests) {
             LocalTime open = LocalTime.parse(req.openTime());
             LocalTime close = LocalTime.parse(req.closeTime());

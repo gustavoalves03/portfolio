@@ -5,16 +5,21 @@ import com.prettyface.app.bookings.repo.CareBookingRepository;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.multitenancy.TenantContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,6 +35,16 @@ class CareServiceDeletionTests {
 
     @InjectMocks
     private CareService service;
+
+    @BeforeEach
+    void setTenant() {
+        TenantContext.setCurrentTenant("test-tenant");
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
+    }
 
     @Test
     @DisplayName("Delete care with future bookings → CONFLICT with clear message")
@@ -88,22 +103,23 @@ class CareServiceDeletionTests {
     // salon A could delete a care from salon B.
 
     @Test
-    @DisplayName("Lot2#27: delete_WARN_careFromAnotherSalonCanBeDeleted — NO tenant check (FINDING)")
-    void delete_WARN_careFromAnotherSalonCanBeDeleted() {
-        // TODO-SEC: CareService.delete performs no tenant ownership verification.
-        // If TenantContext were spoofed or schema routing bypassed, any careId from
-        // another salon could be deleted. Documents the gap.
-        when(careBookingRepository.countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
-                eq(999L), any(LocalDate.class), eq(CareBookingStatus.CANCELLED)))
-                .thenReturn(0L);
-        doNothing().when(fileStorageService).deleteCareImages(999L);
+    @DisplayName("Lot2#27: delete_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void delete_requiresActiveTenant_throwsWhenUnset() {
+        // Fix2: CareService.delete now calls TenantContext.requireActive() so a
+        // missing tenant context (schema router bug, background job) refuses to
+        // delete anything. Previously this test documented the absence of the
+        // guard; now it asserts the guard works.
+        TenantContext.clear();
 
-        // No ResponseStatusException thrown, no tenant/owner lookup — service trusts
-        // schema router to have already isolated the caller to the correct schema.
-        service.delete(999L);
+        assertThatThrownBy(() -> service.delete(999L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        verify(fileStorageService).deleteCareImages(999L);
-        verify(repo).deleteById(999L);
-        // No call to any tenant/owner-verification collaborator because there is none.
+        verify(repo, never()).deleteById(any());
+        verify(fileStorageService, never()).deleteCareImages(any());
+        verify(careBookingRepository, never())
+                .countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(any(), any(), any());
     }
 }

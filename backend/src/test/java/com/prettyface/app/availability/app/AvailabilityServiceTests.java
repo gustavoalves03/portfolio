@@ -4,6 +4,9 @@ import com.prettyface.app.availability.domain.OpeningHour;
 import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.availability.web.dto.OpeningHourRequest;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
+import com.prettyface.app.multitenancy.TenantContext;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +14,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -28,6 +33,16 @@ class AvailabilityServiceTests {
 
     @InjectMocks
     private AvailabilityService service;
+
+    @BeforeEach
+    void setTenant() {
+        TenantContext.setCurrentTenant("test-tenant");
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
+    }
 
     // ── list ──
 
@@ -232,31 +247,26 @@ class AvailabilityServiceTests {
     // B's opening hours.
 
     @Test
-    @DisplayName("Lot2#35: replaceAll_WARN_doesNotCheckTenantOwnership — NO tenant check (FINDING)")
-    void replaceAll_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: AvailabilityService.replaceAll performs no tenant ownership
-        // verification. It trusts that TenantContext has routed the query to the
-        // correct schema. If that trust is misplaced (bug, background job, test
-        // code bypass), cross-tenant modification of opening hours is possible.
+    @DisplayName("Lot2#35: replaceAll_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void replaceAll_requiresActiveTenant_throwsWhenUnset() {
+        // Fix3: AvailabilityService.replaceAll now calls TenantContext.requireActive()
+        // before deleteAllInBatch(). If the schema router ever fails to set a
+        // tenant, the service refuses to wipe/insert opening hours rather than
+        // silently clobbering whatever schema it happens to be pointed at.
+        TenantContext.clear();
+
         List<OpeningHourRequest> requests = List.of(
                 new OpeningHourRequest(1, "09:00", "18:00")
         );
 
-        when(repo.saveAll(anyList())).thenAnswer(inv -> {
-            List<OpeningHour> entities = inv.getArgument(0);
-            entities.get(0).setId(999L);
-            return entities;
-        });
+        assertThatThrownBy(() -> service.replaceAll(requests))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        // Runs without asking "are these opening hours for the caller's tenant?"
-        List<OpeningHourResponse> result = service.replaceAll(requests);
-
-        // deleteAllInBatch() wipes whatever is in the current schema — this is
-        // the exact operation that would cross-tenant-clobber if the schema
-        // router failed to isolate the caller.
-        verify(repo).deleteAllInBatch();
-        verify(repo).saveAll(anyList());
-        assertThat(result).hasSize(1);
+        verify(repo, never()).deleteAllInBatch();
+        verify(repo, never()).saveAll(anyList());
     }
 
     // ── helper ──

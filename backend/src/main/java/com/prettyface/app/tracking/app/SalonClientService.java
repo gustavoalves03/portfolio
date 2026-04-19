@@ -1,6 +1,7 @@
 package com.prettyface.app.tracking.app;
 
 import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tracking.domain.SalonClient;
 import com.prettyface.app.tracking.repo.SalonClientRepository;
 import com.prettyface.app.tracking.web.dto.CreateSalonClientRequest;
@@ -53,6 +54,7 @@ public class SalonClientService {
 
     @Transactional(readOnly = true)
     public SalonClientResponse getById(Long id) {
+        TenantContext.requireActive();
         SalonClient client = salonClientRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon client not found"));
         return toResponse(client);
