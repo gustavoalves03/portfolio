@@ -67,6 +67,12 @@ class CareBookingServiceTests {
 
     @BeforeEach
     void setUp() {
+        // Defense-in-depth guard (TenantContext.requireActive) fires at the
+        // start of every mutating method. Tests that exercise normal behaviour
+        // set a tenant here; tests that assert the guard itself clear it
+        // explicitly before invoking the method under test.
+        TenantContext.setCurrentTenant("test-tenant");
+
         client = User.builder().id(1L).name("Marie").email("marie@test.com").build();
         owner = User.builder().id(2L).name("Sophie").email("sophie@test.com").build();
 
@@ -940,35 +946,29 @@ class CareBookingServiceTests {
     // there is no second line of defense. These tests DOCUMENT that gap.
 
     @Test
-    @DisplayName("Sec1: delete_WARN_doesNotCheckTenantOwnership — relies on schema isolation only")
-    void delete_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: service does not verify tenant ownership; relies on tenant schema isolation
-        // If a pro from salon A is somehow authenticated in salon B's schema context (bug / bypass),
-        // they can delete ANY booking by ID — the service does not validate ownership.
+    @DisplayName("Sec1: delete_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void delete_requiresActiveTenant_throwsWhenUnset() {
+        // Fix1: CareBookingService.delete now refuses to operate without a tenant
+        // context (TenantContext.requireActive). If the Hibernate schema router
+        // ever fails to set a tenant, the service throws 500 rather than acting
+        // against an ambiguous schema.
+        TenantContext.clear();
         Long bookingId = 999L;
 
-        // delete() simply forwards to repo.deleteById() without any tenant/owner guard
-        service.delete(bookingId);
+        assertThatThrownBy(() -> service.delete(bookingId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        verify(bookingRepo).deleteById(bookingId);
-        // No ResponseStatusException thrown, no tenant/owner lookup — documents the gap.
+        verify(bookingRepo, never()).deleteById(any());
     }
 
     @Test
-    @DisplayName("Sec1: update_WARN_doesNotCheckTenantOwnership — cross-tenant modify possible if schema router fails")
-    void update_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: service does not verify tenant ownership on update; relies on tenant schema isolation
-        CareBooking booking = new CareBooking();
-        booking.setId(500L);
-        booking.setUser(client);
-        booking.setCare(care30min);
-        booking.setQuantity(1);
-        booking.setAppointmentDate(futureDate);
-        booking.setAppointmentTime(LocalTime.of(9, 0));
-        booking.setStatus(CareBookingStatus.PENDING);
-
-        when(bookingRepo.findById(500L)).thenReturn(Optional.of(booking));
-        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+    @DisplayName("Sec1: update_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void update_requiresActiveTenant_throwsWhenUnset() {
+        // Fix1: update() now refuses to operate without a tenant context.
+        TenantContext.clear();
 
         com.prettyface.app.bookings.web.dto.CareBookingRequest req =
                 new com.prettyface.app.bookings.web.dto.CareBookingRequest(
@@ -976,33 +976,29 @@ class CareBookingServiceTests {
                         LocalTime.of(9, 0),
                         CareBookingStatus.CONFIRMED, null);
 
-        // Update goes through without asking "is this booking in the caller's tenant?"
-        var result = service.update(500L, req);
-        assertThat(result.status()).isEqualTo(CareBookingStatus.CONFIRMED);
-        verify(bookingRepo).save(any(CareBooking.class));
+        assertThatThrownBy(() -> service.update(500L, req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
+
+        verify(bookingRepo, never()).save(any(CareBooking.class));
     }
 
     @Test
-    @DisplayName("Sec1: cancelBooking_WARN_doesNotCheckTenantOwnership — returns the booking regardless of tenant")
-    void cancelBooking_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: cancelBooking does not verify tenant ownership; relies on tenant schema isolation
-        CareBooking booking = new CareBooking();
-        booking.setId(501L);
-        booking.setUser(client);
-        booking.setCare(care30min);
-        booking.setAppointmentDate(futureDate);
-        booking.setAppointmentTime(LocalTime.of(9, 0));
-        booking.setStatus(CareBookingStatus.CONFIRMED);
+    @DisplayName("Sec1: cancelBooking_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void cancelBooking_requiresActiveTenant_throwsWhenUnset() {
+        // Fix1: cancelBooking() now refuses to operate without a tenant context.
+        TenantContext.clear();
 
-        when(bookingRepo.findById(501L)).thenReturn(Optional.of(booking));
-        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(tenantRepository.findBySlug(any())).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.cancelBooking(501L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        // Acts as if we're the rightful owner; no cross-check vs caller's tenant or owner id
-        service.cancelBooking(501L);
-
-        assertThat(booking.getStatus()).isEqualTo(CareBookingStatus.CANCELLED);
-        verify(bookingRepo).save(booking);
+        verify(bookingRepo, never()).findById(any());
+        verify(bookingRepo, never()).save(any(CareBooking.class));
     }
 
     // ══════════════════════════════════════════════════════════════

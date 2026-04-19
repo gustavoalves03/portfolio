@@ -133,6 +133,7 @@ public class CareBookingService {
 
     @Transactional
     public CareBookingResponse create(CareBookingRequest req) {
+        TenantContext.requireActive();
         var user = userRepository.findById(req.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + req.userId()));
         var care = careRepository.findById(req.careId())
@@ -161,6 +162,7 @@ public class CareBookingService {
 
     @Transactional
     public CareBookingResponse update(Long id, CareBookingRequest req) {
+        TenantContext.requireActive();
         CareBooking b = repo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
 
@@ -205,7 +207,10 @@ public class CareBookingService {
     }
 
     @Transactional
-    public void delete(Long id) { repo.deleteById(id); }
+    public void delete(Long id) {
+        TenantContext.requireActive();
+        repo.deleteById(id);
+    }
 
     @Transactional
     public ClientBookingResponse createClientBooking(User client, User owner, String salonName,
@@ -350,6 +355,7 @@ public class CareBookingService {
 
     @Transactional
     public void cancelBooking(Long bookingId) {
+        TenantContext.requireActive();
         CareBooking booking = repo.findById(bookingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
         booking.setStatus(CareBookingStatus.CANCELLED);
