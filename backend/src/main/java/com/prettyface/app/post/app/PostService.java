@@ -27,10 +27,12 @@ public class PostService {
 
     private final PostRepository postRepo;
     private final PostImageRepository postImageRepo;
+    private final FileStorage fileStorage;
 
-    public PostService(PostRepository postRepo, PostImageRepository postImageRepo) {
+    public PostService(PostRepository postRepo, PostImageRepository postImageRepo, FileStorage fileStorage) {
         this.postRepo = postRepo;
         this.postImageRepo = postImageRepo;
+        this.fileStorage = fileStorage;
     }
 
     @Transactional(readOnly = true)
@@ -99,8 +101,23 @@ public class PostService {
 
     @Transactional
     public void delete(Long id) {
+        Post post = postRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+
+        // Collect every image path before removing DB rows so we can clean up the files
+        // afterwards without leaving orphans on disk.
+        List<String> imagePaths = new ArrayList<>();
+        if (post.getBeforeImagePath() != null) imagePaths.add(post.getBeforeImagePath());
+        if (post.getAfterImagePath() != null) imagePaths.add(post.getAfterImagePath());
+        postImageRepo.findByPostIdOrderByImageOrderAsc(id)
+                .forEach(pi -> imagePaths.add(pi.getImagePath()));
+
         postImageRepo.deleteByPostId(id);
         postRepo.deleteById(id);
+
+        for (String path : imagePaths) {
+            fileStorage.deleteIfExists(path);
+        }
     }
 
     private PostResponse toResponse(Post p) {

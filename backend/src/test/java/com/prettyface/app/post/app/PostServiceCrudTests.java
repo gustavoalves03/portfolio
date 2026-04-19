@@ -41,6 +41,7 @@ class PostServiceCrudTests {
 
     @Mock PostRepository postRepo;
     @Mock PostImageRepository postImageRepo;
+    @Mock FileStorage fileStorage;
     @InjectMocks PostService service;
 
     private static MockMultipartFile jpeg(String field, String filename) {
@@ -176,14 +177,37 @@ class PostServiceCrudTests {
     }
 
     @Test
-    @DisplayName("Lot8 #5: delete removes post images then the post row")
-    void delete_removesImagesThenPost() {
+    @DisplayName("Lot8 #5: delete removes post images then the post row AND cleans up files on disk")
+    void delete_removesImagesThenPostAndCleansUpFiles() {
+        Post post = new Post();
+        post.setId(12L);
+        post.setType(PostType.BEFORE_AFTER);
+        post.setBeforeImagePath("uploads/posts/before-12.jpg");
+        post.setAfterImagePath("uploads/posts/after-12.jpg");
+
+        PostImage carousel0 = new PostImage();
+        carousel0.setImagePath("uploads/posts/carousel-0-12.jpg");
+        carousel0.setImageOrder(0);
+        PostImage carousel1 = new PostImage();
+        carousel1.setImagePath("uploads/posts/carousel-1-12.jpg");
+        carousel1.setImageOrder(1);
+
+        when(postRepo.findById(12L)).thenReturn(Optional.of(post));
+        when(postImageRepo.findByPostIdOrderByImageOrderAsc(12L))
+                .thenReturn(List.of(carousel0, carousel1));
+
         service.delete(12L);
 
         // order matters: images first (FK), then post
         var inOrder = org.mockito.Mockito.inOrder(postImageRepo, postRepo);
         inOrder.verify(postImageRepo).deleteByPostId(12L);
         inOrder.verify(postRepo).deleteById(12L);
+
+        // every image path (before + after + each carousel) must be wiped from disk
+        verify(fileStorage).deleteIfExists("uploads/posts/before-12.jpg");
+        verify(fileStorage).deleteIfExists("uploads/posts/after-12.jpg");
+        verify(fileStorage).deleteIfExists("uploads/posts/carousel-0-12.jpg");
+        verify(fileStorage).deleteIfExists("uploads/posts/carousel-1-12.jpg");
     }
 
     @Test
