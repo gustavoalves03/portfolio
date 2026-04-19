@@ -305,4 +305,98 @@ class LeaveRequestServiceTests {
         assertThat(result.status()).isEqualTo(LeaveStatus.APPROVED);
         // No cross-check against caller's tenant/employee scope.
     }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot3 Sec74: Self-approve leave ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: LeaveRequestService.reviewLeave(leaveId, dto) performs no check
+    // that the caller is distinct from the leave's owner employee. The
+    // EmployeeLeaveController exposes PUT /api/pro/leaves/{leaveId}/review —
+    // Spring Security's URL-prefix rule ("/api/pro/**" requires pro/owner role)
+    // is the *only* guard. There is no service-layer protection against the
+    // scenario where:
+    //   - the "pro" role is shared by multiple people in the same salon,
+    //   - a future /api/employee/... endpoint is added (same service),
+    //   - a developer reuses the service from a non-"pro" controller.
+    // In all those cases an employee could call reviewLeave(myOwnLeaveId, APPROVED)
+    // and self-approve vacation. The service trusts that the controller did the
+    // right thing. That is a brittle invariant — the service must also check.
+
+    @Test
+    @DisplayName("Lot3#74: reviewLeave_WARN_allowsSelfApproveBecauseNoCallerCheck — employee can approve own leave at service layer")
+    void reviewLeave_WARN_allowsSelfApproveBecauseNoCallerCheck() {
+        // TODO-SEC: reviewLeave has NO caller/principal argument. An employee
+        // whose employeeId == pendingLeave.getEmployee().getId() can self-approve
+        // their own leave if they reach this service. Guard should live here,
+        // not only in the URL prefix of the controller.
+        Long selfEmployeeId = employee.getId();          // the leave owner
+        assertThat(pendingLeave.getEmployee().getId()).isEqualTo(selfEmployeeId);
+
+        LeaveReviewDto selfApproveDto = new LeaveReviewDto(
+                LeaveStatus.APPROVED, "approved by me, for me");
+        when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
+        when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // Service proceeds unconditionally — no "callerId != leave.owner" check
+        LeaveResponse result = leaveRequestService.reviewLeave(1L, selfApproveDto);
+
+        assertThat(result.status()).isEqualTo(LeaveStatus.APPROVED);
+        assertThat(result.reviewerNote()).isEqualTo("approved by me, for me");
+        assertThat(result.employeeId()).isEqualTo(selfEmployeeId);
+        // Documents the gap: the saved leave is APPROVED, owned by the same
+        // employee who (hypothetically) just called reviewLeave.
+        ArgumentCaptor<LeaveRequest> captor = ArgumentCaptor.forClass(LeaveRequest.class);
+        verify(leaveRequestRepository).save(captor.capture());
+        assertThat(captor.getValue().getStatus()).isEqualTo(LeaveStatus.APPROVED);
+        assertThat(captor.getValue().getEmployee().getId()).isEqualTo(selfEmployeeId);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot3 Sec75: Read colleague's leave ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: LeaveRequestService.listByEmployee(employeeId) takes any
+    // employeeId and returns all their leaves. No check that the caller is
+    // either (a) that employee, or (b) a pro/owner. Combined with the tenant
+    // gap already documented in Lot2#41, this is also a *horizontal*
+    // privilege-escalation gap: even inside the same salon, employee A could
+    // read employee B's leave history (sick days, etc.) if they reach the
+    // service.
+
+    @Test
+    @DisplayName("Lot3#75: listByEmployee_WARN_allowsColleagueReadBecauseNoCallerCheck — employee A can read B's leaves at service layer")
+    void listByEmployee_WARN_allowsColleagueReadBecauseNoCallerCheck() {
+        // TODO-SEC: listByEmployee has NO caller/principal argument. Employee A
+        // (callerId=1L) asking for employee B's (targetId=2L) leaves gets them
+        // back unconditionally. Guard should compare caller == target OR
+        // caller.role == PRO/OWNER at the service layer.
+        Long colleagueEmployeeId = 2L;                    // NOT the caller
+        Employee colleague = new Employee();
+        colleague.setId(colleagueEmployeeId);
+        colleague.setUserId(20L);
+        colleague.setName("Claire Durand");
+        colleague.setEmail("claire@prettyface.com");
+
+        LeaveRequest colleagueSickLeave = new LeaveRequest();
+        colleagueSickLeave.setId(99L);
+        colleagueSickLeave.setEmployee(colleague);
+        colleagueSickLeave.setType(LeaveType.SICKNESS);
+        colleagueSickLeave.setStatus(LeaveStatus.APPROVED);
+        colleagueSickLeave.setStartDate(LocalDate.of(2025, 3, 10));
+        colleagueSickLeave.setEndDate(LocalDate.of(2025, 3, 12));
+        colleagueSickLeave.setReason("Flu");
+
+        when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(colleagueEmployeeId))
+                .thenReturn(List.of(colleagueSickLeave));
+
+        // Service has no idea who is asking — returns the colleague's leaves
+        List<LeaveResponse> result = leaveRequestService.listByEmployee(colleagueEmployeeId);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).employeeId()).isEqualTo(colleagueEmployeeId);
+        assertThat(result.get(0).employeeName()).isEqualTo("Claire Durand");
+        assertThat(result.get(0).type()).isEqualTo(LeaveType.SICKNESS);
+        assertThat(result.get(0).reason()).isEqualTo("Flu");
+        // Documents the gap: sensitive data (reason="Flu", sick-leave dates)
+        // exposed without a caller-identity check.
+    }
 }

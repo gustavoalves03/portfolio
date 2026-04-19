@@ -2,7 +2,11 @@ package com.prettyface.app.employee.app;
 
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.employee.domain.AccessLevel;
 import com.prettyface.app.employee.domain.Employee;
+import com.prettyface.app.employee.domain.EmployeePermission;
+import com.prettyface.app.employee.domain.PermissionDomain;
+import com.prettyface.app.employee.repo.EmployeePermissionRepository;
 import com.prettyface.app.employee.repo.EmployeeRepository;
 import com.prettyface.app.employee.web.dto.CreateEmployeeRequest;
 import com.prettyface.app.employee.web.dto.EmployeeResponse;
@@ -25,6 +29,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -56,6 +62,9 @@ class EmployeeServiceTests {
 
     @Mock
     private ApplicationSchemaExecutor applicationSchemaExecutor;
+
+    @Mock
+    private EmployeePermissionRepository employeePermissionRepository;
 
     @InjectMocks
     private EmployeeService employeeService;
@@ -352,5 +361,78 @@ class EmployeeServiceTests {
         } finally {
             TenantContext.clear();
         }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot3 Sec70: Privilege escalation on EmployeePermissionService.updatePermissions ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: The permission-update entrypoint
+    //   EmployeePermissionService.updatePermissions(Long employeeId, Map<PermissionDomain, AccessLevel>)
+    // takes NO caller/principal argument. It identifies the *target* of the update
+    // but cannot (and does not) verify that the *caller* has authority to grant
+    // permissions. In the current routing (EmployeePermissionController.putMapping
+    // "/api/pro/employees/{employeeId}/permissions") the only safeguard is the
+    // URL prefix "/api/pro/..." enforced by Spring Security — which is coarse
+    // role-level, not "is this the pro/owner and not the target employee himself".
+    //
+    // If an employee reaches the service (via a future endpoint, an admin bypass,
+    // a mis-mapped route, or a developer mistake in another controller) and
+    // passes their own employeeId, the service will happily raise their own
+    // permissions to WRITE on every domain. This is the classic vertical
+    // privilege-escalation gap.
+
+    @Test
+    @DisplayName("Lot3#70: updatePermissions_WARN_serviceHasNoCallerCheck — self-escalation possible at service layer")
+    void updatePermissions_WARN_serviceHasNoCallerCheck_selfEscalationPossible() {
+        // TODO-SEC: Add an explicit caller-authority argument or @PreAuthorize
+        // on EmployeePermissionService.updatePermissions so that an employee
+        // cannot grant themselves WRITE access to PROFILE/VISITS/PHOTOS/REMINDERS
+        // even if they reach the service directly. Today the service signature
+        // has no notion of "who is asking".
+        Long attackerEmployeeId = 42L;
+
+        // Construct the permission service inline (reuses EmployeeRepository mock
+        // and adds the permission-repo mock). This is the same construction
+        // pattern used by TrackingAccessLevelSecurityTests (Sec2).
+        EmployeePermissionService permissionService =
+                new EmployeePermissionService(employeePermissionRepository, employeeRepository);
+
+        // Target (self) employee exists
+        when(employeeRepository.findById(attackerEmployeeId))
+                .thenReturn(Optional.of(employee));
+        // No stored permissions yet — new rows will be created by the service
+        when(employeePermissionRepository.findByEmployeeIdAndDomain(eq(attackerEmployeeId), any()))
+                .thenReturn(Optional.empty());
+        // Capture the saved permissions to prove the escalation went through
+        when(employeePermissionRepository.save(any(EmployeePermission.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+        // getPermissions(...) called at the end — return an empty row set and
+        // let the service materialise the defaults.
+        when(employeePermissionRepository.findByEmployeeId(attackerEmployeeId))
+                .thenReturn(List.of());
+
+        // The attacker asks to raise their *own* permissions to WRITE on every domain
+        Map<PermissionDomain, AccessLevel> selfEscalation = Map.of(
+                PermissionDomain.PROFILE, AccessLevel.WRITE,
+                PermissionDomain.VISITS, AccessLevel.WRITE,
+                PermissionDomain.PHOTOS, AccessLevel.WRITE,
+                PermissionDomain.REMINDERS, AccessLevel.WRITE
+        );
+
+        // Service proceeds — no "caller == target?" guard, no pro/owner role check
+        Map<PermissionDomain, AccessLevel> result =
+                permissionService.updatePermissions(attackerEmployeeId, selfEscalation);
+
+        assertThat(result).isNotNull();
+        // Four rows saved — one per domain — all at WRITE, for the attacker herself.
+        ArgumentCaptor<EmployeePermission> permCaptor = ArgumentCaptor.forClass(EmployeePermission.class);
+        verify(employeePermissionRepository, times(4)).save(permCaptor.capture());
+        assertThat(permCaptor.getAllValues())
+                .allSatisfy(p -> {
+                    assertThat(p.getEmployeeId()).isEqualTo(attackerEmployeeId);
+                    assertThat(p.getAccessLevel()).isEqualTo(AccessLevel.WRITE);
+                });
+        // Documents the gap: no collaborator consulted to verify the caller
+        // was distinct from the target employee (the pro/owner).
     }
 }
