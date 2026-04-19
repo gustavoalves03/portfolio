@@ -175,14 +175,16 @@ class SalonClientServiceTests {
     }
 
     @Test
-    @DisplayName("FinalLot: getOrCreateForUser_nullPhone_storesEmptyString")
-    void getOrCreateForUser_nullPhone_storesEmptyString() {
+    @DisplayName("FinalLot: getOrCreateForUser_nullPhone_storesNull")
+    void getOrCreateForUser_nullPhone_storesNull() {
+        // Oracle (and H2 in Oracle mode) treats "" as NULL — and since PHONE is now
+        // a nullable column we pass null straight through instead of substituting "".
         when(salonClientRepo.findByUserId(42L)).thenReturn(Optional.empty());
         when(salonClientRepo.save(any(SalonClient.class))).thenAnswer(inv -> inv.getArgument(0));
 
         SalonClient result = service.getOrCreateForUser(42L, "Auto Created", null);
 
-        assertThat(result.getPhone()).isEqualTo("");
+        assertThat(result.getPhone()).isNull();
         assertThat(result.isManual()).isFalse();
     }
 }

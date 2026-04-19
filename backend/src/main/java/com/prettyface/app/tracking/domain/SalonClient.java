@@ -22,7 +22,10 @@ public class SalonClient {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    // TODO: real Oracle DB still has NOT NULL on PHONE — add ALTER TABLE migration
+    // to drop the constraint before deploying. Test profiles use ddl-auto=create-drop
+    // so this annotation takes effect there immediately.
+    @Column(name = "phone", length = 20)
     private String phone;
 
     @Column(name = "email", length = 255)

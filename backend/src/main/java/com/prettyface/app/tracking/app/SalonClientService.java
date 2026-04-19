@@ -75,7 +75,7 @@ public class SalonClientService {
                     SalonClient sc = new SalonClient();
                     sc.setUserId(userId);
                     sc.setName(name);
-                    sc.setPhone(phone != null ? phone : "");
+                    sc.setPhone(phone);
                     sc.setManual(false);
                     return salonClientRepo.save(sc);
                 });

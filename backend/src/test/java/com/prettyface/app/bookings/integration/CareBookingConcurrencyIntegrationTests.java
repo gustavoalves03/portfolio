@@ -14,8 +14,6 @@ import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.multitenancy.TenantSchemaManager;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
-import com.prettyface.app.tracking.domain.SalonClient;
-import com.prettyface.app.tracking.repo.SalonClientRepository;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
@@ -82,9 +80,6 @@ class CareBookingConcurrencyIntegrationTests {
 
     @Autowired
     private TenantSchemaManager tenantSchemaManager;
-
-    @Autowired
-    private SalonClientRepository salonClientRepository;
 
     private static final String TENANT_SLUG = "concurrency-salon";
 
@@ -169,17 +164,10 @@ class CareBookingConcurrencyIntegrationTests {
             oh.setCloseTime(LocalTime.of(18, 0));
             openingHourRepository.save(oh);
 
-            // Pre-seed a SalonClient linked to the client user so the service's
-            // auto-create path (which passes an empty phone — rejected by NOT NULL
-            // in Oracle mode) is skipped during the concurrent booking attempt.
-            if (salonClientRepository.findByUserId(clientUserId).isEmpty()) {
-                SalonClient sc = new SalonClient();
-                sc.setUserId(clientUserId);
-                sc.setName("Client Concurrency");
-                sc.setPhone("0000000000");
-                sc.setManual(false);
-                salonClientRepository.save(sc);
-            }
+            // Previously this test pre-seeded a SalonClient with a dummy phone to
+            // avoid the NOT NULL integrity violation triggered by the service's
+            // auto-create path. With SalonClient.phone now nullable, the booking
+            // service can create the SalonClient itself — no workaround needed.
         } finally {
             TenantContext.clear();
         }
