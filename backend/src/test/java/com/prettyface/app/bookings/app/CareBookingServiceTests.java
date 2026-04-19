@@ -39,6 +39,7 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -1235,6 +1236,105 @@ class CareBookingServiceTests {
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                         .isEqualTo(HttpStatus.NOT_FOUND))
                 .hasMessageContaining("Care not found or inactive");
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Final Lot: cancelBooking happy path (pro-side) ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("FinalLot: cancelBooking_happyPath_updatesStatusAndDispatchesNotification")
+    void cancelBooking_happyPath_updatesStatusAndDispatchesNotification() {
+        // Given: a CONFIRMED future booking in the current tenant with an
+        // assigned employee. The tenant has an ownerId so the service
+        // dispatches a BOOKING_CANCELLED notification to both owner + employee.
+        TenantContext.setCurrentTenant("test-tenant");
+
+        CareBooking booking = new CareBooking();
+        booking.setId(501L);
+        booking.setUser(client);
+        booking.setCare(care30min);
+        booking.setAppointmentDate(futureDate);
+        booking.setAppointmentTime(LocalTime.of(10, 0));
+        booking.setStatus(CareBookingStatus.CONFIRMED);
+        booking.setEmployeeId(42L);
+
+        Tenant tenant = new Tenant();
+        tenant.setSlug("test-tenant");
+        tenant.setOwnerId(2L);
+
+        com.prettyface.app.employee.domain.Employee emp =
+                new com.prettyface.app.employee.domain.Employee();
+        emp.setId(42L);
+        emp.setUserId(999L);
+        User empUser = User.builder().id(999L).name("Emma").email("emma@test.com").build();
+
+        when(bookingRepo.findById(501L)).thenReturn(Optional.of(booking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tenantRepository.findBySlug("test-tenant")).thenReturn(Optional.of(tenant));
+        when(employeeRepository.findById(42L)).thenReturn(Optional.of(emp));
+        when(userRepository.findById(999L)).thenReturn(Optional.of(empUser));
+
+        // When
+        service.cancelBooking(501L);
+
+        // Then: status flipped, save called, and notification dispatched to
+        // owner (2L) + assigned-employee user (999L).
+        assertThat(booking.getStatus()).isEqualTo(CareBookingStatus.CANCELLED);
+        verify(bookingRepo).save(booking);
+        verify(notificationDispatcher).dispatch(
+                argThat((java.util.List<Long> recipients) ->
+                        recipients.contains(2L) && recipients.contains(999L)),
+                eq("test-tenant"),
+                eq(com.prettyface.app.notification.domain.NotificationType.BOOKING_CANCELLED),
+                eq(com.prettyface.app.notification.domain.NotificationCategory.BOOKING),
+                any(String.class),
+                any(String.class),
+                eq(501L),
+                eq(com.prettyface.app.notification.domain.ReferenceType.BOOKING)
+        );
+    }
+
+    @Test
+    @DisplayName("FinalLot: cancelBooking_bookingNotFound_throws404")
+    void cancelBooking_notFound_throws() {
+        TenantContext.setCurrentTenant("test-tenant");
+        when(bookingRepo.findById(9999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.cancelBooking(9999L))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND));
+
+        verify(bookingRepo, never()).save(any(CareBooking.class));
+        verifyNoInteractions(notificationDispatcher);
+    }
+
+    @Test
+    @DisplayName("FinalLot: cancelBooking_noTenantInRepo_skipsNotificationButStillCancels")
+    void cancelBooking_missingTenant_cancelsWithoutNotification() {
+        // Defence-in-depth: if the tenant row disappears between TenantContext
+        // and repo (should not happen), the booking is still flipped to
+        // CANCELLED but no notification is dispatched.
+        TenantContext.setCurrentTenant("ghost-tenant");
+
+        CareBooking booking = new CareBooking();
+        booking.setId(502L);
+        booking.setUser(client);
+        booking.setCare(care30min);
+        booking.setStatus(CareBookingStatus.CONFIRMED);
+        booking.setAppointmentDate(futureDate);
+        booking.setAppointmentTime(LocalTime.of(11, 0));
+
+        when(bookingRepo.findById(502L)).thenReturn(Optional.of(booking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(tenantRepository.findBySlug("ghost-tenant")).thenReturn(Optional.empty());
+
+        service.cancelBooking(502L);
+
+        assertThat(booking.getStatus()).isEqualTo(CareBookingStatus.CANCELLED);
+        verify(bookingRepo).save(booking);
+        verifyNoInteractions(notificationDispatcher);
     }
 
     // ── Helpers ──
