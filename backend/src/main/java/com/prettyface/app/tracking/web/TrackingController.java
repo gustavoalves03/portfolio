@@ -2,8 +2,6 @@ package com.prettyface.app.tracking.web;
 
 import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.employee.app.EmployeePermissionService;
-import com.prettyface.app.employee.domain.AccessLevel;
-import com.prettyface.app.employee.domain.PermissionDomain;
 import com.prettyface.app.employee.repo.EmployeeRepository;
 import com.prettyface.app.tracking.app.TrackingService;
 import com.prettyface.app.tracking.domain.PhotoType;
@@ -18,6 +16,12 @@ import java.util.stream.Collectors;
 
 /**
  * Beauty tracking endpoints for both PRO (salon staff) and CLIENT (end user).
+ *
+ * Authorization is enforced at the {@link TrackingService} layer (see
+ * {@code requireTrackingAccess}). The controller simply forwards the
+ * {@link UserPrincipal} — the service decides whether the caller is a PRO
+ * (bypass), a client acting on their own data (bypass), or an employee
+ * (consult {@link EmployeePermissionService}).
  */
 @RestController
 public class TrackingController {
@@ -44,8 +48,9 @@ public class TrackingController {
     // ── PRO endpoints (/api/pro/tracking) ──
 
     @GetMapping("/api/pro/tracking/clients/{userId}")
-    public ClientHistoryResponse getClientHistory(@PathVariable Long userId) {
-        return trackingService.getClientHistory(userId);
+    public ClientHistoryResponse getClientHistory(@PathVariable Long userId,
+                                                   @AuthenticationPrincipal UserPrincipal principal) {
+        return trackingService.getClientHistory(userId, principal);
     }
 
     @PutMapping("/api/pro/tracking/clients/{userId}/profile")
@@ -53,7 +58,7 @@ public class TrackingController {
             @PathVariable Long userId,
             @RequestBody UpdateClientProfileRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return trackingService.updateProfile(userId, request, principal.getId());
+        return trackingService.updateProfile(userId, request, principal);
     }
 
     @PostMapping("/api/pro/tracking/clients/{userId}/visits")
@@ -62,7 +67,7 @@ public class TrackingController {
             @PathVariable Long userId,
             @RequestBody CreateVisitRecordRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return trackingService.createVisitRecord(userId, request, principal.getId());
+        return trackingService.createVisitRecord(userId, request, principal);
     }
 
     @PostMapping("/api/pro/tracking/visits/{visitId}/photos")
@@ -72,7 +77,7 @@ public class TrackingController {
             @RequestParam("photo") MultipartFile photo,
             @RequestParam("type") PhotoType type,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return trackingService.addVisitPhoto(visitId, photo, type, principal.getId());
+        return trackingService.addVisitPhoto(visitId, photo, type, principal);
     }
 
     @PostMapping("/api/pro/tracking/clients/{userId}/reminders")
@@ -81,45 +86,46 @@ public class TrackingController {
             @PathVariable Long userId,
             @RequestBody CreateReminderRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        return trackingService.createReminder(userId, request, principal.getId());
+        return trackingService.createReminder(userId, request, principal);
     }
 
     // ── CLIENT endpoints (/api/client/tracking) ──
 
     @GetMapping("/api/client/tracking/history")
     public ClientHistoryResponse getOwnHistory(@AuthenticationPrincipal UserPrincipal principal) {
-        return trackingService.getClientHistory(principal.getId());
+        return trackingService.getClientHistory(principal.getId(), principal);
     }
 
     @PutMapping("/api/client/tracking/consent")
     public ClientProfileResponse updateOwnConsent(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody ConsentUpdateRequest request) {
-        return trackingService.updateConsent(principal.getId(), request.consentPhotos(), request.consentPublicShare());
+        return trackingService.updateConsent(principal.getId(), request.consentPhotos(),
+                request.consentPublicShare(), principal);
     }
 
     @PostMapping("/api/client/tracking/visits/{visitId}/rate")
     public VisitRecordResponse rateVisit(
             @PathVariable Long visitId,
-            @RequestBody RateVisitRequest request) {
-        return trackingService.rateVisit(visitId, request.score(), request.comment());
+            @RequestBody RateVisitRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        return trackingService.rateVisit(visitId, request.score(), request.comment(), principal);
     }
 
     @DeleteMapping("/api/client/tracking/photos")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOwnPhotos(@AuthenticationPrincipal UserPrincipal principal) {
-        trackingService.deleteAllPhotos(principal.getId());
+        trackingService.deleteAllPhotos(principal.getId(), principal);
     }
 
     // ── EMPLOYEE endpoints (/api/employee/tracking) ──
+    // Authorization (access-level gate) is now enforced inside TrackingService.
 
     @GetMapping("/api/employee/tracking/clients/{userId}")
     public ClientHistoryResponse getClientHistoryAsEmployee(
             @PathVariable Long userId,
             @AuthenticationPrincipal UserPrincipal principal) {
-        Long employeeId = resolveEmployeeId(principal.getId());
-        permissionService.requireAccess(employeeId, PermissionDomain.PROFILE, AccessLevel.READ);
-        return trackingService.getClientHistory(userId);
+        return trackingService.getClientHistory(userId, principal);
     }
 
     @PutMapping("/api/employee/tracking/clients/{userId}/profile")
@@ -127,9 +133,7 @@ public class TrackingController {
             @PathVariable Long userId,
             @RequestBody UpdateClientProfileRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        Long employeeId = resolveEmployeeId(principal.getId());
-        permissionService.requireAccess(employeeId, PermissionDomain.PROFILE, AccessLevel.WRITE);
-        return trackingService.updateProfile(userId, request, principal.getId());
+        return trackingService.updateProfile(userId, request, principal);
     }
 
     @PostMapping("/api/employee/tracking/clients/{userId}/visits")
@@ -138,9 +142,7 @@ public class TrackingController {
             @PathVariable Long userId,
             @RequestBody CreateVisitRecordRequest request,
             @AuthenticationPrincipal UserPrincipal principal) {
-        Long employeeId = resolveEmployeeId(principal.getId());
-        permissionService.requireAccess(employeeId, PermissionDomain.VISITS, AccessLevel.WRITE);
-        return trackingService.createVisitRecord(userId, request, principal.getId());
+        return trackingService.createVisitRecord(userId, request, principal);
     }
 
     @GetMapping("/api/employee/permissions/me")

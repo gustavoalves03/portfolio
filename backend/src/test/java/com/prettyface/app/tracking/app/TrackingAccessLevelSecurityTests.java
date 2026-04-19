@@ -1,7 +1,9 @@
 package com.prettyface.app.tracking.app;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.employee.app.EmployeePermissionService;
 import com.prettyface.app.employee.domain.AccessLevel;
+import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.EmployeePermission;
 import com.prettyface.app.employee.domain.PermissionDomain;
 import com.prettyface.app.employee.repo.EmployeePermissionRepository;
@@ -14,6 +16,9 @@ import com.prettyface.app.tracking.repo.VisitPhotoRepository;
 import com.prettyface.app.tracking.repo.VisitRecordRepository;
 import com.prettyface.app.tracking.web.dto.CreateVisitRecordRequest;
 import com.prettyface.app.tracking.web.dto.UpdateClientProfileRequest;
+import com.prettyface.app.users.domain.AuthProvider;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,18 +39,20 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Sec2 — Access level on tracking permissions.
  *
- * The authorization model is split: {@link EmployeePermissionService#requireAccess} is the
- * gate, invoked from {@link com.prettyface.app.tracking.web.TrackingController}. The
- * {@link TrackingService} itself performs NO per-accessLevel check. These tests:
- *   1) Confirm the gate rejects NONE / READ callers trying to perform higher-level actions.
- *   2) Document the gap: if the service is called directly (another controller, a scheduled
- *      job, a developer mistake) there is no second line of defense.
+ * Fix3: authorization is now enforced at the {@link TrackingService} layer. Each
+ * sensitive service method consults {@link EmployeePermissionService#requireAccess}
+ * for non-self, non-PRO callers. The tests in section (2) below — previously marked
+ * {@code _WARN_} to document the gap — are now positive assertions proving the
+ * service rejects employees without adequate permission.
  */
 @ExtendWith(MockitoExtension.class)
 class TrackingAccessLevelSecurityTests {
@@ -57,19 +64,41 @@ class TrackingAccessLevelSecurityTests {
     @InjectMocks
     private EmployeePermissionService permissionService;
 
-    // ── Dependencies for TrackingService (the gap) ──
+    // ── Dependencies for TrackingService (now enforces the gate itself) ──
     @Mock private ClientProfileRepository profileRepo;
     @Mock private VisitRecordRepository visitRepo;
     @Mock private VisitPhotoRepository photoRepo;
     @Mock private ClientReminderRepository reminderRepo;
     @Mock private UserRepository userRepository;
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
+    @Mock private EmployeePermissionService mockPermissionService;
 
     private TrackingService trackingService() {
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
         return new TrackingService(profileRepo, visitRepo, photoRepo, reminderRepo,
-                userRepository, applicationSchemaExecutor);
+                userRepository, applicationSchemaExecutor,
+                mockPermissionService, employeeRepo);
+    }
+
+    private static UserPrincipal principal(Long id) {
+        return new UserPrincipal(id, "user" + id + "@example.com", "User " + id, null);
+    }
+
+    private void stubCallerIsEmployee(Long callerUserId, Long employeeId) {
+        User u = User.builder()
+                .id(callerUserId)
+                .name("Employee")
+                .email("emp@example.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.EMPLOYEE)
+                .build();
+        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(u));
+
+        Employee emp = new Employee();
+        emp.setId(employeeId);
+        emp.setUserId(callerUserId);
+        when(employeeRepo.findByUserId(callerUserId)).thenReturn(Optional.of(emp));
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -80,7 +109,7 @@ class TrackingAccessLevelSecurityTests {
     @DisplayName("Sec2: addVisit_employeeWithReadOnlyVisitAccess_throwsForbidden — gate rejects READ when WRITE required")
     void addVisit_employeeWithReadOnlyVisitAccess_throwsForbidden() {
         // NOTE-SEC: permission gate correctly rejects READ < WRITE for VISITS domain.
-        // This is what TrackingController.createVisitRecordAsEmployee relies on.
+        // This is what TrackingService.createVisitRecord relies on (Fix3).
         EmployeePermission perm = new EmployeePermission();
         perm.setEmployeeId(42L);
         perm.setDomain(PermissionDomain.VISITS);
@@ -128,82 +157,102 @@ class TrackingAccessLevelSecurityTests {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // (2) The gap — TrackingService itself performs no accessLevel check
+    // (2) Fix3: TrackingService enforces accessLevel at the service layer
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Sec2: getClientHistory_WARN_serviceHasNoAccessLevelCheck — any caller reaching the service gets full history")
-    void getClientHistory_WARN_serviceHasNoAccessLevelCheck() {
-        // TODO-SEC: TrackingService has no per-accessLevel gate. Authorization lives only
-        // in TrackingController.getClientHistoryAsEmployee via permissionService.requireAccess(...).
-        // If another entry point (a scheduled job, an admin controller, a future endpoint)
-        // calls the service directly, visits and profile data are returned with no check.
+    @DisplayName("Sec2 / Fix3: getClientHistory_employeeWithoutProfileRead_throwsForbidden — service gate enforced")
+    void getClientHistory_employeeWithoutProfileRead_throwsForbidden() {
         TrackingService service = trackingService();
+
+        Long callerUserId = 900L;
+        Long employeeId = 42L;
+        stubCallerIsEmployee(callerUserId, employeeId);
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient permission"))
+                .when(mockPermissionService).requireAccess(employeeId, PermissionDomain.PROFILE, AccessLevel.READ);
+
+        assertThatThrownBy(() -> service.getClientHistory(7L, principal(callerUserId)))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+
+        // No data reads should have occurred once the gate threw.
+        verify(profileRepo, never()).findByUserId(7L);
+        verify(visitRepo, never()).findByClientProfileIdOrderByVisitDateDesc(any());
+    }
+
+    @Test
+    @DisplayName("Sec2 / Fix3: createVisitRecord_employeeWithoutVisitsWrite_throwsForbidden — service gate enforced")
+    void createVisitRecord_employeeWithoutVisitsWrite_throwsForbidden() {
+        TrackingService service = trackingService();
+
+        Long callerUserId = 900L;
+        Long employeeId = 42L;
+        stubCallerIsEmployee(callerUserId, employeeId);
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient permission"))
+                .when(mockPermissionService).requireAccess(employeeId, PermissionDomain.VISITS, AccessLevel.WRITE);
+
+        CreateVisitRecordRequest req = new CreateVisitRecordRequest(
+                null, null, "Soin visage",
+                LocalDate.now(), "notes", "products");
+
+        assertThatThrownBy(() -> service.createVisitRecord(7L, req, principal(callerUserId)))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+
+        verify(visitRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Sec2 / Fix3: updateProfile_employeeWithoutProfileWrite_throwsForbidden — service gate enforced")
+    void updateProfile_employeeWithoutProfileWrite_throwsForbidden() {
+        TrackingService service = trackingService();
+
+        Long callerUserId = 900L;
+        Long employeeId = 42L;
+        stubCallerIsEmployee(callerUserId, employeeId);
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Insufficient permission"))
+                .when(mockPermissionService).requireAccess(employeeId, PermissionDomain.PROFILE, AccessLevel.WRITE);
+
+        UpdateClientProfileRequest req = new UpdateClientProfileRequest(
+                "injected notes", null, null, null, null);
+
+        assertThatThrownBy(() -> service.updateProfile(7L, req, principal(callerUserId)))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+
+        verify(profileRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Sec2 / Fix3: PRO caller bypasses per-domain permission check")
+    void proCaller_bypassesPermissionCheck() {
+        TrackingService service = trackingService();
+
+        Long proUserId = 1L;
+        User pro = User.builder()
+                .id(proUserId)
+                .name("Owner")
+                .email("owner@example.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
 
         ClientProfile profile = new ClientProfile();
         profile.setId(1L);
         profile.setUserId(7L);
         when(profileRepo.findByUserId(7L)).thenReturn(Optional.of(profile));
         when(visitRepo.findByClientProfileIdOrderByVisitDateDesc(1L)).thenReturn(List.of());
-        when(reminderRepo.findByUserIdAndSentFalseOrderByRecommendedDateAsc(7L))
-                .thenReturn(List.of());
+        when(reminderRepo.findByUserIdAndSentFalseOrderByRecommendedDateAsc(7L)).thenReturn(List.of());
         when(userRepository.findById(7L)).thenReturn(Optional.empty());
 
-        var history = service.getClientHistory(7L);
+        var history = service.getClientHistory(7L, principal(proUserId));
 
-        // No ForbiddenException, no AccessLevel check — returns data unconditionally.
         assertThat(history).isNotNull();
-        assertThat(history.visits()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Sec2: createVisitRecord_WARN_serviceHasNoAccessLevelCheck — WRITE is enforced only by the controller")
-    void createVisitRecord_WARN_serviceHasNoAccessLevelCheck() {
-        // TODO-SEC: TrackingService.createVisitRecord does not consult
-        // EmployeePermissionService — an employee with VISITS=NONE/READ would be blocked
-        // at the controller, but the service itself will happily persist a visit record
-        // if called from any other place.
-        TrackingService service = trackingService();
-
-        ClientProfile profile = new ClientProfile();
-        profile.setId(1L);
-        profile.setUserId(7L);
-        when(profileRepo.findByUserId(7L)).thenReturn(Optional.of(profile));
-        when(visitRepo.save(any())).thenAnswer(inv -> {
-            var v = (com.prettyface.app.tracking.domain.VisitRecord) inv.getArgument(0);
-            v.setId(100L);
-            return v;
-        });
-        when(photoRepo.findByVisitRecordIdOrderByImageOrderAsc(100L)).thenReturn(List.of());
-
-        CreateVisitRecordRequest req = new CreateVisitRecordRequest(
-                null, null, "Soin visage",
-                LocalDate.now(), "notes", "products");
-
-        var result = service.createVisitRecord(7L, req, 42L);
-
-        assertThat(result).isNotNull();
-        assertThat(result.careName()).isEqualTo("Soin visage");
-    }
-
-    @Test
-    @DisplayName("Sec2: updateProfile_WARN_serviceHasNoAccessLevelCheck — profile write bypass if service called directly")
-    void updateProfile_WARN_serviceHasNoAccessLevelCheck() {
-        // TODO-SEC: TrackingService.updateProfile does not check PROFILE=WRITE.
-        TrackingService service = trackingService();
-
-        ClientProfile profile = new ClientProfile();
-        profile.setId(1L);
-        profile.setUserId(7L);
-        when(profileRepo.findByUserId(7L)).thenReturn(Optional.of(profile));
-        when(profileRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-        UpdateClientProfileRequest req = new UpdateClientProfileRequest(
-                "injected notes", null, null, null, null);
-
-        var result = service.updateProfile(7L, req, 42L);
-
-        assertThat(result.notes()).isEqualTo("injected notes");
+        verify(mockPermissionService, never()).requireAccess(any(), any(), any());
     }
 
     // ══════════════════════════════════════════════════════════════

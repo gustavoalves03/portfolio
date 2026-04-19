@@ -1,23 +1,30 @@
 package com.prettyface.app.tracking.app;
 
+import com.prettyface.app.auth.UserPrincipal;
+import com.prettyface.app.employee.app.EmployeePermissionService;
+import com.prettyface.app.employee.domain.AccessLevel;
+import com.prettyface.app.employee.domain.PermissionDomain;
+import com.prettyface.app.employee.repo.EmployeeRepository;
 import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
 import com.prettyface.app.tracking.domain.*;
 import com.prettyface.app.tracking.repo.*;
 import com.prettyface.app.tracking.web.dto.*;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Service
 public class TrackingService {
@@ -30,19 +37,68 @@ public class TrackingService {
     private final ClientReminderRepository reminderRepo;
     private final UserRepository userRepository;
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
+    private final EmployeePermissionService permissionService;
+    private final EmployeeRepository employeeRepository;
 
     public TrackingService(ClientProfileRepository profileRepo,
                            VisitRecordRepository visitRepo,
                            VisitPhotoRepository photoRepo,
                            ClientReminderRepository reminderRepo,
                            UserRepository userRepository,
-                           ApplicationSchemaExecutor applicationSchemaExecutor) {
+                           ApplicationSchemaExecutor applicationSchemaExecutor,
+                           EmployeePermissionService permissionService,
+                           EmployeeRepository employeeRepository) {
         this.profileRepo = profileRepo;
         this.visitRepo = visitRepo;
         this.photoRepo = photoRepo;
         this.reminderRepo = reminderRepo;
         this.userRepository = userRepository;
         this.applicationSchemaExecutor = applicationSchemaExecutor;
+        this.permissionService = permissionService;
+        this.employeeRepository = employeeRepository;
+    }
+
+    // ── Authorization helpers ──
+
+    /**
+     * Verify that the caller may perform an operation on {@code targetUserId}'s tracking
+     * data at the given (domain, level). Rules:
+     * <ul>
+     *   <li>PRO / ADMIN users bypass the per-domain permission check (tenant owners).</li>
+     *   <li>A caller acting on their own tracking data ({@code caller.id == targetUserId})
+     *       bypasses the check (client self-operations).</li>
+     *   <li>Any other caller MUST have an {@link com.prettyface.app.employee.domain.Employee}
+     *       record, and that employee must hold at least {@code level} on {@code domain}.</li>
+     * </ul>
+     * Throws {@link ResponseStatusException} 403 on any failure.
+     */
+    private void requireTrackingAccess(UserPrincipal caller,
+                                       Long targetUserId,
+                                       PermissionDomain domain,
+                                       AccessLevel level) {
+        if (caller == null || caller.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        // Self-access bypasses the per-domain check.
+        if (targetUserId != null && caller.getId().equals(targetUserId)) {
+            return;
+        }
+        Role role = resolveCallerRole(caller.getId());
+        if (role == Role.PRO || role == Role.ADMIN) {
+            return;
+        }
+        // Must be an employee with adequate permission.
+        Long employeeId = employeeRepository.findByUserId(caller.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Caller has no tracking access"))
+                .getId();
+        permissionService.requireAccess(employeeId, domain, level);
+    }
+
+    private Role resolveCallerRole(Long callerId) {
+        return applicationSchemaExecutor.call(() -> userRepository.findById(callerId)
+                .map(User::getRole)
+                .orElse(null));
     }
 
     // ── Profile ──
@@ -59,7 +115,8 @@ public class TrackingService {
     }
 
     @Transactional
-    public ClientProfileResponse updateProfile(Long userId, UpdateClientProfileRequest request, Long modifierId) {
+    public ClientProfileResponse updateProfile(Long userId, UpdateClientProfileRequest request, UserPrincipal caller) {
+        requireTrackingAccess(caller, userId, PermissionDomain.PROFILE, AccessLevel.WRITE);
         ClientProfile profile = profileRepo.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Client profile not found for userId: " + userId));
         if (request.notes() != null) profile.setNotes(request.notes());
@@ -68,12 +125,13 @@ public class TrackingService {
         if (request.allergies() != null) profile.setAllergies(request.allergies());
         if (request.preferences() != null) profile.setPreferences(request.preferences());
         profile.setUpdatedAt(java.time.LocalDateTime.now());
-        profile.setUpdatedBy(modifierId);
+        profile.setUpdatedBy(caller.getId());
         return toProfileResponse(profileRepo.save(profile));
     }
 
     @Transactional
-    public ClientProfileResponse updateConsent(Long userId, boolean consentPhotos, boolean consentPublicShare) {
+    public ClientProfileResponse updateConsent(Long userId, boolean consentPhotos, boolean consentPublicShare, UserPrincipal caller) {
+        requireTrackingAccess(caller, userId, PermissionDomain.PROFILE, AccessLevel.WRITE);
         ClientProfile profile = profileRepo.findByUserId(userId)
                 .orElseGet(() -> {
                     ClientProfile p = new ClientProfile();
@@ -89,7 +147,8 @@ public class TrackingService {
     // ── Visits ──
 
     @Transactional
-    public VisitRecordResponse createVisitRecord(Long userId, CreateVisitRecordRequest request, Long creatorId) {
+    public VisitRecordResponse createVisitRecord(Long userId, CreateVisitRecordRequest request, UserPrincipal caller) {
+        requireTrackingAccess(caller, userId, PermissionDomain.VISITS, AccessLevel.WRITE);
         ClientProfile profile = profileRepo.findByUserId(userId)
                 .orElseGet(() -> {
                     ClientProfile p = new ClientProfile();
@@ -105,7 +164,7 @@ public class TrackingService {
         visit.setVisitDate(request.visitDate());
         visit.setPractitionerNotes(request.practitionerNotes());
         visit.setProductsUsed(request.productsUsed());
-        visit.setUpdatedBy(creatorId);
+        visit.setUpdatedBy(caller.getId());
         visit.setUpdatedAt(java.time.LocalDateTime.now());
         visit = visitRepo.save(visit);
 
@@ -113,9 +172,12 @@ public class TrackingService {
     }
 
     @Transactional
-    public VisitPhotoResponse addVisitPhoto(Long visitRecordId, MultipartFile photo, PhotoType type, Long uploaderId) {
+    public VisitPhotoResponse addVisitPhoto(Long visitRecordId, MultipartFile photo, PhotoType type, UserPrincipal caller) {
         VisitRecord visit = visitRepo.findById(visitRecordId)
                 .orElseThrow(() -> new RuntimeException("Visit record not found: " + visitRecordId));
+
+        Long ownerUserId = resolveOwnerUserId(visit.getClientProfileId());
+        requireTrackingAccess(caller, ownerUserId, PermissionDomain.PHOTOS, AccessLevel.WRITE);
 
         List<VisitPhoto> existing = photoRepo.findByVisitRecordIdOrderByImageOrderAsc(visitRecordId);
         int nextOrder = existing.isEmpty() ? 0 : existing.getLast().getImageOrder() + 1;
@@ -127,19 +189,23 @@ public class TrackingService {
         vp.setPhotoType(type);
         vp.setImagePath(savedPath);
         vp.setImageOrder(nextOrder);
-        vp.setUploadedBy(uploaderId);
+        vp.setUploadedBy(caller.getId());
         vp = photoRepo.save(vp);
 
         return toPhotoResponse(vp);
     }
 
     @Transactional
-    public VisitRecordResponse rateVisit(Long visitRecordId, int score, String comment) {
+    public VisitRecordResponse rateVisit(Long visitRecordId, int score, String comment, UserPrincipal caller) {
         if (score < 1 || score > 5) {
             throw new IllegalArgumentException("Satisfaction score must be between 1 and 5");
         }
         VisitRecord visit = visitRepo.findById(visitRecordId)
                 .orElseThrow(() -> new RuntimeException("Visit record not found: " + visitRecordId));
+
+        Long ownerUserId = resolveOwnerUserId(visit.getClientProfileId());
+        requireTrackingAccess(caller, ownerUserId, PermissionDomain.VISITS, AccessLevel.WRITE);
+
         visit.setSatisfactionScore(score);
         visit.setSatisfactionComment(comment);
         return toVisitResponse(visitRepo.save(visit));
@@ -148,7 +214,11 @@ public class TrackingService {
     // ── History ──
 
     @Transactional
-    public ClientHistoryResponse getClientHistory(Long userId) {
+    public ClientHistoryResponse getClientHistory(Long userId, UserPrincipal caller) {
+        // Composite read: the caller must have at least some tracking access. We use
+        // PROFILE/READ as the minimum bar — most stringent gate covering the history view.
+        requireTrackingAccess(caller, userId, PermissionDomain.PROFILE, AccessLevel.READ);
+
         // Resolve client name from shared schema
         String[] clientInfo = applicationSchemaExecutor.call(() -> {
             var user = userRepository.findById(userId).orElse(null);
@@ -184,7 +254,9 @@ public class TrackingService {
     // ── RGPD: delete all photos ──
 
     @Transactional
-    public void deleteAllPhotos(Long userId) {
+    public void deleteAllPhotos(Long userId, UserPrincipal caller) {
+        requireTrackingAccess(caller, userId, PermissionDomain.PHOTOS, AccessLevel.WRITE);
+
         ClientProfile profile = profileRepo.findByUserId(userId).orElse(null);
         if (profile == null) return;
 
@@ -201,18 +273,27 @@ public class TrackingService {
     // ── Reminders ──
 
     @Transactional
-    public ReminderResponse createReminder(Long userId, CreateReminderRequest request, Long creatorId) {
+    public ReminderResponse createReminder(Long userId, CreateReminderRequest request, UserPrincipal caller) {
+        requireTrackingAccess(caller, userId, PermissionDomain.REMINDERS, AccessLevel.WRITE);
+
         ClientReminder reminder = new ClientReminder();
         reminder.setUserId(userId);
         reminder.setCareId(request.careId());
         reminder.setCareName(request.careName());
         reminder.setRecommendedDate(request.recommendedDate());
         reminder.setMessage(request.message());
-        reminder.setCreatedBy(creatorId);
+        reminder.setCreatedBy(caller.getId());
         return toReminderResponse(reminderRepo.save(reminder));
     }
 
     // ── File operations ──
+
+    private Long resolveOwnerUserId(Long clientProfileId) {
+        if (clientProfileId == null) return null;
+        return profileRepo.findById(clientProfileId)
+                .map(ClientProfile::getUserId)
+                .orElse(null);
+    }
 
     private String saveFile(MultipartFile file, Long visitRecordId, String prefix) {
         try {
