@@ -108,4 +108,44 @@ test.describe('Pro booking creation', () => {
 
     await expect(page.getByTestId('booking-stepper')).not.toBeVisible();
   });
+
+  test('P3 — back navigation preserves state', async ({ page }) => {
+    await loginAsPro(page);
+    await setupProBookingMocks(page);
+
+    await page.goto('/pro/bookings');
+    await page.getByTestId('add-booking-btn').click();
+
+    // Step 1 → 2
+    await page.getByTestId('step-care-item').first().click();
+    await page.getByTestId('step-next-btn').click();
+
+    // Step 2 → 3
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    const months = ['January','February','March','April','May','June',
+      'July','August','September','October','November','December'];
+    const dayAriaLabel = `${months[target.getMonth()]} ${target.getDate()}, ${target.getFullYear()}`;
+    await page.getByRole('button', { name: /open calendar|ouvrir le calendrier/i }).click();
+    await page.getByRole('button', { name: dayAriaLabel, exact: true }).click();
+    await expect(page.getByTestId('slot-btn').first()).toBeVisible();
+    await page.getByTestId('slot-btn').first().click();
+    await page.getByTestId('step-next-btn').click();
+
+    // Confirm we're on step 3
+    await expect(page.getByTestId('client-mode-existing')).toBeVisible();
+
+    // Back to step 2 — date input should be visible again
+    await page.getByTestId('step-back-btn').click();
+    await expect(page.getByTestId('booking-date-input')).toBeVisible();
+
+    // Back to step 1 — care items should be visible again
+    await page.getByTestId('step-back-btn').click();
+    await expect(page.getByTestId('step-care-item').first()).toBeVisible();
+
+    // Re-select a care and proceed forward again
+    await page.getByTestId('step-care-item').first().click();
+    await page.getByTestId('step-next-btn').click();
+    await expect(page.getByTestId('booking-date-input')).toBeVisible();
+  });
 });
