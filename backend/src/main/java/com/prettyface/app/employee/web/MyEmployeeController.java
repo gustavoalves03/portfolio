@@ -48,7 +48,7 @@ public class MyEmployeeController {
     @GetMapping("/leaves")
     public List<LeaveResponse> myLeaves(@AuthenticationPrincipal UserPrincipal principal) {
         Employee emp = resolveEmployee(principal.getId());
-        return leaveService.listByEmployee(emp.getId());
+        return leaveService.listByEmployee(emp.getId(), principal.getId());
     }
 
     @PostMapping("/leaves")

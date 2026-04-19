@@ -1,10 +1,12 @@
 package com.prettyface.app.employee.web;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.employee.app.LeaveRequestService;
 import com.prettyface.app.employee.domain.LeaveType;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,12 +32,15 @@ public class EmployeeLeaveController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    public List<LeaveResponse> listByEmployee(@PathVariable Long employeeId) {
-        return service.listByEmployee(employeeId);
+    public List<LeaveResponse> listByEmployee(@PathVariable Long employeeId,
+                                              @AuthenticationPrincipal UserPrincipal principal) {
+        return service.listByEmployee(employeeId, principal.getId());
     }
 
     @PutMapping("/{leaveId}/review")
-    public LeaveResponse review(@PathVariable Long leaveId, @RequestBody @Valid LeaveReviewDto dto) {
-        return service.reviewLeave(leaveId, dto);
+    public LeaveResponse review(@PathVariable Long leaveId,
+                                @RequestBody @Valid LeaveReviewDto dto,
+                                @AuthenticationPrincipal UserPrincipal principal) {
+        return service.reviewLeave(leaveId, dto, principal.getId());
     }
 }

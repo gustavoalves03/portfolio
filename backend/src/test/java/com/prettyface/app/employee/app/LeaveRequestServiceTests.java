@@ -9,6 +9,11 @@ import com.prettyface.app.employee.repo.LeaveRequestRepository;
 import com.prettyface.app.employee.web.dto.LeaveRequestDto;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.users.domain.AuthProvider;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +22,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,6 +45,12 @@ class LeaveRequestServiceTests {
     @Mock
     private LeaveRequestRepository leaveRequestRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ApplicationSchemaExecutor applicationSchemaExecutor;
+
     @InjectMocks
     private LeaveRequestService leaveRequestService;
 
@@ -44,11 +58,37 @@ class LeaveRequestServiceTests {
     private LeaveRequest pendingLeave;
     private LeaveRequest approvedLeave;
 
+    // Callers
+    private static final Long PRO_USER_ID = 500L;
+    private static final Long EMPLOYEE_USER_ID = 10L; // == employee.getUserId()
+
     @BeforeEach
     void setUp() {
+        lenient().when(applicationSchemaExecutor.call(any()))
+                .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
+
+        // Default caller lookups (lenient — not every test uses every principal).
+        User proUser = User.builder()
+                .id(PRO_USER_ID)
+                .name("Owner")
+                .email("owner@prettyface.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+        lenient().when(userRepository.findById(PRO_USER_ID)).thenReturn(Optional.of(proUser));
+
+        User employeeUser = User.builder()
+                .id(EMPLOYEE_USER_ID)
+                .name("Sophie Martin")
+                .email("sophie@prettyface.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.EMPLOYEE)
+                .build();
+        lenient().when(userRepository.findById(EMPLOYEE_USER_ID)).thenReturn(Optional.of(employeeUser));
+
         employee = new Employee();
         employee.setId(1L);
-        employee.setUserId(10L);
+        employee.setUserId(EMPLOYEE_USER_ID);
         employee.setName("Sophie Martin");
         employee.setEmail("sophie@prettyface.com");
 
@@ -153,7 +193,7 @@ class LeaveRequestServiceTests {
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
         when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        LeaveResponse response = leaveRequestService.reviewLeave(1L, dto);
+        LeaveResponse response = leaveRequestService.reviewLeave(1L, dto, PRO_USER_ID);
 
         assertThat(response.status()).isEqualTo(LeaveStatus.APPROVED);
         assertThat(response.reviewerNote()).isEqualTo("Approved — enjoy your holiday!");
@@ -167,7 +207,7 @@ class LeaveRequestServiceTests {
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
         when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        LeaveResponse response = leaveRequestService.reviewLeave(1L, dto);
+        LeaveResponse response = leaveRequestService.reviewLeave(1L, dto, PRO_USER_ID);
 
         assertThat(response.status()).isEqualTo(LeaveStatus.REJECTED);
         assertThat(response.reviewerNote()).isEqualTo("Cannot approve due to peak season.");
@@ -180,7 +220,7 @@ class LeaveRequestServiceTests {
 
         when(leaveRequestRepository.findById(2L)).thenReturn(Optional.of(approvedLeave));
 
-        assertThatThrownBy(() -> leaveRequestService.reviewLeave(2L, dto))
+        assertThatThrownBy(() -> leaveRequestService.reviewLeave(2L, dto, PRO_USER_ID))
                 .isInstanceOf(IllegalStateException.class);
 
         verify(leaveRequestRepository, never()).save(any());
@@ -202,14 +242,25 @@ class LeaveRequestServiceTests {
     // ── listByEmployee ──
 
     @Test
-    void listByEmployee_returnsEmployeeLeaves() {
+    void listByEmployee_callerIsOwnEmployee_returnsOwnLeaves() {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
         when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(1L))
                 .thenReturn(List.of(pendingLeave, approvedLeave));
 
-        List<LeaveResponse> result = leaveRequestService.listByEmployee(1L);
+        List<LeaveResponse> result = leaveRequestService.listByEmployee(1L, EMPLOYEE_USER_ID);
 
         assertThat(result).hasSize(2);
         assertThat(result).allMatch(r -> r.employeeId().equals(1L));
+    }
+
+    @Test
+    void listByEmployee_callerIsPro_returnsLeaves() {
+        when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(1L))
+                .thenReturn(List.of(pendingLeave, approvedLeave));
+
+        List<LeaveResponse> result = leaveRequestService.listByEmployee(1L, PRO_USER_ID);
+
+        assertThat(result).hasSize(2);
     }
 
     // ── isOnLeave ──
@@ -260,143 +311,117 @@ class LeaveRequestServiceTests {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // ── Lot2 Sec1: Cross-tenant IDOR on leave requests ──
+    // ── Lot2 Sec1: Cross-tenant IDOR on leave requests (documented) ──
     // ══════════════════════════════════════════════════════════════
     // NOTE-SEC: LeaveRequest has no tenantSlug/tenantId column and is stored in
-    // the per-tenant schema routed by TenantContext. LeaveRequestService
-    // methods (listByEmployee, reviewLeave, createLeave, attachDocument) take
-    // an arbitrary employeeId / leaveId and perform NO tenant or caller-scope
-    // verification. If the schema router is bypassed OR a caller in salon A
-    // knows the leaveId of a request in salon B, the service trusts the
-    // schema-level isolation only.
+    // the per-tenant schema routed by TenantContext. The per-tenant schema
+    // routing is the primary isolation boundary here; a caller who IS a PRO in
+    // tenant A will be denied by Fix4b when reviewing tenant A's leaves only
+    // because the schema router already ensured the leaveId is from tenant A's
+    // schema. Cross-tenant isolation as a whole is out of scope for Fix4b —
+    // documented here as a NOTE for a follow-up pass.
 
     @Test
-    @DisplayName("Lot2#41: listByEmployee_WARN_doesNotCheckTenantOwnership — NO tenant check (FINDING)")
-    void listByEmployee_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: LeaveRequestService.listByEmployee(employeeId) takes any
-        // employeeId and returns that employee's leave requests. No ownership
-        // check, no tenant check, no caller-scope check at the service layer.
-        // If the schema router is bypassed, cross-tenant read of leaves is
-        // possible.
+    @DisplayName("Lot2#41: listByEmployee_callerCheck_protectsEvenWithoutTenantCheck — Fix4b narrows the blast radius")
+    void listByEmployee_callerCheck_protectsEvenWithoutTenantCheck() {
+        // Fix4b: a non-PRO caller asking for another employee's leaves is rejected
+        // at the service layer, independently of tenant routing.
         Long crossTenantEmployeeId = 777L;
-        when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(crossTenantEmployeeId))
-                .thenReturn(List.of(approvedLeave));
+        Employee otherEmployee = new Employee();
+        otherEmployee.setId(crossTenantEmployeeId);
+        otherEmployee.setUserId(888L); // NOT the caller's userId
+        when(employeeRepository.findById(crossTenantEmployeeId)).thenReturn(Optional.of(otherEmployee));
 
-        // Service runs without verifying caller has access to employeeId=777
-        List<LeaveResponse> result = leaveRequestService.listByEmployee(crossTenantEmployeeId);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).status()).isEqualTo(LeaveStatus.APPROVED);
-        // No tenant/caller lookup collaborator consulted — documents the gap.
+        // Caller is a plain EMPLOYEE (not PRO) asking about employeeId=777
+        assertThatThrownBy(() ->
+                leaveRequestService.listByEmployee(crossTenantEmployeeId, EMPLOYEE_USER_ID))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+        verify(leaveRequestRepository, never()).findByEmployeeIdOrderByStartDateDesc(any());
     }
 
     @Test
-    @DisplayName("Lot2#41b: reviewLeave_WARN_doesNotCheckTenantOwnership — can approve arbitrary leaveId")
-    void reviewLeave_WARN_doesNotCheckTenantOwnership() {
-        // TODO-SEC: LeaveRequestService.reviewLeave(leaveId, dto) looks up the
-        // leave by id only. If an attacker guesses a leaveId from another
-        // salon (and the schema router is bypassed), they can approve/reject it.
+    @DisplayName("Lot2#41b: reviewLeave_callerCheck_rejectsNonPro — service refuses non-owner callers")
+    void reviewLeave_callerCheck_rejectsNonPro() {
         LeaveReviewDto dto = new LeaveReviewDto(LeaveStatus.APPROVED, "cross-tenant review");
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
-        when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        LeaveResponse result = leaveRequestService.reviewLeave(1L, dto);
+        // Caller is a plain USER (not PRO/ADMIN). A leave reviewer must be PRO/ADMIN.
+        Long plainUserId = 999L;
+        User plainUser = User.builder()
+                .id(plainUserId)
+                .name("Attacker")
+                .email("attacker@example.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.USER)
+                .build();
+        when(userRepository.findById(plainUserId)).thenReturn(Optional.of(plainUser));
 
-        assertThat(result.status()).isEqualTo(LeaveStatus.APPROVED);
-        // No cross-check against caller's tenant/employee scope.
+        assertThatThrownBy(() -> leaveRequestService.reviewLeave(1L, dto, plainUserId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+        verify(leaveRequestRepository, never()).save(any());
     }
 
     // ══════════════════════════════════════════════════════════════
-    // ── Lot3 Sec74: Self-approve leave ──
+    // ── Lot3 Sec74 / Fix4b: Self-approve leave ──
     // ══════════════════════════════════════════════════════════════
-    // NOTE-SEC: LeaveRequestService.reviewLeave(leaveId, dto) performs no check
-    // that the caller is distinct from the leave's owner employee. The
-    // EmployeeLeaveController exposes PUT /api/pro/leaves/{leaveId}/review —
-    // Spring Security's URL-prefix rule ("/api/pro/**" requires pro/owner role)
-    // is the *only* guard. There is no service-layer protection against the
-    // scenario where:
-    //   - the "pro" role is shared by multiple people in the same salon,
-    //   - a future /api/employee/... endpoint is added (same service),
-    //   - a developer reuses the service from a non-"pro" controller.
-    // In all those cases an employee could call reviewLeave(myOwnLeaveId, APPROVED)
-    // and self-approve vacation. The service trusts that the controller did the
-    // right thing. That is a brittle invariant — the service must also check.
+    // Fix4b: reviewLeave now takes callerUserId and refuses if the caller's
+    // userId matches the leave owner's userId.
 
     @Test
-    @DisplayName("Lot3#74: reviewLeave_WARN_allowsSelfApproveBecauseNoCallerCheck — employee can approve own leave at service layer")
-    void reviewLeave_WARN_allowsSelfApproveBecauseNoCallerCheck() {
-        // TODO-SEC: reviewLeave has NO caller/principal argument. An employee
-        // whose employeeId == pendingLeave.getEmployee().getId() can self-approve
-        // their own leave if they reach this service. Guard should live here,
-        // not only in the URL prefix of the controller.
-        Long selfEmployeeId = employee.getId();          // the leave owner
-        assertThat(pendingLeave.getEmployee().getId()).isEqualTo(selfEmployeeId);
+    @DisplayName("Lot3#74 / Fix4b: reviewLeave_selfApproval_throwsForbidden — service refuses self-approval")
+    void reviewLeave_selfApproval_throwsForbidden() {
+        // The employee owning pendingLeave has userId == EMPLOYEE_USER_ID.
+        // If that user somehow had PRO role (mis-configured account) and tried
+        // to self-approve, the service must still refuse.
+        Long selfCallerUserId = EMPLOYEE_USER_ID;
+        User selfPro = User.builder()
+                .id(selfCallerUserId)
+                .name("Sophie Martin")
+                .email("sophie@prettyface.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO) // even if somehow PRO
+                .build();
+        when(userRepository.findById(selfCallerUserId)).thenReturn(Optional.of(selfPro));
 
         LeaveReviewDto selfApproveDto = new LeaveReviewDto(
                 LeaveStatus.APPROVED, "approved by me, for me");
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
-        when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        // Service proceeds unconditionally — no "callerId != leave.owner" check
-        LeaveResponse result = leaveRequestService.reviewLeave(1L, selfApproveDto);
-
-        assertThat(result.status()).isEqualTo(LeaveStatus.APPROVED);
-        assertThat(result.reviewerNote()).isEqualTo("approved by me, for me");
-        assertThat(result.employeeId()).isEqualTo(selfEmployeeId);
-        // Documents the gap: the saved leave is APPROVED, owned by the same
-        // employee who (hypothetically) just called reviewLeave.
-        ArgumentCaptor<LeaveRequest> captor = ArgumentCaptor.forClass(LeaveRequest.class);
-        verify(leaveRequestRepository).save(captor.capture());
-        assertThat(captor.getValue().getStatus()).isEqualTo(LeaveStatus.APPROVED);
-        assertThat(captor.getValue().getEmployee().getId()).isEqualTo(selfEmployeeId);
+        assertThatThrownBy(() ->
+                leaveRequestService.reviewLeave(1L, selfApproveDto, selfCallerUserId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+        verify(leaveRequestRepository, never()).save(any());
     }
 
     // ══════════════════════════════════════════════════════════════
-    // ── Lot3 Sec75: Read colleague's leave ──
+    // ── Lot3 Sec75 / Fix4b: Read colleague's leave ──
     // ══════════════════════════════════════════════════════════════
-    // NOTE-SEC: LeaveRequestService.listByEmployee(employeeId) takes any
-    // employeeId and returns all their leaves. No check that the caller is
-    // either (a) that employee, or (b) a pro/owner. Combined with the tenant
-    // gap already documented in Lot2#41, this is also a *horizontal*
-    // privilege-escalation gap: even inside the same salon, employee A could
-    // read employee B's leave history (sick days, etc.) if they reach the
-    // service.
+    // Fix4b: listByEmployee now takes callerUserId. Allowed iff caller is the
+    // target employee, or caller is PRO/ADMIN.
 
     @Test
-    @DisplayName("Lot3#75: listByEmployee_WARN_allowsColleagueReadBecauseNoCallerCheck — employee A can read B's leaves at service layer")
-    void listByEmployee_WARN_allowsColleagueReadBecauseNoCallerCheck() {
-        // TODO-SEC: listByEmployee has NO caller/principal argument. Employee A
-        // (callerId=1L) asking for employee B's (targetId=2L) leaves gets them
-        // back unconditionally. Guard should compare caller == target OR
-        // caller.role == PRO/OWNER at the service layer.
-        Long colleagueEmployeeId = 2L;                    // NOT the caller
+    @DisplayName("Lot3#75 / Fix4b: listByEmployee_colleague_throwsForbidden — employee A cannot read B's leaves")
+    void listByEmployee_colleague_throwsForbidden() {
+        Long colleagueEmployeeId = 2L;
         Employee colleague = new Employee();
         colleague.setId(colleagueEmployeeId);
-        colleague.setUserId(20L);
+        colleague.setUserId(20L); // different userId from the caller
         colleague.setName("Claire Durand");
         colleague.setEmail("claire@prettyface.com");
+        when(employeeRepository.findById(colleagueEmployeeId)).thenReturn(Optional.of(colleague));
 
-        LeaveRequest colleagueSickLeave = new LeaveRequest();
-        colleagueSickLeave.setId(99L);
-        colleagueSickLeave.setEmployee(colleague);
-        colleagueSickLeave.setType(LeaveType.SICKNESS);
-        colleagueSickLeave.setStatus(LeaveStatus.APPROVED);
-        colleagueSickLeave.setStartDate(LocalDate.of(2025, 3, 10));
-        colleagueSickLeave.setEndDate(LocalDate.of(2025, 3, 12));
-        colleagueSickLeave.setReason("Flu");
-
-        when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(colleagueEmployeeId))
-                .thenReturn(List.of(colleagueSickLeave));
-
-        // Service has no idea who is asking — returns the colleague's leaves
-        List<LeaveResponse> result = leaveRequestService.listByEmployee(colleagueEmployeeId);
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).employeeId()).isEqualTo(colleagueEmployeeId);
-        assertThat(result.get(0).employeeName()).isEqualTo("Claire Durand");
-        assertThat(result.get(0).type()).isEqualTo(LeaveType.SICKNESS);
-        assertThat(result.get(0).reason()).isEqualTo("Flu");
-        // Documents the gap: sensitive data (reason="Flu", sick-leave dates)
-        // exposed without a caller-identity check.
+        // Caller is EMPLOYEE_USER_ID (Role.EMPLOYEE), NOT the colleague and NOT a PRO
+        assertThatThrownBy(() ->
+                leaveRequestService.listByEmployee(colleagueEmployeeId, EMPLOYEE_USER_ID))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+        verify(leaveRequestRepository, never()).findByEmployeeIdOrderByStartDateDesc(any());
     }
 }

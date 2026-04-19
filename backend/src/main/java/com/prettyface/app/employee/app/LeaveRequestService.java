@@ -9,8 +9,14 @@ import com.prettyface.app.employee.repo.LeaveRequestRepository;
 import com.prettyface.app.employee.web.dto.LeaveRequestDto;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,11 +27,17 @@ public class LeaveRequestService {
 
     private final EmployeeRepository employeeRepository;
     private final LeaveRequestRepository leaveRequestRepository;
+    private final UserRepository userRepository;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
 
     public LeaveRequestService(EmployeeRepository employeeRepository,
-                               LeaveRequestRepository leaveRequestRepository) {
+                               LeaveRequestRepository leaveRequestRepository,
+                               UserRepository userRepository,
+                               ApplicationSchemaExecutor applicationSchemaExecutor) {
         this.employeeRepository = employeeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
+        this.userRepository = userRepository;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
     }
 
     @Transactional
@@ -50,9 +62,13 @@ public class LeaveRequestService {
     }
 
     @Transactional
-    public LeaveResponse reviewLeave(Long leaveId, LeaveReviewDto dto) {
+    public LeaveResponse reviewLeave(Long leaveId, LeaveReviewDto dto, Long callerUserId) {
         LeaveRequest leave = leaveRequestRepository.findById(leaveId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + leaveId));
+
+        // Caller must be a PRO/ADMIN tenant owner, and must not be the leave's owner
+        // (no self-approval).
+        requireReviewer(callerUserId, leave);
 
         if (leave.getStatus() != LeaveStatus.PENDING) {
             throw new IllegalStateException("Leave request has already been reviewed");
@@ -85,7 +101,8 @@ public class LeaveRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<LeaveResponse> listByEmployee(Long employeeId) {
+    public List<LeaveResponse> listByEmployee(Long employeeId, Long callerUserId) {
+        requireOwnLeavesOrManager(callerUserId, employeeId);
         return leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(employeeId)
                 .stream().map(this::toResponse).toList();
     }
@@ -106,6 +123,59 @@ public class LeaveRequestService {
         leave.setDocumentPath(documentPath);
         LeaveRequest saved = leaveRequestRepository.save(leave);
         return toResponse(saved);
+    }
+
+    // -----------------------------------------------------------------------
+    // Authorization helpers
+    // -----------------------------------------------------------------------
+
+    private Role resolveCallerRole(Long callerUserId) {
+        if (callerUserId == null) return null;
+        return applicationSchemaExecutor.call(() -> userRepository.findById(callerUserId)
+                .map(User::getRole)
+                .orElse(null));
+    }
+
+    /**
+     * A leave reviewer must be a tenant owner (PRO or ADMIN) AND must NOT be the
+     * leave's owner employee (no self-approval).
+     */
+    private void requireReviewer(Long callerUserId, LeaveRequest leave) {
+        if (callerUserId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        Role role = resolveCallerRole(callerUserId);
+        if (role != Role.PRO && role != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only tenant owners may review leave requests");
+        }
+        Employee owner = leave.getEmployee();
+        if (owner != null && callerUserId.equals(owner.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot review your own leave request");
+        }
+    }
+
+    /**
+     * Reading an employee's leaves is allowed if the caller IS that employee,
+     * or if the caller is a tenant owner (PRO/ADMIN).
+     */
+    private void requireOwnLeavesOrManager(Long callerUserId, Long targetEmployeeId) {
+        if (callerUserId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        // Tenant owners always allowed.
+        Role role = resolveCallerRole(callerUserId);
+        if (role == Role.PRO || role == Role.ADMIN) {
+            return;
+        }
+        // Caller is reading their own leaves?
+        Employee target = employeeRepository.findById(targetEmployeeId).orElse(null);
+        if (target != null && callerUserId.equals(target.getUserId())) {
+            return;
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Cannot read another employee's leaves");
     }
 
     // -----------------------------------------------------------------------
