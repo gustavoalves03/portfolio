@@ -2,7 +2,11 @@ package com.prettyface.app.care.app;
 
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.repo.CareBookingRepository;
+import com.prettyface.app.care.domain.Care;
+import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.care.web.dto.CareRequest;
+import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.common.storage.FileStorageService;
 import com.prettyface.app.multitenancy.TenantContext;
@@ -18,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -101,6 +106,59 @@ class CareServiceDeletionTests {
     // performs NO explicit tenant check — it only checks for future bookings then
     // forwards to repo.deleteById(). If the schema router is bypassed, a pro from
     // salon A could delete a care from salon B.
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Final Lot: update — no cascade to bookings ──
+    // ══════════════════════════════════════════════════════════════
+    // CareBooking references Care via FK (no snapshot of name/price/duration).
+    // The current design means historical bookings DO reflect the post-update
+    // care name / price if fetched fresh — there is no "frozen snapshot". This
+    // test documents the complementary guarantee: CareService.update() itself
+    // does NOT touch CareBookingRepository nor iterate existing bookings. The
+    // update is purely a Care row mutation; snapshot semantics would have to
+    // be added at the CareBooking entity level (new columns).
+
+    @Test
+    @DisplayName("FinalLot: update_onlyTouchesCareRow_doesNotInvokeBookingRepo")
+    void update_doesNotCascadeToBookingRepo() {
+        Care existing = new Care();
+        existing.setId(1L);
+        existing.setName("Soin visage — ancien nom");
+        existing.setPrice(5000);
+        existing.setDescription("desc");
+        existing.setDuration(30);
+        existing.setStatus(CareStatus.ACTIVE);
+        Category cat = new Category();
+        cat.setId(7L);
+        existing.setCategory(cat);
+
+        when(repo.findById(1L)).thenReturn(Optional.of(existing));
+        when(categoryRepository.findById(7L)).thenReturn(Optional.of(cat));
+        when(repo.save(any(Care.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CareRequest req = new CareRequest(
+                "Soin visage — nouveau nom",
+                7500,                  // price updated
+                "new description",
+                45,                    // duration updated
+                CareStatus.ACTIVE,
+                7L,
+                null
+        );
+
+        service.update(1L, req);
+
+        // The care row gets the new fields in-place.
+        assertThat(existing.getName()).isEqualTo("Soin visage — nouveau nom");
+        assertThat(existing.getPrice()).isEqualTo(7500);
+        assertThat(existing.getDuration()).isEqualTo(45);
+
+        // Key assertion: booking repository is never consulted or mutated.
+        // Historical bookings keep their original FK but read through to the
+        // updated Care row; there is no separate snapshot to sync/rewrite.
+        verifyNoInteractions(careBookingRepository);
+        verify(repo).save(existing);
+    }
 
     @Test
     @DisplayName("Lot2#27: delete_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
