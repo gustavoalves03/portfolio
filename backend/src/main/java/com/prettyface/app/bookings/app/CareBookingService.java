@@ -179,6 +179,10 @@ public class CareBookingService {
                     "The requested time slot is not available.");
         }
 
+        // Clear any stale CANCELLED row for the same slot triple so the unique
+        // constraint UK_BOOKING_SLOT doesn't fire on re-booking (see createClientBooking).
+        evictCancelledBookingsForSlot(req.appointmentDate(), req.appointmentTime(), req.careId());
+
         CareBooking b = new CareBooking();
         b.setUser(user);
         b.setCare(care);
@@ -193,6 +197,26 @@ public class CareBookingService {
             // concurrent insert should surface as a clean 409 with a user-friendly
             // message, not a raw DataIntegrityViolationException.
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+        }
+    }
+
+    /**
+     * Hard-deletes any CANCELLED booking rows holding the given (date, time, care)
+     * slot triple. Needed because {@code UK_BOOKING_SLOT} is a plain unique constraint
+     * (no {@code status} filter) and the cancel flow is a soft-delete, so a stale
+     * cancelled row would block a legitimate re-book on the same slot.
+     *
+     * <p>Called from {@link #create(CareBookingRequest)} and
+     * {@link #createClientBooking(User, User, String, ClientBookingRequest)} right
+     * before the insert. The cancelled booking's history is already preserved
+     * in the shared {@code CLIENT_BOOKING_HISTORY} table.
+     */
+    private void evictCancelledBookingsForSlot(LocalDate date, LocalTime time, Long careId) {
+        List<CareBooking> stale = repo.findByAppointmentDateAndAppointmentTimeAndCareIdAndStatus(
+                date, time, careId, CareBookingStatus.CANCELLED);
+        if (!stale.isEmpty()) {
+            repo.deleteAll(stale);
+            repo.flush();
         }
     }
 
@@ -343,6 +367,13 @@ public class CareBookingService {
         if (!slotAvailable) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
         }
+
+        // UK_BOOKING_SLOT (appointment_date, appointment_time, care_id) is a plain
+        // unique constraint — cancel is a soft-delete that leaves the row in place,
+        // so a stale CANCELLED row would collide on re-booking. Hard-delete any
+        // cancelled booking for the same slot triple before inserting the new one.
+        // History/audit is preserved independently in CLIENT_BOOKING_HISTORY.
+        evictCancelledBookingsForSlot(req.appointmentDate(), time, req.careId());
 
         CareBooking booking = new CareBooking();
         booking.setUser(client);

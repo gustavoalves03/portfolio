@@ -56,6 +56,19 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
         Long careId, LocalDate date, CareBookingStatus status);
 
     /**
+     * Find any existing bookings for a specific (date, time, care) triple with a given status.
+     * Used on re-booking a previously cancelled slot to hard-delete the stale CANCELLED row
+     * before inserting the new one — otherwise the {@code UK_BOOKING_SLOT} unique constraint
+     * would fire on the cancelled row.
+     */
+    List<CareBooking> findByAppointmentDateAndAppointmentTimeAndCareIdAndStatus(
+        LocalDate appointmentDate,
+        java.time.LocalTime appointmentTime,
+        Long careId,
+        CareBookingStatus status
+    );
+
+    /**
      * Count future non-cancelled bookings for a specific care
      */
     long countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
