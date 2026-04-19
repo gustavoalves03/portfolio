@@ -18,9 +18,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -126,5 +129,59 @@ class PostServiceCrudTests {
         });
 
         assertThat(response.type()).isEqualTo(PostType.CAROUSEL);
+    }
+
+    @Test
+    @DisplayName("Lot8 #4: update changes caption/care without touching image paths")
+    void update_caption_doesNotTouchImagePaths() {
+        Post existing = new Post();
+        existing.setId(55L);
+        existing.setType(PostType.PHOTO);
+        existing.setCaption("old caption");
+        existing.setAfterImagePath("uploads/posts/photo-keep.jpg");
+        existing.setBeforeImagePath(null);
+
+        when(postRepo.findById(55L)).thenReturn(Optional.of(existing));
+        when(postRepo.save(any(Post.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        PostResponse response = service.update(55L, "new caption", 3L, "Mask");
+
+        ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
+        verify(postRepo).save(captor.capture());
+        Post saved = captor.getValue();
+        assertThat(saved.getCaption()).isEqualTo("new caption");
+        assertThat(saved.getCareId()).isEqualTo(3L);
+        assertThat(saved.getCareName()).isEqualTo("Mask");
+        // images preserved
+        assertThat(saved.getAfterImagePath()).isEqualTo("uploads/posts/photo-keep.jpg");
+        assertThat(saved.getBeforeImagePath()).isNull();
+        // type must not change via update
+        assertThat(saved.getType()).isEqualTo(PostType.PHOTO);
+
+        assertThat(response.caption()).isEqualTo("new caption");
+        assertThat(response.careName()).isEqualTo("Mask");
+    }
+
+    @Test
+    @DisplayName("Lot8 #4b: update throws when post does not exist")
+    void update_unknownId_throws() {
+        when(postRepo.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(999L, "x", null, null))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Post not found");
+
+        verify(postRepo, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Lot8 #5: delete removes post images then the post row")
+    void delete_removesImagesThenPost() {
+        service.delete(12L);
+
+        // order matters: images first (FK), then post
+        var inOrder = org.mockito.Mockito.inOrder(postImageRepo, postRepo);
+        inOrder.verify(postImageRepo).deleteByPostId(12L);
+        inOrder.verify(postRepo).deleteById(12L);
     }
 }
