@@ -138,5 +138,9 @@ test.describe('Client registration', () => {
     // Form stays on screen (no redirect) — user can correct the email and retry.
     await expect(page.getByTestId('register-form')).toBeVisible();
     await expect(page.url()).toMatch(/\/register/);
+
+    // After submit + 409 response, submit must be re-enabled and conflict error visible.
+    await expect(page.getByTestId('register-submit')).toBeEnabled();
+    await expect(page.getByTestId('register-email-conflict')).toBeVisible();
   });
 });

@@ -127,6 +127,6 @@ describe('RegisterComponent', () => {
 
     component.onSubmit();
 
-    expect(component.emailConflictError).toBeTrue();
+    expect(component.emailConflictError()).toBeTrue();
   });
 });

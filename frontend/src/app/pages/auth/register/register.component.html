@@ -26,7 +26,7 @@
         @if (emailControl?.hasError('email') && emailControl?.touched) {
           <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
         }
-        @if (emailConflictError) {
+        @if (emailConflictError()) {
           <mat-error data-testid="register-email-conflict">{{ 'auth.errors.emailAlreadyInUse' | transloco }}</mat-error>
         }
       </mat-form-field>
@@ -61,8 +61,8 @@
         type="submit"
         class="submit-btn full-width"
         data-testid="register-submit"
-        [disabled]="isLoading">
-        @if (isLoading) {
+        [disabled]="isLoading()">
+        @if (isLoading()) {
           <mat-spinner diameter="20" />
         } @else {
           {{ 'auth.register.submit' | transloco }}

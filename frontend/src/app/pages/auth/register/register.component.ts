@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -40,8 +40,8 @@ export class RegisterComponent {
     consent: [false, Validators.requiredTrue],
   });
 
-  isLoading = false;
-  emailConflictError = false;
+  readonly isLoading = signal(false);
+  readonly emailConflictError = signal(false);
 
   get nameControl() { return this.form.get('name'); }
   get emailControl() { return this.form.get('email'); }
@@ -54,20 +54,22 @@ export class RegisterComponent {
       return;
     }
 
-    this.isLoading = true;
-    this.emailConflictError = false;
+    this.isLoading.set(true);
+    this.emailConflictError.set(false);
 
     const { name, email, password } = this.form.value;
 
     this.authService.registerClient(name!, email!, password!).subscribe({
       next: () => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.authService.navigateByRole();
       },
       error: (err: HttpErrorResponse) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         if (err.status === 409) {
-          this.emailConflictError = true;
+          this.emailConflictError.set(true);
+          this.emailControl?.setErrors({ conflict: true });
+          this.emailControl?.markAsTouched();
         }
       },
     });
