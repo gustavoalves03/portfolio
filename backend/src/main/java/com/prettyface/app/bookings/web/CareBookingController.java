@@ -47,9 +47,10 @@ public class CareBookingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) Long userId,
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return service.listDetailed(status, from, to, userId, pageable);
+        return service.listDetailed(status, from, to, userId, pageable, principal);
     }
 
     @GetMapping("/{id}")

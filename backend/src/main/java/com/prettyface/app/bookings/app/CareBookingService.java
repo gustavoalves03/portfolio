@@ -96,7 +96,34 @@ public class CareBookingService {
             Long userId,
             Pageable pageable
     ) {
-        Page<CareBooking> bookings = repo.findByFilters(status, from, to, userId, pageable);
+        return listDetailed(status, from, to, userId, pageable, null);
+    }
+
+    /**
+     * List bookings with optional filters, automatically scoping the result set
+     * to the caller's own assignments when the caller is a plain EMPLOYEE
+     * (PRO / ADMIN callers see every booking in the tenant). A {@code null}
+     * caller is treated as "no extra scoping", which preserves behaviour for
+     * internal/background calls and existing tests.
+     */
+    @Transactional(readOnly = true)
+    public Page<CareBookingDetailedResponse> listDetailed(
+            CareBookingStatus status,
+            LocalDate from,
+            LocalDate to,
+            Long userId,
+            Pageable pageable,
+            UserPrincipal caller
+    ) {
+        Long employeeIdFilter = resolveEmployeeScope(caller);
+
+        Page<CareBooking> bookings;
+        if (employeeIdFilter != null) {
+            bookings = repo.findByFiltersAndEmployeeId(
+                    status, from, to, userId, employeeIdFilter, pageable);
+        } else {
+            bookings = repo.findByFilters(status, from, to, userId, pageable);
+        }
 
         // Resolve employee names in batch
         java.util.Set<Long> employeeIds = bookings.getContent().stream()
@@ -425,6 +452,28 @@ public class CareBookingService {
     // -----------------------------------------------------------------------
     // Authorisation helpers
     // -----------------------------------------------------------------------
+
+    /**
+     * When a caller is provided and their role is EMPLOYEE, return the
+     * employeeId they are allowed to see (= their own). PRO / ADMIN / null
+     * callers return {@code null}, meaning "no employee scope applied".
+     */
+    private Long resolveEmployeeScope(UserPrincipal caller) {
+        if (caller == null) {
+            return null;
+        }
+        Role role = userRepository.findById(caller.getId())
+                .map(User::getRole)
+                .orElse(null);
+        if (role == Role.PRO || role == Role.ADMIN) {
+            return null;
+        }
+        // EMPLOYEE (or unknown role) — lock results to their own employeeId.
+        return employeeRepository.findByUserId(caller.getId())
+                .map(com.prettyface.app.employee.domain.Employee::getId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "No employee profile linked to caller"));
+    }
 
     /**
      * EMPLOYEE callers may only mutate bookings where they are the assigned

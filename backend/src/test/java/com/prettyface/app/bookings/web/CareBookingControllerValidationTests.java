@@ -88,7 +88,7 @@ class CareBookingControllerValidationTests {
         // with the inverted range; the query naturally returns an empty page (from < to
         // is impossible), so no crash and no data leak. Documented: if business rules
         // require a 400 here, add a @RequestParam-level guard in the controller.
-        when(service.listDetailed(any(), any(), any(), any(), any()))
+        when(service.listDetailed(any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
 
         mvc.perform(get("/api/bookings/detailed")
@@ -198,7 +198,7 @@ class CareBookingControllerValidationTests {
         // NotificationController) — coverage on a second Page-returning endpoint.
         org.mockito.ArgumentCaptor<org.springframework.data.domain.Pageable> captor =
                 org.mockito.ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
-        when(service.listDetailed(any(), any(), any(), any(), captor.capture()))
+        when(service.listDetailed(any(), any(), any(), any(), captor.capture(), any()))
                 .thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 100), 0));
 
         mvc.perform(get("/api/bookings/detailed")

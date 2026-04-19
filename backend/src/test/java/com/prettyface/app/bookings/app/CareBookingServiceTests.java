@@ -1082,32 +1082,51 @@ class CareBookingServiceTests {
     // flow) performs no check against booking.getEmployeeId vs the caller.
 
     @Test
-    @DisplayName("Lot2#63: listDetailed_WARN_doesNotScopeByCallerEmployee — NO employee-scope check (FINDING)")
-    void listDetailed_WARN_doesNotScopeByCallerEmployee() {
-        // TODO-SEC: CareBookingService.listDetailed has no caller-employee
-        // filter. Any authenticated pro/employee in the tenant's schema can
-        // list every booking, including those assigned to other employees.
-        // Within a single tenant this exposes colleagues' schedules; across
-        // tenants it depends on schema router correctness only.
-        CareBooking otherEmployeeBooking = new CareBooking();
-        otherEmployeeBooking.setId(700L);
-        otherEmployeeBooking.setUser(client);
-        otherEmployeeBooking.setCare(care30min);
-        otherEmployeeBooking.setAppointmentDate(futureDate);
-        otherEmployeeBooking.setAppointmentTime(LocalTime.of(10, 0));
-        otherEmployeeBooking.setStatus(CareBookingStatus.CONFIRMED);
-        otherEmployeeBooking.setEmployeeId(42L); // assigned to "other" employee
+    @DisplayName("Lot2#63: listDetailed_employeeCaller_onlyOwnBookings — EMPLOYEE caller is auto-scoped to their own bookings")
+    void listDetailed_employeeCaller_onlyOwnBookings() {
+        // When the caller is a plain EMPLOYEE, CareBookingService.listDetailed
+        // now delegates to findByFiltersAndEmployeeId(...) so the result set
+        // cannot include colleagues' bookings. PRO/ADMIN callers still see
+        // everything (separately tested).
+        Long callerUserId = 900L;
+        Long callerEmployeeId = 7L;
+
+        User callerUser = User.builder()
+                .id(callerUserId)
+                .name("Louise")
+                .email("louise@salon.fr")
+                .role(Role.EMPLOYEE)
+                .build();
+        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
+
+        com.prettyface.app.employee.domain.Employee callerEmployee = new com.prettyface.app.employee.domain.Employee();
+        callerEmployee.setId(callerEmployeeId);
+        callerEmployee.setUserId(callerUserId);
+        when(employeeRepository.findByUserId(callerUserId)).thenReturn(Optional.of(callerEmployee));
+
+        CareBooking ownBooking = new CareBooking();
+        ownBooking.setId(701L);
+        ownBooking.setUser(client);
+        ownBooking.setCare(care30min);
+        ownBooking.setAppointmentDate(futureDate);
+        ownBooking.setAppointmentTime(LocalTime.of(10, 0));
+        ownBooking.setStatus(CareBookingStatus.CONFIRMED);
+        ownBooking.setEmployeeId(callerEmployeeId);
 
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
-        when(bookingRepo.findByFilters(any(), any(), any(), any(), any(org.springframework.data.domain.Pageable.class)))
-                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(otherEmployeeBooking)));
+        when(bookingRepo.findByFiltersAndEmployeeId(any(), any(), any(), any(), eq(callerEmployeeId),
+                any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(ownBooking)));
 
-        // Service returns the booking without asking "is the caller employee 42?"
-        var result = service.listDetailed(null, null, null, null, pageable);
+        UserPrincipal caller = new UserPrincipal(callerUserId, "louise@salon.fr", "Louise", null);
+
+        var result = service.listDetailed(null, null, null, null, pageable, caller);
 
         assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0).employeeId()).isEqualTo(42L);
-        // No employee-scope filter applied — documents the gap.
+        assertThat(result.getContent().get(0).employeeId()).isEqualTo(callerEmployeeId);
+        // Global filter method is NOT called — listDetailed takes the scoped path.
+        verify(bookingRepo, never()).findByFilters(any(), any(), any(), any(),
+                any(org.springframework.data.domain.Pageable.class));
     }
 
     @Test

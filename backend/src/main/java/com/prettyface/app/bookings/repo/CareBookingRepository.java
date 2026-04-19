@@ -84,6 +84,31 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
     );
 
     /**
+     * Same as {@link #findByFilters} but also pins results to a specific
+     * {@code employeeId}. Used when the calling user has role EMPLOYEE so they
+     * can never see bookings assigned to a colleague.
+     */
+    @Query("""
+        SELECT DISTINCT b FROM CareBooking b
+        LEFT JOIN FETCH b.user
+        LEFT JOIN FETCH b.care
+        WHERE (:status IS NULL OR b.status = :status)
+        AND (:from IS NULL OR b.appointmentDate >= :from)
+        AND (:to IS NULL OR b.appointmentDate <= :to)
+        AND (:userId IS NULL OR b.user.id = :userId)
+        AND b.employeeId = :employeeId
+        ORDER BY b.appointmentDate ASC, b.appointmentTime ASC
+        """)
+    Page<CareBooking> findByFiltersAndEmployeeId(
+        @Param("status") CareBookingStatus status,
+        @Param("from") LocalDate from,
+        @Param("to") LocalDate to,
+        @Param("userId") Long userId,
+        @Param("employeeId") Long employeeId,
+        Pageable pageable
+    );
+
+    /**
      * Find all bookings within a date range (for analytics)
      */
     @Query("""
