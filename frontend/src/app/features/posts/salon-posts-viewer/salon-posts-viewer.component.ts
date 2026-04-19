@@ -652,8 +652,8 @@ export class SalonPostsViewerComponent {
   private loadPosts(slug: string): void {
     this.loading.set(true);
     this.postsService.listPublic(slug).subscribe({
-      next: (posts) => {
-        this.posts.set(posts);
+      next: (page) => {
+        this.posts.set(page.content);
         this.loading.set(false);
       },
       error: () => {

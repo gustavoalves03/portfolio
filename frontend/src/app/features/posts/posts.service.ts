@@ -1,16 +1,27 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PostResponse, RecentPost } from './posts.model';
+import { Page } from '../../shared/models/page.model';
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
-  listPublic(slug: string): Observable<PostResponse[]> {
-    return this.http.get<PostResponse[]>(`${this.apiBaseUrl}/api/salon/${slug}/posts`);
+  listPublic(
+    slug: string,
+    page = 0,
+    size = 20,
+  ): Observable<Page<PostResponse>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<Page<PostResponse>>(
+      `${this.apiBaseUrl}/api/salon/${slug}/posts`,
+      { params },
+    );
   }
 
   listPro(): Observable<PostResponse[]> {
