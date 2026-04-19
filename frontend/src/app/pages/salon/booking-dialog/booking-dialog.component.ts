@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideFrenchDateAdapter } from '../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { AvailabilityService } from '../../../features/availability/availability.service';
@@ -35,7 +35,7 @@ export interface BookingDialogData {
     TranslocoPipe,
     SheetHandleComponent,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideFrenchDateAdapter()],
   templateUrl: './booking-dialog.component.html',
   styleUrl: './booking-dialog.component.scss',
 })
