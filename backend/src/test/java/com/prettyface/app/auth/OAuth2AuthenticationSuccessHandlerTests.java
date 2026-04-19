@@ -7,6 +7,7 @@ import com.prettyface.app.users.repo.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.crypto.SecretKey;
@@ -22,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,5 +91,49 @@ class OAuth2AuthenticationSuccessHandlerTests {
         assertThat(claims.getSubject()).isEqualTo("1");
         assertThat(claims.get("email", String.class)).isEqualTo("sophie@salon.fr");
         assertThat(claims.get("role", String.class)).isEqualTo("PRO");
+    }
+
+    // Lot6: user not found after OAuth2 flow → throws OAuth2AuthenticationException
+    @Test
+    void onAuthenticationSuccess_userNotFound_throwsOAuth2Exception() {
+        when(userRepository.findById(42L)).thenReturn(Optional.empty());
+
+        CustomOAuth2User oAuth2User = mock(CustomOAuth2User.class);
+        when(oAuth2User.getUserId()).thenReturn(42L);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(oAuth2User);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertThatThrownBy(() -> handler.onAuthenticationSuccess(request, response, authentication))
+            .isInstanceOf(OAuth2AuthenticationException.class);
+    }
+
+    // Lot6: success handler clears role-hint cookie (prevents stale role on next OAuth login)
+    @Test
+    void onAuthenticationSuccess_clearsRoleHintCookie() throws Exception {
+        User user = User.builder()
+            .id(1L).name("Sophie").email("sophie@salon.fr")
+            .provider(AuthProvider.GOOGLE).role(Role.USER).emailVerified(true).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        CustomOAuth2User oAuth2User = mock(CustomOAuth2User.class);
+        when(oAuth2User.getUserId()).thenReturn(1L);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(oAuth2User);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        handler.onAuthenticationSuccess(request, response, authentication);
+
+        Cookie roleHint = response.getCookie(OAuth2RoleHintFilter.ROLE_HINT_COOKIE);
+        assertThat(roleHint).isNotNull();
+        assertThat(roleHint.getMaxAge()).isEqualTo(0);
+        assertThat(roleHint.getPath()).isEqualTo("/");
     }
 }
