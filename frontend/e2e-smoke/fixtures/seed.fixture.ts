@@ -10,10 +10,10 @@ import { APIRequestContext, Page, request } from '@playwright/test';
 export const BACKEND_BASE_URL = 'http://localhost:8080';
 
 /**
- * Build an APIRequestContext that has already performed a GET /api/csrf so the
- * XSRF-TOKEN cookie is in its jar. Any subsequent POST will add the token as
- * the `X-XSRF-TOKEN` header because we mirror what the Angular CSRF
- * interceptor does.
+ * Build an APIRequestContext authenticated with the given JWT (if any). No
+ * CSRF priming — the `postWithCsrf` helper re-fetches the token before each
+ * POST because Spring rotates the cookie after every successful mutating
+ * request (CookieCsrfTokenRepository + DeferredCsrfToken semantics).
  */
 export async function apiContextWithCsrf(
   token?: string
@@ -24,6 +24,8 @@ export async function apiContextWithCsrf(
     baseURL: BACKEND_BASE_URL,
     extraHTTPHeaders: headers,
   });
+  // Seed the cookie jar with a first token — the helpers will always
+  // refresh it before use anyway.
   const csrfRes = await ctx.get('/api/csrf');
   if (!csrfRes.ok()) {
     throw new Error(`GET /api/csrf failed: ${csrfRes.status()}`);
@@ -33,18 +35,28 @@ export async function apiContextWithCsrf(
 }
 
 /**
- * POST helper that transparently threads the CSRF token as the
- * X-XSRF-TOKEN header, matching what the Angular csrfInterceptor sends.
+ * POST helper that fetches a fresh CSRF token, sends the request with the
+ * `X-XSRF-TOKEN` header, mirroring the Angular csrfInterceptor. Spring
+ * rotates the cookie after each successful POST, so we ALWAYS re-fetch
+ * right before posting — using a cached token fails on the second call.
+ *
+ * The `csrfToken` argument is kept for API compatibility but ignored; the
+ * call always reads the current cookie via GET /api/csrf.
  */
 export async function postWithCsrf(
   ctx: APIRequestContext,
-  csrfToken: string,
+  _csrfToken: string,
   path: string,
   body?: unknown
 ): Promise<ReturnType<APIRequestContext['post']>> {
+  const freshRes = await ctx.get('/api/csrf');
+  if (!freshRes.ok()) {
+    throw new Error(`GET /api/csrf (pre-POST refresh) failed: ${freshRes.status()}`);
+  }
+  const fresh = (await freshRes.json()) as { token: string };
   return ctx.post(path, {
     data: body,
-    headers: { 'X-XSRF-TOKEN': csrfToken },
+    headers: { 'X-XSRF-TOKEN': fresh.token },
   });
 }
 
