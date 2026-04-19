@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideFrenchDateAdapter } from '../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { AvailabilityService } from '../../../features/availability/availability.service';
@@ -35,7 +35,7 @@ export interface BookingDialogData {
     TranslocoPipe,
     SheetHandleComponent,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideFrenchDateAdapter()],
   templateUrl: './booking-dialog.component.html',
   styleUrl: './booking-dialog.component.scss',
 })
@@ -123,6 +123,15 @@ export class BookingDialogComponent {
     return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC';
   }
 
+  /**
+   * Heuristic: our i18n keys look like `booking.errors.xxx` — dotted identifiers
+   * with no spaces or punctuation. A plain server-provided sentence will fail
+   * this test.
+   */
+  isTranslationKey(value: string): boolean {
+    return /^[a-zA-Z][a-zA-Z0-9._]*$/.test(value);
+  }
+
   private loadOpeningHours(): void {
     this.availabilityService.loadPublicHours(this.slug).subscribe({
       next: (hours) => {
@@ -195,10 +204,14 @@ export class BookingDialogComponent {
       },
       error: (err) => {
         this.submitting.set(false);
+        const serverMsg = err?.error?.error;
         if (err.status === 409) {
-          this.bookingError.set('booking.errors.slotTaken');
+          // Keep the grid in sync: a real slot collision invalidates our cache.
           this.loadSlots(this.selectedDate()!);
           this.selectedSlot.set(null);
+        }
+        if (typeof serverMsg === 'string' && serverMsg.length > 0) {
+          this.bookingError.set(serverMsg);
         } else {
           this.bookingError.set('booking.errors.generic');
         }

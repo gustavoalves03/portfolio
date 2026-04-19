@@ -275,7 +275,9 @@ public class TenantSchemaManager {
                 "ALTER TABLE VISIT_RECORDS ADD (UPDATED_BY NUMBER(19))",
                 "ALTER TABLE VISIT_PHOTOS ADD (UPLOADED_BY NUMBER(19))",
                 "ALTER TABLE CLIENT_REMINDERS ADD (CREATED_BY NUMBER(19))",
-                "ALTER TABLE CARE_BOOKINGS ADD (SALON_CLIENT_ID NUMBER(19))"
+                "ALTER TABLE CARE_BOOKINGS ADD (SALON_CLIENT_ID NUMBER(19))",
+                // Align legacy tenant schemas with the nullable PHONE column declared in CREATE TABLE.
+                "ALTER TABLE SALON_CLIENTS MODIFY (PHONE VARCHAR2(20 CHAR) NULL)"
         };
 
         // Use provisioning connection (Oracle admin) — app user lacks CREATE TABLE privilege
@@ -302,7 +304,7 @@ public class TenantSchemaManager {
                     stmt.execute(alter);
                     logger.info("Added column in {}", schemaName);
                 } catch (SQLException e) {
-                    if (e.getErrorCode() == 1430) {
+                    if (e.getErrorCode() == 1430 || e.getErrorCode() == 1451) {
                         logger.debug("Column already exists in {}, skipping", schemaName);
                     } else {
                         logger.warn("ALTER failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
@@ -479,7 +481,9 @@ public class TenantSchemaManager {
                 "ALTER TABLE VISIT_RECORDS ADD COLUMN IF NOT EXISTS UPDATED_BY BIGINT",
                 "ALTER TABLE VISIT_PHOTOS ADD COLUMN IF NOT EXISTS UPLOADED_BY BIGINT",
                 "ALTER TABLE CLIENT_REMINDERS ADD COLUMN IF NOT EXISTS CREATED_BY BIGINT",
-                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS SALON_CLIENT_ID BIGINT"
+                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS SALON_CLIENT_ID BIGINT",
+                // Align legacy H2 tenant schemas with the nullable PHONE column declared in CREATE TABLE.
+                "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL"
         };
 
         try (Connection conn = dataSource.getConnection();

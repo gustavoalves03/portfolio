@@ -9,8 +9,7 @@ export function bottomSheetConfig<T = unknown>(
   overrides: MatDialogConfig<T> = {},
 ): MatDialogConfig<T> {
   return {
-    maxWidth: '100vw',
-    width: '480px',
+    maxWidth: 'min(480px, 100vw)',
     ...overrides,
     panelClass: ['bottom-sheet', ...asArray(overrides.panelClass)],
     backdropClass: ['bottom-sheet-backdrop', ...asArray(overrides.backdropClass)],

@@ -85,7 +85,13 @@
     }
 
     @if (bookingError()) {
-      <p class="booking-error">{{ bookingError()! | transloco }}</p>
+      <p class="booking-error">
+        @if (isTranslationKey(bookingError()!)) {
+          {{ bookingError()! | transloco }}
+        } @else {
+          {{ bookingError() }}
+        }
+      </p>
     }
 
     @if (registerJustCompleted()) {
