@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -321,6 +322,69 @@ class AuthControllerTests {
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(0);
         assertThat(captor.getValue().getAccountLockedUntil()).isNull();
+    }
+
+    // Lot6: login happy path — returns 200 with JWT + user DTO (no prior failed attempts)
+    @Test
+    void login_happyPath_returnsTokenAndUser() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(0)
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
+        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-abc");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"password123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("jwt-abc"))
+                .andExpect(jsonPath("$.user.email").value("sophie@salon.fr"))
+                .andExpect(jsonPath("$.user.role").value("PRO"));
+
+        // No state change when counters already at zero
+        verify(userRepository, never()).save(any());
+    }
+
+    // Lot6: nonexistent user → 401 (NOT 404) to prevent account enumeration
+    @Test
+    void login_nonexistentUser_returns401NotEnumerable() throws Exception {
+        when(userRepository.findByEmail("ghost@salon.fr")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"ghost@salon.fr\",\"password\":\"whatever123\"}"))
+                .andExpect(status().isUnauthorized());
+
+        // Must not leak whether the email exists by touching downstream services
+        verify(passwordEncoder, never()).matches(any(), any());
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
+        verify(userRepository, never()).save(any());
+    }
+
+    // Lot6: wrong password (first attempt, not yet locked) → 401 + attempts++
+    @Test
+    void login_wrongPasswordFirstAttempt_returns401AndIncrementsCounter() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .failedLoginAttempts(0)
+                .build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "$2a$encoded")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\",\"password\":\"wrong\"}"))
+                .andExpect(status().isUnauthorized());
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(1);
+        // Not yet locked (threshold is 5)
+        assertThat(captor.getValue().getAccountLockedUntil()).isNull();
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
     }
 
     @Test
