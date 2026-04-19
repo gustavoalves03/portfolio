@@ -46,9 +46,11 @@ export default defineConfig({
     {
       command: BACKEND_CMD,
       cwd: '../backend',
-      url: 'http://localhost:8080/actuator/health',
+      // Spring Boot Actuator isn't a project dependency, so /actuator/health
+      // returns 404 — use a lightweight public GET that lives in the app.
+      url: 'http://localhost:8080/api/csrf',
       reuseExistingServer: !process.env.CI,
-      timeout: 180_000, // Maven download + Spring Boot startup can take a while on first run
+      timeout: 180_000, // Maven + Spring Boot startup can take a while on first run
       stdout: 'pipe',
       stderr: 'pipe',
     },

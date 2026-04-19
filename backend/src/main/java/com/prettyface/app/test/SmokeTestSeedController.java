@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,9 +93,14 @@ public class SmokeTestSeedController {
     /**
      * Idempotent seed: ensures one pro, one client, one tenant and one active
      * care exist. Returns the ids + JWTs needed by Playwright to drive the UI.
+     *
+     * <p><b>Not</b> {@code @Transactional}: Hibernate resolves the current
+     * tenant identifier when the transaction opens, so we need each
+     * repository save to run its own transaction after we switch
+     * {@link TenantContext} — otherwise tenant writes land in the default
+     * application schema instead of the tenant's own schema.
      */
     @PostMapping("/seed")
-    @Transactional
     public ResponseEntity<Map<String, Object>> seed() {
         logger.info("[smoke] /api/test/seed invoked");
 
@@ -138,13 +142,12 @@ public class SmokeTestSeedController {
                     .ownerId(pro.getId())
                     .status(TenantStatus.ACTIVE)
                     .build());
-            tenantSchemaManager.provisionSchema(SALON_SLUG);
-        } else {
-            // Schema may already exist from a prior seed, but provision is
-            // idempotent for H2 (create schema if not exists + create tables
-            // — see TenantSchemaManager).
-            tenantSchemaManager.provisionSchema(SALON_SLUG);
         }
+        // Provision + migrate are both idempotent on H2; the migrate step
+        // adds columns that the base provisioning doesn't create
+        // (e.g. OPENING_HOURS.EMPLOYEE_ID, CARE.DISPLAY_ORDER, …).
+        tenantSchemaManager.provisionSchema(SALON_SLUG);
+        tenantSchemaManager.migrateSchema(SALON_SLUG);
 
         Long careId;
         TenantContext.setCurrentTenant(SALON_SLUG);
@@ -218,7 +221,6 @@ public class SmokeTestSeedController {
      * users and care catalog so the next seed call is instant.
      */
     @PostMapping("/reset")
-    @Transactional
     public ResponseEntity<Void> reset() {
         logger.info("[smoke] /api/test/reset invoked");
 
