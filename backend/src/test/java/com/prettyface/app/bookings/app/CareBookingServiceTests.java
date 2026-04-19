@@ -909,17 +909,14 @@ class CareBookingServiceTests {
     }
 
     @Test
-    @DisplayName("Sec3: create_WARN_adminCreateMethodHasNoRaceGuard — admin POST /api/bookings does NOT catch unique-constraint")
-    void create_WARN_adminCreateMethodHasNoRaceGuard() {
-        // TODO-SEC: CareBookingService.create(CareBookingRequest) now performs a slot
-        // availability pre-check, but does NOT wrap save() to translate
-        // DataIntegrityViolationException into 409. The DB unique constraint still protects
-        // against actual double-booking in the concurrent window between check and save,
-        // but the error surfacing to the client is a raw DataIntegrityViolationException
-        // (500-class) rather than a clean 409.
+    @DisplayName("Sec3: create_adminPathHandlesRaceConditionCleanly — admin POST /api/bookings translates UK race to 409")
+    void create_adminPathHandlesRaceConditionCleanly() {
+        // CareBookingService.create(CareBookingRequest) now wraps save() so that a
+        // concurrent unique-constraint violation (e.g. UK_BOOKING_SLOT) surfaces as
+        // HTTP 409 "Slot no longer available" — same translation as
+        // createClientBooking — instead of a raw DataIntegrityViolationException.
         when(userRepository.findById(1L)).thenReturn(Optional.of(client));
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
-        // Slot is available (check passes), but concurrent save throws unique constraint violation
         when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
                 .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
         when(bookingRepo.save(any(CareBooking.class)))
@@ -931,9 +928,11 @@ class CareBookingServiceTests {
                         LocalTime.of(9, 0),
                         CareBookingStatus.CONFIRMED, null);
 
-        // Raw DataIntegrityViolationException bubbles out — NOT translated to 409.
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(DataIntegrityViolationException.class);
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT))
+                .hasMessageContaining("Slot no longer available");
     }
 
     // ══════════════════════════════════════════════════════════════

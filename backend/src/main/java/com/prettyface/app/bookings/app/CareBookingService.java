@@ -157,7 +157,14 @@ public class CareBookingService {
         if (req.salonClientId() != null) {
             b.setSalonClientId(req.salonClientId());
         }
-        return CareBookingMapper.toResponse(repo.save(b));
+        try {
+            return CareBookingMapper.toResponse(repo.save(b));
+        } catch (DataIntegrityViolationException ex) {
+            // Same translation as createClientBooking: unique-slot collision on a
+            // concurrent insert should surface as a clean 409 with a user-friendly
+            // message, not a raw DataIntegrityViolationException.
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+        }
     }
 
     @Transactional
