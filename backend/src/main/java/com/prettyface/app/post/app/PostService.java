@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -34,6 +37,11 @@ public class PostService {
     public List<PostResponse> listAll() {
         return postRepo.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResponse> listPublicPaged(Pageable pageable) {
+        return postRepo.findAllByOrderByCreatedAtDesc(pageable).map(this::toResponse);
     }
 
     @Transactional
