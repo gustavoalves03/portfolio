@@ -30,7 +30,10 @@ describe('OAuth2RedirectComponent', () => {
   }
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['handleOAuth2Callback']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', [
+      'handleOAuth2Callback',
+      'navigateByRole',
+    ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -46,14 +49,14 @@ describe('OAuth2RedirectComponent', () => {
     }).compileComponents();
   });
 
-  // T3.1: Token present — stores token and redirects to /pro/dashboard
-  it('should call handleOAuth2Callback and redirect to /pro/dashboard on success', () => {
+  // T3.1: Token present — stores token and delegates redirect to AuthService.navigateByRole
+  it('should call handleOAuth2Callback and redirect via AuthService.navigateByRole on success', () => {
     authServiceSpy.handleOAuth2Callback.and.returnValue(of({} as any));
 
     createWithParams({ token: 'jwt-token-123' });
 
     expect(authServiceSpy.handleOAuth2Callback).toHaveBeenCalledWith('jwt-token-123');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    expect(authServiceSpy.navigateByRole).toHaveBeenCalled();
   });
 
   // T3.2: Error param present — redirects to /login with oauthError state

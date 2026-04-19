@@ -37,7 +37,11 @@ describe('LoginComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['loginWithCredentials', 'loginWithGoogle']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', [
+      'loginWithCredentials',
+      'loginWithGoogle',
+      'navigateByRole',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -83,15 +87,15 @@ describe('LoginComponent', () => {
     expect(component.emailControl?.hasError('email')).toBeTrue();
   });
 
-  // T2.2: Success flow — redirects to /pro/dashboard
-  it('should redirect to /pro/dashboard on successful login', () => {
+  // T2.2: Success flow — delegates redirect to AuthService.navigateByRole
+  it('should redirect via AuthService.navigateByRole on successful login', () => {
     authServiceSpy.loginWithCredentials.and.returnValue(of({} as any));
 
     component.form.setValue({ email: 'pro@salon.fr', password: 'password123' });
     component.onSubmit();
 
     expect(authServiceSpy.loginWithCredentials).toHaveBeenCalledWith('pro@salon.fr', 'password123');
-    expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    expect(authServiceSpy.navigateByRole).toHaveBeenCalled();
   });
 
   // T2.3: 401 error — shows invalidCredentialsError banner
