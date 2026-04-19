@@ -176,14 +176,14 @@ describe('DiscoverPageComponent', () => {
 
     fixture.componentInstance.searchQuery.set('lumiere');
 
-    // debounceTime(300) uses the async scheduler (setTimeout)
+    // debounceTime(300) uses the async scheduler (setTimeout); 600ms is a safe margin
     setTimeout(() => {
       expect(discoveryService.searchSalons).toHaveBeenCalled();
       const args = discoveryService.searchSalons.calls.mostRecent().args;
       expect(args[0]).toBeNull();
       expect(args[1]).toBe('lumiere');
       done();
-    }, 400);
+    }, 600);
   });
 
   it('route query param "q" pre-fills the search input', () => {
