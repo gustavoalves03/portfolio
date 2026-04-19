@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { signal } from '@angular/core';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
+import { NotificationsStore } from '../../../features/notifications/store/notifications.store';
 
 describe('Header', () => {
   let fixture: ComponentFixture<Header>;
@@ -34,6 +35,7 @@ describe('Header', () => {
         provideHttpClient(),
         provideTranslocoLocale({ defaultLocale: 'en-US', langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' } }),
         { provide: AuthService, useValue: authService },
+        NotificationsStore,
       ],
     }).compileComponents();
 
