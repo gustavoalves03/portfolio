@@ -418,45 +418,30 @@ class LeaveRequestServiceTests {
     // ══════════════════════════════════════════════════════════════
     // ── Lot5: Race conditions — concurrent leave approval ──
     // ══════════════════════════════════════════════════════════════
-    // NOTE-SEC: LeaveRequest has NO @Version column (see domain/LeaveRequest.java).
-    // When two PRO reviewers approve/reject the same PENDING leave concurrently,
-    // BOTH threads see status=PENDING, BOTH pass the `if (status != PENDING)`
-    // short-circuit, BOTH write their decision. The last save wins silently —
-    // the service emits no warning, no exception, no audit entry indicating that
-    // a "lost update" occurred. The `reviewerNote` of the loser is lost as well.
-    // These tests document the gap and verify that if the persistence layer were
-    // to surface a conflict (it currently does not, because there is no @Version
-    // and no unique constraint on status transitions), the service would leak the
-    // raw database exception to the caller.
+    // LeaveRequest carries @Version, so JPA raises OptimisticLockingFailureException
+    // when two PRO reviewers try to update the same PENDING leave concurrently.
+    // The service translates that exception into HTTP 409 Conflict.
 
     @Test
-    @DisplayName("Lot5: reviewLeave_WARN_noOptimisticLocking_concurrentApprovalsOverwriteSilently (FINDING)")
-    void reviewLeave_WARN_noOptimisticLocking_concurrentApprovalsOverwriteSilently() {
-        // TODO-SEC: add @Version to LeaveRequest so JPA raises
-        // OptimisticLockingFailureException when two reviewers race. Until then,
-        // the two concurrent reviewLeave() calls both succeed — the later write
-        // overwrites the earlier one with NO error. This test simulates the race
-        // by invoking reviewLeave twice on the SAME in-memory LeaveRequest before
-        // any state is flushed, so both calls observe status=PENDING at guard time.
-        //
-        // The fact that we cannot even express the conflict in a single-threaded
-        // test without manually resetting state is itself evidence of the bug:
-        // sequentially, the `if (status != PENDING)` guard fires on the second
-        // call. Under true concurrency it would not.
+    @DisplayName("Lot5: reviewLeave_concurrentApprovals_secondCallThrowsConflict")
+    void reviewLeave_concurrentApprovals_secondCallThrowsConflict() {
         LeaveReviewDto approveDto = new LeaveReviewDto(LeaveStatus.APPROVED, "approved by reviewer A");
         LeaveReviewDto rejectDto = new LeaveReviewDto(LeaveStatus.REJECTED, "rejected by reviewer B");
 
-        // Both reviewers resolve the same PENDING leave.
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
-        when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        // First save succeeds; second save raises an optimistic lock failure,
+        // mirroring a real race where JPA detects the stale @Version.
+        when(leaveRequestRepository.save(any()))
+                .thenAnswer(inv -> inv.getArgument(0))
+                .thenThrow(new OptimisticLockingFailureException(
+                        "LeaveRequest#1 was updated by another transaction"));
 
-        // Reviewer A (PRO) approves.
+        // Reviewer A (PRO) approves successfully.
         LeaveResponse resultA = leaveRequestService.reviewLeave(1L, approveDto, PRO_USER_ID);
         assertThat(resultA.status()).isEqualTo(LeaveStatus.APPROVED);
 
-        // Reviewer B (another PRO) — in a real race, B observed status=PENDING at
-        // the same instant as A. We simulate this by resetting the in-memory status
-        // to mirror the view B would have had before A's flush:
+        // Reviewer B is now racing; simulate the stale view of the leave and the
+        // second save throwing optimistic lock failure.
         pendingLeave.setStatus(LeaveStatus.PENDING);
 
         Long otherProUserId = 501L;
@@ -469,44 +454,36 @@ class LeaveRequestServiceTests {
                 .build();
         when(userRepository.findById(otherProUserId)).thenReturn(Optional.of(otherPro));
 
-        LeaveResponse resultB = leaveRequestService.reviewLeave(1L, rejectDto, otherProUserId);
+        assertThatThrownBy(() ->
+                leaveRequestService.reviewLeave(1L, rejectDto, otherProUserId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT));
 
-        // Without @Version, BOTH calls succeed and the final persisted state is
-        // whatever the last writer decided — REJECTED in this case — with A's
-        // "approved by reviewer A" note silently lost. A proper fix (optimistic
-        // locking) would cause B to receive OptimisticLockingFailureException.
-        assertThat(resultB.status()).isEqualTo(LeaveStatus.REJECTED);
-        assertThat(resultB.reviewerNote()).isEqualTo("rejected by reviewer B");
-
-        // save() called TWICE — two successful, conflicting writes.
         verify(leaveRequestRepository, times(2)).save(any());
     }
 
     @Test
-    @DisplayName("Lot5: reviewLeave_ifDatabaseRaisedOptimisticLock_wouldNotTranslate (FINDING)")
-    void reviewLeave_ifDatabaseRaisedOptimisticLock_wouldNotTranslate() {
-        // TODO-SEC: Even if @Version were added tomorrow, the current service code
-        // does NOT wrap save() with a catch that translates
-        // OptimisticLockingFailureException into a clean 409 response. The raw
-        // Spring DAO exception would bubble to the controller and surface as a
-        // 500-class error to the client. A follow-up patch should wrap save() and
-        // respond with HttpStatus.CONFLICT("Leave already reviewed by another reviewer").
+    @DisplayName("Lot5: reviewLeave_optimisticLockingFailure_translatesToConflict")
+    void reviewLeave_optimisticLockingFailure_translatesToConflict() {
         LeaveReviewDto dto = new LeaveReviewDto(LeaveStatus.APPROVED, "approved");
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
         when(leaveRequestRepository.save(any()))
-                .thenThrow(new OptimisticLockingFailureException("LeaveRequest#1 was updated by another transaction"));
+                .thenThrow(new OptimisticLockingFailureException(
+                        "LeaveRequest#1 was updated by another transaction"));
 
-        // Raw OptimisticLockingFailureException bubbles out — NOT translated to 409.
         assertThatThrownBy(() -> leaveRequestService.reviewLeave(1L, dto, PRO_USER_ID))
-                .isInstanceOf(OptimisticLockingFailureException.class);
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT));
     }
 
     @Test
-    @DisplayName("Lot5: reviewLeave_ifDatabaseRaisedDataIntegrityViolation_wouldNotTranslate (FINDING)")
-    void reviewLeave_ifDatabaseRaisedDataIntegrityViolation_wouldNotTranslate() {
-        // TODO-SEC: Some databases (or future unique-index constraints) could surface a
-        // concurrent-approval race as DataIntegrityViolationException. The service does not
-        // catch it — it leaks as a raw 500-class error.
+    @DisplayName("Lot5: reviewLeave_dataIntegrityViolation_stillBubblesRaw")
+    void reviewLeave_dataIntegrityViolation_stillBubblesRaw() {
+        // DataIntegrityViolationException is NOT translated by reviewLeave because
+        // the race condition this fix targets surfaces as OptimisticLockingFailure.
+        // GlobalExceptionHandler handles DataIntegrityViolation at the HTTP layer.
         LeaveReviewDto dto = new LeaveReviewDto(LeaveStatus.APPROVED, "approved");
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
         when(leaveRequestRepository.save(any()))

@@ -19,6 +19,15 @@ public class LeaveRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Optimistic-locking version — JPA raises OptimisticLockingFailureException
+     * when two transactions try to update the same leave concurrently (e.g. two
+     * PROs reviewing the same PENDING leave at the same instant).
+     */
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false,
                 foreignKey = @ForeignKey(name = "FK_LEAVE_EMPLOYEE"))

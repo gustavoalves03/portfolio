@@ -14,6 +14,7 @@ import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +81,13 @@ public class LeaveRequestService {
         leave.setReviewerNote(dto.reviewerNote());
         leave.setReviewedAt(LocalDateTime.now());
 
-        LeaveRequest saved = leaveRequestRepository.save(leave);
+        LeaveRequest saved;
+        try {
+            saved = leaveRequestRepository.save(leave);
+        } catch (OptimisticLockingFailureException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "This leave was already reviewed by another pro. Please refresh.");
+        }
         return toResponse(saved);
     }
 
