@@ -93,13 +93,10 @@ class TokenServiceTests {
         assertThat(claims.getExpiration()).isAfter(claims.getIssuedAt());
     }
 
-    // Lot6: _WARN_ — wrong signature is NOT swallowed by validateToken.
-    // The catch clause uses java.lang.SecurityException, but jjwt throws
-    // io.jsonwebtoken.security.SignatureException (extends io.jsonwebtoken.security.SecurityException).
-    // This test pins today's behaviour: validateToken bubbles the exception instead of returning false.
-    // TODO: tighten TokenService catch to io.jsonwebtoken.JwtException (or add security.SignatureException).
+    // Lot6: wrong signature → validateToken returns false (catches io.jsonwebtoken.JwtException,
+    // which covers io.jsonwebtoken.security.SignatureException and friends).
     @Test
-    void _WARN_validateToken_wrongSignature_bubblesJjwtSignatureException() {
+    void validateToken_wrongSignature_returnsFalse() {
         SecretKey wrongKey = Keys.hmacShaKeyFor(
                 "an-entirely-different-secret-key-32-bytes+padding-ok".getBytes(StandardCharsets.UTF_8));
         String tokenSignedElsewhere = Jwts.builder()
@@ -109,8 +106,6 @@ class TokenServiceTests {
                 .signWith(wrongKey)
                 .compact();
 
-        org.assertj.core.api.Assertions
-                .assertThatThrownBy(() -> tokenService.validateToken(tokenSignedElsewhere))
-                .isInstanceOf(io.jsonwebtoken.security.SignatureException.class);
+        assertThat(tokenService.validateToken(tokenSignedElsewhere)).isFalse();
     }
 }

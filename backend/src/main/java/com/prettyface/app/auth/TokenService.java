@@ -70,17 +70,9 @@ public class TokenService {
                 .build()
                 .parseSignedClaims(authToken);
             return true;
-        } catch (SecurityException ex) {
-            logger.error("Invalid JWT signature");
-        } catch (MalformedJwtException ex) {
-            logger.error("Invalid JWT token");
-        } catch (ExpiredJwtException ex) {
-            logger.error("Expired JWT token");
-        } catch (UnsupportedJwtException ex) {
-            logger.error("Unsupported JWT token");
-        } catch (IllegalArgumentException ex) {
-            logger.error("JWT claims string is empty");
+        } catch (JwtException | IllegalArgumentException ex) {
+            logger.warn("Invalid JWT: {}", ex.getMessage());
+            return false;
         }
-        return false;
     }
 }
