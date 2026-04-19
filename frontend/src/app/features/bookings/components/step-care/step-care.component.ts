@@ -14,6 +14,7 @@ import { CaresStore } from '../../../cares/store/cares.store';
         @for (care of caresStore.availableCares(); track care.id) {
           <div
             class="care-card"
+            data-testid="step-care-item"
             [class.selected]="selectedCareId() === care.id"
             (click)="selectCare(care.id)"
           >
@@ -26,7 +27,7 @@ import { CaresStore } from '../../../cares/store/cares.store';
         }
       </div>
 
-      <button class="btn-next" [disabled]="!selectedCareId()" (click)="onNext()">
+      <button class="btn-next" data-testid="step-next-btn" [disabled]="!selectedCareId()" (click)="onNext()">
         {{ 'booking.stepper.next' | transloco }}
       </button>
     </div>

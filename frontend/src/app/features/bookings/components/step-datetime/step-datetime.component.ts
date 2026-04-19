@@ -26,6 +26,7 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
         <mat-label>{{ 'booking.stepper.selectDate' | transloco }}</mat-label>
         <input
           matInput
+          data-testid="booking-date-input"
           [matDatepicker]="picker"
           (dateChange)="onDateChange($event)"
           [min]="minDate"
@@ -52,6 +53,7 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
             @for (slot of availableSlots(); track slot.startTime) {
               <button
                 class="time-btn"
+                data-testid="slot-btn"
                 [class.selected]="selectedTime() === slot.startTime"
                 (click)="selectTime(slot.startTime)"
               >
@@ -64,6 +66,7 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
 
       <button
         class="btn-next"
+        data-testid="step-next-btn"
         [disabled]="!selectedDate() || !selectedTime()"
         (click)="onNext()"
       >

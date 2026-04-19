@@ -65,7 +65,7 @@ import {
         <button class="btn-cancel" (click)="onCancel()">
           {{ 'booking.stepper.back' | transloco }}
         </button>
-        <button class="btn-create" [disabled]="!isValid()" (click)="onSubmit()">
+        <button class="btn-create" data-testid="client-create-submit" [disabled]="!isValid()" (click)="onSubmit()">
           {{ 'booking.client.createAndConfirm' | transloco }}
         </button>
       </div>

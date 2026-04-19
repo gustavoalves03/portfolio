@@ -52,7 +52,7 @@
 
     <mat-form-field appearance="outline" class="date-field">
       <mat-label>{{ 'booking.dialog.selectDate' | transloco }}</mat-label>
-      <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="minDate"
+      <input matInput data-testid="booking-date-input" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="minDate"
              [value]="selectedDate()" (dateChange)="onDateChange($event.value)" readonly>
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
@@ -72,6 +72,7 @@
               <button
                 type="button"
                 class="slot-btn"
+                data-testid="booking-slot"
                 [class.selected]="selectedSlot()?.startTime === slot.startTime"
                 (click)="selectSlot(slot)"
               >
@@ -95,6 +96,7 @@
       <button
         mat-flat-button
         class="confirm-btn"
+        data-testid="booking-submit"
         [disabled]="submitting()"
         (click)="confirm()"
       >

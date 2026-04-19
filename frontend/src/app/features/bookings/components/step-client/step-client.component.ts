@@ -25,6 +25,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
         <div class="choice-cards">
           <div
             class="choice-card"
+            data-testid="client-mode-existing"
             [class.active]="mode() === 'search'"
             (click)="mode.set('search')"
           >
@@ -32,7 +33,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
             <div class="choice-title">{{ 'booking.client.existing' | transloco }}</div>
             <div class="choice-desc">{{ 'booking.client.existingDesc' | transloco }}</div>
           </div>
-          <div class="choice-card" [class.active]="mode() === 'create'" (click)="showCreateForm.set(true)">
+          <div class="choice-card" data-testid="client-mode-new" [class.active]="mode() === 'create'" (click)="showCreateForm.set(true)">
             <mat-icon>person_add</mat-icon>
             <div class="choice-title">{{ 'booking.client.new' | transloco }}</div>
             <div class="choice-desc">{{ 'booking.client.newDesc' | transloco }}</div>
@@ -43,7 +44,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
           <div class="search-section">
             <mat-form-field class="search-field">
               <mat-label>{{ 'booking.client.search' | transloco }}</mat-label>
-              <input matInput (input)="onSearch($event)" />
+              <input matInput data-testid="client-search-input" (input)="onSearch($event)" />
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
 
@@ -51,6 +52,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
               @for (client of displayedClients(); track client.id) {
                 <div
                   class="client-row"
+                  data-testid="client-result"
                   [class.selected]="selectedClientId() === client.id"
                   (click)="selectClient(client.id)"
                 >
@@ -68,7 +70,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
         }
 
         @if (selectedClientId()) {
-          <button class="btn-confirm" (click)="onConfirm()">
+          <button class="btn-confirm" data-testid="step-confirm-btn" (click)="onConfirm()">
             {{ 'booking.stepper.confirm' | transloco }}
           </button>
         }

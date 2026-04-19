@@ -35,7 +35,7 @@
     <button mat-button (click)="close()" [disabled]="loading()">
       {{ 'common.cancel' | transloco }}
     </button>
-    <button mat-raised-button color="primary" (click)="login()" [disabled]="loading() || loginForm.invalid">
+    <button mat-raised-button color="primary" data-testid="login-submit" (click)="login()" [disabled]="loading() || loginForm.invalid">
       @if (loading()) {
         <mat-spinner diameter="20"></mat-spinner>
       } @else {

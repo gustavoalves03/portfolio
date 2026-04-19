@@ -36,7 +36,7 @@ interface DayGroup {
 
       <!-- Add booking button -->
       <div class="add-booking-row">
-        <button class="btn-add-booking" (click)="onAddBooking()">
+        <button class="btn-add-booking" data-testid="add-booking-btn" (click)="onAddBooking()">
           <mat-icon>add</mat-icon>
           {{ 'pro.bookings.addBooking' | transloco }}
         </button>

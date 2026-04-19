@@ -25,10 +25,11 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
   ],
   providers: [CaresStore, UsersStore],
   template: `
+    <div data-testid="booking-stepper">
     <app-sheet-handle />
     <!-- Header -->
     <div class="stepper-header">
-      <button class="btn-close" (click)="dialogRef.close()">
+      <button class="btn-close" data-testid="stepper-close" (click)="dialogRef.close()">
         <mat-icon>close</mat-icon>
       </button>
       <span class="stepper-title">{{ 'booking.stepper.confirm' | transloco }}</span>
@@ -57,11 +58,12 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
 
     <!-- Back button -->
     @if (currentStep() > 1) {
-      <button class="btn-back" (click)="goBack()">
+      <button class="btn-back" data-testid="step-back-btn" (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
         {{ 'booking.stepper.back' | transloco }}
       </button>
     }
+    </div>
   `,
   styles: [
     `
