@@ -4,6 +4,7 @@ import com.prettyface.app.availability.domain.OpeningHour;
 import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.availability.web.dto.OpeningHourRequest;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -217,6 +218,45 @@ class AvailabilityServiceTests {
 
         List<OpeningHourResponse> result = service.replaceAll(requests);
         assertThat(result).hasSize(2);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot2 Sec1: Cross-tenant IDOR on opening hours ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: OpeningHour has no tenantSlug/tenantId column. Multi-tenancy
+    // for opening hours is enforced purely by Hibernate per-tenant schemas
+    // (schema router). AvailabilityService.replaceAll performs NO explicit
+    // tenant check — it blindly deletes all OpeningHour rows in the current
+    // schema and inserts the provided list. If the schema router is bypassed
+    // or TenantContext is spoofed, a pro from salon A could overwrite salon
+    // B's opening hours.
+
+    @Test
+    @DisplayName("Lot2#35: replaceAll_WARN_doesNotCheckTenantOwnership — NO tenant check (FINDING)")
+    void replaceAll_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: AvailabilityService.replaceAll performs no tenant ownership
+        // verification. It trusts that TenantContext has routed the query to the
+        // correct schema. If that trust is misplaced (bug, background job, test
+        // code bypass), cross-tenant modification of opening hours is possible.
+        List<OpeningHourRequest> requests = List.of(
+                new OpeningHourRequest(1, "09:00", "18:00")
+        );
+
+        when(repo.saveAll(anyList())).thenAnswer(inv -> {
+            List<OpeningHour> entities = inv.getArgument(0);
+            entities.get(0).setId(999L);
+            return entities;
+        });
+
+        // Runs without asking "are these opening hours for the caller's tenant?"
+        List<OpeningHourResponse> result = service.replaceAll(requests);
+
+        // deleteAllInBatch() wipes whatever is in the current schema — this is
+        // the exact operation that would cross-tenant-clobber if the schema
+        // router failed to isolate the caller.
+        verify(repo).deleteAllInBatch();
+        verify(repo).saveAll(anyList());
+        assertThat(result).hasSize(1);
     }
 
     // ── helper ──

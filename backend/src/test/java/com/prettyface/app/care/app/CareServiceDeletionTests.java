@@ -77,4 +77,33 @@ class CareServiceDeletionTests {
         verify(fileStorageService).deleteCareImages(1L);
         verify(repo).deleteById(1L);
     }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot2 Sec1: Cross-tenant IDOR on care delete ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: Care has no tenantSlug/tenantId column. Multi-tenancy is enforced
+    // purely by Hibernate per-tenant schemas (schema router). CareService.delete(id)
+    // performs NO explicit tenant check — it only checks for future bookings then
+    // forwards to repo.deleteById(). If the schema router is bypassed, a pro from
+    // salon A could delete a care from salon B.
+
+    @Test
+    @DisplayName("Lot2#27: delete_WARN_careFromAnotherSalonCanBeDeleted — NO tenant check (FINDING)")
+    void delete_WARN_careFromAnotherSalonCanBeDeleted() {
+        // TODO-SEC: CareService.delete performs no tenant ownership verification.
+        // If TenantContext were spoofed or schema routing bypassed, any careId from
+        // another salon could be deleted. Documents the gap.
+        when(careBookingRepository.countByCareIdAndAppointmentDateGreaterThanEqualAndStatusNot(
+                eq(999L), any(LocalDate.class), eq(CareBookingStatus.CANCELLED)))
+                .thenReturn(0L);
+        doNothing().when(fileStorageService).deleteCareImages(999L);
+
+        // No ResponseStatusException thrown, no tenant/owner lookup — service trusts
+        // schema router to have already isolated the caller to the correct schema.
+        service.delete(999L);
+
+        verify(fileStorageService).deleteCareImages(999L);
+        verify(repo).deleteById(999L);
+        // No call to any tenant/owner-verification collaborator because there is none.
+    }
 }

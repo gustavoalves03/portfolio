@@ -10,6 +10,7 @@ import com.prettyface.app.employee.web.dto.LeaveRequestDto;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -256,5 +257,52 @@ class LeaveRequestServiceTests {
         verify(leaveRequestRepository).save(captor.capture());
         assertThat(captor.getValue().getDocumentPath()).isEqualTo(docPath);
         assertThat(response.hasDocument()).isTrue();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot2 Sec1: Cross-tenant IDOR on leave requests ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: LeaveRequest has no tenantSlug/tenantId column and is stored in
+    // the per-tenant schema routed by TenantContext. LeaveRequestService
+    // methods (listByEmployee, reviewLeave, createLeave, attachDocument) take
+    // an arbitrary employeeId / leaveId and perform NO tenant or caller-scope
+    // verification. If the schema router is bypassed OR a caller in salon A
+    // knows the leaveId of a request in salon B, the service trusts the
+    // schema-level isolation only.
+
+    @Test
+    @DisplayName("Lot2#41: listByEmployee_WARN_doesNotCheckTenantOwnership — NO tenant check (FINDING)")
+    void listByEmployee_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: LeaveRequestService.listByEmployee(employeeId) takes any
+        // employeeId and returns that employee's leave requests. No ownership
+        // check, no tenant check, no caller-scope check at the service layer.
+        // If the schema router is bypassed, cross-tenant read of leaves is
+        // possible.
+        Long crossTenantEmployeeId = 777L;
+        when(leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(crossTenantEmployeeId))
+                .thenReturn(List.of(approvedLeave));
+
+        // Service runs without verifying caller has access to employeeId=777
+        List<LeaveResponse> result = leaveRequestService.listByEmployee(crossTenantEmployeeId);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).status()).isEqualTo(LeaveStatus.APPROVED);
+        // No tenant/caller lookup collaborator consulted — documents the gap.
+    }
+
+    @Test
+    @DisplayName("Lot2#41b: reviewLeave_WARN_doesNotCheckTenantOwnership — can approve arbitrary leaveId")
+    void reviewLeave_WARN_doesNotCheckTenantOwnership() {
+        // TODO-SEC: LeaveRequestService.reviewLeave(leaveId, dto) looks up the
+        // leave by id only. If an attacker guesses a leaveId from another
+        // salon (and the schema router is bypassed), they can approve/reject it.
+        LeaveReviewDto dto = new LeaveReviewDto(LeaveStatus.APPROVED, "cross-tenant review");
+        when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
+        when(leaveRequestRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        LeaveResponse result = leaveRequestService.reviewLeave(1L, dto);
+
+        assertThat(result.status()).isEqualTo(LeaveStatus.APPROVED);
+        // No cross-check against caller's tenant/employee scope.
     }
 }
