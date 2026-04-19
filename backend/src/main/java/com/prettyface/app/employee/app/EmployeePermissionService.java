@@ -1,10 +1,15 @@
 package com.prettyface.app.employee.app;
 
 import com.prettyface.app.employee.domain.AccessLevel;
+import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.EmployeePermission;
 import com.prettyface.app.employee.domain.PermissionDomain;
 import com.prettyface.app.employee.repo.EmployeePermissionRepository;
 import com.prettyface.app.employee.repo.EmployeeRepository;
+import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +24,17 @@ public class EmployeePermissionService {
 
     private final EmployeePermissionRepository permissionRepo;
     private final EmployeeRepository employeeRepo;
+    private final UserRepository userRepository;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
 
     public EmployeePermissionService(EmployeePermissionRepository permissionRepo,
-                                      EmployeeRepository employeeRepo) {
+                                      EmployeeRepository employeeRepo,
+                                      UserRepository userRepository,
+                                      ApplicationSchemaExecutor applicationSchemaExecutor) {
         this.permissionRepo = permissionRepo;
         this.employeeRepo = employeeRepo;
+        this.userRepository = userRepository;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
     }
 
     @Transactional(readOnly = true)
@@ -39,7 +50,10 @@ public class EmployeePermissionService {
 
     @Transactional
     public Map<PermissionDomain, AccessLevel> updatePermissions(Long employeeId,
-                                                                 Map<PermissionDomain, AccessLevel> updates) {
+                                                                 Map<PermissionDomain, AccessLevel> updates,
+                                                                 Long callerUserId) {
+        requirePermissionGrantor(callerUserId, employeeId);
+
         employeeRepo.findById(employeeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
 
@@ -56,6 +70,33 @@ public class EmployeePermissionService {
         }
 
         return getPermissions(employeeId);
+    }
+
+    /**
+     * Verify that {@code callerUserId} is authorised to grant/revoke permissions
+     * on {@code targetEmployeeId}. Only tenant owners (Role.PRO or Role.ADMIN)
+     * may modify permissions, and they may not modify their OWN employee record.
+     *
+     * @throws ResponseStatusException 403 on any failure.
+     */
+    private void requirePermissionGrantor(Long callerUserId, Long targetEmployeeId) {
+        if (callerUserId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        Role role = applicationSchemaExecutor.call(() -> userRepository.findById(callerUserId)
+                .map(User::getRole)
+                .orElse(null));
+        if (role != Role.PRO && role != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only tenant owners may modify employee permissions");
+        }
+        // Defence-in-depth: even if a PRO somehow has an Employee record,
+        // refuse attempts to grant themselves permissions via that record.
+        Employee targetEmployee = employeeRepo.findById(targetEmployeeId).orElse(null);
+        if (targetEmployee != null && callerUserId.equals(targetEmployee.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot modify your own employee permissions");
+        }
     }
 
     @Transactional(readOnly = true)

@@ -18,6 +18,7 @@ import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -364,75 +365,124 @@ class EmployeeServiceTests {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // ── Lot3 Sec70: Privilege escalation on EmployeePermissionService.updatePermissions ──
+    // ── Lot3 Sec70 / Fix4a: Privilege escalation on EmployeePermissionService.updatePermissions ──
     // ══════════════════════════════════════════════════════════════
-    // NOTE-SEC: The permission-update entrypoint
-    //   EmployeePermissionService.updatePermissions(Long employeeId, Map<PermissionDomain, AccessLevel>)
-    // takes NO caller/principal argument. It identifies the *target* of the update
-    // but cannot (and does not) verify that the *caller* has authority to grant
-    // permissions. In the current routing (EmployeePermissionController.putMapping
-    // "/api/pro/employees/{employeeId}/permissions") the only safeguard is the
-    // URL prefix "/api/pro/..." enforced by Spring Security — which is coarse
-    // role-level, not "is this the pro/owner and not the target employee himself".
-    //
-    // If an employee reaches the service (via a future endpoint, an admin bypass,
-    // a mis-mapped route, or a developer mistake in another controller) and
-    // passes their own employeeId, the service will happily raise their own
-    // permissions to WRITE on every domain. This is the classic vertical
-    // privilege-escalation gap.
+    // Fix4a: updatePermissions now takes callerUserId and verifies (a) the caller's
+    // role is PRO or ADMIN, (b) the caller is not the target employee themselves.
 
     @Test
-    @DisplayName("Lot3#70: updatePermissions_WARN_serviceHasNoCallerCheck — self-escalation possible at service layer")
-    void updatePermissions_WARN_serviceHasNoCallerCheck_selfEscalationPossible() {
-        // TODO-SEC: Add an explicit caller-authority argument or @PreAuthorize
-        // on EmployeePermissionService.updatePermissions so that an employee
-        // cannot grant themselves WRITE access to PROFILE/VISITS/PHOTOS/REMINDERS
-        // even if they reach the service directly. Today the service signature
-        // has no notion of "who is asking".
+    @DisplayName("Lot3#70 / Fix4a: updatePermissions_employeeSelfGrant_throwsForbidden — service rejects self-escalation")
+    void updatePermissions_employeeSelfGrant_throwsForbidden() {
         Long attackerEmployeeId = 42L;
+        Long attackerUserId = 10L; // employee.userId — matches the target's userId
 
-        // Construct the permission service inline (reuses EmployeeRepository mock
-        // and adds the permission-repo mock). This is the same construction
-        // pattern used by TrackingAccessLevelSecurityTests (Sec2).
-        EmployeePermissionService permissionService =
-                new EmployeePermissionService(employeePermissionRepository, employeeRepository);
+        EmployeePermissionService permissionService = new EmployeePermissionService(
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
 
-        // Target (self) employee exists
-        when(employeeRepository.findById(attackerEmployeeId))
-                .thenReturn(Optional.of(employee));
-        // No stored permissions yet — new rows will be created by the service
-        when(employeePermissionRepository.findByEmployeeIdAndDomain(eq(attackerEmployeeId), any()))
-                .thenReturn(Optional.empty());
-        // Capture the saved permissions to prove the escalation went through
-        when(employeePermissionRepository.save(any(EmployeePermission.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
-        // getPermissions(...) called at the end — return an empty row set and
-        // let the service materialise the defaults.
-        when(employeePermissionRepository.findByEmployeeId(attackerEmployeeId))
-                .thenReturn(List.of());
+        // Attacker is an EMPLOYEE (not PRO/ADMIN) — caller-role lookup resolves to EMPLOYEE.
+        User attacker = User.builder()
+                .id(attackerUserId)
+                .name("Alice Dupont")
+                .email("alice@example.com")
+                .password("hashed")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.EMPLOYEE)
+                .build();
+        when(userRepository.findById(attackerUserId)).thenReturn(Optional.of(attacker));
 
-        // The attacker asks to raise their *own* permissions to WRITE on every domain
         Map<PermissionDomain, AccessLevel> selfEscalation = Map.of(
                 PermissionDomain.PROFILE, AccessLevel.WRITE,
-                PermissionDomain.VISITS, AccessLevel.WRITE,
-                PermissionDomain.PHOTOS, AccessLevel.WRITE,
-                PermissionDomain.REMINDERS, AccessLevel.WRITE
+                PermissionDomain.VISITS, AccessLevel.WRITE
         );
 
-        // Service proceeds — no "caller == target?" guard, no pro/owner role check
+        assertThatThrownBy(() ->
+                permissionService.updatePermissions(attackerEmployeeId, selfEscalation, attackerUserId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+
+        // No permission row was saved.
+        verify(employeePermissionRepository, never()).save(any(EmployeePermission.class));
+    }
+
+    @Test
+    @DisplayName("Fix4a: updatePermissions_proCannotTargetOwnEmployeeRecord_throwsForbidden — defence-in-depth")
+    void updatePermissions_proCannotTargetOwnEmployeeRecord_throwsForbidden() {
+        // If a PRO somehow also has an Employee record linked to their userId,
+        // the service must still refuse to modify that record.
+        Long proUserId = 10L;
+        Long targetEmployeeId = 42L;
+
+        EmployeePermissionService permissionService = new EmployeePermissionService(
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
+
+        User pro = User.builder()
+                .id(proUserId)
+                .name("Pro User")
+                .email("pro@example.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
+
+        // Employee record's userId == proUserId → same identity
+        Employee selfEmployee = new Employee();
+        selfEmployee.setId(targetEmployeeId);
+        selfEmployee.setUserId(proUserId);
+        when(employeeRepository.findById(targetEmployeeId)).thenReturn(Optional.of(selfEmployee));
+
+        Map<PermissionDomain, AccessLevel> updates = Map.of(
+                PermissionDomain.PROFILE, AccessLevel.WRITE);
+
+        assertThatThrownBy(() ->
+                permissionService.updatePermissions(targetEmployeeId, updates, proUserId))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.FORBIDDEN));
+        verify(employeePermissionRepository, never()).save(any(EmployeePermission.class));
+    }
+
+    @Test
+    @DisplayName("Fix4a: updatePermissions_proCallerOnOtherEmployee_succeeds — happy path")
+    void updatePermissions_proCallerOnOtherEmployee_succeeds() {
+        Long proUserId = 99L;
+        Long targetEmployeeId = 42L;
+        Long targetEmployeeUserId = 10L; // different from proUserId
+
+        EmployeePermissionService permissionService = new EmployeePermissionService(
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
+
+        User pro = User.builder()
+                .id(proUserId)
+                .name("Pro")
+                .email("pro@example.com")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
+
+        Employee target = new Employee();
+        target.setId(targetEmployeeId);
+        target.setUserId(targetEmployeeUserId);
+        when(employeeRepository.findById(targetEmployeeId)).thenReturn(Optional.of(target));
+
+        when(employeePermissionRepository.findByEmployeeIdAndDomain(eq(targetEmployeeId), any()))
+                .thenReturn(Optional.empty());
+        when(employeePermissionRepository.save(any(EmployeePermission.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+        when(employeePermissionRepository.findByEmployeeId(targetEmployeeId)).thenReturn(List.of());
+
+        Map<PermissionDomain, AccessLevel> updates = Map.of(
+                PermissionDomain.PROFILE, AccessLevel.WRITE,
+                PermissionDomain.VISITS, AccessLevel.READ);
+
         Map<PermissionDomain, AccessLevel> result =
-                permissionService.updatePermissions(attackerEmployeeId, selfEscalation);
+                permissionService.updatePermissions(targetEmployeeId, updates, proUserId);
 
         assertThat(result).isNotNull();
-        // Four rows saved — one per domain — all at WRITE, for the attacker herself.
-        ArgumentCaptor<EmployeePermission> permCaptor = ArgumentCaptor.forClass(EmployeePermission.class);
-        verify(employeePermissionRepository, times(4)).save(permCaptor.capture());
-        assertThat(permCaptor.getAllValues())
-                .allSatisfy(p -> {
-                    assertThat(p.getEmployeeId()).isEqualTo(attackerEmployeeId);
-                    assertThat(p.getAccessLevel()).isEqualTo(AccessLevel.WRITE);
-                });
-        // Documents the gap: no collaborator consulted to verify the caller
-        // was distinct from the target employee (the pro/owner).
+        ArgumentCaptor<EmployeePermission> captor = ArgumentCaptor.forClass(EmployeePermission.class);
+        verify(employeePermissionRepository, times(2)).save(captor.capture());
+        assertThat(captor.getAllValues()).allSatisfy(p ->
+                assertThat(p.getEmployeeId()).isEqualTo(targetEmployeeId));
     }
 }

@@ -1,10 +1,12 @@
 package com.prettyface.app.employee.web;
 
+import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.employee.app.EmployeePermissionService;
 import com.prettyface.app.employee.domain.AccessLevel;
 import com.prettyface.app.employee.domain.PermissionDomain;
 import com.prettyface.app.employee.web.dto.EmployeePermissionResponse;
 import com.prettyface.app.employee.web.dto.UpdatePermissionsRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,13 +33,15 @@ public class EmployeePermissionController {
     @PutMapping("/{employeeId}/permissions")
     public EmployeePermissionResponse updatePermissions(
             @PathVariable Long employeeId,
-            @RequestBody UpdatePermissionsRequest request) {
+            @RequestBody UpdatePermissionsRequest request,
+            @AuthenticationPrincipal UserPrincipal principal) {
         Map<PermissionDomain, AccessLevel> updates = request.permissions().entrySet().stream()
                 .collect(Collectors.toMap(
                         e -> PermissionDomain.valueOf(e.getKey()),
                         e -> AccessLevel.valueOf(e.getValue())
                 ));
-        Map<PermissionDomain, AccessLevel> result = permissionService.updatePermissions(employeeId, updates);
+        Map<PermissionDomain, AccessLevel> result = permissionService.updatePermissions(
+                employeeId, updates, principal.getId());
         Map<String, String> response = result.entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey().name(), e -> e.getValue().name()));
         return new EmployeePermissionResponse(response);
