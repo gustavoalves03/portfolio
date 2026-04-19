@@ -1,6 +1,5 @@
 // app.routes.ts (Angular 21, standalone)
 import { Routes } from '@angular/router';
-import { ListVideoGames } from './features/video-games/ui/list-video-games/list-video-games';
 import { Home } from './pages/home/home';
 import { NotFound } from './pages/not-found/not-found';
 import { About } from './pages/about/about';
@@ -31,7 +30,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'video-games', component: ListVideoGames },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
   {
     path: 'discover',
