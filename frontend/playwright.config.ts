@@ -11,11 +11,16 @@ export default defineConfig({
     baseURL: 'http://localhost:4200',
     trace: 'on-first-retry',
     viewport: { width: 375, height: 667 },
+    locale: 'fr-FR',
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 375, height: 667 } },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 375, height: 667 },
+        locale: 'fr-FR',
+      },
     },
   ],
   webServer: {

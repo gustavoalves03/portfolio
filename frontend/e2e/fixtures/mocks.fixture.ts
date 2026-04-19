@@ -17,15 +17,25 @@ function json(body: unknown, status = 200) {
 }
 
 export async function setupProBookingMocks(page: Page): Promise<void> {
-  await page.route('**/api/cares*', r => r.fulfill(json(CARES)));
+  // Cares endpoints (listOrdered -> /api/care/ordered, also /api/care with pagination)
+  await page.route('**/api/care/ordered*', r => r.fulfill(json(CARES)));
+  await page.route('**/api/care?*', r => r.fulfill(json({
+    content: CARES, totalElements: CARES.length, totalPages: 1,
+    number: 0, size: 20, first: true, last: true, empty: false,
+  })));
+  await page.route('**/api/care', r => r.fulfill(json({
+    content: CARES, totalElements: CARES.length, totalPages: 1,
+    number: 0, size: 20, first: true, last: true, empty: false,
+  })));
   await page.route('**/api/employees*', r => r.fulfill(json(EMPLOYEES)));
   await page.route(
     '**/api/pro/opening-hours/available-slots*',
     r => r.fulfill(json(AVAILABLE_SLOTS))
   );
-  await page.route('**/api/salon-clients/recent*', r => r.fulfill(json(SALON_CLIENTS)));
-  await page.route('**/api/salon-clients/search*', r => r.fulfill(json(SALON_CLIENTS)));
-  await page.route('**/api/salon-clients', async route => {
+  // Salon client endpoints (pro namespace)
+  await page.route('**/api/pro/clients/recent*', r => r.fulfill(json(SALON_CLIENTS)));
+  await page.route('**/api/pro/clients/search*', r => r.fulfill(json(SALON_CLIENTS)));
+  await page.route('**/api/pro/clients', async route => {
     if (route.request().method() === 'POST') {
       const body = route.request().postDataJSON();
       await route.fulfill(json({ id: 99, ...body }, 201));

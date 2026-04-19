@@ -13,7 +13,8 @@ export async function loginAsPro(page: Page): Promise<void> {
         id: 1,
         email: 'pro@test.fr',
         name: 'Pro Test',
-        roles: ['PRO'],
+        role: 'PRO',
+        provider: 'LOCAL',
         tenantSlug: 'beaute-du-regard',
       }),
     })
@@ -32,7 +33,8 @@ export async function loginAsClient(page: Page): Promise<void> {
         id: 100,
         email: 'client@test.fr',
         name: 'Client Test',
-        roles: ['CLIENT'],
+        role: 'USER',
+        provider: 'LOCAL',
       }),
     })
   );
