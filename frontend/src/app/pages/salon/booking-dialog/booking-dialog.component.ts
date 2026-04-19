@@ -123,6 +123,15 @@ export class BookingDialogComponent {
     return (cents / 100).toFixed(2).replace('.', ',') + ' \u20AC';
   }
 
+  /**
+   * Heuristic: our i18n keys look like `booking.errors.xxx` — dotted identifiers
+   * with no spaces or punctuation. A plain server-provided sentence will fail
+   * this test.
+   */
+  isTranslationKey(value: string): boolean {
+    return /^[a-zA-Z][a-zA-Z0-9._]*$/.test(value);
+  }
+
   private loadOpeningHours(): void {
     this.availabilityService.loadPublicHours(this.slug).subscribe({
       next: (hours) => {
@@ -195,10 +204,14 @@ export class BookingDialogComponent {
       },
       error: (err) => {
         this.submitting.set(false);
+        const serverMsg = err?.error?.error;
         if (err.status === 409) {
-          this.bookingError.set('booking.errors.slotTaken');
+          // Keep the grid in sync: a real slot collision invalidates our cache.
           this.loadSlots(this.selectedDate()!);
           this.selectedSlot.set(null);
+        }
+        if (typeof serverMsg === 'string' && serverMsg.length > 0) {
+          this.bookingError.set(serverMsg);
         } else {
           this.bookingError.set('booking.errors.generic');
         }
