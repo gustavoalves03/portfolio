@@ -40,10 +40,12 @@ import static org.mockito.Mockito.*;
  * Lot2 Sec1 — Scenario #100: Client cannot cancel another client's booking.
  *
  * Pattern B: The check EXISTS at the controller layer in
- * {@link PublicSalonController#cancelBooking}. The service layer (CareBookingService)
- * does NOT perform this check (see CareBookingServiceTests.cancelBooking_WARN_...),
- * so the safety lives purely in the controller's
- * {@code !booking.getUser().getId().equals(principal.getId())} guard.
+ * {@link PublicSalonController#cancelBooking}. The service layer
+ * (CareBookingService) does NOT perform this principal-ownership check, so
+ * the safety lives purely in the controller's
+ * {@code !booking.getUser().getId().equals(principal.getId())} guard. The
+ * service-level tenant guard (TenantContext.requireActive) is a separate
+ * defense-in-depth layer, not a caller-ownership check.
  *
  * These tests invoke the controller method directly (no Spring context) to
  * pin that guard against regression.

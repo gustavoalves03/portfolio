@@ -317,51 +317,25 @@ class EmployeeServiceTests {
     // (bug / bypass), the attacker can add an employee to an arbitrary salon.
 
     @Test
-    @DisplayName("Lot2#40: create_WARN_trustsTenantContextWithoutCheckingCallerOwnership (FINDING)")
-    void create_WARN_trustsTenantContextWithoutCheckingCallerOwnership() {
-        // TODO-SEC: EmployeeService.create trusts whatever value is in
-        // TenantContext. No cross-check against the caller's owned salon.
-        // If TenantContext is set to "victim-salon" (via a bypass / misrouted
-        // request / malicious background job), this method will happily create
-        // an employee in the victim salon's schema.
-        TenantContext.setCurrentTenant("victim-salon");
-        try {
-            CreateEmployeeRequest req = new CreateEmployeeRequest(
-                    "Mallory", "mallory@evil.example", "+33600000001", "pwd", null);
+    @DisplayName("Lot2#40: create_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void create_requiresActiveTenant_throwsWhenUnset() {
+        // Fix4: EmployeeService.create now calls TenantContext.requireActive()
+        // (replacing the previous ad-hoc IllegalStateException check). If the
+        // schema router failed to set a tenant, the service refuses to create
+        // the shared User or tenant-scoped Employee row.
+        TenantContext.clear();
 
-            when(userRepository.existsByEmail("mallory@evil.example")).thenReturn(false);
-            when(passwordEncoder.encode("pwd")).thenReturn("hashed-pwd");
-            User mallory = User.builder()
-                    .id(999L)
-                    .name("Mallory")
-                    .email("mallory@evil.example")
-                    .password("hashed-pwd")
-                    .provider(AuthProvider.LOCAL)
-                    .role(Role.EMPLOYEE)
-                    .build();
-            when(userRepository.save(any(User.class))).thenReturn(mallory);
-            Employee savedEmployee = new Employee();
-            savedEmployee.setId(9000L);
-            savedEmployee.setUserId(999L);
-            savedEmployee.setName("Mallory");
-            savedEmployee.setEmail("mallory@evil.example");
-            savedEmployee.setActive(true);
-            savedEmployee.setAssignedCares(new HashSet<>());
-            when(employeeRepository.save(any(Employee.class))).thenReturn(savedEmployee);
+        CreateEmployeeRequest req = new CreateEmployeeRequest(
+                "Mallory", "mallory@evil.example", "+33600000001", "pwd", null);
 
-            // Service proceeds without any caller-authority check against "victim-salon"
-            EmployeeResponse response = employeeService.create(req);
+        assertThatThrownBy(() -> employeeService.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-            assertThat(response).isNotNull();
-            // Verify the User row was stamped with the attacker-chosen tenant slug
-            ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-            verify(userRepository).save(userCaptor.capture());
-            assertThat(userCaptor.getValue().getTenantSlug()).isEqualTo("victim-salon");
-            // Employee row is saved — it will live in whatever schema the router picked.
-            verify(employeeRepository).save(any(Employee.class));
-        } finally {
-            TenantContext.clear();
-        }
+        verify(userRepository, never()).save(any(User.class));
+        verify(employeeRepository, never()).save(any(Employee.class));
     }
 
     // ══════════════════════════════════════════════════════════════

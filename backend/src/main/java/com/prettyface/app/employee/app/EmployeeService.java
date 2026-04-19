@@ -80,10 +80,7 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeResponse create(CreateEmployeeRequest req) {
-        String tenantSlug = TenantContext.getCurrentTenant();
-        if (tenantSlug == null || tenantSlug.isBlank()) {
-            throw new IllegalStateException("Tenant context is required to create an employee");
-        }
+        String tenantSlug = TenantContext.requireActive();
 
         if (Boolean.TRUE.equals(applicationSchemaExecutor.call(() -> userRepository.existsByEmail(req.email())))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");

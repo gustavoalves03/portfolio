@@ -1,10 +1,12 @@
 package com.prettyface.app.tenant.app;
 
 import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -36,12 +40,18 @@ class TenantServiceTests {
 
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentTenant("test-tenant");
         tenant = Tenant.builder()
                 .id(1L)
                 .name("My Salon")
                 .slug("my-salon")
                 .ownerId(42L)
                 .build();
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
     }
 
     @Test
@@ -133,29 +143,26 @@ class TenantServiceTests {
     // settings without any service-level guard.
 
     @Test
-    @DisplayName("Lot2#58: updateProfile_WARN_trustsOwnerIdArgWithoutCallerCheck (FINDING)")
-    void updateProfile_WARN_trustsOwnerIdArgWithoutCallerCheck() {
-        // TODO-SEC: TenantService.updateProfile has no way to verify that the
-        // ownerId argument belongs to the authenticated caller. It looks up the
-        // tenant by ownerId and mutates it. Documents the service-layer gap.
-        Tenant victim = Tenant.builder()
-                .id(2L)
-                .name("Victim Salon")
-                .slug("victim-salon")
-                .ownerId(99L)
-                .build();
-        when(tenantRepository.findByOwnerId(99L)).thenReturn(Optional.of(victim));
-        when(tenantRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    @DisplayName("Lot2#58: updateProfile_requiresActiveTenant_throwsWhenUnset — defense-in-depth guard")
+    void updateProfile_requiresActiveTenant_throwsWhenUnset() {
+        // Fix4: TenantService.updateProfile now calls TenantContext.requireActive().
+        // This is a defense-in-depth guard against schema-router bugs; it does
+        // NOT solve the separate "trustsOwnerIdArgWithoutCallerCheck" gap
+        // (caller-ownership of the ownerId argument) — that lives at the
+        // controller layer via @AuthenticationPrincipal.
+        TenantContext.clear();
 
         UpdateTenantRequest request = new UpdateTenantRequest(
                 "Pwned Salon Name", null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null);
 
-        // Service accepts any ownerId and modifies that tenant's profile,
-        // with no cross-check against the caller.
-        TenantResponse response = tenantService.updateProfile(99L, request);
+        assertThatThrownBy(() -> tenantService.updateProfile(99L, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR))
+                .hasMessageContaining("No tenant context");
 
-        assertThat(response.name()).isEqualTo("Pwned Salon Name");
-        assertThat(victim.getName()).isEqualTo("Pwned Salon Name");
+        verify(tenantRepository, never()).findByOwnerId(any());
+        verify(tenantRepository, never()).save(any());
     }
 }

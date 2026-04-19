@@ -1,6 +1,7 @@
 package com.prettyface.app.tenant.app;
 
 import com.prettyface.app.common.storage.FileStorageService;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
@@ -38,6 +39,7 @@ public class TenantService {
 
     @Transactional
     public TenantResponse updateProfile(Long ownerId, UpdateTenantRequest request) {
+        TenantContext.requireActive();
         Tenant tenant = tenantRepository.findByOwnerId(ownerId)
                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found for owner: " + ownerId));
 

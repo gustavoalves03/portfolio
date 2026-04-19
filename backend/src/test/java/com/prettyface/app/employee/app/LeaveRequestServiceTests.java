@@ -10,10 +10,12 @@ import com.prettyface.app.employee.web.dto.LeaveRequestDto;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
 import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.AuthProvider;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +66,7 @@ class LeaveRequestServiceTests {
 
     @BeforeEach
     void setUp() {
+        TenantContext.setCurrentTenant("test-tenant");
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
 
@@ -110,6 +113,11 @@ class LeaveRequestServiceTests {
         approvedLeave.setEndDate(LocalDate.of(2025, 7, 14));
         approvedLeave.setReviewerNote("Approved.");
         approvedLeave.setReviewedAt(LocalDateTime.now().minusDays(1));
+    }
+
+    @AfterEach
+    void clearTenant() {
+        TenantContext.clear();
     }
 
     // ── createLeave ──

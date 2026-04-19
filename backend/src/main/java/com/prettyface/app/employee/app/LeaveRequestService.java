@@ -10,6 +10,7 @@ import com.prettyface.app.employee.web.dto.LeaveRequestDto;
 import com.prettyface.app.employee.web.dto.LeaveResponse;
 import com.prettyface.app.employee.web.dto.LeaveReviewDto;
 import com.prettyface.app.multitenancy.ApplicationSchemaExecutor;
+import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.users.domain.Role;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
@@ -42,6 +43,7 @@ public class LeaveRequestService {
 
     @Transactional
     public LeaveResponse createLeave(Long employeeId, LeaveRequestDto dto) {
+        TenantContext.requireActive();
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
@@ -117,6 +119,7 @@ public class LeaveRequestService {
 
     @Transactional
     public LeaveResponse attachDocument(Long leaveId, String documentPath) {
+        TenantContext.requireActive();
         LeaveRequest leave = leaveRequestRepository.findById(leaveId)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + leaveId));
 
