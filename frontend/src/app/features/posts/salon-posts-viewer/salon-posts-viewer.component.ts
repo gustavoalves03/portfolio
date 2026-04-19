@@ -65,7 +65,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
                         (touchend)="onBaDragEnd(post.id)"
                       >
                         @if (post.afterImageUrl) {
-                          <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" draggable="false" />
+                          <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" draggable="false" loading="lazy" />
                         }
                         @if (post.beforeImageUrl) {
                           <img
@@ -75,6 +75,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
                               'inset(0 ' + (100 - getBaSplit(post.id)) + '% 0 0)'
                             "
                             alt="Before"
+                            loading="lazy"
                           />
                         }
                         <div
@@ -97,9 +98,9 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
                     }
                     @case ('PHOTO') {
                       @if (post.beforeImageUrl) {
-                        <img [src]="imgUrl(post.beforeImageUrl)" class="photo-img" [alt]="post.caption || 'Photo'" />
+                        <img [src]="imgUrl(post.beforeImageUrl)" class="photo-img" [alt]="post.caption || 'Photo'" loading="lazy" />
                       } @else if (post.carouselImageUrls.length > 0) {
-                        <img [src]="imgUrl(post.carouselImageUrls[0])" class="photo-img" [alt]="post.caption || 'Photo'" />
+                        <img [src]="imgUrl(post.carouselImageUrls[0])" class="photo-img" [alt]="post.caption || 'Photo'" loading="lazy" />
                       }
                     }
                     @case ('CAROUSEL') {
@@ -115,7 +116,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
                             track url;
                             let ci = $index
                           ) {
-                            <img [src]="imgUrl(url)" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" />
+                            <img [src]="imgUrl(url)" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" loading="lazy" />
                           }
                         </div>
                         <div
@@ -626,7 +627,10 @@ export class SalonPostsViewerComponent {
   readonly bookCare = output<number>();
 
   readonly posts = signal<PostResponse[]>([]);
-  readonly loading = signal(true);
+  readonly loading = signal(false);
+  readonly hasMore = signal(false);
+  readonly pageIndex = signal(0);
+  private readonly PAGE_SIZE = 20;
   readonly currentIndex = signal(0);
 
   private carouselIndices: Record<number, number> = {};
@@ -641,7 +645,7 @@ export class SalonPostsViewerComponent {
     effect(() => {
       const slugVal = this.slug();
       if (slugVal) {
-        this.loadPosts(slugVal);
+        this.loadInitial(slugVal);
       }
     });
 
@@ -649,15 +653,37 @@ export class SalonPostsViewerComponent {
     this.isPro.set(user?.role === Role.PRO || user?.role === Role.ADMIN);
   }
 
-  private loadPosts(slug: string): void {
+  private loadInitial(slug: string): void {
     this.loading.set(true);
-    this.postsService.listPublic(slug).subscribe({
+    this.pageIndex.set(0);
+    this.posts.set([]);
+    this.postsService.listPublic(slug, 0, this.PAGE_SIZE).subscribe({
       next: (page) => {
         this.posts.set(page.content);
+        this.hasMore.set(!page.last);
         this.loading.set(false);
       },
       error: () => {
         this.posts.set([]);
+        this.hasMore.set(false);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private loadMore(): void {
+    const slug = this.slug();
+    if (!slug || this.loading() || !this.hasMore()) return;
+    this.loading.set(true);
+    const nextPage = this.pageIndex() + 1;
+    this.postsService.listPublic(slug, nextPage, this.PAGE_SIZE).subscribe({
+      next: (page) => {
+        this.posts.set([...this.posts(), ...page.content]);
+        this.pageIndex.set(nextPage);
+        this.hasMore.set(!page.last);
+        this.loading.set(false);
+      },
+      error: () => {
         this.loading.set(false);
       },
     });
@@ -668,6 +694,11 @@ export class SalonPostsViewerComponent {
     if (!el) return;
     const idx = Math.round(el.scrollTop / el.clientHeight);
     this.currentIndex.set(idx);
+    // Trigger next-page when user is within 3 items of the end
+    const total = this.posts().length;
+    if (total > 0 && idx >= total - 3 && this.hasMore() && !this.loading()) {
+      this.loadMore();
+    }
   }
 
   // Before/After slider
