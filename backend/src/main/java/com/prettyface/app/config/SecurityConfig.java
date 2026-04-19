@@ -117,7 +117,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**") // Disable CSRF for OAuth2, auth, and WebSocket endpoints
+                        // /api/test/** is only mapped when the `smoke-test` profile is active
+                        // (see SmokeTestSeedController). Exemption is inert otherwise.
+                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**", "/api/test/**")
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     var c = new CorsConfiguration();
@@ -141,6 +143,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me").authenticated() // Must come before /api/auth/** permitAll
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
                         .requestMatchers("/ws/**").permitAll() // WebSocket handshake (auth handled by WebSocketAuthInterceptor)
+                        // Smoke-test-only seed endpoints (controller is @Profile("smoke-test"))
+                        .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/care/**").permitAll() // Public cares browsing
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Public categories
                         .requestMatchers(HttpMethod.POST, "/api/salon/*/book").authenticated()
