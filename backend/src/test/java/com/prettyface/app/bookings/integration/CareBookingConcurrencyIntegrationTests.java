@@ -1,0 +1,280 @@
+package com.prettyface.app.bookings.integration;
+
+import com.prettyface.app.availability.domain.OpeningHour;
+import com.prettyface.app.availability.repo.OpeningHourRepository;
+import com.prettyface.app.bookings.app.CareBookingService;
+import com.prettyface.app.bookings.repo.CareBookingRepository;
+import com.prettyface.app.bookings.web.dto.ClientBookingRequest;
+import com.prettyface.app.care.domain.Care;
+import com.prettyface.app.care.domain.CareStatus;
+import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.domain.Category;
+import com.prettyface.app.category.repo.CategoryRepository;
+import com.prettyface.app.multitenancy.TenantContext;
+import com.prettyface.app.multitenancy.TenantSchemaManager;
+import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.repo.TenantRepository;
+import com.prettyface.app.tracking.domain.SalonClient;
+import com.prettyface.app.tracking.repo.SalonClientRepository;
+import com.prettyface.app.users.domain.AuthProvider;
+import com.prettyface.app.users.domain.Role;
+import com.prettyface.app.users.domain.User;
+import com.prettyface.app.users.repo.UserRepository;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Full-stack integration test verifying that two concurrent client-booking
+ * attempts for the exact same slot cannot both succeed. The test exercises the
+ * real Spring context, Hibernate + H2, and the {@code UK_BOOKING_SLOT} unique
+ * constraint on {@code (appointment_date, appointment_time, care_id)}.
+ *
+ * <p>Unit tests mock the repository, so they can't prove the DB-level race
+ * protection actually works end-to-end. This test does.
+ */
+@SpringBootTest
+@ActiveProfiles("test")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+class CareBookingConcurrencyIntegrationTests {
+
+    @Autowired
+    private CareBookingService careBookingService;
+
+    @Autowired
+    private CareBookingRepository careBookingRepository;
+
+    @Autowired
+    private CareRepository careRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private OpeningHourRepository openingHourRepository;
+
+    @Autowired
+    private TenantRepository tenantRepository;
+
+    @Autowired
+    private TenantSchemaManager tenantSchemaManager;
+
+    @Autowired
+    private SalonClientRepository salonClientRepository;
+
+    private static final String TENANT_SLUG = "concurrency-salon";
+
+    private Long careId;
+    private Long clientUserId;
+    private Long ownerUserId;
+    private LocalDate appointmentDate;
+    private LocalTime appointmentTime;
+
+    @BeforeEach
+    void setUp() {
+        // Create a tenant schema (idempotent even if the previous test class left one behind).
+        // provisionSchema creates the base tables; migrateSchema adds later columns
+        // (e.g. OPENING_HOURS.EMPLOYEE_ID, CARE_BOOKINGS.SALON_CLIENT_ID) that
+        // the current entities expect.
+        tenantSchemaManager.provisionSchema(TENANT_SLUG);
+        tenantSchemaManager.migrateSchema(TENANT_SLUG);
+
+        // Seed the tenant-independent "owner" user in the default (APPUSER) schema
+        TenantContext.clear();
+        User owner = userRepository.findByEmail("owner-concurrency@test.com").orElseGet(() ->
+                userRepository.save(User.builder()
+                        .name("Owner Concurrency")
+                        .email("owner-concurrency@test.com")
+                        .password("password")
+                        .provider(AuthProvider.LOCAL)
+                        .role(Role.PRO)
+                        .emailVerified(true)
+                        .build()));
+        ownerUserId = owner.getId();
+
+        User client = userRepository.findByEmail("client-concurrency@test.com").orElseGet(() ->
+                userRepository.save(User.builder()
+                        .name("Client Concurrency")
+                        .email("client-concurrency@test.com")
+                        .password("password")
+                        .provider(AuthProvider.LOCAL)
+                        .role(Role.USER)
+                        .emailVerified(true)
+                        .build()));
+        clientUserId = client.getId();
+
+        // Tenant row (shared application schema)
+        Tenant tenant = tenantRepository.findBySlug(TENANT_SLUG).orElseGet(() ->
+                tenantRepository.save(Tenant.builder()
+                        .slug(TENANT_SLUG)
+                        .name("Concurrency Salon")
+                        .ownerId(ownerUserId)
+                        .build()));
+
+        // All tenant-scoped seed data must be written inside the tenant schema
+        TenantContext.setCurrentTenant(TENANT_SLUG);
+        try {
+            Category category = new Category();
+            category.setName("Face Care");
+            category.setDescription("Facial treatments");
+            category = categoryRepository.save(category);
+
+            Care care = new Care();
+            care.setName("Cleansing facial");
+            care.setPrice(5500);
+            care.setDescription("30 min relaxing cleanse");
+            care.setDuration(30);
+            care.setStatus(CareStatus.ACTIVE);
+            care.setCategory(category);
+            care = careRepository.save(care);
+            careId = care.getId();
+
+            // Pick a weekday ~two weeks out so both min-advance (120 min) and
+            // max-advance (90 days) tenant limits are satisfied.
+            appointmentDate = LocalDate.now().plusDays(14);
+            while (appointmentDate.getDayOfWeek() == DayOfWeek.SATURDAY
+                    || appointmentDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                appointmentDate = appointmentDate.plusDays(1);
+            }
+            appointmentTime = LocalTime.of(10, 0);
+
+            // Opening hours covering that weekday (salon-wide, employee_id null)
+            OpeningHour oh = new OpeningHour();
+            oh.setDayOfWeek(appointmentDate.getDayOfWeek().getValue());
+            oh.setOpenTime(LocalTime.of(9, 0));
+            oh.setCloseTime(LocalTime.of(18, 0));
+            openingHourRepository.save(oh);
+
+            // Pre-seed a SalonClient linked to the client user so the service's
+            // auto-create path (which passes an empty phone — rejected by NOT NULL
+            // in Oracle mode) is skipped during the concurrent booking attempt.
+            if (salonClientRepository.findByUserId(clientUserId).isEmpty()) {
+                SalonClient sc = new SalonClient();
+                sc.setUserId(clientUserId);
+                sc.setName("Client Concurrency");
+                sc.setPhone("0000000000");
+                sc.setManual(false);
+                salonClientRepository.save(sc);
+            }
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    @AfterEach
+    void tearDown() {
+        TenantContext.clear();
+    }
+
+    @Test
+    void twoConcurrentBookingsForSameSlot_onlyOneSucceeds() throws Exception {
+        ClientBookingRequest request = new ClientBookingRequest(
+                careId,
+                appointmentDate,
+                appointmentTime.toString(),
+                null
+        );
+
+        User client = loadUser(clientUserId);
+        User owner = loadUser(ownerUserId);
+
+        // Two threads, started simultaneously via a barrier, both trying the same slot.
+        int threadCount = 2;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        CyclicBarrier barrier = new CyclicBarrier(threadCount);
+
+        List<Callable<Outcome>> tasks = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            tasks.add(() -> {
+                TenantContext.setCurrentTenant(TENANT_SLUG);
+                try {
+                    barrier.await(5, TimeUnit.SECONDS);
+                    careBookingService.createClientBooking(client, owner, "Concurrency Salon", request);
+                    return Outcome.success();
+                } catch (ResponseStatusException rse) {
+                    return Outcome.rejected(rse);
+                } catch (Exception other) {
+                    return Outcome.error(other);
+                } finally {
+                    TenantContext.clear();
+                }
+            });
+        }
+
+        List<Future<Outcome>> futures = executor.invokeAll(tasks, 30, TimeUnit.SECONDS);
+        executor.shutdown();
+        assertThat(executor.awaitTermination(10, TimeUnit.SECONDS)).isTrue();
+
+        AtomicInteger successes = new AtomicInteger();
+        AtomicInteger conflicts = new AtomicInteger();
+        List<Throwable> unexpected = new ArrayList<>();
+        for (Future<Outcome> f : futures) {
+            Outcome o = f.get();
+            switch (o.kind) {
+                case SUCCESS -> successes.incrementAndGet();
+                case CONFLICT -> conflicts.incrementAndGet();
+                case ERROR -> unexpected.add(o.cause);
+            }
+        }
+
+        assertThat(unexpected)
+                .as("unexpected errors raised by the booking service")
+                .isEmpty();
+        assertThat(successes.get())
+                .as("exactly one booking should succeed under racing inserts")
+                .isEqualTo(1);
+        assertThat(conflicts.get())
+                .as("the losing thread must surface a 409 CONFLICT")
+                .isEqualTo(1);
+
+        // Query persisted rows under the tenant schema — only one must exist.
+        TenantContext.setCurrentTenant(TENANT_SLUG);
+        try {
+            long count = careBookingRepository.findByAppointmentDateAndStatusNot(
+                    appointmentDate,
+                    com.prettyface.app.bookings.domain.CareBookingStatus.CANCELLED
+            ).size();
+            assertThat(count)
+                    .as("database must hold exactly one non-cancelled booking for the contested slot")
+                    .isEqualTo(1L);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    @Transactional
+    User loadUser(Long id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
+    private record Outcome(Kind kind, Throwable cause) {
+        enum Kind { SUCCESS, CONFLICT, ERROR }
+        static Outcome success() { return new Outcome(Kind.SUCCESS, null); }
+        static Outcome rejected(ResponseStatusException rse) { return new Outcome(Kind.CONFLICT, rse); }
+        static Outcome error(Throwable t) { return new Outcome(Kind.ERROR, t); }
+    }
+}

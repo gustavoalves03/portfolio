@@ -169,6 +169,14 @@ public class DataSourceConfig {
                 case H2 -> {
                     try (Statement stmt = connection.createStatement()) {
                         stmt.execute("SET SCHEMA \"" + schemaName + "\"");
+                        // Make the application (default) schema reachable for unqualified
+                        // references to shared tables (e.g. USERS, TENANTS) — mirrors the
+                        // cross-schema SELECT grants applied in the Oracle setup.
+                        if (!schemaName.equalsIgnoreCase(defaultSchema)) {
+                            stmt.execute("SET SCHEMA_SEARCH_PATH \"" + schemaName + "\", \"" + defaultSchema + "\"");
+                        } else {
+                            stmt.execute("SET SCHEMA_SEARCH_PATH \"" + defaultSchema + "\"");
+                        }
                     }
                 }
                 case OTHER -> connection.setSchema(schemaName);
