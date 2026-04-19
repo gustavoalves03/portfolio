@@ -46,6 +46,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(NotificationController.class)
 @Import(SecurityConfig.class)
+@org.springframework.test.context.TestPropertySource(properties = {
+    "spring.data.web.pageable.max-page-size=100",
+})
 class NotificationControllerTests {
 
     @Autowired
@@ -165,19 +168,23 @@ class NotificationControllerTests {
     }
 
     @Test
-    @org.junit.jupiter.api.DisplayName("Sec4: list_withExcessiveSize_returnsReasonableError_notCrash — size clamped, no crash")
-    void list_withExcessiveSize_returnsReasonableError_notCrash() throws Exception {
-        // TODO-SEC: Spring's default max page size (2000) clamps size=100000 → 200 OK.
-        // This means a single request cannot exfiltrate 100k rows, but there is no
-        // application-level limit or per-user rate limit. The test documents this
-        // and would catch a regression where a misconfiguration lifts the cap.
-        when(notificationService.listForRecipient(eq(1L), isNull(), isNull(), any()))
+    @org.junit.jupiter.api.DisplayName("Sec4: list_withExcessiveSize_clampedToAppMax — max-page-size=100")
+    void list_withExcessiveSize_clampedToAppMax() throws Exception {
+        // NOTE-SEC: spring.data.web.pageable.max-page-size=100 in application.properties
+        // caps any ?size= request to 100. The controller receives a Pageable with size=100
+        // regardless of the requested value. Verified via ArgumentCaptor.
+        org.mockito.ArgumentCaptor<org.springframework.data.domain.Pageable> captor =
+                org.mockito.ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
+        when(notificationService.listForRecipient(eq(1L), isNull(), isNull(), captor.capture()))
                 .thenReturn(new org.springframework.data.domain.PageImpl<>(
-                        java.util.List.of(), PageRequest.of(0, 2000), 0));
+                        java.util.List.of(), PageRequest.of(0, 100), 0));
 
         mvc.perform(get("/api/notifications")
                         .param("size", "100000")
                         .with(authentication(authToken)))
-                .andExpect(status().isOk()); // clamp, not crash
+                .andExpect(status().isOk());
+
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getPageSize())
+                .isLessThanOrEqualTo(100);
     }
 }
