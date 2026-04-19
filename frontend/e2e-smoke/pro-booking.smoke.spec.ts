@@ -54,35 +54,36 @@ test.describe('SMOKE-2 — pro booking from stepper full-stack', () => {
 
     await page.goto('/pro/bookings');
 
-    // Open the stepper
+    // Open the stepper. The Angular dev server's HMR occasionally leaves a
+    // second MatDialog container in the DOM when we open a dialog on a
+    // freshly-hot-reloaded page — so scope every interaction to the latest
+    // dialog (`.last()`) rather than the testid directly.
     await page.getByTestId('add-booking-btn').click();
-    await expect(page.getByTestId('booking-stepper')).toBeVisible({ timeout: 10_000 });
+    const dialog = page.locator('mat-dialog-container').last();
+    await expect(dialog.getByTestId('booking-stepper')).toBeVisible({ timeout: 10_000 });
 
-    // Step 1 — pick the first care. Scope to the dialog to avoid any
-    // interception from overlapping overlays (e.g. a snackbar from an earlier
-    // prebook) and force click — the card is a <div> whose styling can
-    // momentarily reflow while the dialog finishes opening.
-    const stepCare = page.locator('mat-dialog-container').getByTestId('step-care-item');
+    // Step 1 — pick the first care
+    const stepCare = dialog.getByTestId('step-care-item');
     await expect(stepCare.first()).toBeVisible({ timeout: 10_000 });
     await stepCare.first().click({ force: true });
-    await page.getByTestId('step-next-btn').click();
+    await dialog.getByTestId('step-next-btn').click();
 
     // Step 2 — datetime
     const target = parseIsoDate(state.suggestedDate);
-    await page.getByRole('button', { name: /open calendar|ouvrir le calendrier/i }).click();
+    await dialog.getByRole('button', { name: /open calendar|ouvrir le calendrier/i }).click();
     await page.getByRole('button', { name: materialDayAriaLabel(target), exact: true }).click();
-    await expect(page.getByTestId('slot-btn').first()).toBeVisible({ timeout: 10_000 });
-    await page.getByTestId('slot-btn').first().click();
-    await page.getByTestId('step-next-btn').click();
+    await expect(dialog.getByTestId('slot-btn').first()).toBeVisible({ timeout: 10_000 });
+    await dialog.getByTestId('slot-btn').first().click();
+    await dialog.getByTestId('step-next-btn').click();
 
     // Step 3 — existing client
-    await page.getByTestId('client-mode-existing').click();
-    await expect(page.getByTestId('client-result').first()).toBeVisible({ timeout: 10_000 });
-    await page.getByTestId('client-result').first().click();
-    await page.getByTestId('step-confirm-btn').click();
+    await dialog.getByTestId('client-mode-existing').click();
+    await expect(dialog.getByTestId('client-result').first()).toBeVisible({ timeout: 10_000 });
+    await dialog.getByTestId('client-result').first().click();
+    await dialog.getByTestId('step-confirm-btn').click();
 
     // Stepper closes on success
-    await expect(page.getByTestId('booking-stepper')).toBeHidden({ timeout: 10_000 });
+    await expect(dialog.getByTestId('booking-stepper')).toBeHidden({ timeout: 10_000 });
 
     // Ground-truth check via the pro API — a new detailed booking should
     // exist in the salon's tenant schema.

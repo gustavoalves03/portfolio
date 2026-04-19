@@ -49,7 +49,10 @@ export default defineConfig({
       // Spring Boot Actuator isn't a project dependency, so /actuator/health
       // returns 404 — use a lightweight public GET that lives in the app.
       url: 'http://localhost:8080/api/csrf',
-      reuseExistingServer: !process.env.CI,
+      // NEVER reuse an existing 8080: if another backend (IntelliJ/dev run) is
+      // already listening on 8080, it almost certainly isn't the `smoke-test`
+      // profile, and its `/api/test/seed` returns 404. Always boot our own.
+      reuseExistingServer: false,
       timeout: 180_000, // Maven + Spring Boot startup can take a while on first run
       stdout: 'pipe',
       stderr: 'pipe',
