@@ -38,7 +38,7 @@ import { API_BASE_URL } from '../../../core/config/api-base-url.token';
                       (touchend)="onBaDragEnd(post.id)"
                     >
                       @if (post.afterImageUrl) {
-                        <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" draggable="false" />
+                        <img [src]="imgUrl(post.afterImageUrl)" class="ba-img ba-after" alt="After" draggable="false" loading="lazy" />
                       }
                       @if (post.beforeImageUrl) {
                         <img
@@ -46,6 +46,7 @@ import { API_BASE_URL } from '../../../core/config/api-base-url.token';
                           class="ba-img ba-before" draggable="false"
                           [style.clip-path]="'inset(0 ' + (100 - getBaSplit(post.id)) + '% 0 0)'"
                           alt="Before"
+                          loading="lazy"
                         />
                       }
                       <div class="ba-handle" [style.left.%]="getBaSplit(post.id)">
@@ -59,9 +60,9 @@ import { API_BASE_URL } from '../../../core/config/api-base-url.token';
                   }
                   @case ('PHOTO') {
                     @if (post.afterImageUrl) {
-                      <img [src]="imgUrl(post.afterImageUrl)" class="photo-img" alt="" />
+                      <img [src]="imgUrl(post.afterImageUrl)" class="photo-img" alt="" loading="lazy" />
                     } @else if (post.beforeImageUrl) {
-                      <img [src]="imgUrl(post.beforeImageUrl)" class="photo-img" alt="" />
+                      <img [src]="imgUrl(post.beforeImageUrl)" class="photo-img" alt="" loading="lazy" />
                     }
                   }
                   @case ('CAROUSEL') {
@@ -69,7 +70,7 @@ import { API_BASE_URL } from '../../../core/config/api-base-url.token';
                       <div class="carousel-track"
                         [style.transform]="'translateX(-' + getCarouselIndex(post.id) * 100 + '%)'">
                         @for (url of post.carouselImageUrls; track url; let ci = $index) {
-                          <img [src]="imgUrl(url)" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" />
+                          <img [src]="imgUrl(url)" class="carousel-slide" [alt]="'Slide ' + (ci + 1)" loading="lazy" />
                         }
                       </div>
                       <div class="carousel-tap carousel-tap-left"
