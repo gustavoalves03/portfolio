@@ -16,6 +16,10 @@ application-*.yml
 application-*.yaml
 # sauf si tu veux versionner application.properties par défaut :
 # !backend/src/main/resources/application.properties
+# Test configs are safe to version (no secrets) and required for integration tests
+!backend/src/test/resources/application-*.properties
+!backend/src/test/resources/application-*.yml
+!backend/src/test/resources/application-*.yaml
 
 ### Node / Angular ###
 frontend/node_modules/
