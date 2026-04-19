@@ -125,4 +125,41 @@ test.describe('Client booking creation', () => {
       expect(isVisible).toBe(false);
     }
   });
+
+  test('C4 — server error on creation keeps dialog open', async ({ page }) => {
+    await loginAsClient(page);
+    await setupClientBookingMocks(page);
+
+    await page.route(`**/api/salon/${PUBLIC_SALON.slug}/book`, async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({ status: 500, body: '{"error":"boom"}' });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await page.goto(`/salon/${PUBLIC_SALON.slug}`);
+    await page.locator('.care-card').first().getByRole('button').click();
+
+    await expect(page.getByTestId('booking-date-input')).toBeVisible();
+
+    const target = new Date();
+    target.setDate(target.getDate() + 1);
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    const dayAriaLabel = `${months[target.getMonth()]} ${target.getDate()}, ${target.getFullYear()}`;
+    await page.locator('mat-datepicker-toggle').first().click();
+    await page.getByRole('button', { name: dayAriaLabel, exact: true }).click();
+
+    await expect(page.getByTestId('booking-slot').first()).toBeVisible();
+    await page.getByTestId('booking-slot').first().click();
+    await page.getByTestId('booking-submit').click();
+
+    await page.waitForTimeout(500);
+
+    // Submit button should remain (dialog still open)
+    await expect(page.getByTestId('booking-submit')).toBeVisible();
+  });
 });
