@@ -1075,6 +1075,108 @@ class CareBookingServiceTests {
         // No check that the caller is employee 42 — documents the gap.
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── Lot4 #91/#92/#94: POST /api/salon/{slug}/book validation ──
+    // ══════════════════════════════════════════════════════════════
+    // NOTE-SEC: The /api/salon/{slug}/book endpoint delegates to
+    // CareBookingService.createClientBooking. These tests exercise the
+    // service-layer guards (DTO has only @NotNull — the date/range/care-status
+    // validations live in the service).
+
+    @Test
+    @DisplayName("Lot4#91: clientBook_inThePast — past date → BAD_REQUEST via minAdvanceMinutes guard")
+    void lot4_91_clientBook_inThePast_rejected() {
+        // When the tenant has a minAdvanceMinutes constraint, a past date always
+        // fails that guard with 400. Tenant defaults ship with minAdvanceMinutes=120.
+        TenantContext.setCurrentTenant("test-salon");
+        Tenant tenant = new Tenant();
+        tenant.setMinAdvanceMinutes(120);
+        tenant.setMaxAdvanceDays(90);
+        tenant.setMaxClientHoursPerDay(8);
+        when(tenantRepository.findBySlug("test-salon")).thenReturn(Optional.of(tenant));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+
+        ClientBookingRequest req = new ClientBookingRequest(
+                10L, LocalDate.now().minusDays(1), "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("at least 120 minutes in advance");
+    }
+
+    @Test
+    @DisplayName("Lot4#91: clientBook_WARN_pastDate_whenTenantHasNoMinAdvance — slot check is the only guard (GAP)")
+    void lot4_91_clientBook_pastDate_noMinAdvance_fallsBackToSlotCheck() {
+        // NOTE-SEC: If minAdvanceMinutes is null/0 the service falls back to the
+        // slot-availability check. SlotAvailabilityService happens to return an
+        // empty list for past dates (no opening hours in the past), so we still
+        // get a 409 "Slot no longer available" — but there is no explicit past-date
+        // guard in createClientBooking(). If the slot service behaviour ever
+        // changes, past bookings could slip through. Documents the gap.
+        TenantContext.setCurrentTenant("test-salon");
+        Tenant tenant = new Tenant();
+        tenant.setMinAdvanceMinutes(0); // disabled
+        tenant.setMaxAdvanceDays(0);     // disabled
+        tenant.setMaxClientHoursPerDay(0);
+        when(tenantRepository.findBySlug("test-salon")).thenReturn(Optional.of(tenant));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        when(slotAvailabilityService.getAvailableSlots(yesterday, 10L))
+                .thenReturn(List.of()); // Empty → CONFLICT, not an explicit past-date 400
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, yesterday, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.CONFLICT))
+                .hasMessageContaining("Slot no longer available");
+        // TODO-SEC: add an explicit past-date guard in createClientBooking (not
+        // dependent on minAdvanceMinutes or slot service returning empty).
+    }
+
+    @Test
+    @DisplayName("Lot4#92: clientBook_beyondMaxAdvanceDays → BAD_REQUEST")
+    void lot4_92_clientBook_beyondMaxAdvanceDays_rejected() {
+        TenantContext.setCurrentTenant("test-salon");
+        Tenant tenant = new Tenant();
+        tenant.setMinAdvanceMinutes(0);
+        tenant.setMaxAdvanceDays(30); // 30 days booking window
+        tenant.setMaxClientHoursPerDay(8);
+        when(tenantRepository.findBySlug("test-salon")).thenReturn(Optional.of(tenant));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+
+        // 60 days ahead > maxAdvanceDays=30
+        ClientBookingRequest req = new ClientBookingRequest(
+                10L, LocalDate.now().plusDays(60), "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("more than 30 days in advance");
+    }
+
+    @Test
+    @DisplayName("Lot4#94: clientBook_reserveInactiveCare → NOT_FOUND")
+    void lot4_94_clientBook_inactiveCare_rejected() {
+        Care inactive = new Care();
+        inactive.setId(77L);
+        inactive.setStatus(CareStatus.INACTIVE);
+        when(careRepository.findById(77L)).thenReturn(Optional.of(inactive));
+
+        ClientBookingRequest req = new ClientBookingRequest(77L, futureDate, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.NOT_FOUND))
+                .hasMessageContaining("Care not found or inactive");
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
