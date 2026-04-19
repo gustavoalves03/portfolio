@@ -259,6 +259,58 @@ class AuthControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    // Lot6: forgot-password generates a UUID token with ~1h expiration and triggers email service
+    @Test
+    void forgotPassword_generatesUuidTokenWithOneHourExpiration() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sophie@salon.fr\"}"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        User saved = userCaptor.getValue();
+
+        // Token must be a valid UUID — not predictable, not the email, not sequential
+        assertThat(saved.getPasswordResetToken()).isNotNull();
+        assertThat(java.util.UUID.fromString(saved.getPasswordResetToken())).isNotNull();
+
+        // Expiration roughly 1 hour from now (3600s). Accept [3500s, 3700s] to absorb drift.
+        Instant expires = saved.getPasswordResetTokenExpiresAt();
+        assertThat(expires).isNotNull();
+        long secondsAhead = java.time.Duration.between(Instant.now(), expires).getSeconds();
+        assertThat(secondsAhead).isBetween(3500L, 3700L);
+
+        // Email service is called with the same token
+        ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
+        verify(emailService).sendPasswordResetEmail(any(User.class), tokenCaptor.capture());
+        assertThat(tokenCaptor.getValue()).isEqualTo(saved.getPasswordResetToken());
+    }
+
+    // Lot6: reset-password with a token whose expiration was never persisted → 400 (defensive path)
+    @Test
+    void resetPassword_nullExpiration_returns400() throws Exception {
+        User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .provider(AuthProvider.LOCAL).role(Role.PRO)
+                .passwordResetToken("orphan-token")
+                .passwordResetTokenExpiresAt(null)
+                .build();
+        when(userRepository.findByPasswordResetToken("orphan-token")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"token\":\"orphan-token\",\"newPassword\":\"newpassword123\"}"))
+                .andExpect(status().isBadRequest());
+
+        verify(userRepository, never()).save(any());
+        verify(passwordEncoder, never()).encode(anyString());
+    }
+
     // --- Brute Force Protection ---
 
     @Test
