@@ -19,9 +19,41 @@ export const EMPLOYEES = [
   { id: 5, name: 'Sophie', role: 'EMPLOYEE' },
 ];
 
+export const PUBLIC_CARES = [
+  {
+    id: 1,
+    name: 'Soin visage',
+    description: 'Soin du visage relaxant',
+    duration: 45,
+    price: 5000,
+    imageUrls: [],
+  },
+  {
+    id: 2,
+    name: 'Massage dos',
+    description: 'Massage relaxant du dos',
+    duration: 30,
+    price: 3500,
+    imageUrls: [],
+  },
+];
+
 export const PUBLIC_SALON = {
   slug: 'beaute-du-regard',
   name: 'Beauté du Regard',
   description: 'Institut de beauté',
-  cares: CARES,
+  logoUrl: null,
+  heroImageUrl: null,
+  addressStreet: null,
+  addressPostalCode: null,
+  addressCity: null,
+  addressCountry: null,
+  phone: null,
+  contactEmail: null,
+  categories: [
+    {
+      name: 'Soins',
+      cares: PUBLIC_CARES,
+    },
+  ],
 };

@@ -82,6 +82,18 @@ export async function setupClientBookingMocks(page: Page): Promise<void> {
     `**/api/salon/${PUBLIC_SALON.slug}/employees*`,
     r => r.fulfill(json(EMPLOYEES))
   );
+  await page.route(
+    `**/api/salon/${PUBLIC_SALON.slug}/opening-hours*`,
+    r => r.fulfill(json([
+      { id: 1, dayOfWeek: 1, openTime: '09:00', closeTime: '18:00' },
+      { id: 2, dayOfWeek: 2, openTime: '09:00', closeTime: '18:00' },
+      { id: 3, dayOfWeek: 3, openTime: '09:00', closeTime: '18:00' },
+      { id: 4, dayOfWeek: 4, openTime: '09:00', closeTime: '18:00' },
+      { id: 5, dayOfWeek: 5, openTime: '09:00', closeTime: '18:00' },
+      { id: 6, dayOfWeek: 6, openTime: '09:00', closeTime: '18:00' },
+      { id: 7, dayOfWeek: 7, openTime: '09:00', closeTime: '18:00' },
+    ]))
+  );
   await page.route(`**/api/salon/${PUBLIC_SALON.slug}/book`, async route => {
     if (route.request().method() === 'POST') {
       await route.fulfill(json({ id: 77 }, 201));
@@ -89,4 +101,9 @@ export async function setupClientBookingMocks(page: Page): Promise<void> {
       await route.continue();
     }
   });
+  await page.route('**/api/notifications/unread/count', r => r.fulfill(json(0)));
+  await page.route('**/api/notifications*', r => r.fulfill(json({
+    content: [], totalElements: 0, totalPages: 0, number: 0, size: 20,
+    first: true, last: true, empty: true,
+  })));
 }

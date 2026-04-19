@@ -18,6 +18,7 @@ import {credentialsInterceptor} from './core/interceptors/credentials.intercepto
 import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import {CsrfService} from './core/security/csrf.service';
+import {AuthService} from './core/auth/auth.service';
 import {provideTransloco} from '@jsverse/transloco';
 import {provideTranslocoLocale} from '@jsverse/transloco-locale';
 import {TranslocoHttpLoader} from './i18n/transloco-http.loader';
@@ -42,6 +43,15 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (csrfService: CsrfService) => () => firstValueFrom(csrfService.initializeCsrfToken()),
       deps: [CsrfService],
+      multi: true
+    },
+    // Load current user on app startup (if token exists) — subscribes the cold Observable
+    // so `authService.isAuthenticated()` is accurate before components read it.
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (authService: AuthService) => () =>
+        firstValueFrom(authService.checkAuthentication()).catch(() => false),
+      deps: [AuthService],
       multi: true
     },
     NotificationsStore,
