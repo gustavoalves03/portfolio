@@ -513,6 +513,7 @@
       "minutesUnit": "min",
       "daysAdvanceUnit": "days",
       "invalidNumber": "Invalid value. Enter a positive number (zero allowed).",
+      "saveSuccess": "Setting saved",
       "history": {
         "card": {
           "title": "Booking history",

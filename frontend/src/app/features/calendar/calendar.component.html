@@ -117,8 +117,11 @@
           <div class="block-form">
             <div class="block-form-row">
               <mat-slide-toggle
+                color="primary"
+                hideIcon
                 [checked]="blockFullDay()"
                 (change)="blockFullDay.set($event.checked)"
+                [attr.aria-label]="'pro.calendar.fullDay' | transloco"
               >
                 {{ 'pro.calendar.fullDay' | transloco }}
               </mat-slide-toggle>

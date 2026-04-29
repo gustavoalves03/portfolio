@@ -64,23 +64,41 @@ export class Header {
   });
 
   constructor() {
-    // Load PRO salon info
+    // Load PRO salon info. We only fetch once per (pro, authenticated) state
+    // change and we never blank the cached name on a transient flicker — the
+    // computed user signal can momentarily flip to null between route guards,
+    // which used to make the brand fall back to "Pretty Face".
+    let lastFetchedFor: string | null = null;
     effect(() => {
-      if (this.isPro() && this.authService.isAuthenticated()) {
-        this.salonService.getProfile().subscribe({
-          next: (tenant) => {
-            this.salonName.set(tenant.name);
-            this.salonSlug.set(tenant.slug);
-          },
-          error: () => {
-            this.salonName.set('');
-            this.salonSlug.set('');
-          },
-        });
-      } else {
+      const user = this.authService.user();
+      const authed = this.authService.isAuthenticated();
+      const pro = this.isPro();
+      const key = authed && pro && user ? String(user.id) : null;
+
+      if (key === lastFetchedFor) return;
+      lastFetchedFor = key;
+
+      if (key === null) {
+        // Real auth-state change away from a pro: drop the cached salon.
         this.salonName.set('');
         this.salonSlug.set('');
+        return;
       }
+
+      this.salonService.getProfile().subscribe({
+        next: (tenant) => {
+          this.salonName.set(tenant.name);
+          this.salonSlug.set(tenant.slug);
+        },
+        // On error, keep whatever name we already had — refusing to overwrite
+        // with '' avoids the QA-reported flicker to the brand fallback.
+        error: () => {
+          if (!this.salonName()) {
+            this.salonName.set('');
+            this.salonSlug.set('');
+          }
+        },
+      });
     });
 
     // Detect current route for manage pages and salon visits

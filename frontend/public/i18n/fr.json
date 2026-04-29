@@ -517,6 +517,7 @@
       "minutesUnit": "min",
       "daysAdvanceUnit": "jours",
       "invalidNumber": "Valeur invalide. Entre un nombre positif (zéro accepté).",
+      "saveSuccess": "Modification enregistrée",
       "history": {
         "card": {
           "title": "Historique des bookings",

@@ -226,4 +226,74 @@ describe('ProBookingsComponent — KPI computations', () => {
     expect(component.estimatedRevenue()).toBe('0,00 €');
     expect(component.occupiedTime()).toBe('0min');
   });
+  
+  // ─────────────────────────────────────────────────────────────
+  // Adversarial: large lists, rapid mutations, edge data
+  // ─────────────────────────────────────────────────────────────
+
+  describe('adversarial', () => {
+    it('rapid status flips settle to the last value', () => {
+      component.bookings.set([booking(1, CareBookingStatus.CONFIRMED, 5000, 60)]);
+      for (let i = 0; i < 20; i++) {
+        component.bookings.update((list: CareBookingDetailed[]) =>
+          list.map((x: CareBookingDetailed) => ({
+            ...x,
+            status: i % 2 === 0 ? CareBookingStatus.CANCELLED : CareBookingStatus.CONFIRMED,
+          }))
+        );
+      }
+      // i=19 → odd → CONFIRMED
+      expect(component.estimatedRevenue()).toBe('50,00 €');
+      expect(component.totalBookings()).toBe(1);
+    });
+
+    it('quantity = 0 (corrupt data) contributes zero revenue without crashing', () => {
+      component.bookings.set([booking(1, CareBookingStatus.CONFIRMED, 5000, 60, 0)]);
+      expect(component.estimatedRevenue()).toBe('0,00 €');
+      expect(component.totalBookings()).toBe(1);
+    });
+
+    it('rapid replacements: setting bookings() 100 times settles to the final value', () => {
+      for (let i = 0; i < 100; i++) {
+        component.bookings.set([
+          booking(1, CareBookingStatus.CONFIRMED, (i + 1) * 100, 30),
+        ]);
+      }
+      // Final price = 100 × 100 cents = 100 €
+      expect(component.estimatedRevenue()).toBe('100,00 €');
+    });
+
+    it('alternating set/empty: KPIs follow without lag', () => {
+      const sample = [booking(1, CareBookingStatus.CONFIRMED, 5000, 60)];
+      for (let i = 0; i < 10; i++) {
+        component.bookings.set(i % 2 === 0 ? sample : []);
+      }
+      // i=9 odd → empty
+      expect(component.totalBookings()).toBe(0);
+      expect(component.estimatedRevenue()).toBe('0,00 €');
+    });
+
+    it('large list (200 mixed bookings) is computed correctly', () => {
+      const list: CareBookingDetailed[] = [];
+      for (let i = 0; i < 200; i++) {
+        const status = [
+          CareBookingStatus.CONFIRMED,
+          CareBookingStatus.PENDING,
+          CareBookingStatus.CANCELLED,
+          CareBookingStatus.NO_SHOW,
+        ][i % 4];
+        list.push(booking(i + 1, status, 5000, 30));
+      }
+      component.bookings.set(list);
+      // 50 CONFIRMED + 50 PENDING + 50 NO_SHOW = 150 non-cancelled
+      expect(component.totalBookings()).toBe(150);
+      // 100 (CONFIRMED+PENDING) × 5000 cents = 500 000 cents = 5 000 €
+      // fr-FR Intl inserts a thin no-break space (U+202F) as the thousands separator,
+      // so we just check the components separately to avoid a brittle Unicode pin.
+      const rev = component.estimatedRevenue();
+      expect(rev).toContain('5');
+      expect(rev).toContain('000,00');
+      expect(rev).toContain('€');
+    });
+  });
 });

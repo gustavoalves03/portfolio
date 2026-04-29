@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 interface ManageCard {
   labelKey: string;
@@ -16,19 +16,21 @@ interface ManageCard {
   imports: [MatIconModule, TranslocoPipe],
   template: `
     <div class="manage-page">
-      <h1 class="page-title">{{ 'pro.manage.title' | transloco }}</h1>
+      @if (i18nReady()) {
+        <h1 class="page-title">{{ 'pro.manage.title' | transloco }}</h1>
 
-      <div class="cards-grid">
-        @for (card of cards; track card.path) {
-          <button type="button" class="manage-card" (click)="navigate(card.path)">
-            <mat-icon class="card-icon">{{ card.icon }}</mat-icon>
-            <div class="card-text">
-              <span class="card-title">{{ card.labelKey | transloco }}</span>
-              <span class="card-desc">{{ card.descKey | transloco }}</span>
-            </div>
-          </button>
-        }
-      </div>
+        <div class="cards-grid">
+          @for (card of cards; track card.path) {
+            <button type="button" class="manage-card" (click)="navigate(card.path)">
+              <mat-icon class="card-icon">{{ card.icon }}</mat-icon>
+              <div class="card-text">
+                <span class="card-title">{{ card.labelKey | transloco }}</span>
+                <span class="card-desc">{{ card.descKey | transloco }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      }
     </div>
   `,
   styles: `
@@ -103,6 +105,18 @@ interface ManageCard {
 })
 export class ProManageComponent {
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
+
+  // Don't render labels until the i18n bundle is ready — otherwise the page
+  // briefly displays raw translation keys (pro.manage.title, ...) on slow
+  // navigations.
+  readonly i18nReady = signal(false);
+
+  constructor() {
+    this.transloco
+      .selectTranslation()
+      .subscribe(() => this.i18nReady.set(true));
+  }
 
   readonly cards: ManageCard[] = [
     { labelKey: 'pro.manage.planning', descKey: 'pro.manage.planningDesc', icon: 'calendar_today', path: '/pro/planning' },

@@ -85,14 +85,28 @@
 
   button[mat-raised-button] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    // Force the primary action to read as primary even when Material's theme
+    // tokens dim the contrast. Without this, QA mistook the button for being
+    // disabled.
+    background-color: #c06;
+    color: white;
+
+    mat-icon {
+      color: white;
+    }
 
     &:hover:not(:disabled) {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      background-color: #a8385d;
     }
 
     &:disabled {
       background-color: #e0e0e0;
       color: #999;
+
+      mat-icon {
+        color: #999;
+      }
     }
   }
 }

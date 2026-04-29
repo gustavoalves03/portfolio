@@ -1,5 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslocoService } from '@jsverse/transloco';
 import { API_BASE_URL } from '../config/api-base-url.token';
 import { AuthService } from '../auth/auth.service';
 import { Role } from '../auth/auth.model';
@@ -12,6 +14,15 @@ export class TenantFeaturesService {
   private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
   private readonly closedDaysStore = inject(ClosedDaysStore);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly i18n = inject(TranslocoService);
+
+  /** Discrete confirmation that an auto-saved setting was persisted. */
+  private notifyAutoSaveSuccess(): void {
+    this.snackBar.open(this.i18n.translate('pro.settings.saveSuccess'), undefined, {
+      duration: 1800,
+    });
+  }
 
   readonly employeesEnabled = signal<boolean>(false);
   readonly annualLeaveDays = signal<number>(25);
@@ -72,14 +83,24 @@ export class TenantFeaturesService {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
     this.http
       .put<{ enabled: boolean }>(`${base}/api/pro/tenant/settings/employees`, { enabled })
-      .subscribe({ next: () => this.employeesEnabled.set(enabled) });
+      .subscribe({
+        next: () => {
+          this.employeesEnabled.set(enabled);
+          this.notifyAutoSaveSuccess();
+        },
+      });
   }
 
   setAnnualLeaveDays(days: number): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
     this.http
       .put<{ annualLeaveDays: number }>(`${base}/api/pro/tenant/settings/annual-leave-days`, { days })
-      .subscribe({ next: () => this.annualLeaveDays.set(days) });
+      .subscribe({
+        next: () => {
+          this.annualLeaveDays.set(days);
+          this.notifyAutoSaveSuccess();
+        },
+      });
   }
 
   toggleClosedOnHolidays(closed: boolean): void {
@@ -92,6 +113,7 @@ export class TenantFeaturesService {
         next: () => {
           this.closedOnHolidays.set(closed);
           this.closedDaysStore.invalidate();
+          this.notifyAutoSaveSuccess();
         },
       });
   }
@@ -103,7 +125,12 @@ export class TenantFeaturesService {
         `${base}/api/pro/tenant/settings/min-advance-minutes`,
         { minAdvanceMinutes: minutes },
       )
-      .subscribe({ next: () => this.minAdvanceMinutes.set(minutes) });
+      .subscribe({
+        next: () => {
+          this.minAdvanceMinutes.set(minutes);
+          this.notifyAutoSaveSuccess();
+        },
+      });
   }
 
   setMaxAdvanceDays(days: number): void {
@@ -112,7 +139,12 @@ export class TenantFeaturesService {
       .put<{ maxAdvanceDays: number }>(`${base}/api/pro/tenant/settings/max-advance-days`, {
         maxAdvanceDays: days,
       })
-      .subscribe({ next: () => this.maxAdvanceDays.set(days) });
+      .subscribe({
+        next: () => {
+          this.maxAdvanceDays.set(days);
+          this.notifyAutoSaveSuccess();
+        },
+      });
   }
 
   setMaxClientHoursPerDay(hours: number): void {
@@ -122,6 +154,11 @@ export class TenantFeaturesService {
         `${base}/api/pro/tenant/settings/max-client-hours-per-day`,
         { maxClientHoursPerDay: hours },
       )
-      .subscribe({ next: () => this.maxClientHoursPerDay.set(hours) });
+      .subscribe({
+        next: () => {
+          this.maxClientHoursPerDay.set(hours);
+          this.notifyAutoSaveSuccess();
+        },
+      });
   }
 }

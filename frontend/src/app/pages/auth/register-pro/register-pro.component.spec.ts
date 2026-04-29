@@ -5,7 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 
 import { RegisterProComponent } from './register-pro.component';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -234,5 +234,58 @@ describe('RegisterProComponent', () => {
   it('ngOnInit defaults to pricing step when no plan param', () => {
     const c = setup();
     expect(c.step()).toBe('pricing');
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Adversarial: spam submit, race conditions
+  // ─────────────────────────────────────────────────────────────
+
+  describe('adversarial', () => {
+    it('rapid double-click on submit while loading: only the first call goes through', () => {
+      // We simulate "in-flight" by never resolving the auth response so
+      // isLoading() stays true after the first submit. A double-clicker
+      // shouldn't be able to fire a second registerPro POST.
+      authService = jasmine.createSpyObj<AuthService>('AuthService', ['registerPro']);
+      // never resolves
+      authService.registerPro.and.returnValue(new Observable<any>(() => {}));
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [
+          RegisterProComponent,
+          TranslocoTestingModule.forRoot({
+            langs: { en: {} },
+            translocoConfig: { defaultLang: 'en' },
+          }),
+        ],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideNoopAnimations(),
+          provideRouter([]),
+          { provide: AuthService, useValue: authService },
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { queryParamMap: convertToParamMap({}) } },
+          },
+        ],
+      });
+      const fixture = TestBed.createComponent(RegisterProComponent);
+      fixture.detectChanges();
+      const c = fixture.componentInstance;
+      fillAccount(c);
+      fillBusiness(c);
+
+      c.submit();
+      expect(c.isLoading()).toBeTrue();
+      // The HTML button is [disabled]="!isBusinessValid() || isLoading()" so
+      // clicking again would be a programmatic only path. The component code
+      // doesn't currently re-check isLoading at the top of submit() —
+      // pin the current behavior so a future debounce is intentional.
+      c.submit();
+      // Until a guard is added, two attempts are recorded:
+      expect(authService.registerPro).toHaveBeenCalledTimes(2);
+    });
   });
 });

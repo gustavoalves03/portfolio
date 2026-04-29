@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { LeavesStore } from './leaves.store';
 import { LeavesService } from './leaves.service';
 
@@ -81,5 +81,55 @@ describe('LeavesStore — error mapping', () => {
     store.reviewLeave({ leaveId: 1, dto: { status: 'APPROVED' } as any });
 
     expect(store.error()).toBe('pro.leaves.errors.reviewFailed');
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Adversarial: spam loadPending, switchMap cancellation
+  // ─────────────────────────────────────────────────────────────
+
+  describe('adversarial', () => {
+    it('spam loadPending: only the latest response wins (switchMap cancels older inflight)', () => {
+      const first = new Subject<any[]>();
+      const second = new Subject<any[]>();
+      service.listPending.and.returnValues(
+        first.asObservable(),
+        second.asObservable(),
+      );
+
+      store.loadPending();
+      store.loadPending(); // second click cancels first
+
+      // Resolve the first AFTER it was cancelled — should not flip state.
+      first.next([{ id: 99 }] as any);
+      first.complete();
+      expect(store.pendingLeaves()).toEqual([]);
+
+      // Resolve the second — this is the one that wins.
+      second.next([{ id: 1 }] as any);
+      second.complete();
+      expect(store.pendingLeaves().length).toBe(1);
+      expect((store.pendingLeaves()[0] as any).id).toBe(1);
+    });
+
+    it('spam loadPending: every dispatch is honored, no infinite loop', () => {
+      service.listPending.and.returnValue(of([]));
+      const before = service.listPending.calls.count(); // onInit fired once
+      for (let i = 0; i < 10; i++) {
+        store.loadPending();
+      }
+      expect(service.listPending.calls.count() - before).toBe(10);
+    });
+
+    it('error then success on the same store: latest result clears the previous error', () => {
+      service.listPending.and.returnValue(throwError(() => new Error('boom')));
+      store.loadPending();
+      expect(store.error()).toBe('pro.leaves.errors.loadFailed');
+
+      service.listPending.and.returnValue(of([{ id: 1 } as any]));
+      store.loadPending();
+      // setFulfilled clears the error
+      expect(store.error()).toBeFalsy();
+      expect(store.pendingLeaves().length).toBe(1);
+    });
   });
 });
