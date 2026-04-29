@@ -41,6 +41,7 @@
               [class.is-done]="step.done"
               [class.is-next]="!step.done && step.key === nextStepKey()"
               [routerLink]="step.link"
+              [queryParams]="step.queryParams"
               [attr.data-testid]="'onboarding-step-' + step.key"
             >
               <div class="onboarding-step-icon">

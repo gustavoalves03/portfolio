@@ -129,7 +129,10 @@
     "toggleSuccess": "Status updated",
     "reorderSuccess": "Order updated",
     "deleteSuccess": "Service deleted",
-    "deleteError": "Error deleting service"
+    "deleteError": "Error deleting service",
+    "autoOpen": {
+      "needCategoryFirst": "Create a category first so you can add a service."
+    }
   },
   "categories": {
     "title": "Categories",

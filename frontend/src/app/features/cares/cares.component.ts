@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CaresStore } from './store/cares.store';
 import { CategoriesStore } from '../categories/store/categories.store';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -56,6 +57,10 @@ export class CaresComponent {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private i18n = inject(TranslocoService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  private autoOpenHandled = false;
 
   // Category filtering
   selectedCategoryId = signal<number | null>(null);
@@ -89,6 +94,46 @@ export class CaresComponent {
 
   constructor() {
     this.categoriesStore.getProCategories();
+    this.setupAutoOpen();
+  }
+
+  private setupAutoOpen(): void {
+    effect(() => {
+      if (this.autoOpenHandled) return;
+      // Wait for categories to be loaded before deciding which modal to open.
+      if (!this.categoriesStore.isFulfilled()) return;
+
+      const action = this.route.snapshot.queryParamMap.get('openCreate');
+      if (action !== 'category' && action !== 'care') return;
+
+      this.autoOpenHandled = true;
+      this.clearOpenCreateParam();
+
+      if (action === 'category') {
+        this.onAddCategory();
+        return;
+      }
+
+      // action === 'care'
+      if (this.categoriesStore.categories().length === 0) {
+        this.snackBar.open(this.i18n.translate('cares.autoOpen.needCategoryFirst'), 'OK', {
+          duration: 4000,
+        });
+        this.onAddCategory();
+        return;
+      }
+      this.onAddCare();
+    });
+  }
+
+  private clearOpenCreateParam(): void {
+    // Strip the query param so a refresh doesn't re-trigger the modal.
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { openCreate: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   getCategoryColor(categoryId: number): string {

@@ -339,5 +339,25 @@ describe('ProDashboardComponent', () => {
       // No duplicates
       expect(new Set(links).size).toBe(links.length);
     });
+
+    it('cares step carries openCreate=care queryParams when undone', () => {
+      setReadiness({ name: true });
+      const caresStep = component.checklistSteps().find((s) => s.key === 'cares')!;
+      expect(caresStep.queryParams).toEqual({ openCreate: 'care' });
+    });
+
+    it('cares step has no queryParams once done (avoids re-opening on revisit)', () => {
+      setReadiness({ hasActiveCare: true });
+      const caresStep = component.checklistSteps().find((s) => s.key === 'cares')!;
+      expect(caresStep.queryParams).toBeNull();
+    });
+
+    it('name and openingHours steps never carry queryParams', () => {
+      setReadiness({});
+      const name = component.checklistSteps().find((s) => s.key === 'name')!;
+      const hours = component.checklistSteps().find((s) => s.key === 'openingHours')!;
+      expect(name.queryParams).toBeNull();
+      expect(hours.queryParams).toBeNull();
+    });
   });
 });

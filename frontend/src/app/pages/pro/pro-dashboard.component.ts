@@ -77,9 +77,14 @@ export class ProDashboardComponent {
     const r = this.store.readiness();
     if (!r) return [];
     return [
-      { key: 'name', done: r.name, link: '/pro/salon' },
-      { key: 'cares', done: r.hasActiveCare, link: '/pro/cares' },
-      { key: 'openingHours', done: r.hasOpeningHours, link: '/pro/planning' },
+      { key: 'name', done: r.name, link: '/pro/salon', queryParams: null as Record<string, string> | null },
+      {
+        key: 'cares',
+        done: r.hasActiveCare,
+        link: '/pro/cares',
+        queryParams: r.hasActiveCare ? null : { openCreate: 'care' },
+      },
+      { key: 'openingHours', done: r.hasOpeningHours, link: '/pro/planning', queryParams: null },
     ];
   });
 

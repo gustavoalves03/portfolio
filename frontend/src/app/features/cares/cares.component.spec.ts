@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection, signal, computed } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
 import { of } from 'rxjs';
@@ -88,6 +89,7 @@ describe('CaresComponent', () => {
 
     mockCategoriesStore = {
       categories: signal<Category[]>(mockCategories),
+      isFulfilled: signal(true),
       getProCategories: jasmine.createSpy('getProCategories'),
       createProCategory: jasmine.createSpy('createProCategory'),
       updateProCategory: jasmine.createSpy('updateProCategory'),
@@ -186,5 +188,176 @@ describe('CaresComponent', () => {
     // Wraps around: 8 % 8 = 0
     expect(component.getCategoryColor(8)).toBe(CATEGORY_COLORS[0]);
     expect(component.getCategoryColor(10)).toBe(CATEGORY_COLORS[2]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Auto-open from query param (?openCreate)
+// ─────────────────────────────────────────────────────────────
+
+describe('CaresComponent — auto-open from ?openCreate', () => {
+  let onAddCategorySpy: jasmine.Spy;
+  let onAddCareSpy: jasmine.Spy;
+  let snackOpen: jasmine.Spy;
+  let routerNavigate: jasmine.Spy;
+  let categoriesSig: ReturnType<typeof signal<Category[]>>;
+  let isFulfilledSig: ReturnType<typeof signal<boolean>>;
+
+  function setup(opts: {
+    openCreate?: string;
+    categories?: Category[];
+    isFulfilled?: boolean;
+  } = {}): CaresComponent {
+    categoriesSig = signal<Category[]>(opts.categories ?? []);
+    isFulfilledSig = signal(opts.isFulfilled ?? true);
+
+    const queryMap = opts.openCreate
+      ? convertToParamMap({ openCreate: opts.openCreate })
+      : convertToParamMap({});
+    const route = { snapshot: { queryParamMap: queryMap } } as unknown as ActivatedRoute;
+
+    routerNavigate = jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true));
+    const router = { navigate: routerNavigate } as unknown as Router;
+
+    snackOpen = jasmine.createSpy('open');
+    const snack = { open: snackOpen } as unknown as MatSnackBar;
+
+    const dialogRef = { afterClosed: () => of(null) } as MatDialogRef<unknown>;
+    const dialog = { open: jasmine.createSpy('open').and.returnValue(dialogRef) } as unknown as MatDialog;
+
+    const caresStore = {
+      cares: signal<Care[]>([]),
+      availableCares: computed(() => [] as Care[]),
+      isPending: signal(false),
+      error: signal(''),
+      getCares: jasmine.createSpy('getCares'),
+      createCare: jasmine.createSpy('createCare'),
+      updateCare: jasmine.createSpy('updateCare'),
+      deleteCare: jasmine.createSpy('deleteCare'),
+    };
+
+    const categoriesStore = {
+      categories: categoriesSig,
+      isFulfilled: isFulfilledSig,
+      getProCategories: jasmine.createSpy('getProCategories'),
+      createProCategory: jasmine.createSpy('createProCategory'),
+      updateProCategory: jasmine.createSpy('updateProCategory'),
+      deleteProCategory: jasmine.createSpy('deleteProCategory'),
+    };
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [
+        CaresComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { defaultLang: 'en' },
+        }),
+      ],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideNoopAnimations(),
+        provideHttpClient(),
+        provideTranslocoLocale({
+          defaultLocale: 'en-US',
+          langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' },
+        }),
+        { provide: ActivatedRoute, useValue: route },
+        { provide: Router, useValue: router },
+        { provide: MatDialog, useValue: dialog },
+        { provide: MatSnackBar, useValue: snack },
+        { provide: CaresService, useValue: jasmine.createSpyObj('CaresService', ['get']) },
+      ],
+    }).overrideComponent(CaresComponent, {
+      set: {
+        providers: [
+          { provide: CaresStore, useValue: caresStore },
+          { provide: CategoriesStore, useValue: categoriesStore },
+        ],
+      },
+    });
+
+    const fixture = TestBed.createComponent(CaresComponent);
+    const comp = fixture.componentInstance;
+    onAddCategorySpy = spyOn(comp, 'onAddCategory').and.callThrough();
+    onAddCareSpy = spyOn(comp, 'onAddCare').and.callThrough();
+    // Replace the component's snackBar with our mock so we can assert on .open
+    // (the inject() in the constructor already grabbed the live one before
+    // overrideComponent had a chance, depending on test ordering).
+    (comp as unknown as { snackBar: MatSnackBar }).snackBar = snack;
+    fixture.detectChanges();
+    return comp;
+  }
+
+  it('no openCreate param → no modal opened', () => {
+    setup();
+    expect(onAddCategorySpy).not.toHaveBeenCalled();
+    expect(onAddCareSpy).not.toHaveBeenCalled();
+    expect(snackOpen).not.toHaveBeenCalled();
+  });
+
+  it('openCreate=category → opens category modal', () => {
+    setup({ openCreate: 'category' });
+    expect(onAddCategorySpy).toHaveBeenCalledTimes(1);
+    expect(onAddCareSpy).not.toHaveBeenCalled();
+    expect(snackOpen).not.toHaveBeenCalled();
+  });
+
+  it('openCreate=care with categories present → opens care modal', () => {
+    setup({ openCreate: 'care', categories: [{ id: 1, name: 'Visage', description: '' }] });
+    expect(onAddCareSpy).toHaveBeenCalledTimes(1);
+    expect(onAddCategorySpy).not.toHaveBeenCalled();
+    expect(snackOpen).not.toHaveBeenCalled();
+  });
+
+  it('openCreate=care with no categories → opens category modal AND shows snack hint', () => {
+    setup({ openCreate: 'care', categories: [] });
+    expect(onAddCategorySpy).toHaveBeenCalledTimes(1);
+    expect(onAddCareSpy).not.toHaveBeenCalled();
+    expect(snackOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('strips the openCreate query param after handling (so refresh does not re-open)', () => {
+    setup({ openCreate: 'category' });
+    expect(routerNavigate).toHaveBeenCalledTimes(1);
+    const args = routerNavigate.calls.mostRecent().args[1] as {
+      queryParams: { openCreate: string | null };
+      queryParamsHandling: string;
+      replaceUrl: boolean;
+    };
+    expect(args.queryParams.openCreate).toBeNull();
+    expect(args.queryParamsHandling).toBe('merge');
+    expect(args.replaceUrl).toBeTrue();
+  });
+
+  it('unknown openCreate value → ignored, no modal opened', () => {
+    setup({ openCreate: 'foobar' });
+    expect(onAddCategorySpy).not.toHaveBeenCalled();
+    expect(onAddCareSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-open while categories are still loading (isFulfilled=false)', () => {
+    setup({ openCreate: 'care', isFulfilled: false, categories: [] });
+    expect(onAddCategorySpy).not.toHaveBeenCalled();
+    expect(onAddCareSpy).not.toHaveBeenCalled();
+    // When isFulfilled flips to true the modal opens; we don't drive the effect
+    // re-run here (zoneless detectChanges is needed) — covered by the next test.
+  });
+
+  it('opens the modal once isFulfilled flips from false to true', () => {
+    const comp = setup({ openCreate: 'category', isFulfilled: false, categories: [] });
+    expect(onAddCategorySpy).not.toHaveBeenCalled();
+
+    isFulfilledSig.set(true);
+    TestBed.flushEffects();
+
+    expect(onAddCategorySpy).toHaveBeenCalledTimes(1);
+    // Shouldn't double-open if effect re-runs for any reason
+    isFulfilledSig.set(false);
+    isFulfilledSig.set(true);
+    TestBed.flushEffects();
+    expect(onAddCategorySpy).toHaveBeenCalledTimes(1);
+    // Touch unused capture so TS doesn't complain
+    void comp;
   });
 });
