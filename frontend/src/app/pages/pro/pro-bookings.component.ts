@@ -536,18 +536,35 @@ export class ProBookingsComponent {
     });
   });
 
-  /** Computed: total bookings count */
-  protected readonly totalBookings = computed(() => this.bookings().length);
+  /**
+   * Bookings that count toward "active business" — i.e. not cancelled.
+   * NO_SHOW stays in: the slot was held and the practitioner blocked their time.
+   * Used by totalBookings and occupiedTime.
+   */
+  private readonly nonCancelledBookings = computed(() =>
+    this.bookings().filter((b) => b.status !== CareBookingStatus.CANCELLED)
+  );
 
-  /** Computed: estimated revenue (sum of care.price in cents, formatted) */
+  /** Computed: total bookings count (excludes cancelled) */
+  protected readonly totalBookings = computed(() => this.nonCancelledBookings().length);
+
+  /**
+   * Computed: revenue in cents, then formatted.
+   * Excludes both CANCELLED and NO_SHOW (no payment expected) and multiplies
+   * by quantity, matching the backend AnalyticsService.sumRevenue convention.
+   */
   protected readonly estimatedRevenue = computed(() => {
-    const total = this.bookings().reduce((sum, b) => sum + b.care.price, 0);
+    const total = this.bookings()
+      .filter(
+        (b) => b.status !== CareBookingStatus.CANCELLED && b.status !== CareBookingStatus.NO_SHOW
+      )
+      .reduce((sum, b) => sum + b.care.price * b.quantity, 0);
     return this.formatPrice(total);
   });
 
-  /** Computed: occupied time formatted as "3h15" or "2h" */
+  /** Computed: occupied time formatted as "3h15" or "2h" — excludes cancelled */
   protected readonly occupiedTime = computed(() => {
-    const totalMin = this.bookings().reduce((sum, b) => sum + b.care.duration, 0);
+    const totalMin = this.nonCancelledBookings().reduce((sum, b) => sum + b.care.duration, 0);
     const h = Math.floor(totalMin / 60);
     const m = totalMin % 60;
     if (h === 0) return `${m}min`;
