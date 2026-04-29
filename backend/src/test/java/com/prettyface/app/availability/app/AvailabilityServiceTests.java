@@ -158,40 +158,61 @@ class AvailabilityServiceTests {
     // ── replaceAll — validation: close before open ──
 
     @Test
-    void replaceAll_closeBeforeOpen_throws() {
+    void replaceAll_closeBeforeOpen_throwsBadRequest() {
         List<OpeningHourRequest> requests = List.of(
                 new OpeningHourRequest(1, "18:00", "09:00")
         );
 
         assertThatThrownBy(() -> service.replaceAll(requests))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("after open");
 
         verify(repo, never()).deleteAllInBatch();
     }
 
     @Test
-    void replaceAll_closeEqualsOpen_throws() {
+    void replaceAll_closeEqualsOpen_throwsBadRequest() {
         List<OpeningHourRequest> requests = List.of(
                 new OpeningHourRequest(1, "09:00", "09:00")
         );
 
         assertThatThrownBy(() -> service.replaceAll(requests))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("after open");
+    }
+
+    @Test
+    void replaceAll_invalidTimeFormat_throwsBadRequest() {
+        List<OpeningHourRequest> requests = List.of(
+                new OpeningHourRequest(1, "not-a-time", "18:00")
+        );
+
+        assertThatThrownBy(() -> service.replaceAll(requests))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Invalid time format");
+
+        verify(repo, never()).deleteAllInBatch();
     }
 
     // ── replaceAll — validation: overlapping slots ──
 
     @Test
-    void replaceAll_overlappingSlotsOnSameDay_throws() {
+    void replaceAll_overlappingSlotsOnSameDay_throwsBadRequest() {
         List<OpeningHourRequest> requests = List.of(
                 new OpeningHourRequest(1, "09:00", "14:00"),
                 new OpeningHourRequest(1, "13:00", "18:00")
         );
 
         assertThatThrownBy(() -> service.replaceAll(requests))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("Overlapping");
     }
 

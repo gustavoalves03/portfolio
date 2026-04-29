@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,23 @@ import {
 } from './availability.model';
 
 const DEFAULT_SLOT: TimeSlot = { openTime: '09:00', closeTime: '18:00' };
+
+/**
+ * Returns a closeTime that is strictly after `openTime`. Defaults to "openTime
+ * + 1h", capped at "23:59" so we never wrap around midnight. Falls back to
+ * "23:59" itself when openTime is already 23:00 or later. Pure helper, exported
+ * for unit testing.
+ */
+export function nextValidClose(openTime: string): string {
+  if (!openTime || !openTime.includes(':')) return '18:00';
+  const parts = openTime.split(':');
+  const h = Number(parts[0]);
+  const m = Number(parts[1]);
+  if (!Number.isFinite(h) || !Number.isFinite(m) || parts[1] === '') return '18:00';
+  const target = h + 1;
+  if (target >= 24) return '23:59';
+  return `${String(target).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
 
 @Component({
   selector: 'app-availability',
@@ -47,6 +64,17 @@ export class AvailabilityComponent {
     return this.getDaySlots(dayOfWeek).length === 0;
   }
 
+  /** A slot is invalid if its closeTime is not strictly after openTime. */
+  isSlotInvalid(slot: TimeSlot): boolean {
+    if (!slot.openTime || !slot.closeTime) return false;
+    return slot.closeTime <= slot.openTime;
+  }
+
+  /** Disables the Save button as soon as any slot is invalid. */
+  readonly hasInvalidSlots = computed(() =>
+    this.week().some((d) => d.slots.some((s) => this.isSlotInvalid(s)))
+  );
+
   openDay(dayOfWeek: number): void {
     this.week.update((w) =>
       w.map((d) =>
@@ -61,7 +89,10 @@ export class AvailabilityComponent {
         if (d.dayOfWeek !== dayOfWeek) return d;
         const lastSlot = d.slots[d.slots.length - 1];
         const newOpen = lastSlot ? lastSlot.closeTime : '09:00';
-        return { ...d, slots: [...d.slots, { openTime: newOpen, closeTime: '18:00' }] };
+        // Ensure the newly-added slot is valid out of the box: pick a close
+        // strictly after newOpen, capped at the end of the day.
+        const newClose = nextValidClose(newOpen);
+        return { ...d, slots: [...d.slots, { openTime: newOpen, closeTime: newClose }] };
       })
     );
   }
@@ -93,6 +124,14 @@ export class AvailabilityComponent {
   }
 
   onSave(): void {
+    if (this.hasInvalidSlots()) {
+      this.snackBar.open(
+        this.i18n.translate('pro.availability.invalidTime'),
+        'OK',
+        { duration: 4000, panelClass: 'snackbar-error' }
+      );
+      return;
+    }
     const requests: OpeningHourRequest[] = [];
     for (const day of this.week()) {
       for (const slot of day.slots) {

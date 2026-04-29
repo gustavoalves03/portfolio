@@ -105,8 +105,12 @@
         }
 
         <!-- Block form toggle -->
-        @if (!showBlockForm()) {
-          <button type="button" class="add-block-btn" (click)="openBlockForm()">
+        @if (isSelectedDayPast()) {
+          <p class="past-day-hint" data-testid="past-day-hint">
+            {{ 'pro.calendar.cannotBlockPast' | transloco }}
+          </p>
+        } @else if (!showBlockForm()) {
+          <button type="button" class="add-block-btn" data-testid="add-block-btn" (click)="openBlockForm()">
             + {{ 'pro.calendar.blockSlot' | transloco }}
           </button>
         } @else {

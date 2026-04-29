@@ -4,8 +4,10 @@ import com.prettyface.app.availability.domain.BlockedSlot;
 import com.prettyface.app.availability.repo.BlockedSlotRepository;
 import com.prettyface.app.availability.web.dto.BlockedSlotRequest;
 import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -31,7 +33,8 @@ public class BlockedSlotService {
     @Transactional
     public BlockedSlotResponse create(BlockedSlotRequest req) {
         if (req.date().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Cannot block a date in the past");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot block a date in the past");
         }
 
         BlockedSlot slot = new BlockedSlot();
@@ -43,12 +46,21 @@ public class BlockedSlotService {
             slot.setEndTime(null);
         } else {
             if (req.startTime() == null || req.endTime() == null) {
-                throw new IllegalArgumentException("Start time and end time are required when not full day");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Start time and end time are required when not full day");
             }
-            LocalTime start = LocalTime.parse(req.startTime());
-            LocalTime end = LocalTime.parse(req.endTime());
+            LocalTime start;
+            LocalTime end;
+            try {
+                start = LocalTime.parse(req.startTime());
+                end = LocalTime.parse(req.endTime());
+            } catch (java.time.format.DateTimeParseException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid time format");
+            }
             if (!end.isAfter(start)) {
-                throw new IllegalArgumentException("End time must be after start time");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "End time must be after start time");
             }
             slot.setStartTime(start);
             slot.setEndTime(end);

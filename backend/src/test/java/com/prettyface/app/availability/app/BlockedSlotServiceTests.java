@@ -11,6 +11,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -148,60 +150,83 @@ class BlockedSlotServiceTests {
     // ── create — validation errors ──
 
     @Test
-    void create_pastDate_throws() {
+    void create_pastDate_throwsBadRequest() {
         BlockedSlotRequest req = new BlockedSlotRequest(
                 LocalDate.now().minusDays(1), null, null, true, null
         );
 
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("past");
 
         verify(repo, never()).save(any());
     }
 
     @Test
-    void create_timeRange_endBeforeStart_throws() {
+    void create_timeRange_endBeforeStart_throwsBadRequest() {
         BlockedSlotRequest req = new BlockedSlotRequest(
                 LocalDate.now().plusDays(1), "14:00", "10:00", false, null
         );
 
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("after start");
     }
 
     @Test
-    void create_timeRange_equalStartAndEnd_throws() {
+    void create_timeRange_equalStartAndEnd_throwsBadRequest() {
         BlockedSlotRequest req = new BlockedSlotRequest(
                 LocalDate.now().plusDays(1), "10:00", "10:00", false, null
         );
 
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("after start");
     }
 
     @Test
-    void create_notFullDay_missingStartTime_throws() {
+    void create_notFullDay_missingStartTime_throwsBadRequest() {
         BlockedSlotRequest req = new BlockedSlotRequest(
                 LocalDate.now().plusDays(1), null, "12:00", false, null
         );
 
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("required");
     }
 
     @Test
-    void create_notFullDay_missingEndTime_throws() {
+    void create_notFullDay_missingEndTime_throwsBadRequest() {
         BlockedSlotRequest req = new BlockedSlotRequest(
                 LocalDate.now().plusDays(1), "10:00", null, false, null
         );
 
         assertThatThrownBy(() -> service.create(req))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
                 .hasMessageContaining("required");
+    }
+
+    @Test
+    void create_invalidTimeFormat_throwsBadRequest() {
+        BlockedSlotRequest req = new BlockedSlotRequest(
+                LocalDate.now().plusDays(1), "not-a-time", "12:00", false, null
+        );
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
+                        .isEqualTo(HttpStatus.BAD_REQUEST))
+                .hasMessageContaining("Invalid time format");
     }
 
     @Test

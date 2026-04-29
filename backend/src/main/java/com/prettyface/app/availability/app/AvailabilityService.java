@@ -6,8 +6,10 @@ import com.prettyface.app.availability.web.dto.OpeningHourRequest;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import com.prettyface.app.availability.web.mapper.OpeningHourMapper;
 import com.prettyface.app.multitenancy.TenantContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -36,10 +38,17 @@ public class AvailabilityService {
     public List<OpeningHourResponse> replaceAll(List<OpeningHourRequest> requests) {
         TenantContext.requireActive();
         for (OpeningHourRequest req : requests) {
-            LocalTime open = LocalTime.parse(req.openTime());
-            LocalTime close = LocalTime.parse(req.closeTime());
+            LocalTime open;
+            LocalTime close;
+            try {
+                open = LocalTime.parse(req.openTime());
+                close = LocalTime.parse(req.closeTime());
+            } catch (java.time.format.DateTimeParseException ex) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Invalid time format for day " + req.dayOfWeek());
+            }
             if (!close.isAfter(open)) {
-                throw new IllegalArgumentException(
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Close time must be after open time for day " + req.dayOfWeek());
             }
         }
@@ -56,7 +65,7 @@ public class AvailabilityService {
                 LocalTime prevClose = LocalTime.parse(daySlots.get(i - 1).closeTime());
                 LocalTime currOpen = LocalTime.parse(daySlots.get(i).openTime());
                 if (currOpen.isBefore(prevClose)) {
-                    throw new IllegalArgumentException(
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Overlapping time slots on day " + entry.getKey());
                 }
             }

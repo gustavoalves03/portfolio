@@ -418,6 +418,8 @@
       "blockSuccess": "Slot blocked",
       "unblockSuccess": "Slot unblocked",
       "selectDay": "Select a day from the calendar",
+      "cannotBlockPast": "This day is in the past — it can't be blocked.",
+      "blockPastError": "Cannot block a day that has already passed.",
       "legend": {
         "today": "Today",
         "blocked": "Blocked slot",
@@ -510,6 +512,7 @@
       "hoursUnit": "h",
       "minutesUnit": "min",
       "daysAdvanceUnit": "days",
+      "invalidNumber": "Invalid value. Enter a positive number (zero allowed).",
       "history": {
         "card": {
           "title": "Booking history",

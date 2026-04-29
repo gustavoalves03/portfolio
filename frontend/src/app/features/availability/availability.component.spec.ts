@@ -5,7 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
-import { AvailabilityComponent } from './availability.component';
+import { AvailabilityComponent, nextValidClose } from './availability.component';
 
 const mockTranslations = {
   'pro.availability.title': 'My availability',
@@ -93,13 +93,15 @@ describe('AvailabilityComponent', () => {
 
   // ── Adding slots ──
 
-  it('should add a slot that starts at the last slot close time', () => {
+  it('should add a slot that starts at the last slot close time, with a valid close time', () => {
     component.openDay(1);
     component.addSlot(1);
     const slots = component.getDaySlots(1);
     expect(slots.length).toBe(2);
     expect(slots[1].openTime).toBe('18:00');
-    expect(slots[1].closeTime).toBe('18:00');
+    // Defensive: the new slot must be valid (close > open) so the user
+    // doesn't see a "form invalid" error just for clicking "+ Add slot".
+    expect(slots[1].closeTime).toBe('19:00');
   });
 
   it('should add a default slot when day has no slots', () => {
@@ -240,5 +242,88 @@ describe('AvailabilityComponent', () => {
       { id: 1, dayOfWeek: 1, openTime: '09:00', closeTime: '12:00' },
     ]);
     expect(component.getDaySlots(1).length).toBe(1);
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // nextValidClose helper
+  // ─────────────────────────────────────────────────────────────
+
+  describe('nextValidClose', () => {
+    it('returns openTime + 1h for typical inputs', () => {
+      expect(nextValidClose('09:00')).toBe('10:00');
+      expect(nextValidClose('14:30')).toBe('15:30');
+      expect(nextValidClose('18:00')).toBe('19:00');
+    });
+
+    it('caps at 23:59 when openTime is 23:00 or later', () => {
+      expect(nextValidClose('23:00')).toBe('23:59');
+      expect(nextValidClose('23:30')).toBe('23:59');
+    });
+
+    it('falls back to 18:00 on garbage input', () => {
+      expect(nextValidClose('not-a-time')).toBe('18:00');
+      expect(nextValidClose('')).toBe('18:00');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Slot validation (close > open)
+  // ─────────────────────────────────────────────────────────────
+
+  describe('slot validation', () => {
+    it('isSlotInvalid: false for empty values (no double error before user types)', () => {
+      expect(component.isSlotInvalid({ openTime: '', closeTime: '' })).toBeFalse();
+    });
+
+    it('isSlotInvalid: false when close > open', () => {
+      expect(component.isSlotInvalid({ openTime: '09:00', closeTime: '18:00' })).toBeFalse();
+    });
+
+    it('isSlotInvalid: true when close < open', () => {
+      expect(component.isSlotInvalid({ openTime: '19:00', closeTime: '18:00' })).toBeTrue();
+    });
+
+    it('isSlotInvalid: true when close == open (zero-length slot)', () => {
+      expect(component.isSlotInvalid({ openTime: '09:00', closeTime: '09:00' })).toBeTrue();
+    });
+
+    it('hasInvalidSlots: false for an empty week', () => {
+      expect(component.hasInvalidSlots()).toBeFalse();
+    });
+
+    it('hasInvalidSlots: false when every slot is well-ordered', () => {
+      component.openDay(1);
+      component.openDay(2);
+      expect(component.hasInvalidSlots()).toBeFalse();
+    });
+
+    it('hasInvalidSlots: true as soon as one slot has close <= open', () => {
+      component.openDay(1);
+      component.updateSlotTime(1, 0, 'closeTime', '08:00'); // openTime is 09:00
+      expect(component.hasInvalidSlots()).toBeTrue();
+    });
+
+    it('hasInvalidSlots: returns to false once the user fixes the slot', () => {
+      component.openDay(1);
+      component.updateSlotTime(1, 0, 'closeTime', '08:00');
+      expect(component.hasInvalidSlots()).toBeTrue();
+      component.updateSlotTime(1, 0, 'closeTime', '17:00');
+      expect(component.hasInvalidSlots()).toBeFalse();
+    });
+
+    it('onSave: silently no-op when invalid (doesn\'t call store.saveHours)', () => {
+      component.openDay(1);
+      component.updateSlotTime(1, 0, 'closeTime', '08:00'); // invalid
+      const saveSpy = spyOn(component.store, 'saveHours');
+      component.onSave();
+      expect(saveSpy).not.toHaveBeenCalled();
+    });
+
+    it('onSave: proceeds normally when every slot is valid', () => {
+      component.openDay(1);
+      const saveSpy = spyOn(component.store, 'saveHours');
+      component.onSave();
+      expect(saveSpy).toHaveBeenCalledTimes(1);
+    });
   });
 });

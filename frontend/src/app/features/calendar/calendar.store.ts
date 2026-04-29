@@ -63,14 +63,17 @@ export const CalendarStore = signalStore(
           tap(() => patchState(store, setPending())),
           exhaustMap((req) =>
             calendarService.createBlock(req).pipe(
-              tap((created) => {
-                patchState(
-                  store,
-                  { blockedSlots: [...store.blockedSlots(), created] },
-                  setFulfilled()
-                );
-                if (created.fullDay) closedDaysStore.invalidate();
-              }),
+              switchMap((created) =>
+                // Refetch the full list so the calendar's `hasBlocks` set picks
+                // up the new entry even if the optimistic merge missed (date
+                // format drift, server-side coercion, etc.).
+                calendarService.loadBlockedSlots().pipe(
+                  tap((blockedSlots) => {
+                    patchState(store, { blockedSlots }, setFulfilled());
+                    if (created.fullDay) closedDaysStore.invalidate();
+                  })
+                )
+              ),
               catchError((err) => {
                 patchState(
                   store,

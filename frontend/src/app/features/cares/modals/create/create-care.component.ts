@@ -238,7 +238,10 @@ export class CreateCare implements OnInit {
       return CareStatus.ACTIVE;
     }
     if (field.name === 'categoryId') {
-      return this.data?.care?.category?.id ?? this.categories[0]?.id ?? null;
+      const careId = this.data?.care?.category?.id;
+      if (careId != null) return Number(careId);
+      const firstId = this.categories[0]?.id;
+      return firstId != null ? Number(firstId) : null;
     }
     if (field.type === 'number') return 0;
     if (field.type === 'select' && field.options?.length) return field.options[0].value;
@@ -298,6 +301,10 @@ export class CreateCare implements OnInit {
   }
 
   private populateForm(care: Care): void {
+    // Force categoryId to a number — defense against JSON values that come back
+    // as strings on some endpoints. mat-select uses strict equality to highlight
+    // the matching option.
+    const categoryId = care.category?.id != null ? Number(care.category.id) : null;
     this.careForm.patchValue({
       name: care.name,
       description: care.description,
@@ -305,7 +312,7 @@ export class CreateCare implements OnInit {
       price: centsToEuros(care.price),
       duration: care.duration,
       status: care.status,
-      categoryId: care.category?.id ?? null,
+      categoryId,
     });
   }
 

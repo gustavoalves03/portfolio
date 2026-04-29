@@ -422,6 +422,8 @@
       "blockSuccess": "Créneau bloqué",
       "unblockSuccess": "Créneau débloqué",
       "selectDay": "Sélectionnez un jour dans le calendrier",
+      "cannotBlockPast": "Ce jour est passé — impossible de le bloquer.",
+      "blockPastError": "Impossible de bloquer un jour déjà passé.",
       "legend": {
         "today": "Aujourd'hui",
         "blocked": "Créneau bloqué",
@@ -514,6 +516,7 @@
       "hoursUnit": "h",
       "minutesUnit": "min",
       "daysAdvanceUnit": "jours",
+      "invalidNumber": "Valeur invalide. Entre un nombre positif (zéro accepté).",
       "history": {
         "card": {
           "title": "Historique des bookings",

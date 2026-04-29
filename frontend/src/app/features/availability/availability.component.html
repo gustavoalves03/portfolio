@@ -19,7 +19,7 @@
           </div>
           <div class="slot-list">
             @for (slot of getDaySlots(dayOfWeek); track $index; let i = $index) {
-              <div class="slot-item">
+              <div class="slot-item" [class.invalid]="isSlotInvalid(slot)">
                 <input
                   type="time"
                   class="time-input"
@@ -37,6 +37,11 @@
                   <mat-icon>close</mat-icon>
                 </button>
               </div>
+              @if (isSlotInvalid(slot)) {
+                <p class="slot-error" data-testid="slot-error">
+                  {{ 'pro.availability.invalidTime' | transloco }}
+                </p>
+              }
             }
             <button type="button" class="add-slot-btn" (click)="addSlot(dayOfWeek)">
               <mat-icon>add</mat-icon>
@@ -49,7 +54,12 @@
   </div>
 
   <div class="save-bar">
-    <button type="button" class="save-btn" (click)="onSave()">
+    <button
+      type="button"
+      class="save-btn"
+      data-testid="availability-save"
+      [disabled]="hasInvalidSlots()"
+      (click)="onSave()">
       {{ 'pro.availability.save' | transloco }}
     </button>
   </div>

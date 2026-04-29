@@ -127,6 +127,17 @@ export class CalendarComponent {
     return this.holidayMap().get(this.formatDate(sel))?.name ?? null;
   });
 
+  /** True when the selected date is strictly before today — backend rejects these. */
+  readonly isSelectedDayPast = computed(() => {
+    const sel = this.selectedDate();
+    if (!sel) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compare = new Date(sel);
+    compare.setHours(0, 0, 0, 0);
+    return compare.getTime() < today.getTime();
+  });
+
   prevMonth(): void {
     const d = this.currentMonth();
     this.currentMonth.set(new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -160,6 +171,14 @@ export class CalendarComponent {
   confirmBlock(): void {
     const sel = this.selectedDate();
     if (!sel) return;
+    if (this.isSelectedDayPast()) {
+      this.snackBar.open(
+        this.i18n.translate('pro.calendar.blockPastError'),
+        'OK',
+        { duration: 4000, panelClass: 'snackbar-error' }
+      );
+      return;
+    }
 
     const req: BlockedSlotRequest = {
       date: this.formatDate(sel),

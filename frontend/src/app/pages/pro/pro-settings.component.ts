@@ -7,7 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { DatePipe } from '@angular/common';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TenantFeaturesService } from '../../core/tenant/tenant-features.service';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/models/salon-profile.model';
@@ -16,7 +17,7 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
 @Component({
     selector: 'app-pro-settings',
     standalone: true,
-    imports: [FormsModule, MatSlideToggleModule, MatIconModule, MatFormFieldModule, MatInputModule, MatChipsModule, DatePipe, TranslocoPipe],
+    imports: [FormsModule, MatSlideToggleModule, MatIconModule, MatFormFieldModule, MatInputModule, MatChipsModule, MatSnackBarModule, DatePipe, TranslocoPipe],
     template: `
         <div class="settings-page">
             <h1 class="page-title">{{ 'pro.settings.title' | transloco }}</h1>
@@ -232,6 +233,8 @@ export class ProSettingsComponent implements OnInit {
     private readonly http = inject(HttpClient);
     private readonly apiBaseUrl = inject(API_BASE_URL);
     private readonly closedDaysStore = inject(ClosedDaysStore);
+    private readonly snackBar = inject(MatSnackBar);
+    private readonly i18n = inject(TranslocoService);
 
     readonly upcomingHolidays = signal<HolidayInfo[]>([]);
     readonly holidaysOpen = signal(false);
@@ -253,6 +256,8 @@ export class ProSettingsComponent implements OnInit {
         const minutes = parseInt(value, 10);
         if (!isNaN(minutes) && minutes >= 0) {
             this.featuresService.setMinAdvanceMinutes(minutes);
+        } else {
+            this.notifyInvalidNumber();
         }
     }
 
@@ -260,6 +265,8 @@ export class ProSettingsComponent implements OnInit {
         const days = parseInt(value, 10);
         if (!isNaN(days) && days >= 0) {
             this.featuresService.setMaxAdvanceDays(days);
+        } else {
+            this.notifyInvalidNumber();
         }
     }
 
@@ -267,7 +274,18 @@ export class ProSettingsComponent implements OnInit {
         const hours = parseInt(value, 10);
         if (!isNaN(hours) && hours >= 0) {
             this.featuresService.setMaxClientHoursPerDay(hours);
+        } else {
+            this.notifyInvalidNumber();
         }
+    }
+
+    private notifyInvalidNumber(): void {
+        // Surface a hint to the pro: silently dropping the change confused QA.
+        this.snackBar.open(
+            this.i18n.translate('pro.settings.invalidNumber'),
+            'OK',
+            { duration: 3000, panelClass: 'snackbar-error' }
+        );
     }
 
     isHolidayOpen(date: string): boolean {
