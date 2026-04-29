@@ -342,18 +342,37 @@ describe('AvailabilityComponent', () => {
       expect(component.hasInvalidSlots()).toBeFalse();
     });
 
-    it('addSlot beyond 23:59 stops producing valid slots (defensive cap)', () => {
-      // After roughly 6 +1h additions from 18:00 we hit 23:59. Subsequent
-      // clicks build degenerate "23:59→23:59" slots; the Save button stays
-      // disabled (hasInvalidSlots → true) so no bad data is persisted.
+    it('addSlot stops once the last close hits 23:59 — no degenerate slots created', () => {
+      // openDay seeds 09:00→18:00. Each addSlot bumps close by +1h until
+      // we reach 23:59. After that, canAddSlot() returns false and addSlot
+      // is a no-op — the Save button stays valid, no degenerate 23:59→23:59.
       component.openDay(1);
       for (let i = 0; i < 20; i++) {
         component.addSlot(1);
       }
-      // At least one slot is degenerate now (close == open).
-      expect(component.hasInvalidSlots()).toBeTrue();
-      // But the component still didn't crash and all slots are tracked.
-      expect(component.getDaySlots(1).length).toBe(21);
+      // The day now contains exactly the slots needed to cover up to 23:59
+      // and not one more. All slots remain valid.
+      expect(component.hasInvalidSlots()).toBeFalse();
+      expect(component.canAddSlot(1)).toBeFalse();
+      // Last slot ends at 23:59.
+      const slots = component.getDaySlots(1);
+      expect(slots[slots.length - 1].closeTime).toBe('23:59');
+    });
+
+    it('canAddSlot returns false once the last slot already ends at 23:59', () => {
+      component.openDay(1);
+      component.updateSlotTime(1, 0, 'closeTime', '23:59');
+      expect(component.canAddSlot(1)).toBeFalse();
+    });
+
+    it('canAddSlot returns true on a freshly opened day', () => {
+      component.openDay(1);
+      expect(component.canAddSlot(1)).toBeTrue();
+    });
+
+    it('canAddSlot returns true on an empty (closed) day', () => {
+      // No slots yet — addSlot will seed 09:00→18:00.
+      expect(component.canAddSlot(2)).toBeTrue();
     });
 
     it('addSlot then removeSlot rapidly: state stays consistent', () => {

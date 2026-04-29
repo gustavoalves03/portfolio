@@ -115,46 +115,66 @@ describe('TenantFeaturesService — auto-save snackbar', () => {
   // ─────────────────────────────────────────────────────────────
 
   describe('adversarial', () => {
-    it('rapid double click on toggleEmployees: each click fires its own PUT', () => {
+    it('rapid double click on toggleEmployees: each click fires its own PUT, only the latest commits', () => {
       service.toggleEmployees(true);
       service.toggleEmployees(false);
       service.toggleEmployees(true);
 
       const reqs = httpMock.match('http://test/api/pro/tenant/settings/employees');
       expect(reqs.length).toBe(3);
-      reqs[0].flush({});
-      reqs[1].flush({});
-      reqs[2].flush({});
+      reqs[0].flush({}); // stale → ignored by seq guard
+      reqs[1].flush({}); // stale → ignored
+      reqs[2].flush({}); // latest → commits
 
       expect(service.employeesEnabled()).toBeTrue();
-      expect(snackOpen).toHaveBeenCalledTimes(3);
+      // Only the winning response triggers a single snackbar — earlier
+      // requests are silently absorbed so the user isn't spammed.
+      expect(snackOpen).toHaveBeenCalledTimes(1);
     });
 
-    it('rapid double click: out-of-order responses settle to whichever lands last', () => {
-      // First call inflight, user clicks again before it returns.
+    it('rapid double click: latest dispatch wins, even when responses arrive out-of-order', () => {
+      // First call inflight (60), user clicks again (120) before it returns.
       service.setMinAdvanceMinutes(60);
       service.setMinAdvanceMinutes(120);
 
       const reqs = httpMock.match('http://test/api/pro/tenant/settings/min-advance-minutes');
       expect(reqs.length).toBe(2);
-      // Server resolves them in REVERSE order (e.g. HTTP/2 multiplexing).
-      reqs[1].flush({}); // second call lands first → state becomes 120
-      reqs[0].flush({}); // first call lands second → state becomes 60
+      // Server resolves them in REVERSE order (HTTP/2 multiplexing).
+      reqs[1].flush({}); // second dispatch lands first → seq matches → state = 120
+      reqs[0].flush({}); // first dispatch lands second → seq stale → ignored
 
-      // Pin the current "last response wins" behavior so we notice if a
-      // future optimistic-update layer changes the contract.
-      expect(service.minAdvanceMinutes()).toBe(60);
-      expect(snackOpen).toHaveBeenCalledTimes(2);
+      // The seq guard ensures the latest dispatched value sticks.
+      expect(service.minAdvanceMinutes()).toBe(120);
+      // Only one snackbar — the stale response shouldn't notify either.
+      expect(snackOpen).toHaveBeenCalledTimes(1);
     });
 
-    it('spam: 10 toggles in a row issue 10 PUTs (no client-side debounce yet)', () => {
+    it('rapid double click: when the latest dispatch fails, state stays at last successful', () => {
+      // Start from 120 (successful first call), then fire 60 which fails.
+      service.setMinAdvanceMinutes(120);
+      const firstReq = httpMock.expectOne('http://test/api/pro/tenant/settings/min-advance-minutes');
+      firstReq.flush({});
+      expect(service.minAdvanceMinutes()).toBe(120);
+      snackOpen.calls.reset();
+
+      service.setMinAdvanceMinutes(60);
+      const secondReq = httpMock.expectOne('http://test/api/pro/tenant/settings/min-advance-minutes');
+      secondReq.flush({}, { status: 500, statusText: 'Server Error' });
+
+      // Failed → no commit, no snackbar.
+      expect(service.minAdvanceMinutes()).toBe(120);
+      expect(snackOpen).not.toHaveBeenCalled();
+    });
+
+    it('spam: 10 toggles fire 10 PUTs but only the last response commits', () => {
       for (let i = 0; i < 10; i++) {
         service.toggleClosedOnHolidays(i % 2 === 0);
       }
       const reqs = httpMock.match('http://test/api/pro/tenant/settings/closed-on-holidays');
       expect(reqs.length).toBe(10);
       reqs.forEach((r) => r.flush({}));
-      expect(snackOpen).toHaveBeenCalledTimes(10);
+      // Sequence guard: 9 stale responses ignored, only the 10th notifies.
+      expect(snackOpen).toHaveBeenCalledTimes(1);
     });
 
     it('mixed setters fire independently — no cross-talk between settings', () => {

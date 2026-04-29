@@ -131,6 +131,9 @@ export class RegisterProComponent implements OnInit {
 
   submit(): void {
     if (!this.isAccountValid() || !this.isBusinessValid()) return;
+    // Re-entrancy guard: a second click before the first POST resolves used
+    // to fire two registerPro calls and surface a 409 on the second one.
+    if (this.isLoading()) return;
 
     this.isLoading.set(true);
     this.error.set(null);

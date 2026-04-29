@@ -70,6 +70,18 @@ export class AvailabilityComponent {
     return slot.closeTime <= slot.openTime;
   }
 
+  /**
+   * Whether the user can still append a slot to a given day. Refuses once
+   * the last slot already runs to the end of the day, so the "+ Add slot"
+   * button doesn't produce degenerate 23:59 → 23:59 entries.
+   */
+  canAddSlot(dayOfWeek: number): boolean {
+    const slots = this.getDaySlots(dayOfWeek);
+    if (slots.length === 0) return true;
+    const last = slots[slots.length - 1];
+    return last.closeTime < '23:59';
+  }
+
   /** Disables the Save button as soon as any slot is invalid. */
   readonly hasInvalidSlots = computed(() =>
     this.week().some((d) => d.slots.some((s) => this.isSlotInvalid(s)))
@@ -84,6 +96,8 @@ export class AvailabilityComponent {
   }
 
   addSlot(dayOfWeek: number): void {
+    // Refuse to append a degenerate slot once the day already covers up to 23:59.
+    if (!this.canAddSlot(dayOfWeek)) return;
     this.week.update((w) =>
       w.map((d) => {
         if (d.dayOfWeek !== dayOfWeek) return d;

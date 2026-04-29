@@ -43,7 +43,9 @@
                 </p>
               }
             }
-            <button type="button" class="add-slot-btn" (click)="addSlot(dayOfWeek)">
+            <button type="button" class="add-slot-btn"
+                    [disabled]="!canAddSlot(dayOfWeek)"
+                    (click)="addSlot(dayOfWeek)">
               <mat-icon>add</mat-icon>
               {{ 'pro.availability.addSlot' | transloco }}
             </button>

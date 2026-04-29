@@ -279,13 +279,11 @@ describe('RegisterProComponent', () => {
 
       c.submit();
       expect(c.isLoading()).toBeTrue();
-      // The HTML button is [disabled]="!isBusinessValid() || isLoading()" so
-      // clicking again would be a programmatic only path. The component code
-      // doesn't currently re-check isLoading at the top of submit() —
-      // pin the current behavior so a future debounce is intentional.
+      // Re-entrancy guard: a second click while the first POST is in flight
+      // is silently dropped so we don't get a 409 ping-pong on the user.
       c.submit();
-      // Until a guard is added, two attempts are recorded:
-      expect(authService.registerPro).toHaveBeenCalledTimes(2);
+      c.submit();
+      expect(authService.registerPro).toHaveBeenCalledTimes(1);
     });
   });
 });

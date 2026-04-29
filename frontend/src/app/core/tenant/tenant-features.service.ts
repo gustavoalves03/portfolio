@@ -31,6 +31,20 @@ export class TenantFeaturesService {
   readonly maxAdvanceDays = signal<number>(90);
   readonly maxClientHoursPerDay = signal<number>(8);
 
+  // Per-setter sequence numbers. When two PUTs to the same field are in
+  // flight at once, only the response that matches the latest issued seq
+  // commits to the signal — older responses arriving late are discarded.
+  // Without this guard, HTTP/2 multiplexing or a slow network could let
+  // the *first* request's response overwrite a more recent value.
+  private seq = {
+    employees: 0,
+    annualLeaveDays: 0,
+    closedOnHolidays: 0,
+    minAdvanceMinutes: 0,
+    maxAdvanceDays: 0,
+    maxClientHoursPerDay: 0,
+  };
+
   constructor() {
     effect(() => {
       const user = this.authService.user();
@@ -81,10 +95,12 @@ export class TenantFeaturesService {
 
   toggleEmployees(enabled: boolean): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.employees;
     this.http
       .put<{ enabled: boolean }>(`${base}/api/pro/tenant/settings/employees`, { enabled })
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.employees) return;
           this.employeesEnabled.set(enabled);
           this.notifyAutoSaveSuccess();
         },
@@ -93,10 +109,12 @@ export class TenantFeaturesService {
 
   setAnnualLeaveDays(days: number): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.annualLeaveDays;
     this.http
       .put<{ annualLeaveDays: number }>(`${base}/api/pro/tenant/settings/annual-leave-days`, { days })
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.annualLeaveDays) return;
           this.annualLeaveDays.set(days);
           this.notifyAutoSaveSuccess();
         },
@@ -105,12 +123,14 @@ export class TenantFeaturesService {
 
   toggleClosedOnHolidays(closed: boolean): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.closedOnHolidays;
     this.http
       .put<{ closedOnHolidays: boolean }>(`${base}/api/pro/tenant/settings/closed-on-holidays`, {
         closedOnHolidays: closed,
       })
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.closedOnHolidays) return;
           this.closedOnHolidays.set(closed);
           this.closedDaysStore.invalidate();
           this.notifyAutoSaveSuccess();
@@ -120,6 +140,7 @@ export class TenantFeaturesService {
 
   setMinAdvanceMinutes(minutes: number): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.minAdvanceMinutes;
     this.http
       .put<{ minAdvanceMinutes: number }>(
         `${base}/api/pro/tenant/settings/min-advance-minutes`,
@@ -127,6 +148,7 @@ export class TenantFeaturesService {
       )
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.minAdvanceMinutes) return;
           this.minAdvanceMinutes.set(minutes);
           this.notifyAutoSaveSuccess();
         },
@@ -135,12 +157,14 @@ export class TenantFeaturesService {
 
   setMaxAdvanceDays(days: number): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.maxAdvanceDays;
     this.http
       .put<{ maxAdvanceDays: number }>(`${base}/api/pro/tenant/settings/max-advance-days`, {
         maxAdvanceDays: days,
       })
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.maxAdvanceDays) return;
           this.maxAdvanceDays.set(days);
           this.notifyAutoSaveSuccess();
         },
@@ -149,6 +173,7 @@ export class TenantFeaturesService {
 
   setMaxClientHoursPerDay(hours: number): void {
     const base = this.apiBaseUrl?.replace(/\/$/, '') ?? '';
+    const mySeq = ++this.seq.maxClientHoursPerDay;
     this.http
       .put<{ maxClientHoursPerDay: number }>(
         `${base}/api/pro/tenant/settings/max-client-hours-per-day`,
@@ -156,6 +181,7 @@ export class TenantFeaturesService {
       )
       .subscribe({
         next: () => {
+          if (mySeq !== this.seq.maxClientHoursPerDay) return;
           this.maxClientHoursPerDay.set(hours);
           this.notifyAutoSaveSuccess();
         },
