@@ -1,5 +1,6 @@
 package com.prettyface.app.availability.app;
 
+import com.prettyface.app.availability.app.ClosedDaysService.ClosedDayReason;
 import com.prettyface.app.availability.domain.BlockedSlot;
 import com.prettyface.app.availability.domain.OpeningHour;
 import com.prettyface.app.availability.repo.BlockedSlotRepository;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -20,11 +20,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,6 +83,24 @@ class ClosedDaysServiceTests {
         return bs;
     }
 
+    private void mockOpenAllWeek() {
+        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
+                openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
+                openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
+                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
+                openingHour(7, "09:00", "18:00")
+        ));
+    }
+
+    private void mockTenantWithHolidays(boolean closedOnHolidays) {
+        TenantContext.setCurrentTenant(SLUG);
+        Tenant tenant = new Tenant();
+        tenant.setSlug(SLUG);
+        tenant.setAddressCountry("FR");
+        tenant.setClosedOnHolidays(closedOnHolidays);
+        when(tenantRepository.findBySlug(SLUG)).thenReturn(Optional.of(tenant));
+    }
+
     @AfterEach
     void clearTenantContext() {
         TenantContext.clear();
@@ -94,7 +111,7 @@ class ClosedDaysServiceTests {
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("null from/to → empty set")
+    @DisplayName("null from/to → empty map")
     void nullArgs_returnsEmpty() {
         initService(LocalDate.of(2026, 5, 5), LocalTime.NOON);
         assertThat(service.getClosedDays(null, null)).isEmpty();
@@ -103,52 +120,41 @@ class ClosedDaysServiceTests {
     }
 
     @Test
-    @DisplayName("to before from → empty set")
+    @DisplayName("to before from → empty map")
     void inverseRange_returnsEmpty() {
         initService(LocalDate.of(2026, 5, 5), LocalTime.NOON);
-        Set<LocalDate> result = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> result = service.getClosedDays(
                 LocalDate.of(2026, 5, 10), LocalDate.of(2026, 5, 1));
         assertThat(result).isEmpty();
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Past dates
+    // Past dates → PAST
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Past dates within range are always closed")
-    void pastDates_alwaysClosed() {
-        // Today = May 5; salon open every day 9-18
+    @DisplayName("Past dates within range are tagged PAST")
+    void pastDates_taggedPast() {
         initService(LocalDate.of(2026, 5, 5), LocalTime.of(10, 0));
-        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
-                openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
-                openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
-                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
-                openingHour(7, "09:00", "18:00")
-        ));
+        mockOpenAllWeek();
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 7));
 
-        assertThat(closed).contains(
-                LocalDate.of(2026, 5, 1),
-                LocalDate.of(2026, 5, 2),
-                LocalDate.of(2026, 5, 3),
-                LocalDate.of(2026, 5, 4)
-        );
-        assertThat(closed).doesNotContain(LocalDate.of(2026, 5, 5)); // today, before close time
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 1), ClosedDayReason.PAST);
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 4), ClosedDayReason.PAST);
+        assertThat(closed).doesNotContainKey(LocalDate.of(2026, 5, 5));
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Weekly closed days
+    // Weekly closed → WEEKLY_CLOSED
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Days with no opening hours (sunday) are closed")
-    void weeklyClosed_sunday() {
-        // Today = Monday May 4 2026, salon open Mon-Sat
+    @DisplayName("Days with no opening hours are tagged WEEKLY_CLOSED")
+    void weeklyClosed_taggedWeeklyClosed() {
         initService(LocalDate.of(2026, 5, 4), LocalTime.of(10, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
@@ -158,13 +164,12 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 10));
 
-        // May 10 2026 is a Sunday → closed
-        assertThat(closed).contains(LocalDate.of(2026, 5, 10));
-        // Other days remain open
-        assertThat(closed).doesNotContain(
+        // May 10 2026 is a Sunday → WEEKLY_CLOSED
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 10), ClosedDayReason.WEEKLY_CLOSED);
+        assertThat(closed).doesNotContainKeys(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 5),
                 LocalDate.of(2026, 5, 6), LocalDate.of(2026, 5, 7),
                 LocalDate.of(2026, 5, 8), LocalDate.of(2026, 5, 9)
@@ -172,26 +177,15 @@ class ClosedDaysServiceTests {
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Holidays
+    // Holidays → HOLIDAY (with priority over WEEKLY_CLOSED / FULL_DAY_BLOCK)
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Public holiday with closedOnHolidays=true → closed")
-    void holiday_closed() {
-        TenantContext.setCurrentTenant(SLUG);
-        Tenant tenant = new Tenant();
-        tenant.setSlug(SLUG);
-        tenant.setAddressCountry("FR");
-        tenant.setClosedOnHolidays(true);
-        when(tenantRepository.findBySlug(SLUG)).thenReturn(Optional.of(tenant));
-
+    @DisplayName("Public holiday with closedOnHolidays=true → HOLIDAY")
+    void holiday_taggedHoliday() {
+        mockTenantWithHolidays(true);
         initService(LocalDate.of(2026, 4, 28), LocalTime.of(10, 0));
-        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
-                openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
-                openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
-                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
-                openingHour(7, "09:00", "18:00")
-        ));
+        mockOpenAllWeek();
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
@@ -199,53 +193,35 @@ class ClosedDaysServiceTests {
         when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
                 .thenAnswer(inv -> inv.getArgument(0).equals(mayFirst));
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 4, 28), LocalDate.of(2026, 5, 5));
 
-        assertThat(closed).contains(mayFirst);
+        assertThat(closed).containsEntry(mayFirst, ClosedDayReason.HOLIDAY);
     }
 
     @Test
     @DisplayName("Holiday exception (open) → not closed")
     void holidayException_overridesToOpen() {
-        TenantContext.setCurrentTenant(SLUG);
-        Tenant tenant = new Tenant();
-        tenant.setSlug(SLUG);
-        tenant.setAddressCountry("FR");
-        tenant.setClosedOnHolidays(true);
-        when(tenantRepository.findBySlug(SLUG)).thenReturn(Optional.of(tenant));
-
+        mockTenantWithHolidays(true);
         initService(LocalDate.of(2026, 4, 28), LocalTime.of(10, 0));
-        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
-                openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
-                openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
-                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
-                openingHour(7, "09:00", "18:00")
-        ));
+        mockOpenAllWeek();
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
         LocalDate mayFirst = LocalDate.of(2026, 5, 1);
-        // HolidayAvailabilityService already factors the exception in: returns false everywhere.
         when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
                 .thenReturn(false);
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 4, 28), LocalDate.of(2026, 5, 5));
 
-        assertThat(closed).doesNotContain(mayFirst);
+        assertThat(closed).doesNotContainKey(mayFirst);
     }
 
     @Test
     @DisplayName("Holiday with closedOnHolidays=false → not closed (feature off)")
     void holidayDisabled_notClosed() {
-        TenantContext.setCurrentTenant(SLUG);
-        Tenant tenant = new Tenant();
-        tenant.setSlug(SLUG);
-        tenant.setAddressCountry("FR");
-        tenant.setClosedOnHolidays(false);
-        when(tenantRepository.findBySlug(SLUG)).thenReturn(Optional.of(tenant));
-
+        mockTenantWithHolidays(false);
         initService(LocalDate.of(2026, 4, 28), LocalTime.of(10, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(5, "09:00", "18:00") // Friday only
@@ -253,68 +229,105 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        LocalDate mayFirst = LocalDate.of(2026, 5, 1); // Friday in 2026
+        LocalDate mayFirst = LocalDate.of(2026, 5, 1); // Friday
         when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
                 .thenReturn(false);
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 4, 28), LocalDate.of(2026, 5, 5));
 
-        assertThat(closed).doesNotContain(mayFirst);
+        assertThat(closed).doesNotContainKey(mayFirst);
     }
 
-    // ══════════════════════════════════════════════════════════════
-    // Full-day blocks
-    // ══════════════════════════════════════════════════════════════
-
     @Test
-    @DisplayName("Full-day block → closed")
-    void fullDayBlock_closed() {
-        initService(LocalDate.of(2026, 5, 4), LocalTime.of(10, 0));
+    @DisplayName("Holiday on a weekly-closed day → HOLIDAY wins")
+    void holiday_onWeeklyClosedDay_holidayWins() {
+        mockTenantWithHolidays(true);
+        // Salon open Mon-Sat (closed Sunday). May 1 2026 is a Friday.
+        // Use a holiday that falls on a Sunday for this test: Easter Sunday April 5, 2026.
+        initService(LocalDate.of(2026, 4, 1), LocalTime.of(10, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
                 openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
-                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
-                openingHour(7, "09:00", "18:00")
+                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00")
+                // No Sunday
         ));
+        when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
+                .thenReturn(List.of());
+
+        LocalDate easterSunday = LocalDate.of(2026, 4, 5);
+        when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
+                .thenAnswer(inv -> inv.getArgument(0).equals(easterSunday));
+
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
+                LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 12));
+
+        // Reason is HOLIDAY (not WEEKLY_CLOSED) — holiday is more informative
+        assertThat(closed).containsEntry(easterSunday, ClosedDayReason.HOLIDAY);
+        // Other Sundays in range → WEEKLY_CLOSED
+        assertThat(closed).containsEntry(LocalDate.of(2026, 4, 12), ClosedDayReason.WEEKLY_CLOSED);
+    }
+
+    @Test
+    @DisplayName("Holiday on a full-day block → HOLIDAY wins")
+    void holiday_onFullDayBlock_holidayWins() {
+        mockTenantWithHolidays(true);
+        initService(LocalDate.of(2026, 4, 28), LocalTime.of(10, 0));
+        mockOpenAllWeek();
+
+        LocalDate mayFirst = LocalDate.of(2026, 5, 1);
+        when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
+                .thenReturn(List.of(fullDayBlock(mayFirst)));
+        when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
+                .thenAnswer(inv -> inv.getArgument(0).equals(mayFirst));
+
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
+                LocalDate.of(2026, 4, 28), LocalDate.of(2026, 5, 5));
+
+        assertThat(closed).containsEntry(mayFirst, ClosedDayReason.HOLIDAY);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // Full-day blocks → FULL_DAY_BLOCK
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("Full-day block → FULL_DAY_BLOCK")
+    void fullDayBlock_taggedFullDayBlock() {
+        initService(LocalDate.of(2026, 5, 4), LocalTime.of(10, 0));
+        mockOpenAllWeek();
         LocalDate blockedDate = LocalDate.of(2026, 5, 6);
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of(fullDayBlock(blockedDate)));
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 10));
 
-        assertThat(closed).contains(blockedDate);
+        assertThat(closed).containsEntry(blockedDate, ClosedDayReason.FULL_DAY_BLOCK);
     }
 
     @Test
     @DisplayName("Partial-time block → NOT closed (only slots reduced)")
     void partialBlock_notClosed() {
         initService(LocalDate.of(2026, 5, 4), LocalTime.of(10, 0));
-        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
-                openingHour(1, "09:00", "18:00"), openingHour(2, "09:00", "18:00"),
-                openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
-                openingHour(5, "09:00", "18:00"), openingHour(6, "09:00", "18:00"),
-                openingHour(7, "09:00", "18:00")
-        ));
+        mockOpenAllWeek();
         LocalDate partiallyBlockedDate = LocalDate.of(2026, 5, 6);
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of(partialBlock(partiallyBlockedDate, "09:00", "12:00")));
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 10));
 
-        assertThat(closed).doesNotContain(partiallyBlockedDate);
+        assertThat(closed).doesNotContainKey(partiallyBlockedDate);
     }
 
     // ══════════════════════════════════════════════════════════════
-    // Today exhausted (Option B)
+    // Today exhausted → TODAY_CLOSED (Option B)
     // ══════════════════════════════════════════════════════════════
 
     @Test
     @DisplayName("Today before closeTime → not closed")
     void today_beforeCloseTime_open() {
-        // Today = Monday May 4 17:30, salon closes at 18:00
         initService(LocalDate.of(2026, 5, 4), LocalTime.of(17, 30));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "18:00")
@@ -322,15 +335,15 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 4));
 
-        assertThat(closed).doesNotContain(LocalDate.of(2026, 5, 4));
+        assertThat(closed).doesNotContainKey(LocalDate.of(2026, 5, 4));
     }
 
     @Test
-    @DisplayName("Today exactly at closeTime → closed")
-    void today_atCloseTime_closed() {
+    @DisplayName("Today exactly at closeTime → TODAY_CLOSED")
+    void today_atCloseTime_taggedTodayClosed() {
         initService(LocalDate.of(2026, 5, 4), LocalTime.of(18, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "18:00")
@@ -338,15 +351,15 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 4));
 
-        assertThat(closed).contains(LocalDate.of(2026, 5, 4));
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 4), ClosedDayReason.TODAY_CLOSED);
     }
 
     @Test
-    @DisplayName("Today after closeTime → closed")
-    void today_afterCloseTime_closed() {
+    @DisplayName("Today after closeTime → TODAY_CLOSED")
+    void today_afterCloseTime_taggedTodayClosed() {
         initService(LocalDate.of(2026, 5, 4), LocalTime.of(19, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "18:00")
@@ -354,17 +367,16 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 4));
 
-        assertThat(closed).contains(LocalDate.of(2026, 5, 4));
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 4), ClosedDayReason.TODAY_CLOSED);
     }
 
     @Test
     @DisplayName("Today with split shifts uses the latest closeTime")
     void today_splitShifts_usesLatestClose() {
-        // Mon: 09-12 then 14-19 → latest close = 19:00
-        initService(LocalDate.of(2026, 5, 4), LocalTime.of(13, 0)); // lunch break
+        initService(LocalDate.of(2026, 5, 4), LocalTime.of(13, 0));
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
                 openingHour(1, "09:00", "12:00"),
                 openingHour(1, "14:00", "19:00")
@@ -372,11 +384,10 @@ class ClosedDaysServiceTests {
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of());
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 4));
 
-        // 13:00 < 19:00 → still open today (the user can book the 14-19 window)
-        assertThat(closed).doesNotContain(LocalDate.of(2026, 5, 4));
+        assertThat(closed).doesNotContainKey(LocalDate.of(2026, 5, 4));
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -386,13 +397,7 @@ class ClosedDaysServiceTests {
     @Test
     @DisplayName("Multiple closure reasons combined in one range")
     void combinedReasons() {
-        TenantContext.setCurrentTenant(SLUG);
-        Tenant tenant = new Tenant();
-        tenant.setSlug(SLUG);
-        tenant.setAddressCountry("FR");
-        tenant.setClosedOnHolidays(true);
-        when(tenantRepository.findBySlug(SLUG)).thenReturn(Optional.of(tenant));
-
+        mockTenantWithHolidays(true);
         initService(LocalDate.of(2026, 4, 28), LocalTime.of(10, 0));
         // Mon-Fri only
         when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()).thenReturn(List.of(
@@ -400,7 +405,7 @@ class ClosedDaysServiceTests {
                 openingHour(3, "09:00", "18:00"), openingHour(4, "09:00", "18:00"),
                 openingHour(5, "09:00", "18:00")
         ));
-        // Block Wednesday May 6
+        // Block Wednesday May 6 (full day)
         LocalDate blockedDate = LocalDate.of(2026, 5, 6);
         when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
                 .thenReturn(List.of(fullDayBlock(blockedDate)));
@@ -409,25 +414,19 @@ class ClosedDaysServiceTests {
         lenient().when(holidayAvailabilityService.isClosedForHoliday(any(), anyString(), anyBoolean()))
                 .thenAnswer(inv -> inv.getArgument(0).equals(mayFirst));
 
-        Set<LocalDate> closed = service.getClosedDays(
+        Map<LocalDate, ClosedDayReason> closed = service.getClosedDays(
                 LocalDate.of(2026, 4, 28), LocalDate.of(2026, 5, 10));
 
-        assertThat(closed).contains(
-                mayFirst,                          // holiday (Friday)
-                LocalDate.of(2026, 5, 2),          // Saturday — weekly closed
-                LocalDate.of(2026, 5, 3),          // Sunday — weekly closed
-                blockedDate,                       // full-day block
-                LocalDate.of(2026, 5, 9),          // Saturday
-                LocalDate.of(2026, 5, 10)          // Sunday
-        );
-        assertThat(closed).doesNotContain(
-                LocalDate.of(2026, 4, 28),         // Tuesday today, open before close
-                LocalDate.of(2026, 4, 29),         // Wednesday
-                LocalDate.of(2026, 4, 30),         // Thursday
-                LocalDate.of(2026, 5, 4),          // Monday
-                LocalDate.of(2026, 5, 5),          // Tuesday
-                LocalDate.of(2026, 5, 7),          // Thursday
-                LocalDate.of(2026, 5, 8)           // Friday
+        assertThat(closed).containsEntry(mayFirst, ClosedDayReason.HOLIDAY);
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 2), ClosedDayReason.WEEKLY_CLOSED);
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 3), ClosedDayReason.WEEKLY_CLOSED);
+        assertThat(closed).containsEntry(blockedDate, ClosedDayReason.FULL_DAY_BLOCK);
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 9), ClosedDayReason.WEEKLY_CLOSED);
+        assertThat(closed).containsEntry(LocalDate.of(2026, 5, 10), ClosedDayReason.WEEKLY_CLOSED);
+        assertThat(closed).doesNotContainKeys(
+                LocalDate.of(2026, 4, 28), LocalDate.of(2026, 4, 29), LocalDate.of(2026, 4, 30),
+                LocalDate.of(2026, 5, 4), LocalDate.of(2026, 5, 5),
+                LocalDate.of(2026, 5, 7), LocalDate.of(2026, 5, 8)
         );
     }
 }

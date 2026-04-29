@@ -7,6 +7,7 @@ import com.prettyface.app.availability.app.ClosedDaysService;
 import com.prettyface.app.availability.app.HolidayAvailabilityService;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.availability.web.dto.BlockedSlotResponse;
+import com.prettyface.app.availability.web.dto.ClosedDayResponse;
 import com.prettyface.app.availability.web.dto.OpeningHourResponse;
 import com.prettyface.app.bookings.app.CareBookingService;
 import com.prettyface.app.bookings.app.ClientBookingHistoryService;
@@ -111,7 +112,7 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}/closed-days")
-    public ResponseEntity<List<LocalDate>> getClosedDays(
+    public ResponseEntity<List<ClosedDayResponse>> getClosedDays(
             @PathVariable String slug,
             @RequestParam LocalDate from,
             @RequestParam LocalDate to) {
@@ -120,8 +121,10 @@ public class PublicSalonController {
                 .map(tenant -> {
                     TenantContext.setCurrentTenant(tenant.getSlug());
                     try {
-                        List<LocalDate> dates = closedDaysService.getClosedDays(from, to).stream()
-                                .sorted()
+                        List<ClosedDayResponse> dates = closedDaysService.getClosedDays(from, to)
+                                .entrySet().stream()
+                                .map(e -> new ClosedDayResponse(e.getKey(), e.getValue()))
+                                .sorted(java.util.Comparator.comparing(ClosedDayResponse::date))
                                 .toList();
                         return ResponseEntity.ok(dates);
                     } finally {

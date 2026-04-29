@@ -34,7 +34,7 @@ import { ClosedDaysStore } from '../../../availability/closed-days.store';
           [min]="minDate"
         />
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker (monthSelected)="onMonthSelected($event)" (opened)="onCalendarOpened()"></mat-datepicker>
+        <mat-datepicker #picker [dateClass]="dateClass" (monthSelected)="onMonthSelected($event)" (opened)="onCalendarOpened()"></mat-datepicker>
       </mat-form-field>
 
       @if (loading()) {
@@ -192,6 +192,12 @@ export class StepDatetimeComponent {
     today.setHours(0, 0, 0, 0);
     if (date < today) return false;
     return !this.closedDaysStore.closedDays().has(this.toLocalDateString(date));
+  };
+
+  readonly dateClass = (date: Date): string => {
+    return this.closedDaysStore.holidayDays().has(this.toLocalDateString(date))
+      ? 'closed-holiday'
+      : '';
   };
 
   constructor() {

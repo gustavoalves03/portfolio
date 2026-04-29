@@ -8,7 +8,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog.component';
-import { ClosedDaysService } from '../../../features/availability/closed-days.service';
+import { ClosedDay, ClosedDaysService } from '../../../features/availability/closed-days.service';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PublicCareDto } from '../../../features/salon-profile/models/salon-profile.model';
@@ -26,12 +26,12 @@ describe('BookingDialogComponent', () => {
     imageUrls: [],
   };
 
-  function setup(closedDates: string[]): BookingDialogComponent {
+  function setup(closedDays: ClosedDay[]): BookingDialogComponent {
     closedDaysService = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
       'loadClosedDays',
       'loadPublicClosedDays',
     ]);
-    closedDaysService.loadPublicClosedDays.and.returnValue(of(closedDates));
+    closedDaysService.loadPublicClosedDays.and.returnValue(of(closedDays));
 
     salonService = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
       'getEmployeesForCare',
@@ -81,13 +81,23 @@ describe('BookingDialogComponent', () => {
   });
 
   it('dateFilter rejects 1er mai when listed as closed by the public store', () => {
-    const cmp = setup(['2026-05-01']);
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
     expect(cmp.dateFilter(new Date(2026, 4, 1))).toBeFalse();
   });
 
   it('dateFilter accepts a future date that is not in the closed list', () => {
-    const cmp = setup(['2026-05-01']);
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
     expect(cmp.dateFilter(new Date(2026, 4, 2))).toBeTrue();
+  });
+
+  it('dateClass returns "closed-holiday" for HOLIDAY dates', () => {
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
+    expect(cmp.dateClass(new Date(2026, 4, 1))).toBe('closed-holiday');
+  });
+
+  it('dateClass returns empty string for non-HOLIDAY closed dates', () => {
+    const cmp = setup([{ date: '2026-05-03', reason: 'WEEKLY_CLOSED' }]);
+    expect(cmp.dateClass(new Date(2026, 4, 3))).toBe('');
   });
 
   it('preloads 6 months from the public closed-days endpoint with the salon slug', () => {

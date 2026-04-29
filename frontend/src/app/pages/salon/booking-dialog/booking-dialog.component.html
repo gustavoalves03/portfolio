@@ -55,7 +55,7 @@
       <input matInput data-testid="booking-date-input" [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="minDate"
              [value]="selectedDate()" (dateChange)="onDateChange($event.value)" readonly>
       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker (opened)="onCalendarOpened()" (monthSelected)="onMonthSelected($event)"></mat-datepicker>
+      <mat-datepicker #picker [dateClass]="dateClass" (opened)="onCalendarOpened()" (monthSelected)="onMonthSelected($event)"></mat-datepicker>
     </mat-form-field>
 
     @if (selectedDate()) {

@@ -1,12 +1,13 @@
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { inject } from '@angular/core';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, catchError, mergeMap, pipe, tap } from 'rxjs';
-import { ClosedDaysService } from './closed-days.service';
+import { ClosedDay, ClosedDayReason, ClosedDaysService } from './closed-days.service';
 
 type PublicClosedDaysState = {
   slug: string | null;
-  closedDays: Set<string>;
+  byDate: Record<string, ClosedDayReason>;
   loadedMonths: Set<string>;
 };
 
@@ -25,15 +26,26 @@ const monthRange = (year: number, month: number): { from: string; to: string } =
 export const PublicClosedDaysStore = signalStore(
   withState<PublicClosedDaysState>({
     slug: null,
-    closedDays: new Set<string>(),
+    byDate: {},
     loadedMonths: new Set<string>(),
   }),
+  withComputed((store) => ({
+    closedDays: computed(() => new Set(Object.keys(store.byDate()))),
+    holidayDays: computed(() => {
+      const map = store.byDate();
+      const result = new Set<string>();
+      for (const [date, reason] of Object.entries(map)) {
+        if (reason === 'HOLIDAY') result.add(date);
+      }
+      return result;
+    }),
+  })),
   withMethods((store, service = inject(ClosedDaysService)) => ({
     setSlug(slug: string): void {
       if (store.slug() === slug) return;
       patchState(store, {
         slug,
-        closedDays: new Set<string>(),
+        byDate: {},
         loadedMonths: new Set<string>(),
       });
     },
@@ -49,10 +61,10 @@ export const PublicClosedDaysStore = signalStore(
           patchState(store, { loadedMonths: months });
           const { from, to } = monthRange(year, month);
           return service.loadPublicClosedDays(slug, from, to).pipe(
-            tap((dates) => {
-              const closed = new Set(store.closedDays());
-              dates.forEach((d) => closed.add(d));
-              patchState(store, { closedDays: closed });
+            tap((days: ClosedDay[]) => {
+              const next = { ...store.byDate() };
+              for (const d of days) next[d.date] = d.reason;
+              patchState(store, { byDate: next });
             }),
             catchError(() => {
               const rollback = new Set(store.loadedMonths());
@@ -66,7 +78,7 @@ export const PublicClosedDaysStore = signalStore(
     ),
     invalidate(): void {
       patchState(store, {
-        closedDays: new Set<string>(),
+        byDate: {},
         loadedMonths: new Set<string>(),
       });
     },

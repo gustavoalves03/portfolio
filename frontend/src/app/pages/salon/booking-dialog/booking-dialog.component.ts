@@ -70,6 +70,12 @@ export class BookingDialogComponent {
     return !this.closedDaysStore.closedDays().has(this.formatDate(date));
   };
 
+  readonly dateClass = (date: Date): string => {
+    return this.closedDaysStore.holidayDays().has(this.formatDate(date))
+      ? 'closed-holiday'
+      : '';
+  };
+
   constructor() {
     this.closedDaysStore.setSlug(this.slug);
     this.preloadMonthsFrom(new Date(), 6);

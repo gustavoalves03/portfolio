@@ -15,11 +15,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 @Service
 public class ClosedDaysService {
+
+    public enum ClosedDayReason {
+        HOLIDAY,
+        WEEKLY_CLOSED,
+        FULL_DAY_BLOCK,
+        TODAY_CLOSED,
+        PAST,
+    }
 
     private final OpeningHourRepository openingHourRepo;
     private final BlockedSlotRepository blockedSlotRepo;
@@ -40,20 +49,20 @@ public class ClosedDaysService {
     }
 
     /**
-     * Return all dates in [from, to] (inclusive) on which the salon is structurally closed:
-     * - past dates (before today)
-     * - weekly closed (no opening hours for that day-of-week)
-     * - public holiday with closedOnHolidays enabled (unless an exception flips it open)
-     * - full-day blocked slot
-     * - today, when current time is past the latest closeTime of the day's opening hours
+     * Return all dates in [from, to] (inclusive) with the reason they are closed.
      *
-     * Per-slot constraints (bookings, employee leaves) are intentionally not considered here —
-     * those reduce *available slots*, not whether the day itself is open.
+     * Priority when multiple reasons apply: HOLIDAY > FULL_DAY_BLOCK > WEEKLY_CLOSED >
+     * TODAY_CLOSED > PAST. The most informative reason wins so the UI can color
+     * holidays distinctly even when they fall on a weekly-closed day.
+     *
+     * Per-slot constraints (bookings, employee leaves) are intentionally not
+     * considered here — those reduce *available slots*, not whether the day itself
+     * is open.
      */
     @Transactional(readOnly = true)
-    public Set<LocalDate> getClosedDays(LocalDate from, LocalDate to) {
+    public Map<LocalDate, ClosedDayReason> getClosedDays(LocalDate from, LocalDate to) {
         if (from == null || to == null || to.isBefore(from)) {
-            return Set.of();
+            return Map.of();
         }
 
         Map<Integer, LocalTime> latestCloseByDow = new HashMap<>();
@@ -76,32 +85,41 @@ public class ClosedDaysService {
         LocalDate today = LocalDate.now(clock);
         LocalTime now = LocalTime.now(clock);
 
-        Set<LocalDate> closed = new HashSet<>();
+        Map<LocalDate, ClosedDayReason> closed = new LinkedHashMap<>();
         for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
-            if (isClosed(d, today, now, latestCloseByDow, fullDayBlocks, holidayCtx)) {
-                closed.add(d);
+            ClosedDayReason reason = classify(d, today, now, latestCloseByDow, fullDayBlocks, holidayCtx);
+            if (reason != null) {
+                closed.put(d, reason);
             }
         }
         return closed;
     }
 
-    private boolean isClosed(LocalDate date,
-                              LocalDate today,
-                              LocalTime now,
-                              Map<Integer, LocalTime> latestCloseByDow,
-                              Set<LocalDate> fullDayBlocks,
-                              TenantHolidayContext holidayCtx) {
-        if (date.isBefore(today)) return true;
-        int dow = date.getDayOfWeek().getValue();
-        LocalTime latestClose = latestCloseByDow.get(dow);
-        if (latestClose == null) return true;
-        if (fullDayBlocks.contains(date)) return true;
+    private ClosedDayReason classify(LocalDate date,
+                                      LocalDate today,
+                                      LocalTime now,
+                                      Map<Integer, LocalTime> latestCloseByDow,
+                                      Set<LocalDate> fullDayBlocks,
+                                      TenantHolidayContext holidayCtx) {
         if (holidayCtx != null && holidayAvailabilityService.isClosedForHoliday(
                 date, holidayCtx.country(), holidayCtx.closedOnHolidays())) {
-            return true;
+            return ClosedDayReason.HOLIDAY;
         }
-        if (date.equals(today) && !now.isBefore(latestClose)) return true;
-        return false;
+        if (fullDayBlocks.contains(date)) {
+            return ClosedDayReason.FULL_DAY_BLOCK;
+        }
+        int dow = date.getDayOfWeek().getValue();
+        LocalTime latestClose = latestCloseByDow.get(dow);
+        if (latestClose == null) {
+            return ClosedDayReason.WEEKLY_CLOSED;
+        }
+        if (date.isBefore(today)) {
+            return ClosedDayReason.PAST;
+        }
+        if (date.equals(today) && !now.isBefore(latestClose)) {
+            return ClosedDayReason.TODAY_CLOSED;
+        }
+        return null;
     }
 
     private TenantHolidayContext resolveHolidayContext() {

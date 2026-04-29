@@ -7,19 +7,19 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 
 import { StepDatetimeComponent } from './step-datetime.component';
-import { ClosedDaysService } from '../../../availability/closed-days.service';
+import { ClosedDay, ClosedDaysService } from '../../../availability/closed-days.service';
 import { BookingsService } from '../../services/bookings.service';
 
 describe('StepDatetimeComponent', () => {
   let closedDaysService: jasmine.SpyObj<ClosedDaysService>;
   let bookingsService: jasmine.SpyObj<BookingsService>;
 
-  function setup(closedDates: string[]): StepDatetimeComponent {
+  function setup(closedDays: ClosedDay[]): StepDatetimeComponent {
     closedDaysService = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
       'loadClosedDays',
       'loadPublicClosedDays',
     ]);
-    closedDaysService.loadClosedDays.and.returnValue(of(closedDates));
+    closedDaysService.loadClosedDays.and.returnValue(of(closedDays));
 
     bookingsService = jasmine.createSpyObj<BookingsService>('BookingsService', ['getAvailableSlots']);
 
@@ -56,13 +56,28 @@ describe('StepDatetimeComponent', () => {
   });
 
   it('dateFilter rejects dates listed by the closed-days store', () => {
-    const cmp = setup(['2026-05-01']);
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
     expect(cmp.dateFilter(new Date(2026, 4, 1))).toBeFalse();
   });
 
   it('dateFilter accepts future dates not in the closed list', () => {
-    const cmp = setup(['2026-05-01']);
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
     expect(cmp.dateFilter(new Date(2026, 4, 2))).toBeTrue();
+  });
+
+  it('dateClass returns "closed-holiday" for HOLIDAY dates', () => {
+    const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
+    expect(cmp.dateClass(new Date(2026, 4, 1))).toBe('closed-holiday');
+  });
+
+  it('dateClass returns empty string for non-HOLIDAY closed dates', () => {
+    const cmp = setup([{ date: '2026-05-03', reason: 'WEEKLY_CLOSED' }]);
+    expect(cmp.dateClass(new Date(2026, 4, 3))).toBe('');
+  });
+
+  it('dateClass returns empty string for open dates', () => {
+    const cmp = setup([]);
+    expect(cmp.dateClass(new Date(2026, 4, 2))).toBe('');
   });
 
   it('triggers preload of 6 months on construction', () => {

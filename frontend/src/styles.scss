@@ -196,3 +196,15 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 @media (prefers-reduced-motion: reduce) {
   .bottom-sheet .mat-mdc-dialog-container .mdc-dialog__surface { animation: none; }
 }
+
+// ===== Datepicker — public-holiday days =====
+// Holidays where the salon is closed get a soft rosy background to set them
+// apart from the default Material grey used for other closed days. Targets the
+// inner cell content so it overrides the disabled state without hijacking it.
+.mat-calendar-body-cell.closed-holiday {
+  .mat-calendar-body-cell-content {
+    background: #ffe5ec;
+    color: #b04060 !important;
+    border-radius: 999px;
+  }
+}
