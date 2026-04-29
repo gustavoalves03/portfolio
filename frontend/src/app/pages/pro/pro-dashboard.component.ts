@@ -14,6 +14,8 @@ import { parseYMD } from '../../core/utils/date-format';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
+import { PERSONAS, Persona } from '../../features/onboarding/personas';
+import { PersonaSetupService } from '../../features/onboarding/persona-setup.service';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import {
   AnalyticsResponse,
@@ -55,6 +57,11 @@ export class ProDashboardComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly personaSetupService = inject(PersonaSetupService);
+
+  readonly personas = PERSONAS;
+  readonly applyingPersona = signal<string | null>(null);
+  readonly skipQuickstart = signal(false);
 
   // Analytics state
   readonly period = signal<Period>('week');
@@ -101,6 +108,15 @@ export class ProDashboardComponent {
     const total = this.checklistTotal();
     if (total === 0) return 0;
     return Math.round((this.checklistDone() / total) * 100);
+  });
+
+  readonly showQuickstart = computed(() => {
+    if (this.skipQuickstart()) return false;
+    const r = this.store.readiness();
+    if (!r) return false;
+    if (r.status !== 'DRAFT') return false;
+    // Only when truly empty: no category AND no active care.
+    return !r.hasCategory && !r.hasActiveCare;
   });
 
   // KPIs
@@ -332,6 +348,59 @@ export class ProDashboardComponent {
 
   onPublish(): void {
     this.store.publish();
+  }
+
+  applyPersona(persona: Persona): void {
+    if (this.applyingPersona() !== null) return;
+    this.applyingPersona.set(persona.key);
+    this.personaSetupService.apply(persona).subscribe({
+      next: (result) => {
+        this.applyingPersona.set(null);
+        const totalRequested =
+          persona.categories.length +
+          persona.categories.reduce((sum, c) => sum + c.cares.length, 0);
+        if (result.failures === 0) {
+          this.snackBar.open(
+            this.transloco.translate('pro.dashboard.quickstart.applied', {
+              count: result.caresCreated,
+            }),
+            undefined,
+            { duration: 3000 }
+          );
+        } else if (result.categoriesCreated + result.caresCreated > 0) {
+          this.snackBar.open(
+            this.transloco.translate('pro.dashboard.quickstart.appliedPartial', {
+              failures: result.failures,
+            }),
+            undefined,
+            { duration: 4000 }
+          );
+        } else {
+          this.snackBar.open(
+            this.transloco.translate('pro.dashboard.quickstart.error'),
+            undefined,
+            { duration: 4000 }
+          );
+        }
+        // Refresh readiness so the checklist reflects the new state.
+        this.store.loadReadiness();
+        // Also touch totalRequested so TS doesn't drop it (used implicitly above
+        // for messaging — kept for future "X of Y created" display).
+        void totalRequested;
+      },
+      error: () => {
+        this.applyingPersona.set(null);
+        this.snackBar.open(
+          this.transloco.translate('pro.dashboard.quickstart.error'),
+          undefined,
+          { duration: 4000 }
+        );
+      },
+    });
+  }
+
+  onSkipQuickstart(): void {
+    this.skipQuickstart.set(true);
   }
 
   onUnpublish(): void {

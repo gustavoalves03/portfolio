@@ -191,6 +191,104 @@
         "next": "Étape suivante",
         "done": "Fait"
       },
+      "quickstart": {
+        "title": "Démarre en 30 secondes",
+        "subtitle": "Choisis un modèle, on pré-remplit catégories et soins. Tu peux tout modifier ensuite.",
+        "skip": "Plus tard, je préfère partir de zéro",
+        "applying": "Création en cours...",
+        "applied": "{{ count }} prestations ajoutées. À toi de jouer !",
+        "appliedPartial": "Modèle appliqué avec {{ failures }} erreur(s). Vérifie tes prestations.",
+        "error": "Impossible d'appliquer le modèle. Réessaie ou crée tes prestations à la main.",
+        "persona": {
+          "face": {
+            "label": "Esthétique visage",
+            "desc": "Soins, sourcils, cils.",
+            "cat": {
+              "facial": {
+                "name": "Soins du visage",
+                "desc": "Hydratation, nettoyage, anti-âge.",
+                "cares": {
+                  "hydra": { "name": "Soin hydratant", "desc": "Pour une peau repulpée et lumineuse." },
+                  "deep": { "name": "Soin nettoyant en profondeur", "desc": "Désincrustation et purification." },
+                  "express": { "name": "Soin express", "desc": "Coup d'éclat en 30 minutes." }
+                }
+              },
+              "brows": {
+                "name": "Sourcils & cils",
+                "desc": "Restructuration et teinture.",
+                "cares": {
+                  "shape": { "name": "Restructuration sourcils", "desc": "Forme adaptée à ton visage." },
+                  "tint": { "name": "Teinture sourcils", "desc": "Couleur durable et naturelle." }
+                }
+              }
+            }
+          },
+          "body": {
+            "label": "Soin corps",
+            "desc": "Massages, gommages, relaxation.",
+            "cat": {
+              "massage": {
+                "name": "Massages",
+                "desc": "Relaxation et bien-être.",
+                "cares": {
+                  "relax": { "name": "Massage relaxant", "desc": "Pression douce, huile chaude." },
+                  "deep": { "name": "Massage profond", "desc": "Pour relâcher les tensions musculaires." }
+                }
+              },
+              "scrub": {
+                "name": "Gommages",
+                "desc": "Exfoliation douce.",
+                "cares": {
+                  "full": { "name": "Gommage corps complet", "desc": "Peau douce et lumineuse." }
+                }
+              }
+            }
+          },
+          "nails": {
+            "label": "Onglerie",
+            "desc": "Manucure, pédicure, gel.",
+            "cat": {
+              "manicure": {
+                "name": "Manucure",
+                "desc": "Soin des mains et pose de vernis.",
+                "cares": {
+                  "classic": { "name": "Manucure classique", "desc": "Limage, soin des cuticules, vernis." },
+                  "gel": { "name": "Manucure gel", "desc": "Pose de vernis semi-permanent." }
+                }
+              },
+              "pedicure": {
+                "name": "Pédicure",
+                "desc": "Soin des pieds.",
+                "cares": {
+                  "classic": { "name": "Pédicure classique", "desc": "Soin complet et vernis." }
+                }
+              }
+            }
+          },
+          "hair": {
+            "label": "Coiffure",
+            "desc": "Coupes, couleurs, brushing.",
+            "cat": {
+              "cut": {
+                "name": "Coupes",
+                "desc": "Pour femmes et hommes.",
+                "cares": {
+                  "women": { "name": "Coupe femme", "desc": "Coupe + brushing." },
+                  "men": { "name": "Coupe homme", "desc": "Coupe + finition." }
+                }
+              },
+              "color": {
+                "name": "Couleur",
+                "desc": "Coloration et mèches.",
+                "cares": {
+                  "full": { "name": "Couleur complète", "desc": "Application racines + longueurs." },
+                  "highlights": { "name": "Mèches", "desc": "Effet lumineux personnalisé." }
+                }
+              }
+            }
+          }
+        }
+      },
       "publish": "Publier mon salon",
       "publishDisabledHint": "Complétez les étapes ci-dessus pour publier votre salon",
       "publishSuccess": "Votre salon est en ligne !",

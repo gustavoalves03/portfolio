@@ -21,6 +21,44 @@
     @if (store.isDraft()) {
       <!-- DRAFT: Onboarding checklist -->
       <div class="onboarding-wrap" data-testid="onboarding-wrap">
+        @if (showQuickstart()) {
+          <div class="quickstart-block" data-testid="quickstart-block">
+            <h2 class="quickstart-title">{{ 'pro.dashboard.quickstart.title' | transloco }}</h2>
+            <p class="quickstart-subtitle">{{ 'pro.dashboard.quickstart.subtitle' | transloco }}</p>
+            <div class="quickstart-grid">
+              @for (persona of personas; track persona.key) {
+                <button
+                  type="button"
+                  class="persona-card"
+                  [class.is-applying]="applyingPersona() === persona.key"
+                  [disabled]="applyingPersona() !== null"
+                  (click)="applyPersona(persona)"
+                  [attr.data-testid]="'persona-card-' + persona.key"
+                >
+                  <mat-icon class="persona-icon">{{ persona.icon }}</mat-icon>
+                  <span class="persona-label">
+                    {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.label' | transloco }}
+                  </span>
+                  <span class="persona-desc">
+                    {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.desc' | transloco }}
+                  </span>
+                  @if (applyingPersona() === persona.key) {
+                    <span class="persona-applying">{{ 'pro.dashboard.quickstart.applying' | transloco }}</span>
+                  }
+                </button>
+              }
+            </div>
+            <button
+              type="button"
+              class="quickstart-skip"
+              data-testid="quickstart-skip"
+              [disabled]="applyingPersona() !== null"
+              (click)="onSkipQuickstart()"
+            >
+              {{ 'pro.dashboard.quickstart.skip' | transloco }}
+            </button>
+          </div>
+        }
         <div class="onboarding-welcome">
           <h2 class="onboarding-title">{{ 'pro.dashboard.checklist.welcome' | transloco }}</h2>
           <p class="onboarding-sub">{{ 'pro.dashboard.checklist.welcomeSub' | transloco }}</p>

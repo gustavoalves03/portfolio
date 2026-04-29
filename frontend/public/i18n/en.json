@@ -187,6 +187,104 @@
         "next": "Next step",
         "done": "Done"
       },
+      "quickstart": {
+        "title": "Start in 30 seconds",
+        "subtitle": "Pick a template, we'll prefill categories and services. You can edit everything afterwards.",
+        "skip": "Later, I'd rather start from scratch",
+        "applying": "Setting things up...",
+        "applied": "{{ count }} services added. You're all set!",
+        "appliedPartial": "Template applied with {{ failures }} error(s). Check your services.",
+        "error": "Couldn't apply the template. Try again or create your services manually.",
+        "persona": {
+          "face": {
+            "label": "Facial care",
+            "desc": "Skincare, brows, lashes.",
+            "cat": {
+              "facial": {
+                "name": "Facial treatments",
+                "desc": "Hydration, cleansing, anti-aging.",
+                "cares": {
+                  "hydra": { "name": "Hydrating facial", "desc": "For plump, glowing skin." },
+                  "deep": { "name": "Deep cleansing facial", "desc": "Extraction and purification." },
+                  "express": { "name": "Express facial", "desc": "Quick glow in 30 minutes." }
+                }
+              },
+              "brows": {
+                "name": "Brows & lashes",
+                "desc": "Shaping and tinting.",
+                "cares": {
+                  "shape": { "name": "Brow shaping", "desc": "Tailored to your face." },
+                  "tint": { "name": "Brow tint", "desc": "Long-lasting natural color." }
+                }
+              }
+            }
+          },
+          "body": {
+            "label": "Body care",
+            "desc": "Massages, scrubs, relaxation.",
+            "cat": {
+              "massage": {
+                "name": "Massages",
+                "desc": "Relaxation and well-being.",
+                "cares": {
+                  "relax": { "name": "Relaxing massage", "desc": "Soft pressure, warm oil." },
+                  "deep": { "name": "Deep tissue massage", "desc": "Releases muscle tension." }
+                }
+              },
+              "scrub": {
+                "name": "Scrubs",
+                "desc": "Gentle exfoliation.",
+                "cares": {
+                  "full": { "name": "Full body scrub", "desc": "Smooth, glowing skin." }
+                }
+              }
+            }
+          },
+          "nails": {
+            "label": "Nails",
+            "desc": "Manicure, pedicure, gel.",
+            "cat": {
+              "manicure": {
+                "name": "Manicure",
+                "desc": "Hand care and polish.",
+                "cares": {
+                  "classic": { "name": "Classic manicure", "desc": "Filing, cuticle care, polish." },
+                  "gel": { "name": "Gel manicure", "desc": "Long-lasting gel polish." }
+                }
+              },
+              "pedicure": {
+                "name": "Pedicure",
+                "desc": "Foot care.",
+                "cares": {
+                  "classic": { "name": "Classic pedicure", "desc": "Full care and polish." }
+                }
+              }
+            }
+          },
+          "hair": {
+            "label": "Hair",
+            "desc": "Cuts, color, blow-dry.",
+            "cat": {
+              "cut": {
+                "name": "Cuts",
+                "desc": "Women and men.",
+                "cares": {
+                  "women": { "name": "Women's cut", "desc": "Cut + blow-dry." },
+                  "men": { "name": "Men's cut", "desc": "Cut + finish." }
+                }
+              },
+              "color": {
+                "name": "Color",
+                "desc": "Coloring and highlights.",
+                "cares": {
+                  "full": { "name": "Full color", "desc": "Roots + lengths application." },
+                  "highlights": { "name": "Highlights", "desc": "Custom luminous effect." }
+                }
+              }
+            }
+          }
+        }
+      },
       "publish": "Publish my salon",
       "publishDisabledHint": "Complete the steps above to publish your salon",
       "publishSuccess": "Your salon is now online!",

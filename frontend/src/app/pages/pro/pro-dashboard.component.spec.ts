@@ -7,12 +7,14 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
 import { patchState } from '@ngrx/signals';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ProDashboardComponent } from './pro-dashboard.component';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import { AnalyticsResponse } from '../../features/analytics/analytics.model';
 import { TenantReadiness } from '../../features/dashboard/models/dashboard.model';
+import { PersonaSetupService, PersonaSetupResult } from '../../features/onboarding/persona-setup.service';
+import { PERSONAS } from '../../features/onboarding/personas';
 
 function mockAnalytics(): AnalyticsResponse {
   return {
@@ -53,10 +55,18 @@ describe('ProDashboardComponent', () => {
   let component: ProDashboardComponent;
   let fixture: ComponentFixture<ProDashboardComponent>;
   let analyticsSpy: jasmine.SpyObj<AnalyticsService>;
+  let personaSetupSpy: jasmine.SpyObj<PersonaSetupService>;
 
   beforeEach(async () => {
     analyticsSpy = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['getAnalytics']);
     analyticsSpy.getAnalytics.and.returnValue(of(mockAnalytics()));
+
+    personaSetupSpy = jasmine.createSpyObj<PersonaSetupService>('PersonaSetupService', ['apply']);
+    personaSetupSpy.apply.and.returnValue(of<PersonaSetupResult>({
+      categoriesCreated: 2,
+      caresCreated: 5,
+      failures: 0,
+    }));
 
     await TestBed.configureTestingModule({
       imports: [
@@ -78,6 +88,7 @@ describe('ProDashboardComponent', () => {
         }),
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
         { provide: AnalyticsService, useValue: analyticsSpy },
+        { provide: PersonaSetupService, useValue: personaSetupSpy },
       ],
     }).compileComponents();
 
@@ -358,6 +369,115 @@ describe('ProDashboardComponent', () => {
       const hours = component.checklistSteps().find((s) => s.key === 'openingHours')!;
       expect(name.queryParams).toBeNull();
       expect(hours.queryParams).toBeNull();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Quickstart (persona picker)
+  // ─────────────────────────────────────────────────────────────
+
+  describe('quickstart block', () => {
+    function setReadiness(partial: Partial<TenantReadiness>): void {
+      const r: TenantReadiness = {
+        slug: 'test-salon',
+        name: false,
+        hasCategory: false,
+        hasActiveCare: false,
+        hasOpeningHours: false,
+        canPublish: false,
+        status: 'DRAFT',
+        ...partial,
+      };
+      patchState(component.store as any, { readiness: r });
+    }
+
+    it('hidden when readiness is null', () => {
+      expect(component.showQuickstart()).toBeFalse();
+    });
+
+    it('visible when DRAFT and both flags false', () => {
+      setReadiness({});
+      expect(component.showQuickstart()).toBeTrue();
+    });
+
+    it('hidden when hasCategory=true (user already created a category)', () => {
+      setReadiness({ hasCategory: true });
+      expect(component.showQuickstart()).toBeFalse();
+    });
+
+    it('hidden when hasActiveCare=true', () => {
+      setReadiness({ hasActiveCare: true });
+      expect(component.showQuickstart()).toBeFalse();
+    });
+
+    it('hidden when status=ACTIVE (already published)', () => {
+      setReadiness({ status: 'ACTIVE' });
+      expect(component.showQuickstart()).toBeFalse();
+    });
+
+    it('hidden after onSkipQuickstart()', () => {
+      setReadiness({});
+      expect(component.showQuickstart()).toBeTrue();
+      component.onSkipQuickstart();
+      expect(component.showQuickstart()).toBeFalse();
+    });
+
+    it('exposes the 4 personas in fixed order', () => {
+      expect(component.personas).toBe(PERSONAS);
+      expect(component.personas.map((p) => p.key)).toEqual(['face', 'body', 'nails', 'hair']);
+    });
+
+    it('applyPersona calls the service and clears applyingPersona on success', () => {
+      setReadiness({});
+      const persona = component.personas[0];
+
+      component.applyPersona(persona);
+
+      expect(personaSetupSpy.apply).toHaveBeenCalledWith(persona);
+      // Service is sync (of()) → applyingPersona reset right away
+      expect(component.applyingPersona()).toBeNull();
+    });
+
+    it('applyPersona refreshes readiness so the checklist updates', () => {
+      setReadiness({});
+      const loadSpy = spyOn(component.store, 'loadReadiness').and.callThrough();
+
+      component.applyPersona(component.personas[0]);
+
+      expect(loadSpy).toHaveBeenCalled();
+    });
+
+    it('applyPersona ignores subsequent clicks while one is in flight', () => {
+      // Make the service hang so the component stays in "applying" state
+      personaSetupSpy.apply.and.returnValue(new (class {
+        subscribe(_obs: unknown) {
+          return { unsubscribe: () => undefined };
+        }
+      } as unknown as { new (): import('rxjs').Observable<PersonaSetupResult> })());
+
+      component.applyPersona(component.personas[0]);
+      expect(component.applyingPersona()).toBe('face');
+      // Second click while first not done
+      component.applyPersona(component.personas[1]);
+
+      expect(personaSetupSpy.apply).toHaveBeenCalledTimes(1);
+    });
+
+    it('applyPersona on error: clears applyingPersona', () => {
+      personaSetupSpy.apply.and.returnValue(throwError(() => new Error('boom')));
+
+      component.applyPersona(component.personas[0]);
+
+      expect(component.applyingPersona()).toBeNull();
+    });
+
+    it('applyPersona does not auto-skip — block stays visible until conditions clear', () => {
+      // Defensive: even after a successful apply, the block visibility is driven
+      // by readiness flags (which arrive async via loadReadiness), not by the
+      // success of the apply call. So skipQuickstart must remain false.
+      setReadiness({});
+      component.applyPersona(component.personas[0]);
+      expect(component.skipQuickstart()).toBeFalse();
     });
   });
 });
