@@ -1,0 +1,136 @@
+<h2>Formulaire "Nouveau client" dans le stepper</h2>
+<p class="subtitle">Le PRO a choisi "Nouveau client" a l'etape 3</p>
+
+<div class="split" style="gap:16px;">
+
+  <!-- DESIGN A: Inline expand -->
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">A. Formulaire inline (expand)</div>
+    <div class="mockup-body" style="background:#f5f4f2;padding:16px;min-height:500px;font-family:system-ui,sans-serif;">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:16px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">3</div>
+      </div>
+
+      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:4px;">Nouveau client</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:16px;">Soin visage · 14 avr. · 14h30</div>
+
+      <!-- Card form -->
+      <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Nom *</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#333;">Marie Leroy</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Telephone *</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#333;">06 12 34 56 78</div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Email <span style="color:#9ca3af;font-size:10px;">(optionnel)</span></label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#9ca3af;"></div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Notes <span style="color:#9ca3af;font-size:10px;">(optionnel)</span></label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#9ca3af;min-height:40px;"></div>
+        </div>
+      </div>
+
+      <button style="width:100%;margin-top:14px;padding:14px;background:#c06;border:none;border-radius:12px;font-size:14px;color:white;font-weight:600;cursor:pointer;">Confirmer le rendez-vous</button>
+
+      <button style="width:100%;margin-top:8px;padding:10px;background:none;border:none;font-size:13px;color:#6b7280;cursor:pointer;">← Retour au choix client</button>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Compact with avatar preview -->
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">B. Compact avec apercu avatar</div>
+    <div class="mockup-body" style="background:#f5f4f2;padding:16px;min-height:500px;font-family:system-ui,sans-serif;">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:16px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">3</div>
+      </div>
+
+      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:16px;">Nouveau client</div>
+
+      <!-- Avatar preview that updates live -->
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:20px;margin:0 auto 6px;">ML</div>
+        <div style="font-size:11px;color:#9ca3af;">Apercu</div>
+      </div>
+
+      <!-- Compact form: 2 cols -->
+      <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:10px;color:#6b7280;display:block;margin-bottom:4px;">Nom *</label>
+            <div style="border:1px solid #c06;border-radius:8px;padding:8px 10px;font-size:13px;color:#333;">Marie Leroy</div>
+          </div>
+          <div>
+            <label style="font-size:10px;color:#6b7280;display:block;margin-bottom:4px;">Telephone *</label>
+            <div style="border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;color:#333;">06 12 34 56 78</div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:10px;color:#6b7280;display:block;margin-bottom:4px;">Email</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;color:#9ca3af;">marie@email.com</div>
+        </div>
+        <div>
+          <label style="font-size:10px;color:#6b7280;display:block;margin-bottom:4px;">Notes</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:13px;color:#9ca3af;min-height:36px;">Prefere les soins doux</div>
+        </div>
+      </div>
+
+      <!-- Recap + confirm -->
+      <div style="background:#fdf2f8;border-radius:12px;padding:12px 14px;margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/></svg>
+        <div style="font-size:12px;color:#333;">Soin visage · 14 avr. · 14h30 · Sophie D.</div>
+      </div>
+
+      <button style="width:100%;margin-top:12px;padding:14px;background:#c06;border:none;border-radius:12px;font-size:14px;color:white;font-weight:600;cursor:pointer;">Creer le client et confirmer</button>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Bottom sheet form -->
+  <div class="mockup" data-choice="c" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">C. Bottom sheet (par-dessus)</div>
+    <div class="mockup-body" style="background:rgba(0,0,0,0.3);padding:0;min-height:500px;font-family:system-ui,sans-serif;display:flex;flex-direction:column;justify-content:flex-end;">
+
+      <!-- Background: the stepper step 3 faded -->
+      <div style="position:absolute;top:0;left:0;right:0;padding:16px;opacity:0.3;">
+        <div style="font-size:16px;font-weight:600;color:white;">Qui est le client ?</div>
+      </div>
+
+      <!-- Bottom sheet -->
+      <div style="background:white;border-radius:16px 16px 0 0;padding:20px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.15);">
+        <div style="width:32px;height:4px;background:#e5e7eb;border-radius:2px;margin:0 auto 14px;"></div>
+        <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:14px;">Nouveau client</div>
+
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Nom *</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#333;">Marie Leroy</div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Telephone *</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#333;">06 12 34 56 78</div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Email</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#9ca3af;"></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:4px;">Notes</label>
+          <div style="border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:14px;color:#9ca3af;min-height:36px;"></div>
+        </div>
+
+        <button style="width:100%;padding:14px;background:#c06;border:none;border-radius:12px;font-size:14px;color:white;font-weight:600;cursor:pointer;">Creer et confirmer le RDV</button>
+      </div>
+    </div>
+  </div>
+
+</div>

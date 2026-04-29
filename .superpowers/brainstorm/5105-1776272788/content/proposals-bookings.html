@@ -1,0 +1,260 @@
+<h2>Historique RDV sur la fiche client</h2>
+<p class="subtitle">3 propositions pour afficher les RDV (passés, aujourd'hui, à venir) + bouton No-Show</p>
+
+<div class="cards">
+
+  <!-- PROPOSITION A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; overflow: hidden;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f2; padding: 16px;">
+
+        <!-- Section title -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 13px; font-weight: 600; color: #333;">Rendez-vous</span>
+          <span style="font-size: 11px; color: #6b7280;">5 RDV</span>
+        </div>
+
+        <!-- TODAY - highlighted -->
+        <div style="background: linear-gradient(135deg, #c06 0%, #e84393 100%); border-radius: 12px; padding: 12px; margin-bottom: 8px; color: white; position: relative;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 4px;">★ Aujourd'hui</div>
+              <div style="font-size: 14px; font-weight: 700;">Soin visage hydratant</div>
+              <div style="font-size: 11px; opacity: 0.9; margin-top: 2px;">14h30 · 60 min · Marie D.</div>
+            </div>
+            <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600;">CONFIRMÉ</span>
+          </div>
+        </div>
+
+        <!-- UPCOMING -->
+        <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 10px 0 6px 4px;">À venir</div>
+        <div style="background: white; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; border-left: 3px solid #52b788;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Épilation sourcils</div>
+              <div style="font-size: 11px; color: #6b7280;">22 avr. · 10h00 · Sophie L.</div>
+            </div>
+            <span style="font-size: 10px; color: #52b788; font-weight: 600;">CONFIRMÉ</span>
+          </div>
+        </div>
+
+        <!-- PAST -->
+        <div style="font-size: 10px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin: 10px 0 6px 4px;">Passés</div>
+        <div style="background: white; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; opacity: 0.7;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Soin anti-âge</div>
+              <div style="font-size: 11px; color: #6b7280;">8 avr. · 16h00 · Marie D.</div>
+            </div>
+            <span style="font-size: 10px; color: #52b788; font-weight: 600;">✓ OK</span>
+          </div>
+        </div>
+        <div style="background: white; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; opacity: 0.7;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Massage relaxant</div>
+              <div style="font-size: 11px; color: #6b7280;">1 avr. · 11h00 · Sophie L.</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 10px; color: #999; font-weight: 600;">NO-SHOW</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NO-SHOW button on past booking -->
+        <div style="margin-top: 8px; text-align: center;">
+          <div style="background: #fef2f2; border: 1px dashed #fca5a5; border-radius: 8px; padding: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #dc2626; font-weight: 500; cursor: pointer;">
+            ⚠️ Bouton "No-Show" visible sur chaque RDV passé non traité
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Timeline chronologique</h3>
+      <p>Les RDV sont regroupés en 3 sections : <strong>Aujourd'hui</strong> (carte en vedette, dégradé rose), <strong>À venir</strong>, <strong>Passés</strong>. Le bouton No-Show apparaît comme action contextuelle sur chaque RDV passé avec statut CONFIRMED (swipe ou menu ⋯). La section s'intègre comme un nouveau bloc entre le header client et les visites.</p>
+      <div class="pros-cons" style="margin-top: 8px;">
+        <div class="pros"><h4>✓ Avantages</h4><ul><li>Vue d'ensemble claire et rapide</li><li>RDV du jour immédiatement visible</li><li>No-Show contextuel par RDV</li></ul></div>
+        <div class="cons"><h4>✗ Limites</h4><ul><li>Peut allonger la page si beaucoup de RDV</li><li>Nécessite un "Voir tout" pour limiter</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPOSITION B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; overflow: hidden;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f2; padding: 16px;">
+
+        <!-- Tabs -->
+        <div style="display: flex; gap: 0; margin-bottom: 12px; background: #e5e5e5; border-radius: 10px; padding: 3px;">
+          <div style="flex: 1; text-align: center; padding: 6px; font-size: 11px; font-weight: 600; background: white; border-radius: 8px; color: #c06; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">À venir (2)</div>
+          <div style="flex: 1; text-align: center; padding: 6px; font-size: 11px; font-weight: 500; color: #6b7280;">Passés (3)</div>
+        </div>
+
+        <!-- TODAY banner -->
+        <div style="background: #fff0f6; border: 1.5px solid #c06; border-radius: 12px; padding: 12px; margin-bottom: 8px; position: relative;">
+          <div style="position: absolute; top: -8px; left: 12px; background: #c06; color: white; font-size: 9px; font-weight: 700; padding: 1px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Aujourd'hui</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: #1a1a2e;">Soin visage hydratant</div>
+              <div style="font-size: 11px; color: #6b7280;">14h30 · 60 min · Marie D.</div>
+            </div>
+            <span style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600;">CONFIRMÉ</span>
+          </div>
+        </div>
+
+        <!-- Next upcoming -->
+        <div style="background: white; border-radius: 10px; padding: 10px 12px; margin-bottom: 4px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Épilation sourcils</div>
+              <div style="font-size: 11px; color: #6b7280;">22 avr. · 10h00 · Sophie L.</div>
+            </div>
+            <span style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600;">CONFIRMÉ</span>
+          </div>
+        </div>
+
+        <!-- Divider hint for "Passés" tab content -->
+        <div style="margin-top: 12px; background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 8px; padding: 10px; text-align: center;">
+          <div style="font-size: 11px; color: #9ca3af;">Onglet <strong>Passés</strong> : liste avec bouton No-Show</div>
+          <div style="margin-top: 8px; display: flex; gap: 6px; justify-content: center;">
+            <div style="background: white; border-radius: 8px; padding: 6px 10px; font-size: 10px; display: flex; align-items: center; gap: 4px; border: 1px solid #e5e7eb;">
+              <span>Soin anti-âge · 8 avr.</span>
+              <span style="color: #52b788; font-weight: 600;">✓</span>
+            </div>
+            <div style="background: white; border-radius: 8px; padding: 6px 10px; font-size: 10px; display: flex; align-items: center; gap: 4px; border: 1px solid #fca5a5;">
+              <span>Massage · 1 avr.</span>
+              <button style="background: #dc2626; color: white; border: none; border-radius: 4px; font-size: 9px; padding: 2px 6px; font-weight: 600; cursor: pointer;">NO-SHOW</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Onglets À venir / Passés</h3>
+      <p>Deux onglets segmented : <strong>À venir</strong> (avec badge du jour en vedette) et <strong>Passés</strong>. Le bouton No-Show est un <strong>bouton rouge explicite</strong> sur chaque RDV passé CONFIRMED. L'onglet actif montre le compteur. Compact, ne surcharge pas la page.</p>
+      <div class="pros-cons" style="margin-top: 8px;">
+        <div class="pros"><h4>✓ Avantages</h4><ul><li>Très compact, pas de scroll</li><li>Séparation nette passé/futur</li><li>Bouton No-Show bien visible</li></ul></div>
+        <div class="cons"><h4>✗ Limites</h4><ul><li>Pas de vue globale en un coup d'œil</li><li>Un clic supplémentaire pour voir les passés</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPOSITION C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; overflow: hidden;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f2; padding: 16px;">
+
+        <!-- Compact summary bar -->
+        <div style="background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-around; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+          <div>
+            <div style="font-size: 18px; font-weight: 800; color: #c06;">5</div>
+            <div style="font-size: 9px; color: #6b7280; font-weight: 500;">Total RDV</div>
+          </div>
+          <div style="border-left: 1px solid #e5e7eb;"></div>
+          <div>
+            <div style="font-size: 18px; font-weight: 800; color: #52b788;">3</div>
+            <div style="font-size: 9px; color: #6b7280; font-weight: 500;">Honorés</div>
+          </div>
+          <div style="border-left: 1px solid #e5e7eb;"></div>
+          <div>
+            <div style="font-size: 18px; font-weight: 800; color: #dc2626;">1</div>
+            <div style="font-size: 9px; color: #6b7280; font-weight: 500;">No-Show</div>
+          </div>
+          <div style="border-left: 1px solid #e5e7eb;"></div>
+          <div>
+            <div style="font-size: 18px; font-weight: 800; color: #fb923c;">1</div>
+            <div style="font-size: 9px; color: #6b7280; font-weight: 500;">Annulé</div>
+          </div>
+        </div>
+
+        <!-- TODAY -->
+        <div style="background: linear-gradient(135deg, #c06 0%, #e84393 100%); border-radius: 12px; padding: 12px; margin-bottom: 8px; color: white;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 4px;">★ Aujourd'hui · 14h30</div>
+              <div style="font-size: 14px; font-weight: 700;">Soin visage hydratant</div>
+              <div style="font-size: 11px; opacity: 0.9; margin-top: 2px;">60 min · Marie D.</div>
+            </div>
+            <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 600;">CONFIRMÉ</span>
+          </div>
+        </div>
+
+        <!-- Unified timeline with status dots -->
+        <div style="position: relative; padding-left: 20px;">
+          <!-- Vertical line -->
+          <div style="position: absolute; left: 6px; top: 4px; bottom: 4px; width: 2px; background: #e5e7eb;"></div>
+
+          <!-- Future -->
+          <div style="position: relative; margin-bottom: 8px;">
+            <div style="position: absolute; left: -17px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #52b788; border: 2px solid white;"></div>
+            <div style="background: white; border-radius: 8px; padding: 8px 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Épilation sourcils</div>
+                  <div style="font-size: 10px; color: #6b7280;">22 avr. · 10h00</div>
+                </div>
+                <span style="font-size: 10px; color: #52b788; font-weight: 600;">CONFIRMÉ</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Past confirmed -->
+          <div style="position: relative; margin-bottom: 8px;">
+            <div style="position: absolute; left: -17px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #52b788; border: 2px solid white;"></div>
+            <div style="background: white; border-radius: 8px; padding: 8px 10px; opacity: 0.65;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Soin anti-âge</div>
+                  <div style="font-size: 10px; color: #6b7280;">8 avr. · 16h00</div>
+                </div>
+                <span style="font-size: 10px; color: #52b788; font-weight: 600;">✓</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Past no-show -->
+          <div style="position: relative; margin-bottom: 8px;">
+            <div style="position: absolute; left: -17px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #dc2626; border: 2px solid white;"></div>
+            <div style="background: #fef2f2; border-radius: 8px; padding: 8px 10px; opacity: 0.65; border-left: 3px solid #dc2626;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Massage relaxant</div>
+                  <div style="font-size: 10px; color: #6b7280;">1 avr. · 11h00</div>
+                </div>
+                <span style="font-size: 10px; color: #dc2626; font-weight: 600;">NO-SHOW</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Past - needs action -->
+          <div style="position: relative;">
+            <div style="position: absolute; left: -17px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: #fb923c; border: 2px solid white; animation: pulse 2s infinite;"></div>
+            <div style="background: #fffbeb; border-radius: 8px; padding: 8px 10px; border-left: 3px solid #fb923c;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">Gommage corps</div>
+                  <div style="font-size: 10px; color: #6b7280;">25 mars · 15h00</div>
+                </div>
+                <button style="background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 10px; padding: 4px 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px;">⚠ No-Show</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <style>@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }</style>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Timeline unifiée + compteurs</h3>
+      <p>Barre de <strong>statistiques en haut</strong> (total, honorés, no-show, annulés), puis le RDV du jour en vedette, puis une <strong>timeline verticale</strong> mélangeant passés et futurs par ordre chrono. Les RDV passés CONFIRMED non traités ont un <strong>bouton No-Show orange pulsant</strong> qui attire l'attention. Les dots colorés sur la timeline indiquent le statut d'un coup d'œil.</p>
+      <div class="pros-cons" style="margin-top: 8px;">
+        <div class="pros"><h4>✓ Avantages</h4><ul><li>Vue complète en un seul scroll</li><li>Statistiques client immédiates</li><li>No-Show très visible (pulsation)</li><li>Timeline intuitive et visuelle</li></ul></div>
+        <div class="cons"><h4>✗ Limites</h4><ul><li>Plus dense visuellement</li><li>Nécessite pagination si +20 RDV</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top: 16px; padding: 12px 16px; background: #f0f9ff; border-radius: 10px; border: 1px solid #bae6fd;">
+  <p style="font-size: 13px; color: #0369a1; margin: 0;"><strong>Ma recommandation :</strong> Option C (Timeline unifiée + compteurs). Elle offre la meilleure vue d'ensemble avec les stats client, le RDV du jour bien en vue, et le bouton No-Show impossible à manquer. C'est aussi la plus cohérente avec l'esthétique existante de Pretty Face (cartes arrondies, dégradés roses).</p>
+</div>

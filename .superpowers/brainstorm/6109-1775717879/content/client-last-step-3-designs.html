@@ -1,0 +1,151 @@
+<h2>Client en derniere etape du booking</h2>
+<p class="subtitle">Le PRO remplit la reservation d'abord, puis associe/cree le client a la fin</p>
+
+<div class="split" style="gap:16px;">
+
+  <!-- DESIGN A: Inline dans le formulaire -->
+  <div class="mockup" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">A. Section client en bas du formulaire</div>
+    <div class="mockup-body" style="background:#f5f4f2;padding:16px;min-height:520px;font-family:system-ui,sans-serif;">
+      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:14px;">Nouveau rendez-vous</div>
+
+      <!-- Filled fields (recap) -->
+      <div style="background:white;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#1a1a2e;">Soin visage hydratant</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px;">14 avril · 14h30 · Sophie D.</div>
+          </div>
+          <span style="font-size:10px;padding:3px 8px;background:#f0fdf4;color:#166534;border-radius:8px;">45 min</span>
+        </div>
+      </div>
+
+      <!-- Client section - the last step -->
+      <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px;">Pour quel client ?</div>
+
+      <!-- Search -->
+      <div style="background:white;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);margin-bottom:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span style="font-size:13px;color:#9ca3af;">Rechercher par nom ou telephone</span>
+      </div>
+
+      <!-- Suggestions -->
+      <div style="font-size:10px;color:#9ca3af;text-transform:uppercase;margin-bottom:6px;">Clients recents</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+        <div style="background:white;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,0.04);cursor:pointer;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;">ML</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">Marie Leroy</div><div style="font-size:10px;color:#6b7280;">06 12 34 56 78</div></div>
+        </div>
+        <div style="background:white;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,0.04);cursor:pointer;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#dda0b5;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;">JP</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:500;">Jean Petit</div><div style="font-size:10px;color:#6b7280;">06 55 44 33 22</div></div>
+        </div>
+      </div>
+
+      <!-- Create button -->
+      <button style="width:100%;padding:12px;background:white;border:2px dashed #fda4af;border-radius:10px;font-size:13px;color:#c06;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nouveau client
+      </button>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Dialog/modal apres validation -->
+  <div class="mockup" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">B. Dialog modale apres "Confirmer"</div>
+    <div class="mockup-body" style="background:rgba(0,0,0,0.4);padding:16px;min-height:520px;font-family:system-ui,sans-serif;display:flex;align-items:center;">
+
+      <!-- Modal -->
+      <div style="background:white;border-radius:16px;padding:20px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+        <div style="font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Associer un client</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:16px;">Soin visage · 14 avril · 14h30</div>
+
+        <!-- Search -->
+        <div style="background:#f5f4f2;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span style="font-size:13px;color:#9ca3af;">Nom ou telephone</span>
+        </div>
+
+        <!-- Results -->
+        <div style="max-height:180px;overflow-y:auto;margin-bottom:12px;">
+          <div style="padding:10px;display:flex;align-items:center;gap:10px;border-radius:8px;cursor:pointer;margin-bottom:2px;background:#fdf2f8;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">ML</div>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;">Marie Leroy</div><div style="font-size:11px;color:#6b7280;">06 12 34 56 78 · 3 visites</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div style="padding:10px;display:flex;align-items:center;gap:10px;border-radius:8px;cursor:pointer;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#dda0b5;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">JP</div>
+            <div><div style="font-size:13px;font-weight:600;">Jean Petit</div><div style="font-size:11px;color:#6b7280;">06 55 44 33 22</div></div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #f3f4f6;padding-top:12px;display:flex;gap:8px;">
+          <button style="flex:1;padding:12px;background:#f5f4f2;border:none;border-radius:10px;font-size:13px;color:#333;font-weight:500;cursor:pointer;">+ Nouveau client</button>
+          <button style="flex:1;padding:12px;background:#c06;border:none;border-radius:10px;font-size:13px;color:white;font-weight:600;cursor:pointer;">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Stepper final step -->
+  <div class="mockup" data-choice="c" onclick="toggleSelect(this)" style="cursor:pointer;flex:1;">
+    <div class="mockup-header">C. Stepper — derniere etape</div>
+    <div class="mockup-body" style="background:#f5f4f2;padding:16px;min-height:520px;font-family:system-ui,sans-serif;">
+      <!-- Progress -->
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:16px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">✓</div>
+        <div style="flex:1;height:2px;background:#c06;"></div>
+        <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;">3</div>
+      </div>
+
+      <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:4px;">Qui est le client ?</div>
+      <div style="font-size:12px;color:#6b7280;margin-bottom:16px;">Soin visage · 14 avr. · 14h30 · Sophie D.</div>
+
+      <!-- Two big choice cards -->
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+
+        <!-- Existing client -->
+        <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;border:2px solid #c06;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#fdf2f8;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c06" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#1a1a2e;">Client existant</div>
+              <div style="font-size:11px;color:#6b7280;">Rechercher dans vos clients</div>
+            </div>
+          </div>
+          <!-- Inline search shown when selected -->
+          <div style="background:#f5f4f2;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span style="font-size:12px;color:#333;">Mar</span>
+          </div>
+          <div style="margin-top:6px;padding:8px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#c06;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:10px;">ML</div>
+            <div style="font-size:12px;font-weight:500;">Marie Leroy · 06 12 34 56 78</div>
+          </div>
+        </div>
+
+        <!-- New client -->
+        <div style="background:white;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);cursor:pointer;border:2px solid transparent;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#1a1a2e;">Nouveau client</div>
+              <div style="font-size:11px;color:#6b7280;">Creer une fiche avec nom + telephone</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Confirm -->
+      <button style="width:100%;padding:14px;background:#c06;border:none;border-radius:12px;font-size:14px;color:white;font-weight:600;cursor:pointer;">Confirmer le rendez-vous</button>
+    </div>
+  </div>
+
+</div>

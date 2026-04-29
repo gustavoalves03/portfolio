@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Lux Pretty — styles typographiques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display&family=Italiana&family=Cinzel:wght@400;600&family=Poppins:wght@300;500;700&family=Inter:wght@300;600&family=Marcellus&family=Great+Vibes&family=Tangerine:wght@700&family=Pinyon+Script&family=Dancing+Script:wght@500&family=Fraunces:ital,wght@0,300;0,700;1,400&family=Cormorant+Upright:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #faf7f4;
+    color: #2a2124;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px 120px;
+  }
+  .intro {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .intro h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #8a7377;
+    margin: 0 0 8px;
+  }
+  .intro p {
+    margin: 0;
+    font-size: 15px;
+    color: #6a5a5d;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 780px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #ece3e0;
+    border-radius: 14px;
+    padding: 48px 32px 28px;
+    cursor: pointer;
+    transition: border-color 200ms, box-shadow 200ms, transform 200ms;
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+  }
+  .card:hover {
+    border-color: #c9aaa6;
+    box-shadow: 0 6px 24px rgba(120, 70, 70, 0.08);
+    transform: translateY(-2px);
+  }
+  .card.selected {
+    border-color: #a8625f;
+    box-shadow: 0 0 0 3px rgba(168, 98, 95, 0.12);
+  }
+  .wordmark {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0 32px;
+    text-align: center;
+  }
+  .label {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid #f3e9e6;
+  }
+  .label .letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f3e9e6;
+    color: #a8625f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+  }
+  .label .name {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8a7377;
+  }
+  .label .mood {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #b39794;
+    font-style: italic;
+  }
+
+  /* ── Variant styles ── */
+
+  /* A. Serif classique — Playfair Display */
+  .variant-a {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 54px;
+    letter-spacing: 0.01em;
+    color: #2a2124;
+  }
+  .variant-a .accent { font-style: italic; font-weight: 400; }
+
+  /* B. Italique éditorial — Cormorant Garamond italic */
+  .variant-b {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 62px;
+    color: #3a2a2d;
+    letter-spacing: 0.005em;
+  }
+
+  /* C. Script élégant — Pinyon Script + Marcellus */
+  .variant-c {
+    line-height: 1;
+  }
+  .variant-c .lux {
+    font-family: 'Pinyon Script', cursive;
+    font-size: 78px;
+    color: #a8625f;
+    display: block;
+    transform: translateX(-4px);
+  }
+  .variant-c .pretty {
+    font-family: 'Marcellus', serif;
+    font-size: 22px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #3a2a2d;
+    display: block;
+    margin-top: -6px;
+  }
+
+  /* D. Moderne épuré — Poppins light + bold contrast */
+  .variant-d {
+    font-family: 'Poppins', sans-serif;
+    font-size: 44px;
+    color: #2a2124;
+    letter-spacing: -0.01em;
+  }
+  .variant-d .lux { font-weight: 700; }
+  .variant-d .pretty { font-weight: 300; }
+
+  /* E. High-fashion — Italiana all-caps espacée */
+  .variant-e {
+    font-family: 'Italiana', serif;
+    font-size: 46px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #3a2a2d;
+  }
+
+  /* F. Contemporain chaud — Fraunces variable */
+  .variant-f {
+    font-family: 'Fraunces', serif;
+    font-size: 52px;
+    color: #2a2124;
+    letter-spacing: -0.01em;
+  }
+  .variant-f .lux { font-weight: 700; font-style: normal; }
+  .variant-f .pretty { font-weight: 300; font-style: italic; color: #a8625f; }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="intro">
+    <h1>Wordmark — Lux Pretty</h1>
+    <p>Six styles typographiques pour la marque. Clique sur le préféré — tu peux en essayer plusieurs avant de te décider.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- A -->
+    <div class="card" data-choice="a" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-a"><span>Lux</span> <span class="accent">Pretty</span></div>
+      </div>
+      <div class="label">
+        <div class="letter">A</div>
+        <div class="name">Serif éditorial</div>
+        <div class="mood">chic, magazine</div>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="card" data-choice="b" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-b">Lux Pretty</div>
+      </div>
+      <div class="label">
+        <div class="letter">B</div>
+        <div class="name">Italique classique</div>
+        <div class="mood">romantique, intime</div>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div class="card" data-choice="c" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-c">
+          <span class="lux">Lux</span>
+          <span class="pretty">Pretty</span>
+        </div>
+      </div>
+      <div class="label">
+        <div class="letter">C</div>
+        <div class="name">Script + capitales</div>
+        <div class="mood">luxe, couture</div>
+      </div>
+    </div>
+
+    <!-- D -->
+    <div class="card" data-choice="d" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-d"><span class="lux">Lux</span> <span class="pretty">Pretty</span></div>
+      </div>
+      <div class="label">
+        <div class="letter">D</div>
+        <div class="name">Sans contrasté</div>
+        <div class="mood">minimal, contemporain</div>
+      </div>
+    </div>
+
+    <!-- E -->
+    <div class="card" data-choice="e" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-e">Lux Pretty</div>
+      </div>
+      <div class="label">
+        <div class="letter">E</div>
+        <div class="name">Italiana capitales</div>
+        <div class="mood">haute couture</div>
+      </div>
+    </div>
+
+    <!-- F -->
+    <div class="card" data-choice="f" onclick="toggleSelect(this)">
+      <div class="wordmark">
+        <div class="variant-f"><span class="lux">Lux</span> <span class="pretty">Pretty</span></div>
+      </div>
+      <div class="label">
+        <div class="letter">F</div>
+        <div class="name">Fraunces mix</div>
+        <div class="mood">moderne, organique</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

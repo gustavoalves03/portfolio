@@ -1,0 +1,305 @@
+<h2>Swipe-to-dismiss notification — 3 variantes visuelles</h2>
+<p class="subtitle">L'utilisateur glisse la card vers la droite → notif marquée comme lue (disparaît du feed, reste en historique). Montré en état "mid-swipe" (~60% du geste).</p>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .phone {
+    width: 100%;
+    aspect-ratio: 9 / 18;
+    border: 2px solid #333;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #f5f4f2;
+    position: relative;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(204,0,102,0.15); }
+  .ph-header {
+    background: white;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .ph-body {
+    flex: 1;
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* notif wrapper + card */
+  .notif-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+  }
+  .notif-card {
+    background: white;
+    padding: 10px 12px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    position: relative;
+    z-index: 2;
+  }
+  .notif-icon {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #fff0f5;
+    color: #c06;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .notif-content { flex: 1; min-width: 0; }
+  .notif-title { font-size: 11px; font-weight: 600; color: #333; }
+  .notif-msg { font-size: 10px; color: #666; margin-top: 2px; line-height: 1.4; }
+  .notif-time { font-size: 9px; color: #999; margin-top: 3px; }
+
+  /* mid-swipe: translate card 60% to the right */
+  .swiped {
+    transform: translateX(60%);
+    transition: transform 180ms ease;
+  }
+
+  /* background revealed during swipe */
+  .notif-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    z-index: 1;
+  }
+
+  .tag {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: white;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #c06;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 10;
+  }
+
+  /* ===== Variant A: Vert doux + icône ✓ ===== */
+  .bg-a {
+    background: linear-gradient(90deg, #a7f3d0 0%, #6ee7b7 100%);
+    padding-left: 12px;
+  }
+  .bg-a .bg-icon {
+    color: #065f46;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  /* ===== Variant B: Rose nacré + "Lu" ===== */
+  .bg-b {
+    background: linear-gradient(90deg, #fce8ee 0%, #f9b6cc 100%);
+    padding-left: 14px;
+  }
+  .bg-b .bg-text {
+    color: #8b1f3f;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .bg-b .bg-text-icon { font-size: 14px; }
+
+  /* ===== Variant C: Minimaliste, fade out sans fond ===== */
+  .bg-c { background: transparent; }
+  .swiped-c {
+    transform: translateX(60%);
+    opacity: 0.4;
+    transition: transform 200ms ease, opacity 200ms ease;
+  }
+</style>
+
+<div class="cards">
+
+  <!-- === VARIANT A === -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #eee; position: relative;">
+      <div class="tag">A</div>
+      <div class="phone">
+        <div class="ph-header">
+          <span>🔔</span>
+          <span>Notifications</span>
+        </div>
+        <div class="ph-body">
+          <!-- 1st notif not swiped -->
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">📅</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau RDV</div>
+                <div class="notif-msg">Marie D. a réservé un soin visage</div>
+                <div class="notif-time">il y a 5 min</div>
+              </div>
+            </div>
+          </div>
+          <!-- 2nd notif mid-swipe -->
+          <div class="notif-wrap">
+            <div class="notif-bg bg-a">
+              <div class="bg-icon">✓</div>
+            </div>
+            <div class="notif-card swiped">
+              <div class="notif-icon">💬</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau message</div>
+                <div class="notif-msg">Julie R. vous a écrit</div>
+                <div class="notif-time">il y a 2h</div>
+              </div>
+            </div>
+          </div>
+          <!-- 3rd -->
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">⭐</div>
+              <div class="notif-content">
+                <div class="notif-title">Avis reçu</div>
+                <div class="notif-msg">Anna M. a noté votre prestation</div>
+                <div class="notif-time">hier</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Vert doux + ✓</h3>
+      <p>Fond vert dégradé avec icône check. Sémantique claire "validé/lu". Feedback visuel explicite.</p>
+    </div>
+  </div>
+
+  <!-- === VARIANT B === -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #eee; position: relative;">
+      <div class="tag">B</div>
+      <div class="phone">
+        <div class="ph-header">
+          <span>🔔</span>
+          <span>Notifications</span>
+        </div>
+        <div class="ph-body">
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">📅</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau RDV</div>
+                <div class="notif-msg">Marie D. a réservé un soin visage</div>
+                <div class="notif-time">il y a 5 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="notif-wrap">
+            <div class="notif-bg bg-b">
+              <div class="bg-text">
+                <span class="bg-text-icon">👁</span>
+                <span>Lu</span>
+              </div>
+            </div>
+            <div class="notif-card swiped">
+              <div class="notif-icon">💬</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau message</div>
+                <div class="notif-msg">Julie R. vous a écrit</div>
+                <div class="notif-time">il y a 2h</div>
+              </div>
+            </div>
+          </div>
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">⭐</div>
+              <div class="notif-content">
+                <div class="notif-title">Avis reçu</div>
+                <div class="notif-msg">Anna M. a noté votre prestation</div>
+                <div class="notif-time">hier</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Rose nacré + "Lu"</h3>
+      <p>Aligné esthétique "Pretty Face". Texte "Lu" + icône œil. Élégant et cohérent avec le branding.</p>
+    </div>
+  </div>
+
+  <!-- === VARIANT C === -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 14px; background: #eee; position: relative;">
+      <div class="tag">C</div>
+      <div class="phone">
+        <div class="ph-header">
+          <span>🔔</span>
+          <span>Notifications</span>
+        </div>
+        <div class="ph-body">
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">📅</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau RDV</div>
+                <div class="notif-msg">Marie D. a réservé un soin visage</div>
+                <div class="notif-time">il y a 5 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="notif-wrap">
+            <div class="notif-card swiped-c">
+              <div class="notif-icon">💬</div>
+              <div class="notif-content">
+                <div class="notif-title">Nouveau message</div>
+                <div class="notif-msg">Julie R. vous a écrit</div>
+                <div class="notif-time">il y a 2h</div>
+              </div>
+            </div>
+          </div>
+          <div class="notif-wrap">
+            <div class="notif-card">
+              <div class="notif-icon">⭐</div>
+              <div class="notif-content">
+                <div class="notif-title">Avis reçu</div>
+                <div class="notif-msg">Anna M. a noté votre prestation</div>
+                <div class="notif-time">hier</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Minimaliste (fade)</h3>
+      <p>Pas de fond, la card glisse et s'estompe progressivement. Silencieux, pur geste. Moins guidé.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,361 @@
+<h2>Design de la page Historique des bookings (mobile 375px)</h2>
+<p class="subtitle">3 variantes de layout pour les filtres et la présentation des items. Clique sur celle qui te parle.</p>
+
+<style>
+  .row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 12px;
+  }
+  .phone {
+    width: 100%;
+    aspect-ratio: 9 / 19;
+    border: 2px solid #333;
+    border-radius: 24px;
+    background: #f5f4f2;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 9px;
+  }
+  .phone:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(204,0,102,0.15); }
+  .phone .ph-header {
+    background: white;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #eee;
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .phone .ph-back { color: #666; font-size: 14px; }
+  .phone .ph-title { font-size: 13px; font-weight: 600; color: #333; flex: 1; }
+  .phone .ph-body {
+    flex: 1;
+    overflow: hidden;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Booking card */
+  .bk {
+    background: white;
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .bk-time { font-weight: 600; color: #c06; font-size: 10px; min-width: 38px; }
+  .bk-info { flex: 1; }
+  .bk-care { font-weight: 500; color: #333; font-size: 10px; }
+  .bk-ppl { font-size: 8px; color: #666; margin-top: 1px; }
+  .bk-status {
+    font-size: 7px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .bk-status.ok { background: #dcfce7; color: #166534; }
+  .bk-status.no { background: #fee2e2; color: #991b1b; }
+  .bk-status.cx { background: #f3f4f6; color: #6b7280; }
+  .bk-status.pd { background: #fef3c7; color: #92400e; }
+
+  .group-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+    padding: 0 2px;
+  }
+
+  .phone-label {
+    position: absolute; top: 8px; right: 10px;
+    background: white; padding: 2px 8px;
+    border-radius: 8px; font-size: 10px; font-weight: 700;
+    color: #c06;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 10;
+  }
+  .card-image { position: relative; padding: 12px; background: #eee; }
+
+  /* === Variant A: Toolbar horizontale === */
+  .var-a .search {
+    background: white; border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 9px;
+    color: #999;
+    display: flex; gap: 6px; align-items: center;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .var-a .filters-row {
+    display: flex; gap: 4px;
+    margin-bottom: 8px;
+    overflow-x: auto;
+  }
+  .var-a .chip {
+    background: white;
+    border: 1px solid #e5e5e5;
+    padding: 4px 8px;
+    border-radius: 14px;
+    font-size: 8px;
+    color: #555;
+    font-weight: 500;
+    white-space: nowrap;
+    display: flex; gap: 3px; align-items: center;
+  }
+  .var-a .chip.active {
+    background: #fff0f5; border-color: #c06; color: #c06;
+  }
+
+  /* === Variant B: Carte filtres expansable === */
+  .var-b .search-box {
+    background: white;
+    border-radius: 10px;
+    padding: 6px 10px;
+    display: flex; gap: 6px; align-items: center;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    font-size: 9px; color: #999;
+  }
+  .var-b .filter-card {
+    background: white;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .var-b .filter-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 9px;
+    border-bottom: 1px solid #f4f4f4;
+  }
+  .var-b .filter-row:last-child { border-bottom: none; }
+  .var-b .fr-label { color: #666; }
+  .var-b .fr-value { color: #333; font-weight: 500; }
+  .var-b .summary {
+    font-size: 8px;
+    color: #888;
+    margin: 4px 2px 8px;
+  }
+  .var-b .summary strong { color: #c06; }
+
+  /* === Variant C: Filtres en bottom bar + stats en haut === */
+  .var-c .stats-bar {
+    background: white;
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    text-align: center;
+  }
+  .var-c .stat-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c06;
+  }
+  .var-c .stat-lbl {
+    font-size: 7px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .var-c .search-line {
+    background: white;
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    font-size: 9px; color: #999;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .var-c .ph-bottom-bar {
+    background: white;
+    border-top: 1px solid #eee;
+    padding: 8px 10px;
+    display: flex; justify-content: space-around;
+    flex-shrink: 0;
+  }
+  .var-c .bb-item {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 8px; color: #666; gap: 2px;
+  }
+  .var-c .bb-icon {
+    width: 22px; height: 22px;
+    background: #fff0f5;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #c06;
+    font-size: 10px;
+  }
+  .var-c .bb-item.active .bb-icon { background: #c06; color: white; }
+  .var-c .bb-item.active { color: #c06; font-weight: 600;}
+</style>
+
+<div class="cards">
+
+  <!-- === VARIANT A === -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone-label">A</div>
+      <div class="phone var-a">
+        <div class="ph-header">
+          <span class="ph-back">←</span>
+          <span class="ph-title">Historique</span>
+        </div>
+        <div class="ph-body">
+          <div class="search">🔍 Rechercher un client...</div>
+          <div class="filters-row">
+            <div class="chip active">30 jours ▾</div>
+            <div class="chip">Statut: Tous ▾</div>
+            <div class="chip">Employé ▾</div>
+          </div>
+          <div class="group-label">JEU 17/04/2026</div>
+          <div class="bk">
+            <div class="bk-time">14:30</div>
+            <div class="bk-info">
+              <div class="bk-care">Soin visage</div>
+              <div class="bk-ppl">Marie D. · Sophie</div>
+            </div>
+            <div class="bk-status ok">Fait</div>
+          </div>
+          <div class="bk">
+            <div class="bk-time">11:00</div>
+            <div class="bk-info">
+              <div class="bk-care">Massage dos</div>
+              <div class="bk-ppl">Julie R. · Léa</div>
+            </div>
+            <div class="bk-status no">No-show</div>
+          </div>
+          <div class="group-label">MER 16/04/2026</div>
+          <div class="bk">
+            <div class="bk-time">16:00</div>
+            <div class="bk-info">
+              <div class="bk-care">Gommage corps</div>
+              <div class="bk-ppl">Anna M. · Sophie</div>
+            </div>
+            <div class="bk-status cx">Annulé</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Toolbar horizontale</h3>
+      <p>Filtres en chips scrollables en haut. Direct, rapide, accès en 1 tap.</p>
+    </div>
+  </div>
+
+  <!-- === VARIANT B === -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone-label">B</div>
+      <div class="phone var-b">
+        <div class="ph-header">
+          <span class="ph-back">←</span>
+          <span class="ph-title">Historique</span>
+        </div>
+        <div class="ph-body">
+          <div class="search-box">🔍 Rechercher un client...</div>
+          <div class="filter-card">
+            <div class="filter-row"><span class="fr-label">Période</span><span class="fr-value">30 derniers jours ›</span></div>
+            <div class="filter-row"><span class="fr-label">Statut</span><span class="fr-value">Tous ›</span></div>
+            <div class="filter-row"><span class="fr-label">Employé</span><span class="fr-value">Tous ›</span></div>
+          </div>
+          <div class="summary"><strong>27 rendez-vous</strong> entre le 19/03 et le 18/04</div>
+          <div class="group-label">JEU 17/04/2026</div>
+          <div class="bk">
+            <div class="bk-time">14:30</div>
+            <div class="bk-info">
+              <div class="bk-care">Soin visage</div>
+              <div class="bk-ppl">Marie D. · Sophie</div>
+            </div>
+            <div class="bk-status ok">Fait</div>
+          </div>
+          <div class="bk">
+            <div class="bk-time">11:00</div>
+            <div class="bk-info">
+              <div class="bk-care">Massage dos</div>
+              <div class="bk-ppl">Julie R. · Léa</div>
+            </div>
+            <div class="bk-status no">No-show</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Carte filtres + résumé</h3>
+      <p>Filtres empilés dans une carte claire + compteur sous les filtres. Lisibilité maximum.</p>
+    </div>
+  </div>
+
+  <!-- === VARIANT C === -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="phone-label">C</div>
+      <div class="phone var-c">
+        <div class="ph-header">
+          <span class="ph-back">←</span>
+          <span class="ph-title">Historique</span>
+          <span style="font-size:13px;color:#c06">⚙</span>
+        </div>
+        <div class="ph-body">
+          <div class="stats-bar">
+            <div>
+              <div class="stat-val">18</div>
+              <div class="stat-lbl">Faits</div>
+            </div>
+            <div>
+              <div class="stat-val">5</div>
+              <div class="stat-lbl">Annulés</div>
+            </div>
+            <div>
+              <div class="stat-val">4</div>
+              <div class="stat-lbl">No-show</div>
+            </div>
+          </div>
+          <div class="search-line">🔍 Rechercher un client...</div>
+          <div class="group-label">JEU 17/04/2026</div>
+          <div class="bk">
+            <div class="bk-time">14:30</div>
+            <div class="bk-info">
+              <div class="bk-care">Soin visage</div>
+              <div class="bk-ppl">Marie D. · Sophie</div>
+            </div>
+            <div class="bk-status ok">Fait</div>
+          </div>
+          <div class="bk">
+            <div class="bk-time">11:00</div>
+            <div class="bk-info">
+              <div class="bk-care">Massage dos</div>
+              <div class="bk-ppl">Julie R. · Léa</div>
+            </div>
+            <div class="bk-status no">No-show</div>
+          </div>
+        </div>
+        <div class="ph-bottom-bar">
+          <div class="bb-item active"><div class="bb-icon">📋</div>Historique</div>
+          <div class="bb-item"><div class="bb-icon">📅</div>Période</div>
+          <div class="bb-item"><div class="bb-icon">⚡</div>Statut</div>
+          <div class="bb-item"><div class="bb-icon">👤</div>Employé</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Stats + filtres bottom bar</h3>
+      <p>Stats du range en haut (faits / annulés / no-show) + icône settings. Filtres déplacés dans une bottom bar flottante.</p>
+    </div>
+  </div>
+
+</div>

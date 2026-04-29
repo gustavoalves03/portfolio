@@ -1,0 +1,198 @@
+<h2>Quel style visuel pour la bottom sheet ?</h2>
+<p class="subtitle">Mockups à 75vh. Handle en haut, drag-to-dismiss, backdrop flouté. Clique pour sélectionner.</p>
+
+<style>
+  .sheet-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .phone {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 9 / 18;
+    border: 2px solid #333;
+    border-radius: 28px;
+    background: linear-gradient(180deg, #fff5f7 0%, #fce8ee 100%);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .phone:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(204,0,102,0.15); }
+  .phone .backdrop {
+    position: absolute; inset: 0;
+    background: rgba(40, 20, 30, 0.28);
+    backdrop-filter: blur(6px);
+  }
+  .phone .bg-content {
+    position: absolute; inset: 0;
+    padding: 24px 14px 14px;
+    font-size: 10px; color: #8a6878;
+  }
+  .phone .bg-title { font-weight: 700; font-size: 12px; margin-bottom: 8px; color: #7a5868;}
+  .phone .bg-line { height: 4px; background: #e9c7d3; border-radius: 2px; margin-bottom: 6px; width: 80%; }
+  .phone .bg-line.short { width: 55%; }
+
+  .sheet {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 75%;
+    background: #fafafa;
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+  }
+  .handle {
+    width: 40px; height: 4px;
+    background: #c8c8c8;
+    border-radius: 3px;
+    margin: 10px auto 6px;
+  }
+  .sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 14px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+  }
+  .sheet-content {
+    padding: 4px 14px;
+    flex: 1;
+    font-size: 9px;
+    color: #666;
+  }
+  .chip { display:inline-block; background:#f1e4e9; padding:3px 8px; border-radius:10px; font-size:8px; color:#c06; margin-right:4px; }
+  .item-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #eee; font-size:9px;}
+  .cta { margin: 10px 14px 12px; padding: 8px; background: #c06; color:white; border-radius: 8px; text-align:center; font-size:10px; font-weight:600;}
+
+  /* === A: Minimal flat === */
+  .sheet-a { border-radius: 16px 16px 0 0; }
+  .sheet-a .handle { background: #ddd; }
+
+  /* === B: Nacre / rose soft === */
+  .sheet-b { border-radius: 22px 22px 0 0; background: linear-gradient(180deg, #fffbfc 0%, #fff 40%); border-top: 1px solid rgba(204,0,102,0.08);}
+  .sheet-b .handle { background: #e5b3c3; width: 44px; height: 5px; }
+  .sheet-b .sheet-header { color: #c06; }
+
+  /* === C: Floating card === */
+  .sheet-c {
+    left: 8px; right: 8px;
+    bottom: 8px;
+    border-radius: 20px;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+  .sheet-c .handle { background: #c8c8c8; }
+
+  .label-tag {
+    position: absolute; top: 8px; left: 12px;
+    background: white; padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px; font-weight: 700;
+    color: #c06;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    z-index: 10;
+  }
+</style>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f4f2;">
+      <div class="phone">
+        <div class="label-tag">A</div>
+        <div class="bg-content">
+          <div class="bg-title">Réservations</div>
+          <div class="bg-line"></div>
+          <div class="bg-line short"></div>
+          <div class="bg-line"></div>
+        </div>
+        <div class="backdrop"></div>
+        <div class="sheet sheet-a">
+          <div class="handle"></div>
+          <div class="sheet-header">
+            <span>Nouveau rendez-vous</span>
+            <span style="color:#999">✕</span>
+          </div>
+          <div class="sheet-content">
+            <div style="margin-bottom:8px;"><span class="chip">Soin</span><span class="chip">Date</span><span class="chip">Client</span></div>
+            <div class="item-row"><span>Soin visage</span><span>45min</span></div>
+            <div class="item-row"><span>Massage dos</span><span>30min</span></div>
+            <div class="item-row"><span>Gommage corps</span><span>60min</span></div>
+          </div>
+          <div class="cta">Suivant</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Minimal flat</h3>
+      <p>Coins arrondis 16px, fond gris clair neutre, handle gris discret. Sobre et rapide.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f4f2;">
+      <div class="phone">
+        <div class="label-tag">B</div>
+        <div class="bg-content">
+          <div class="bg-title">Réservations</div>
+          <div class="bg-line"></div>
+          <div class="bg-line short"></div>
+          <div class="bg-line"></div>
+        </div>
+        <div class="backdrop"></div>
+        <div class="sheet sheet-b">
+          <div class="handle"></div>
+          <div class="sheet-header">
+            <span>Nouveau rendez-vous</span>
+            <span style="color:#c06">✕</span>
+          </div>
+          <div class="sheet-content">
+            <div style="margin-bottom:8px;"><span class="chip">Soin</span><span class="chip">Date</span><span class="chip">Client</span></div>
+            <div class="item-row"><span>Soin visage</span><span>45min</span></div>
+            <div class="item-row"><span>Massage dos</span><span>30min</span></div>
+            <div class="item-row"><span>Gommage corps</span><span>60min</span></div>
+          </div>
+          <div class="cta">Suivant</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Nacre / rose soft</h3>
+      <p>Coins 22px, dégradé blanc-rosé, handle rose tendre, aligné esthétique "Pretty Face".</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #f5f4f2;">
+      <div class="phone">
+        <div class="label-tag">C</div>
+        <div class="bg-content">
+          <div class="bg-title">Réservations</div>
+          <div class="bg-line"></div>
+          <div class="bg-line short"></div>
+          <div class="bg-line"></div>
+        </div>
+        <div class="backdrop"></div>
+        <div class="sheet sheet-c">
+          <div class="handle"></div>
+          <div class="sheet-header">
+            <span>Nouveau rendez-vous</span>
+            <span style="color:#999">✕</span>
+          </div>
+          <div class="sheet-content">
+            <div style="margin-bottom:8px;"><span class="chip">Soin</span><span class="chip">Date</span><span class="chip">Client</span></div>
+            <div class="item-row"><span>Soin visage</span><span>45min</span></div>
+            <div class="item-row"><span>Massage dos</span><span>30min</span></div>
+            <div class="item-row"><span>Gommage corps</span><span>60min</span></div>
+          </div>
+          <div class="cta">Suivant</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Floating card</h3>
+      <p>Carte flottante avec marges 8px en bas/côtés, tous les coins arrondis, effet "posée" au-dessus du contenu.</p>
+    </div>
+  </div>
+</div>
