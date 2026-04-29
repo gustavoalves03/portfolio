@@ -61,6 +61,192 @@ $radius: 10px;
   color: #16a34a;
 }
 
+// ──── Onboarding (draft) ────
+.onboarding-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 32px;
+}
+
+.onboarding-welcome {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.onboarding-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+}
+
+.onboarding-sub {
+  font-size: 0.875rem;
+  color: #777;
+  margin: 0 0 18px;
+}
+
+.onboarding-progress {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.onboarding-progress-label {
+  font-size: 0.75rem;
+  color: $primary;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.onboarding-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #f0e6ec;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.onboarding-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary-light, $primary);
+  border-radius: 999px;
+  transition: width 350ms ease;
+}
+
+.onboarding-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.onboarding-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: white;
+  border: 1px solid #ececec;
+  border-radius: $radius;
+  text-decoration: none;
+  color: inherit;
+  transition: all 200ms ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $primary-light;
+    transform: translateY(-1px);
+    box-shadow: $shadow;
+  }
+
+  &.is-done {
+    background: #fafafa;
+    border-color: #ececec;
+
+    .onboarding-step-icon mat-icon {
+      color: #16a34a;
+    }
+
+    .onboarding-step-title {
+      color: #888;
+    }
+
+    .onboarding-step-desc {
+      color: #aaa;
+    }
+  }
+
+  &.is-next {
+    background: $primary-lighter;
+    border-color: $primary-light;
+    box-shadow: 0 2px 12px rgba(192, 0, 102, 0.08);
+
+    .onboarding-step-icon mat-icon {
+      color: $primary;
+    }
+
+    .onboarding-step-title {
+      color: $primary;
+      font-weight: 600;
+    }
+  }
+}
+
+.onboarding-step-icon {
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #ccc;
+    transition: color 200ms ease;
+  }
+}
+
+.onboarding-step-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.onboarding-step-title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.3;
+}
+
+.onboarding-step-desc {
+  font-size: 0.8125rem;
+  color: #888;
+  line-height: 1.3;
+}
+
+.onboarding-step-tag {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: $primary;
+  color: white;
+}
+
+.onboarding-step-tag-done {
+  background: #dcfce7;
+  color: $green-dark;
+}
+
+.onboarding-step-chevron {
+  flex-shrink: 0;
+  color: #bbb;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.publish-section {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.publish-hint {
+  font-size: 0.8125rem;
+  color: #888;
+  margin: 8px 0 0;
+}
+
 // ──── Filter Bar ────
 .filter-bar {
   position: sticky;

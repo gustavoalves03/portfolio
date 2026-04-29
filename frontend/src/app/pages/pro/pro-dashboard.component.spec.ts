@@ -6,11 +6,13 @@ import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
+import { patchState } from '@ngrx/signals';
 import { of } from 'rxjs';
 import { ProDashboardComponent } from './pro-dashboard.component';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import { AnalyticsResponse } from '../../features/analytics/analytics.model';
+import { TenantReadiness } from '../../features/dashboard/models/dashboard.model';
 
 function mockAnalytics(): AnalyticsResponse {
   return {
@@ -216,5 +218,126 @@ describe('ProDashboardComponent', () => {
     expect(h.days).toEqual([]);
     expect(h.cells).toEqual([]);
     expect(h.maxCount).toBe(0);
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // Onboarding checklist (DRAFT)
+  // ─────────────────────────────────────────────────────────────
+
+  describe('onboarding checklist', () => {
+    function setReadiness(partial: Partial<TenantReadiness>): void {
+      const r: TenantReadiness = {
+        slug: 'test-salon',
+        name: false,
+        hasCategory: false,
+        hasActiveCare: false,
+        hasOpeningHours: false,
+        canPublish: false,
+        status: 'DRAFT',
+        ...partial,
+      };
+      patchState(component.store as any, { readiness: r });
+    }
+
+    it('returns no steps when readiness is null', () => {
+      expect(component.checklistSteps()).toEqual([]);
+      expect(component.checklistDone()).toBe(0);
+      expect(component.checklistTotal()).toBe(0);
+      expect(component.nextStepKey()).toBeNull();
+      // Edge: no division-by-zero panic
+      expect(component.checklistProgressPercent()).toBe(0);
+    });
+
+    it('exposes 3 steps in fixed order: name, cares, openingHours', () => {
+      setReadiness({});
+      const keys = component.checklistSteps().map((s) => s.key);
+      expect(keys).toEqual(['name', 'cares', 'openingHours']);
+    });
+
+    it('zero done → next is the first step (name), progress 0%', () => {
+      setReadiness({});
+      expect(component.checklistDone()).toBe(0);
+      expect(component.nextStepKey()).toBe('name');
+      expect(component.checklistProgressPercent()).toBe(0);
+    });
+
+    it('only name done → next is cares, progress ~33%', () => {
+      setReadiness({ name: true });
+      expect(component.checklistDone()).toBe(1);
+      expect(component.nextStepKey()).toBe('cares');
+      expect(component.checklistProgressPercent()).toBe(33);
+    });
+
+    it('name+cares done → next is openingHours, progress ~67%', () => {
+      setReadiness({ name: true, hasActiveCare: true });
+      expect(component.checklistDone()).toBe(2);
+      expect(component.nextStepKey()).toBe('openingHours');
+      expect(component.checklistProgressPercent()).toBe(67);
+    });
+
+    it('all done → no next step, progress 100%', () => {
+      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true, canPublish: true });
+      expect(component.checklistDone()).toBe(3);
+      expect(component.nextStepKey()).toBeNull();
+      expect(component.checklistProgressPercent()).toBe(100);
+    });
+
+    // ─── Improbable / edge cases ───
+
+    it('out-of-order completion: only openingHours done → next falls back to name (the first uncompleted)', () => {
+      setReadiness({ hasOpeningHours: true });
+      expect(component.checklistDone()).toBe(1);
+      // The user "skipped" steps 1 and 2 — the highlighted next is still the first missing
+      expect(component.nextStepKey()).toBe('name');
+    });
+
+    it('only cares done → next is name (still the first uncompleted)', () => {
+      setReadiness({ hasActiveCare: true });
+      expect(component.nextStepKey()).toBe('name');
+      expect(component.checklistDone()).toBe(1);
+    });
+
+    it('inconsistent backend: canPublish=true but a step is unflagged → trust per-step flags', () => {
+      // Defensive: the UI relies on per-step booleans, not on canPublish, so even a
+      // contradictory canPublish doesn't lie about which step is missing.
+      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: false, canPublish: true });
+      expect(component.checklistDone()).toBe(2);
+      expect(component.nextStepKey()).toBe('openingHours');
+    });
+
+    it('hasCategory has no impact on the checklist (currently not displayed)', () => {
+      // `hasCategory` is in the readiness DTO but not part of the user-facing 3 steps.
+      // Toggling it must not change displayed state.
+      setReadiness({ hasCategory: true });
+      expect(component.checklistDone()).toBe(0);
+      expect(component.nextStepKey()).toBe('name');
+    });
+
+    it('readiness present but status=ACTIVE: computed signals still derive cleanly', () => {
+      // The template hides the checklist when status !== DRAFT, but the derived
+      // signals must remain side-effect-free regardless of status.
+      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true, status: 'ACTIVE', canPublish: true });
+      expect(component.checklistDone()).toBe(3);
+      expect(component.nextStepKey()).toBeNull();
+      expect(component.checklistProgressPercent()).toBe(100);
+    });
+
+    it('readiness toggled back from done to undone updates next/progress reactively', () => {
+      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true });
+      expect(component.checklistDone()).toBe(3);
+
+      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: false });
+      expect(component.checklistDone()).toBe(2);
+      expect(component.nextStepKey()).toBe('openingHours');
+      expect(component.checklistProgressPercent()).toBe(67);
+    });
+
+    it('each step has a unique routerLink to the editor screen', () => {
+      setReadiness({});
+      const links = component.checklistSteps().map((s) => s.link);
+      expect(links).toEqual(['/pro/salon', '/pro/cares', '/pro/planning']);
+      // No duplicates
+      expect(new Set(links).size).toBe(links.length);
+    });
   });
 });

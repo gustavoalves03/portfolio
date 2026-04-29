@@ -170,10 +170,19 @@
       "active": "Online",
       "checklist": {
         "title": "Set up your salon",
-        "name": "Salon name",
-        "categories": "At least one category",
-        "cares": "At least one active care",
-        "openingHours": "Opening hours"
+        "welcome": "Welcome to Pretty Face",
+        "welcomeSub": "A few steps to get your salon online.",
+        "progress": "{{ done }} of {{ total }} steps",
+        "name": "Set your salon's name",
+        "nameDesc": "The name shown to your clients on your public page.",
+        "categories": "Create at least one category",
+        "categoriesDesc": "Group your services by family (face, body...).",
+        "cares": "Add your first service",
+        "caresDesc": "At least one active service is required to publish.",
+        "openingHours": "Set your opening hours",
+        "openingHoursDesc": "Tell clients which days and times you welcome them.",
+        "next": "Next step",
+        "done": "Done"
       },
       "publish": "Publish my salon",
       "publishDisabledHint": "Complete the steps above to publish your salon",

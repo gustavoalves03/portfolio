@@ -174,10 +174,19 @@
       "active": "En ligne",
       "checklist": {
         "title": "Configurez votre salon",
-        "name": "Nom du salon",
-        "categories": "Au moins une catégorie",
-        "cares": "Au moins un soin actif",
-        "openingHours": "Horaires d'ouverture"
+        "welcome": "Bienvenue sur Pretty Face",
+        "welcomeSub": "Quelques étapes pour mettre votre salon en ligne.",
+        "progress": "{{ done }} sur {{ total }} étapes",
+        "name": "Renseigne le nom de ton salon",
+        "nameDesc": "Le nom affiché à tes clients sur la page publique.",
+        "categories": "Crée au moins une catégorie",
+        "categoriesDesc": "Regroupe tes soins par famille (visage, corps...).",
+        "cares": "Ajoute ton premier soin",
+        "caresDesc": "Au moins un soin actif est nécessaire pour publier.",
+        "openingHours": "Définis tes horaires d'ouverture",
+        "openingHoursDesc": "Indique les jours et heures où tu reçois.",
+        "next": "Étape suivante",
+        "done": "Fait"
       },
       "publish": "Publier mon salon",
       "publishDisabledHint": "Complétez les étapes ci-dessus pour publier votre salon",

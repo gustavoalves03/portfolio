@@ -19,50 +19,69 @@
     </div>
 
     @if (store.isDraft()) {
-      <!-- DRAFT: Checklist (existing) -->
-      <div class="p-6 max-w-3xl mx-auto">
-        <mat-card class="mb-6">
-          <mat-card-header>
-            <mat-card-title>{{ 'pro.dashboard.checklist.title' | transloco }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <mat-nav-list>
-              <a mat-list-item routerLink="/pro/salon">
-                <mat-icon matListItemIcon [class.done]="store.readiness()!.name">
-                  {{ store.readiness()!.name ? 'check_circle' : 'radio_button_unchecked' }}
-                </mat-icon>
-                <span matListItemTitle>{{ 'pro.dashboard.checklist.name' | transloco }}</span>
-                <mat-icon matListItemMeta>chevron_right</mat-icon>
-              </a>
-              <a mat-list-item routerLink="/pro/cares">
-                <mat-icon matListItemIcon [class.done]="store.readiness()!.hasActiveCare">
-                  {{ store.readiness()!.hasActiveCare ? 'check_circle' : 'radio_button_unchecked' }}
-                </mat-icon>
-                <span matListItemTitle>{{ 'pro.dashboard.checklist.cares' | transloco }}</span>
-                <mat-icon matListItemMeta>chevron_right</mat-icon>
-              </a>
-              <a mat-list-item routerLink="/pro/planning">
-                <mat-icon matListItemIcon [class.done]="store.readiness()!.hasOpeningHours">
-                  {{ store.readiness()!.hasOpeningHours ? 'check_circle' : 'radio_button_unchecked' }}
-                </mat-icon>
-                <span matListItemTitle>{{ 'pro.dashboard.checklist.openingHours' | transloco }}</span>
-                <mat-icon matListItemMeta>chevron_right</mat-icon>
-              </a>
-            </mat-nav-list>
-          </mat-card-content>
-        </mat-card>
+      <!-- DRAFT: Onboarding checklist -->
+      <div class="onboarding-wrap" data-testid="onboarding-wrap">
+        <div class="onboarding-welcome">
+          <h2 class="onboarding-title">{{ 'pro.dashboard.checklist.welcome' | transloco }}</h2>
+          <p class="onboarding-sub">{{ 'pro.dashboard.checklist.welcomeSub' | transloco }}</p>
+          <div class="onboarding-progress" data-testid="onboarding-progress">
+            <span class="onboarding-progress-label">
+              {{ 'pro.dashboard.checklist.progress' | transloco: { done: checklistDone(), total: checklistTotal() } }}
+            </span>
+            <div class="onboarding-progress-track">
+              <div class="onboarding-progress-fill" [style.width.%]="checklistProgressPercent()"></div>
+            </div>
+          </div>
+        </div>
 
-        <div class="publish-section text-center">
+        <div class="onboarding-steps" data-testid="onboarding-steps">
+          @for (step of checklistSteps(); track step.key) {
+            <a
+              class="onboarding-step"
+              [class.is-done]="step.done"
+              [class.is-next]="!step.done && step.key === nextStepKey()"
+              [routerLink]="step.link"
+              [attr.data-testid]="'onboarding-step-' + step.key"
+            >
+              <div class="onboarding-step-icon">
+                <mat-icon>
+                  {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
+              </div>
+              <div class="onboarding-step-body">
+                <span class="onboarding-step-title">
+                  {{ 'pro.dashboard.checklist.' + step.key | transloco }}
+                </span>
+                <span class="onboarding-step-desc">
+                  {{ 'pro.dashboard.checklist.' + step.key + 'Desc' | transloco }}
+                </span>
+              </div>
+              @if (!step.done && step.key === nextStepKey()) {
+                <span class="onboarding-step-tag">
+                  {{ 'pro.dashboard.checklist.next' | transloco }}
+                </span>
+              } @else if (step.done) {
+                <span class="onboarding-step-tag onboarding-step-tag-done">
+                  {{ 'pro.dashboard.checklist.done' | transloco }}
+                </span>
+              }
+              <mat-icon class="onboarding-step-chevron">chevron_right</mat-icon>
+            </a>
+          }
+        </div>
+
+        <div class="publish-section">
           <button
             mat-raised-button
             color="primary"
+            data-testid="publish-btn"
             [disabled]="!store.canPublish()"
             (click)="onPublish()"
           >
             {{ 'pro.dashboard.publish' | transloco }}
           </button>
           @if (!store.canPublish()) {
-            <p class="text-sm text-neutral-500 mt-2">
+            <p class="publish-hint">
               {{ 'pro.dashboard.publishDisabledHint' | transloco }}
             </p>
           }

@@ -1,6 +1,5 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -34,7 +33,6 @@ type ClientSortKey = 'visitCount' | 'revenue' | 'attendanceRate';
   standalone: true,
   imports: [
     MatCardModule,
-    MatListModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
@@ -73,6 +71,31 @@ export class ProDashboardComponent {
   readonly salonUrl = computed(() => {
     const readiness = this.store.readiness();
     return readiness ? '/salon/' + readiness.slug : '';
+  });
+
+  readonly checklistSteps = computed(() => {
+    const r = this.store.readiness();
+    if (!r) return [];
+    return [
+      { key: 'name', done: r.name, link: '/pro/salon' },
+      { key: 'cares', done: r.hasActiveCare, link: '/pro/cares' },
+      { key: 'openingHours', done: r.hasOpeningHours, link: '/pro/planning' },
+    ];
+  });
+
+  readonly checklistDone = computed(() => this.checklistSteps().filter((s) => s.done).length);
+
+  readonly checklistTotal = computed(() => this.checklistSteps().length);
+
+  readonly nextStepKey = computed(() => {
+    const next = this.checklistSteps().find((s) => !s.done);
+    return next ? next.key : null;
+  });
+
+  readonly checklistProgressPercent = computed(() => {
+    const total = this.checklistTotal();
+    if (total === 0) return 0;
+    return Math.round((this.checklistDone() / total) * 100);
   });
 
   // KPIs
