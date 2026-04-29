@@ -10,6 +10,7 @@ import {
 } from '../../shared/features/request.status.feature';
 import { AvailabilityService } from './availability.service';
 import { OpeningHourRequest, OpeningHourResponse } from './availability.model';
+import { ClosedDaysStore } from './closed-days.store';
 
 type AvailabilityState = {
   hours: OpeningHourResponse[];
@@ -18,7 +19,7 @@ type AvailabilityState = {
 export const AvailabilityStore = signalStore(
   withState<AvailabilityState>({ hours: [] }),
   withRequestStatus(),
-  withMethods((store, service = inject(AvailabilityService)) => ({
+  withMethods((store, service = inject(AvailabilityService), closedDaysStore = inject(ClosedDaysStore)) => ({
     loadHours: rxMethod<void>(
       pipe(
         tap(() => patchState(store, setPending())),
@@ -38,7 +39,10 @@ export const AvailabilityStore = signalStore(
         tap(() => patchState(store, setPending())),
         exhaustMap((requests) =>
           service.saveHours(requests).pipe(
-            tap((hours) => patchState(store, { hours }, setFulfilled())),
+            tap((hours) => {
+              patchState(store, { hours }, setFulfilled());
+              closedDaysStore.invalidate();
+            }),
             catchError((err) => {
               patchState(
                 store,

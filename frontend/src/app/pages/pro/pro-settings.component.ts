@@ -11,6 +11,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { TenantFeaturesService } from '../../core/tenant/tenant-features.service';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/models/salon-profile.model';
+import { ClosedDaysStore } from '../../features/availability/closed-days.store';
 
 @Component({
     selector: 'app-pro-settings',
@@ -230,6 +231,7 @@ export class ProSettingsComponent implements OnInit {
     protected readonly featuresService = inject(TenantFeaturesService);
     private readonly http = inject(HttpClient);
     private readonly apiBaseUrl = inject(API_BASE_URL);
+    private readonly closedDaysStore = inject(ClosedDaysStore);
 
     readonly upcomingHolidays = signal<HolidayInfo[]>([]);
     readonly holidaysOpen = signal(false);
@@ -291,6 +293,7 @@ export class ProSettingsComponent implements OnInit {
                         exceptions.push({ date, open: newOpen });
                     }
                     this.holidayExceptions.set(exceptions);
+                    this.closedDaysStore.invalidate();
                 },
             });
     }

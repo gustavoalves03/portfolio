@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { provideFrenchDateAdapter } from '../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
-import { AvailabilityService } from '../../../features/availability/availability.service';
+import { PublicClosedDaysStore } from '../../../features/availability/public-closed-days.store';
 import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
@@ -35,7 +35,7 @@ export interface BookingDialogData {
     TranslocoPipe,
     SheetHandleComponent,
   ],
-  providers: [provideFrenchDateAdapter()],
+  providers: [provideFrenchDateAdapter(), PublicClosedDaysStore],
   templateUrl: './booking-dialog.component.html',
   styleUrl: './booking-dialog.component.scss',
 })
@@ -43,7 +43,7 @@ export class BookingDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<BookingDialogComponent>);
   private readonly data = inject<BookingDialogData>(MAT_DIALOG_DATA);
   private readonly salonService = inject(SalonProfileService);
-  private readonly availabilityService = inject(AvailabilityService);
+  private readonly closedDaysStore = inject(PublicClosedDaysStore);
   private readonly authService = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
 
@@ -51,7 +51,6 @@ export class BookingDialogComponent {
   readonly slug = this.data.slug;
 
   readonly minDate = new Date();
-  readonly openDays = signal<Set<number>>(new Set());
   readonly selectedDate = signal<Date | null>(null);
   readonly slots = signal<TimeSlot[]>([]);
   readonly loadingSlots = signal(false);
@@ -68,15 +67,30 @@ export class BookingDialogComponent {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date < today) return false;
-    const dow = date.getDay() === 0 ? 7 : date.getDay();
-    return this.openDays().has(dow);
+    return !this.closedDaysStore.closedDays().has(this.formatDate(date));
   };
 
   constructor() {
-    this.loadOpeningHours();
+    this.closedDaysStore.setSlug(this.slug);
+    this.preloadMonthsFrom(new Date(), 6);
     this.salonService.getEmployeesForCare(this.slug, this.care.id).subscribe(emps => {
       this.employees.set(emps);
     });
+  }
+
+  onCalendarOpened(): void {
+    this.preloadMonthsFrom(new Date(), 6);
+  }
+
+  onMonthSelected(date: Date): void {
+    this.preloadMonthsFrom(date, 3);
+  }
+
+  private preloadMonthsFrom(start: Date, count: number): void {
+    for (let i = 0; i < count; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+      this.closedDaysStore.loadMonth({ year: d.getFullYear(), month: d.getMonth() + 1 });
+    }
   }
 
   onDateChange(date: Date | null): void {
@@ -132,19 +146,7 @@ export class BookingDialogComponent {
     return /^[a-zA-Z][a-zA-Z0-9._]*$/.test(value);
   }
 
-  private loadOpeningHours(): void {
-    this.availabilityService.loadPublicHours(this.slug).subscribe({
-      next: (hours) => {
-        const days = new Set(hours.map((h) => h.dayOfWeek));
-        this.openDays.set(days);
-      },
-      error: () => {
-        this.openDays.set(new Set([1, 2, 3, 4, 5, 6, 7]));
-      },
-    });
-  }
-
-  private loadSlots(date: Date): void {
+private loadSlots(date: Date): void {
     this.loadingSlots.set(true);
     this.slots.set([]);
 

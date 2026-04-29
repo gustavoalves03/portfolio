@@ -11,6 +11,7 @@ import {
 } from '../../shared/features/request.status.feature';
 import { CalendarService } from './calendar.service';
 import { AvailabilityService } from '../availability/availability.service';
+import { ClosedDaysStore } from '../availability/closed-days.store';
 import { BlockedSlotRequest, BlockedSlotResponse } from './calendar.model';
 import { OpeningHourResponse } from '../availability/availability.model';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
@@ -29,6 +30,7 @@ export const CalendarStore = signalStore(
       store,
       calendarService = inject(CalendarService),
       availabilityService = inject(AvailabilityService),
+      closedDaysStore = inject(ClosedDaysStore),
       http = inject(HttpClient),
       apiBaseUrl = inject(API_BASE_URL)
     ) => ({
@@ -61,13 +63,14 @@ export const CalendarStore = signalStore(
           tap(() => patchState(store, setPending())),
           exhaustMap((req) =>
             calendarService.createBlock(req).pipe(
-              tap((created) =>
+              tap((created) => {
                 patchState(
                   store,
                   { blockedSlots: [...store.blockedSlots(), created] },
                   setFulfilled()
-                )
-              ),
+                );
+                if (created.fullDay) closedDaysStore.invalidate();
+              }),
               catchError((err) => {
                 patchState(
                   store,
@@ -82,15 +85,17 @@ export const CalendarStore = signalStore(
       deleteBlock: rxMethod<number>(
         pipe(
           tap(() => patchState(store, setPending())),
-          exhaustMap((id) =>
-            calendarService.deleteBlock(id).pipe(
-              tap(() =>
+          exhaustMap((id) => {
+            const wasFullDay = store.blockedSlots().find((s) => s.id === id)?.fullDay ?? false;
+            return calendarService.deleteBlock(id).pipe(
+              tap(() => {
                 patchState(
                   store,
                   { blockedSlots: store.blockedSlots().filter((s) => s.id !== id) },
                   setFulfilled()
-                )
-              ),
+                );
+                if (wasFullDay) closedDaysStore.invalidate();
+              }),
               catchError((err) => {
                 patchState(
                   store,
@@ -98,8 +103,8 @@ export const CalendarStore = signalStore(
                 );
                 return EMPTY;
               })
-            )
-          )
+            );
+          })
         )
       ),
       loadHolidays: rxMethod<void>(

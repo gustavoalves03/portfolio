@@ -4,12 +4,14 @@ import { API_BASE_URL } from '../config/api-base-url.token';
 import { AuthService } from '../auth/auth.service';
 import { Role } from '../auth/auth.model';
 import { effect } from '@angular/core';
+import { ClosedDaysStore } from '../../features/availability/closed-days.store';
 
 @Injectable({ providedIn: 'root' })
 export class TenantFeaturesService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
+  private readonly closedDaysStore = inject(ClosedDaysStore);
 
   readonly employeesEnabled = signal<boolean>(false);
   readonly annualLeaveDays = signal<number>(25);
@@ -86,7 +88,12 @@ export class TenantFeaturesService {
       .put<{ closedOnHolidays: boolean }>(`${base}/api/pro/tenant/settings/closed-on-holidays`, {
         closedOnHolidays: closed,
       })
-      .subscribe({ next: () => this.closedOnHolidays.set(closed) });
+      .subscribe({
+        next: () => {
+          this.closedOnHolidays.set(closed);
+          this.closedDaysStore.invalidate();
+        },
+      });
   }
 
   setMinAdvanceMinutes(minutes: number): void {

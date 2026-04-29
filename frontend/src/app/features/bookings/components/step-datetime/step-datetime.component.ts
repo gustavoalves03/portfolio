@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { provideFrenchDateAdapter } from '../../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BookingsService, AvailableSlot } from '../../services/bookings.service';
+import { ClosedDaysStore } from '../../../availability/closed-days.store';
 
 @Component({
   selector: 'app-step-datetime',
@@ -28,11 +29,12 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
           matInput
           data-testid="booking-date-input"
           [matDatepicker]="picker"
+          [matDatepickerFilter]="dateFilter"
           (dateChange)="onDateChange($event)"
           [min]="minDate"
         />
         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+        <mat-datepicker #picker (monthSelected)="onMonthSelected($event)" (opened)="onCalendarOpened()"></mat-datepicker>
       </mat-form-field>
 
       @if (loading()) {
@@ -172,6 +174,7 @@ import { BookingsService, AvailableSlot } from '../../services/bookings.service'
 })
 export class StepDatetimeComponent {
   private readonly bookingsService = inject(BookingsService);
+  private readonly closedDaysStore = inject(ClosedDaysStore);
 
   readonly careId = input<number | null>(null);
 
@@ -182,6 +185,33 @@ export class StepDatetimeComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly datetimeSelected = output<{ date: string; time: string }>();
   readonly minDate = new Date();
+
+  readonly dateFilter = (date: Date | null): boolean => {
+    if (!date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return false;
+    return !this.closedDaysStore.closedDays().has(this.toLocalDateString(date));
+  };
+
+  constructor() {
+    this.preloadMonthsFrom(new Date(), 6);
+  }
+
+  onCalendarOpened(): void {
+    this.preloadMonthsFrom(new Date(), 6);
+  }
+
+  onMonthSelected(date: Date): void {
+    this.preloadMonthsFrom(date, 3);
+  }
+
+  private preloadMonthsFrom(start: Date, count: number): void {
+    for (let i = 0; i < count; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+      this.closedDaysStore.loadMonth({ year: d.getFullYear(), month: d.getMonth() + 1 });
+    }
+  }
 
   onDateChange(event: { value: Date | null }): void {
     const date = event.value;
