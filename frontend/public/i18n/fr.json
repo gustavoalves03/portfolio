@@ -714,7 +714,8 @@
       "addressCity": "Ville",
       "siret": "SIRET",
       "consent": "J'accepte les conditions générales d'utilisation",
-      "createSalon": "Créer mon salon"
+      "createSalon": "Créer mon salon",
+      "disabledHint": "Renseigne le nom de ton salon et accepte les conditions pour continuer."
     },
     "errors": {
       "emailConflict": "Cet email est déjà utilisé",

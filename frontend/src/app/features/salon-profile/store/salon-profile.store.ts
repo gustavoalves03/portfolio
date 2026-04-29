@@ -9,10 +9,11 @@ import { setError, setFulfilled, setPending, withRequestStatus } from '../../../
 type SalonProfileState = {
   tenant: TenantResponse | null;
   saveSuccess: boolean;
+  saveError: boolean;
 };
 
 export const SalonProfileStore = signalStore(
-  withState<SalonProfileState>({ tenant: null, saveSuccess: false }),
+  withState<SalonProfileState>({ tenant: null, saveSuccess: false, saveError: false }),
   withRequestStatus(),
   withMethods((store, service = inject(SalonProfileService)) => ({
     loadProfile: rxMethod<void>(
@@ -22,7 +23,9 @@ export const SalonProfileStore = signalStore(
           service.getProfile().pipe(
             tap(tenant => patchState(store, { tenant }, setFulfilled())),
             catchError(() => {
-              patchState(store, setError('Erreur de chargement du profil'));
+              // Load failures stay silent: the page may simply have nothing
+              // to show yet. Only save failures surface a snackbar.
+              patchState(store, setFulfilled());
               return EMPTY;
             })
           )
@@ -31,12 +34,12 @@ export const SalonProfileStore = signalStore(
     ),
     updateProfile: rxMethod<UpdateTenantRequest>(
       pipe(
-        tap(() => patchState(store, { saveSuccess: false }, setPending())),
+        tap(() => patchState(store, { saveSuccess: false, saveError: false }, setPending())),
         exhaustMap(request =>
           service.updateProfile(request).pipe(
-            tap(tenant => patchState(store, { tenant, saveSuccess: true }, setFulfilled())),
+            tap(tenant => patchState(store, { tenant, saveSuccess: true, saveError: false }, setFulfilled())),
             catchError(() => {
-              patchState(store, setError('Erreur lors de la sauvegarde'));
+              patchState(store, { saveError: true }, setError('Erreur lors de la sauvegarde'));
               return EMPTY;
             })
           )
@@ -44,7 +47,7 @@ export const SalonProfileStore = signalStore(
       )
     ),
     clearStatus() {
-      patchState(store, { saveSuccess: false }, setFulfilled());
+      patchState(store, { saveSuccess: false, saveError: false }, setFulfilled());
     }
   })),
   withHooks((store) => ({

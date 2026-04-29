@@ -104,15 +104,16 @@ export class SalonProfileComponent {
       }
     });
 
-    // Show snackbar on error
+    // Show snackbar on save error only (load errors stay silent: a fresh draft
+    // tenant or a transient network blip shouldn't pop a red banner on entry).
     effect(() => {
-      const error = this.store.error();
-      if (error) {
+      if (this.store.saveError()) {
         this.snackBar.open(
           this.transloco.translate('pro.salon.saveError'),
           undefined,
           { duration: 5000, panelClass: 'snackbar-error' }
         );
+        this.store.clearStatus();
       }
     });
   }

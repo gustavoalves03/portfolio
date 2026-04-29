@@ -710,7 +710,8 @@
       "addressCity": "City",
       "siret": "SIRET",
       "consent": "I accept the terms and conditions",
-      "createSalon": "Create my salon"
+      "createSalon": "Create my salon",
+      "disabledHint": "Enter your salon name and accept the terms to continue."
     },
     "errors": {
       "emailConflict": "This email is already in use",

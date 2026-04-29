@@ -2,6 +2,7 @@ package com.prettyface.app.tenant.app;
 
 import com.prettyface.app.multitenancy.TenantSchemaManager;
 import com.prettyface.app.tenant.domain.Tenant;
+import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.users.domain.User;
 import org.slf4j.Logger;
@@ -31,10 +32,13 @@ public class TenantProvisioningService {
 
         tenantSchemaManager.provisionSchema(slug);
 
+        // New tenants land in DRAFT: the pro completes the onboarding checklist
+        // (name, first care, opening hours) before publishing to the public storefront.
         Tenant tenant = Tenant.builder()
                 .slug(slug)
                 .name(owner.getName())
                 .ownerId(owner.getId())
+                .status(TenantStatus.DRAFT)
                 .build();
 
         Tenant saved = tenantRepository.save(tenant);

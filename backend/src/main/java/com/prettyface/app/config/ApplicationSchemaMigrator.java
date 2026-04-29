@@ -46,6 +46,43 @@ public class ApplicationSchemaMigrator implements ApplicationRunner {
         migrateUsersRoleConstraint();
         ensureClientBookingHistoryTable();
         ensureNotificationsTable();
+        backfillTenantDefaults();
+    }
+
+    /**
+     * Tenants created before a given column existed have NULL values for that
+     * column even though the JPA entity defines a default. Hibernate's
+     * ddl-auto=update adds the column but never writes default values back to
+     * existing rows, so we explicitly backfill the booking-related flags here.
+     * Each statement is idempotent (only updates rows that are still NULL).
+     */
+    private void backfillTenantDefaults() throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             Statement stmt = connection.createStatement()) {
+            executeBackfill(stmt, "UPDATE TENANTS SET CLOSED_ON_HOLIDAYS = 1 WHERE CLOSED_ON_HOLIDAYS IS NULL", "closed_on_holidays");
+            executeBackfill(stmt, "UPDATE TENANTS SET BUFFER_MINUTES = 0 WHERE BUFFER_MINUTES IS NULL", "buffer_minutes");
+            executeBackfill(stmt, "UPDATE TENANTS SET MIN_ADVANCE_MINUTES = 120 WHERE MIN_ADVANCE_MINUTES IS NULL", "min_advance_minutes");
+            executeBackfill(stmt, "UPDATE TENANTS SET MAX_ADVANCE_DAYS = 90 WHERE MAX_ADVANCE_DAYS IS NULL", "max_advance_days");
+            executeBackfill(stmt, "UPDATE TENANTS SET MAX_CLIENT_HOURS_PER_DAY = 8 WHERE MAX_CLIENT_HOURS_PER_DAY IS NULL", "max_client_hours_per_day");
+            executeBackfill(stmt, "UPDATE TENANTS SET ANNUAL_LEAVE_DAYS = 25 WHERE ANNUAL_LEAVE_DAYS IS NULL", "annual_leave_days");
+            executeBackfill(stmt, "UPDATE TENANTS SET EMPLOYEES_ENABLED = 0 WHERE EMPLOYEES_ENABLED IS NULL", "employees_enabled");
+        } catch (SQLException e) {
+            // Backfill is best-effort. If TENANTS doesn't exist yet (very first
+            // boot before DataInitializer runs) or a column is missing on a
+            // partial deploy, log and move on.
+            logger.warn("Tenant defaults backfill skipped: {}", e.getMessage());
+        }
+    }
+
+    private void executeBackfill(Statement stmt, String sql, String column) {
+        try {
+            int updated = stmt.executeUpdate(sql);
+            if (updated > 0) {
+                logger.info("Backfilled {} default on {} TENANTS row(s)", column, updated);
+            }
+        } catch (SQLException e) {
+            logger.debug("Backfill skipped for {}: {}", column, e.getMessage());
+        }
     }
 
     private void migrateUsersRoleConstraint() throws SQLException {
