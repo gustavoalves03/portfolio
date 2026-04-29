@@ -277,7 +277,11 @@ public class TenantSchemaManager {
                 "ALTER TABLE CLIENT_REMINDERS ADD (CREATED_BY NUMBER(19))",
                 "ALTER TABLE CARE_BOOKINGS ADD (SALON_CLIENT_ID NUMBER(19))",
                 // Align legacy tenant schemas with the nullable PHONE column declared in CREATE TABLE.
-                "ALTER TABLE SALON_CLIENTS MODIFY (PHONE VARCHAR2(20 CHAR) NULL)"
+                "ALTER TABLE SALON_CLIENTS MODIFY (PHONE VARCHAR2(20 CHAR) NULL)",
+                // @Version on LeaveRequest — added after the LEAVE_REQUESTS table existed in
+                // some tenants. Without this column Hibernate fails ORA-00904 on every read,
+                // surfacing as a 500 on /api/pro/leaves/pending.
+                "ALTER TABLE LEAVE_REQUESTS ADD (VERSION NUMBER(19))"
         };
 
         // Use provisioning connection (Oracle admin) — app user lacks CREATE TABLE privilege
@@ -483,7 +487,9 @@ public class TenantSchemaManager {
                 "ALTER TABLE CLIENT_REMINDERS ADD COLUMN IF NOT EXISTS CREATED_BY BIGINT",
                 "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS SALON_CLIENT_ID BIGINT",
                 // Align legacy H2 tenant schemas with the nullable PHONE column declared in CREATE TABLE.
-                "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL"
+                "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL",
+                // @Version on LeaveRequest (legacy schemas miss it).
+                "ALTER TABLE LEAVE_REQUESTS ADD COLUMN IF NOT EXISTS VERSION BIGINT"
         };
 
         try (Connection conn = dataSource.getConnection();

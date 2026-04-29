@@ -482,7 +482,12 @@
       "rejectSuccess": "Demande refusée",
       "days": "jours",
       "day": "jour",
-      "document": "Document joint"
+      "document": "Document joint",
+      "errors": {
+        "loadFailed": "Impossible de charger les demandes en attente. Réessaie dans un instant.",
+        "historyFailed": "Impossible de charger l'historique des congés.",
+        "reviewFailed": "Impossible de traiter cette demande pour le moment."
+      }
     },
     "settings": {
       "title": "Paramètres",

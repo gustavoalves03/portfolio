@@ -2,29 +2,32 @@
 <h2 mat-dialog-title>{{ 'pro.employees.createTitle' | transloco }}</h2>
 
 <mat-dialog-content>
-  <form [formGroup]="form" class="employee-form">
+  <!-- autocomplete="off" on the form + new-password on the password field
+       prevents the browser from injecting the logged-in pro's saved
+       credentials into the new-collaborator form. -->
+  <form [formGroup]="form" class="employee-form" autocomplete="off">
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'pro.employees.name' | transloco }}</mat-label>
       <mat-icon matPrefix>person</mat-icon>
-      <input matInput formControlName="name" />
+      <input matInput formControlName="name" autocomplete="off" data-testid="employee-name" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'pro.employees.email' | transloco }}</mat-label>
       <mat-icon matPrefix>email</mat-icon>
-      <input matInput type="email" formControlName="email" />
+      <input matInput type="email" formControlName="email" autocomplete="off" data-testid="employee-email" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'pro.employees.phone' | transloco }}</mat-label>
       <mat-icon matPrefix>phone</mat-icon>
-      <input matInput formControlName="phone" />
+      <input matInput formControlName="phone" autocomplete="off" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'pro.employees.password' | transloco }}</mat-label>
       <mat-icon matPrefix>lock</mat-icon>
-      <input matInput type="password" formControlName="password" />
+      <input matInput type="password" formControlName="password" autocomplete="new-password" data-testid="employee-password" />
     </mat-form-field>
 
     @if (cares.length > 0) {

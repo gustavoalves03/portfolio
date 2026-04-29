@@ -17,6 +17,30 @@ interface CreateCareDialogData {
   viewOnly?: boolean;
 }
 
+/**
+ * Convert a cents-based price into a euros-based number suitable for a numeric
+ * form input. We keep two decimals at most and avoid trailing zeros (50.00 → 50).
+ */
+export function centsToEuros(cents: number | null | undefined): number {
+  if (cents == null || isNaN(cents as number)) return 0;
+  return Math.round(Number(cents)) / 100;
+}
+
+/**
+ * Convert a user-typed euros value (number, possibly with comma decimal) back
+ * into integer cents for the backend. Floors odd fractions to avoid silent
+ * rounding losses.
+ */
+export function eurosToCents(value: unknown): number {
+  if (value == null || value === '') return 0;
+  // FR keyboards type a comma decimal — accept it.
+  const normalized =
+    typeof value === 'string' ? value.replace(',', '.').trim() : String(value);
+  const n = Number(normalized);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.round(n * 100);
+}
+
 @Component({
   selector: 'app-create',
   standalone: true,
@@ -266,7 +290,8 @@ export class CreateCare implements OnInit {
       categoryId: Number(
         rawValue['categoryId'] ?? this.data?.care?.category?.id ?? 0
       ),
-      price: Number(rawValue['price'] ?? 0),
+      // The form input is in euros; the backend stores the price in cents.
+      price: eurosToCents(rawValue['price']),
       duration: Number(rawValue['duration'] ?? 0),
       images: imagesWithBase64,
     };
@@ -276,7 +301,8 @@ export class CreateCare implements OnInit {
     this.careForm.patchValue({
       name: care.name,
       description: care.description,
-      price: care.price,
+      // care.price is in cents — show euros to the pro.
+      price: centsToEuros(care.price),
       duration: care.duration,
       status: care.status,
       categoryId: care.category?.id ?? null,

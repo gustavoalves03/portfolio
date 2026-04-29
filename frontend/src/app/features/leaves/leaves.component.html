@@ -78,7 +78,9 @@
 
   <!-- Error -->
   @if (store.error()) {
-    <div class="error-banner">{{ store.error() }}</div>
+    <div class="error-banner" data-testid="leaves-error-banner">
+      {{ store.error()! | transloco }}
+    </div>
   }
 
   <!-- Pending view -->

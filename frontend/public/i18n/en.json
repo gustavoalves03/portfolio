@@ -478,7 +478,12 @@
       "rejectSuccess": "Request rejected",
       "days": "days",
       "day": "day",
-      "document": "Attached document"
+      "document": "Attached document",
+      "errors": {
+        "loadFailed": "Couldn't load pending requests. Please try again in a moment.",
+        "historyFailed": "Couldn't load leave history.",
+        "reviewFailed": "Couldn't process this request right now."
+      }
     },
     "settings": {
       "title": "Settings",

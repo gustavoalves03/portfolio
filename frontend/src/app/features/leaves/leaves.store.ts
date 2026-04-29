@@ -26,8 +26,8 @@ export const LeavesStore = signalStore(
         switchMap(() =>
           service.listPending().pipe(
             tap((leaves) => patchState(store, { pendingLeaves: leaves }, setFulfilled())),
-            catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error loading leaves'));
+            catchError(() => {
+              patchState(store, setError('pro.leaves.errors.loadFailed'));
               return EMPTY;
             }),
           ),
@@ -40,8 +40,8 @@ export const LeavesStore = signalStore(
         switchMap((type) =>
           service.listHistory(type).pipe(
             tap((leaves) => patchState(store, { historyLeaves: leaves }, setFulfilled())),
-            catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error loading history'));
+            catchError(() => {
+              patchState(store, setError('pro.leaves.errors.historyFailed'));
               return EMPTY;
             }),
           ),
@@ -62,8 +62,8 @@ export const LeavesStore = signalStore(
                 setFulfilled(),
               ),
             ),
-            catchError((err) => {
-              patchState(store, setError(err?.message ?? 'Error reviewing leave'));
+            catchError(() => {
+              patchState(store, setError('pro.leaves.errors.reviewFailed'));
               return EMPTY;
             }),
           ),
