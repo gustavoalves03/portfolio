@@ -51,6 +51,7 @@ class PublicSalonControllerValidationTests {
     @MockBean private BlockedSlotService blockedSlotService;
     @MockBean private SlotAvailabilityService slotAvailabilityService;
     @MockBean private HolidayAvailabilityService holidayAvailabilityService;
+    @MockBean private com.prettyface.app.availability.app.ClosedDaysService closedDaysService;
     @MockBean private CareBookingService careBookingService;
     @MockBean private UserRepository userRepository;
     @MockBean private ClientBookingHistoryService clientBookingHistoryService;

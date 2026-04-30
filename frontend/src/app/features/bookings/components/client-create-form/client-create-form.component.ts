@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideFrenchDateAdapter } from '../../../../shared/providers/french-date-adapter';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { output } from '@angular/core';
@@ -25,7 +25,7 @@ import {
     MatIconModule,
     TranslocoPipe,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideFrenchDateAdapter()],
   template: `
     <div class="client-form">
       <div class="form-header">

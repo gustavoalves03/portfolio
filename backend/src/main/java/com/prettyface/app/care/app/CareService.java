@@ -1,5 +1,7 @@
 package com.prettyface.app.care.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +57,7 @@ public class CareService {
     @Transactional(readOnly = true)
     public CareResponse get(Long id) {
         return repo.findById(id).map(CareMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + id));
     }
 
     @Transactional
@@ -66,7 +68,7 @@ public class CareService {
 
         Care entity = CareMapper.toEntity(req);
         var category = categoryRepository.findById(req.categoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + req.categoryId()));
         entity.setCategory(category);
 
         // Save Care first to get ID
@@ -119,10 +121,10 @@ public class CareService {
         logger.info("Care name: {}", req.name());
         logger.info("Images count: {}", req.images() != null ? req.images().size() : 0);
 
-        Care c = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
+        Care c = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Care not found: " + id));
         CareMapper.updateEntity(c, req);
         var category = categoryRepository.findById(req.categoryId())
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + req.categoryId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + req.categoryId()));
         c.setCategory(category);
 
         // Handle images update intelligently
@@ -219,7 +221,7 @@ public class CareService {
         for (int i = 0; i < orderedIds.size(); i++) {
             final int index = i;
             Care c = repo.findById(orderedIds.get(i))
-                    .orElseThrow(() -> new IllegalArgumentException("Care not found: " + orderedIds.get(index)));
+                    .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + orderedIds.get(index)));
             c.setDisplayOrder(index);
             repo.save(c);
         }
@@ -231,7 +233,7 @@ public class CareService {
             throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
         }
         Care c = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + id));
         c.setStatus(status);
         return CareMapper.toResponse(repo.save(c));
     }

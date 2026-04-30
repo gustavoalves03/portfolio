@@ -10,6 +10,7 @@ import com.prettyface.app.bookings.app.CareBookingService;
 import com.prettyface.app.bookings.domain.CareBookingStatus;
 import com.prettyface.app.bookings.web.dto.CareBookingRequest;
 import com.prettyface.app.common.error.GlobalExceptionHandler;
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.common.error.RestAccessDeniedHandler;
 import com.prettyface.app.common.error.RestAuthenticationEntryPoint;
 import com.prettyface.app.config.CsrfLoggingFilter;
@@ -121,13 +122,14 @@ class CareBookingControllerValidationTests {
     // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("Lot4#15: create_withInexistentCareId — service throws IllegalArgumentException → 404")
+    @DisplayName("Lot4#15: create_withInexistentCareId — service throws ResourceNotFoundException → 404")
     void create_withInexistentCareId_returns404() throws Exception {
         // NOTE-SEC: CareBookingRequest declares @NotNull on careId but has no existence check in the DTO.
         // The service layer is responsible: CareBookingService.create() throws
-        // IllegalArgumentException("Care not found: ...") which GlobalExceptionHandler maps to 404.
+        // ResourceNotFoundException("Care not found: ...") which GlobalExceptionHandler maps to 404.
+        // (Plain IllegalArgumentException now maps to 400 — reserved for validation failures.)
         when(service.create(any(CareBookingRequest.class)))
-                .thenThrow(new IllegalArgumentException("Care not found: 999999"));
+                .thenThrow(new ResourceNotFoundException("Care not found: 999999"));
 
         CareBookingRequest req = new CareBookingRequest(
                 1L, 999999L, 1,

@@ -1,5 +1,7 @@
 package com.prettyface.app.tenant.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.common.storage.FileStorageService;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
@@ -69,7 +71,7 @@ class TenantServiceTests {
         when(tenantRepository.findByOwnerId(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tenantService.getProfile(99L))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

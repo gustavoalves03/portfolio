@@ -1,5 +1,7 @@
 package com.prettyface.app.tenant.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.common.storage.FileStorageService;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
@@ -41,7 +43,7 @@ public class TenantService {
     public TenantResponse updateProfile(Long ownerId, UpdateTenantRequest request) {
         TenantContext.requireActive();
         Tenant tenant = tenantRepository.findByOwnerId(ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found for owner: " + ownerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found for owner: " + ownerId));
 
         tenant.setName(request.name());
 
@@ -123,7 +125,7 @@ public class TenantService {
 
     public TenantResponse getProfile(Long ownerId) {
         Tenant tenant = tenantRepository.findByOwnerId(ownerId)
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found for owner: " + ownerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found for owner: " + ownerId));
         return TenantMapper.toResponse(tenant);
     }
 

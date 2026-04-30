@@ -5,7 +5,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideFrenchDateAdapter } from '../../../../shared/providers/french-date-adapter';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
@@ -30,7 +30,7 @@ export interface PeriodResult {
     TranslocoPipe,
     SheetHandleComponent,
   ],
-  providers: [provideNativeDateAdapter()],
+  providers: [provideFrenchDateAdapter()],
   template: `
     <app-sheet-handle />
     <div class="sheet-wrap">

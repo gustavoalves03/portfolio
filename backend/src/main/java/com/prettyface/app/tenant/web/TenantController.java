@@ -1,5 +1,7 @@
 package com.prettyface.app.tenant.web;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.app.TenantReadinessService;
@@ -51,7 +53,7 @@ public class TenantController {
     @GetMapping("/readiness")
     public ResponseEntity<TenantReadinessResponse> getReadiness(@AuthenticationPrincipal UserPrincipal principal) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         TenantContext.setCurrentTenant(tenant.getSlug());
         try {
             return ResponseEntity.ok(readinessService.getReadiness(tenant));
@@ -63,7 +65,7 @@ public class TenantController {
     @PutMapping("/publish")
     public ResponseEntity<?> publish(@AuthenticationPrincipal UserPrincipal principal) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         var missing = java.util.List.<String>of();
         TenantContext.setCurrentTenant(tenant.getSlug());
         try {
@@ -85,7 +87,7 @@ public class TenantController {
     @PutMapping("/unpublish")
     public ResponseEntity<Void> unpublish(@AuthenticationPrincipal UserPrincipal principal) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         tenant.setStatus(TenantStatus.DRAFT);
         tenantRepository.save(tenant);
         return ResponseEntity.ok().build();
@@ -96,7 +98,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Integer> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         Integer days = body.get("days");
         if (days == null || days < 0 || days > 365) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid number of days");
@@ -111,7 +113,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Boolean> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         boolean closed = Boolean.TRUE.equals(body.get("closedOnHolidays"));
         tenant.setClosedOnHolidays(closed);
         tenantRepository.save(tenant);
@@ -123,7 +125,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Boolean> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         boolean enabled = Boolean.TRUE.equals(body.get("enabled"));
         tenant.setEmployeesEnabled(enabled);
         tenantRepository.save(tenant);
@@ -135,7 +137,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Integer> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         Integer minutes = body.get("minAdvanceMinutes");
         if (minutes == null || minutes < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid number of minutes");
@@ -150,7 +152,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Integer> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         Integer days = body.get("maxAdvanceDays");
         if (days == null || days < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid number of days");
@@ -165,7 +167,7 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Integer> body) {
         Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         Integer hours = body.get("maxClientHoursPerDay");
         if (hours == null || hours < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid number of hours");

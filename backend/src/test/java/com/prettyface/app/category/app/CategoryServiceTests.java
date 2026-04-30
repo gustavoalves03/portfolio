@@ -1,5 +1,7 @@
 package com.prettyface.app.category.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
@@ -94,7 +96,7 @@ class CategoryServiceTests {
         when(careRepository.countByCategoryId(1L)).thenReturn(3L);
         when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> categoryService.deleteWithReassignment(1L, 99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }
 
@@ -111,7 +113,7 @@ class CategoryServiceTests {
     void deleteWithReassignment_whenSourceNotFound_throws() {
         when(categoryRepository.findById(99L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> categoryService.deleteWithReassignment(99L, null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }
 

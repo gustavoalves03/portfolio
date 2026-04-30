@@ -59,6 +59,7 @@ class PublicSalonControllerCancelBookingTests {
     @Mock private BlockedSlotService blockedSlotService;
     @Mock private SlotAvailabilityService slotAvailabilityService;
     @Mock private HolidayAvailabilityService holidayAvailabilityService;
+    @Mock private com.prettyface.app.availability.app.ClosedDaysService closedDaysService;
     @Mock private CareBookingService careBookingService;
     @Mock private UserRepository userRepository;
     @Mock private ClientBookingHistoryService clientBookingHistoryService;

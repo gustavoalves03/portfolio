@@ -1,5 +1,7 @@
 package com.prettyface.app.employee.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.employee.domain.DocumentType;
 import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.EmployeeDocument;
@@ -40,7 +42,7 @@ public class EmployeeDocumentService {
     public DocumentResponse upload(Long employeeId, DocumentType type, String title,
                                    MultipartFile file, Long uploadedByUserId) {
         Employee employee = employeeRepo.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + employeeId));
 
         String originalFilename = file.getOriginalFilename();
         String ext = originalFilename != null && originalFilename.contains(".")
@@ -70,7 +72,7 @@ public class EmployeeDocumentService {
     @Transactional
     public void delete(Long documentId) {
         EmployeeDocument doc = docRepo.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + documentId));
         try {
             Files.deleteIfExists(Paths.get(doc.getFilePath()));
         } catch (IOException e) {
@@ -81,13 +83,13 @@ public class EmployeeDocumentService {
 
     public Path getFilePath(Long documentId) {
         EmployeeDocument doc = docRepo.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + documentId));
         return Paths.get(doc.getFilePath());
     }
 
     public String getFilename(Long documentId) {
         return docRepo.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId))
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + documentId))
                 .getFilename();
     }
 

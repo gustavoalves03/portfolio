@@ -27,8 +27,19 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "Malformed request body"));
     }
 
+    /**
+     * Maps to 400 BAD_REQUEST. Use {@link IllegalArgumentException} for
+     * invalid input / validation failures. For "resource not found", throw
+     * {@link ResourceNotFoundException} which maps to 404 below.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String,Object>> notFound(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String,Object>> badArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String,Object>> notFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
     }

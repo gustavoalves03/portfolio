@@ -1,5 +1,7 @@
 package com.prettyface.app.employee.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.LeaveRequest;
 import com.prettyface.app.employee.domain.LeaveStatus;
@@ -46,7 +48,7 @@ public class LeaveRequestService {
     public LeaveResponse createLeave(Long employeeId, LeaveRequestDto dto) {
         TenantContext.requireActive();
         Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + employeeId));
 
         if (dto.endDate().isBefore(dto.startDate())) {
             throw new IllegalArgumentException("End date must be after start date or the same day");
@@ -67,7 +69,7 @@ public class LeaveRequestService {
     @Transactional
     public LeaveResponse reviewLeave(Long leaveId, LeaveReviewDto dto, Long callerUserId) {
         LeaveRequest leave = leaveRequestRepository.findById(leaveId)
-                .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + leaveId));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found: " + leaveId));
 
         // Caller must be a PRO/ADMIN tenant owner, and must not be the leave's owner
         // (no self-approval).
@@ -128,7 +130,7 @@ public class LeaveRequestService {
     public LeaveResponse attachDocument(Long leaveId, String documentPath) {
         TenantContext.requireActive();
         LeaveRequest leave = leaveRequestRepository.findById(leaveId)
-                .orElseThrow(() -> new IllegalArgumentException("Leave request not found: " + leaveId));
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found: " + leaveId));
 
         leave.setDocumentPath(documentPath);
         LeaveRequest saved = leaveRequestRepository.save(leave);

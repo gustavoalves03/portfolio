@@ -1,5 +1,7 @@
 package com.prettyface.app.bookings.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.auth.UserPrincipal;
 import com.prettyface.app.availability.app.SlotAvailabilityService;
 import com.prettyface.app.bookings.domain.CareBooking;
@@ -157,16 +159,16 @@ public class CareBookingService {
     @Transactional(readOnly = true)
     public CareBookingResponse get(Long id) {
         return repo.findById(id).map(CareBookingMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Care booking not found: " + id));
     }
 
     @Transactional
     public CareBookingResponse create(CareBookingRequest req) {
         TenantContext.requireActive();
         var user = userRepository.findById(req.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + req.userId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + req.userId()));
         var care = careRepository.findById(req.careId())
-                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + req.careId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + req.careId()));
 
         // Verify slot availability (opening hours + existing bookings)
         boolean slotAvailable = slotAvailabilityService
@@ -236,7 +238,7 @@ public class CareBookingService {
     public CareBookingResponse update(Long id, CareBookingRequest req, UserPrincipal caller) {
         TenantContext.requireActive();
         CareBooking b = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Care booking not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Care booking not found: " + id));
 
         requireCanMutateBooking(caller, b);
 

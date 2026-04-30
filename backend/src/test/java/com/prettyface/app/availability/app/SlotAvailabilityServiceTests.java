@@ -1,5 +1,7 @@
 package com.prettyface.app.availability.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.availability.domain.BlockedSlot;
 import com.prettyface.app.availability.domain.OpeningHour;
 import com.prettyface.app.availability.repo.BlockedSlotRepository;
@@ -103,7 +105,7 @@ class SlotAvailabilityServiceTests {
         when(careRepo.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getAvailableSlots(futureMonday, 99L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("99");
     }
 

@@ -1,5 +1,7 @@
 package com.prettyface.app.category.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.category.domain.Category;
 import com.prettyface.app.category.repo.CategoryRepository;
@@ -43,7 +45,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryResponse get(Long id) {
         return repo.findById(id).map(CategoryMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
     }
 
     @Transactional
@@ -55,7 +57,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse update(Long id, CategoryRequest req) {
-        Category c = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+        Category c = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
         CategoryMapper.updateEntity(c, req);
         CategoryResponse response = CategoryMapper.toResponse(repo.save(c));
         syncTenantCategories();
@@ -68,7 +70,7 @@ public class CategoryService {
     @Transactional
     public DeleteCategoryResponse deleteWithReassignment(Long id, Long reassignToId) {
         repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
 
         long careCount = careRepository.countByCategoryId(id);
 
@@ -82,7 +84,7 @@ public class CategoryService {
                 throw new IllegalStateException("Cannot reassign to the same category");
             }
             Category target = repo.findById(reassignToId)
-                    .orElseThrow(() -> new IllegalArgumentException("Target category not found: " + reassignToId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Target category not found: " + reassignToId));
             careRepository.reassignCategory(id, target);
         }
 

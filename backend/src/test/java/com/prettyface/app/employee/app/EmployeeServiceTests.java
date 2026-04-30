@@ -1,5 +1,7 @@
 package com.prettyface.app.employee.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.employee.domain.AccessLevel;
@@ -287,7 +289,7 @@ class EmployeeServiceTests {
         when(employeeRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> employeeService.get(999L))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("999");
     }
 

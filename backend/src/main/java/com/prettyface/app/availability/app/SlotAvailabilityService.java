@@ -1,5 +1,7 @@
 package com.prettyface.app.availability.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.availability.domain.BlockedSlot;
 import com.prettyface.app.availability.domain.OpeningHour;
 import com.prettyface.app.availability.repo.BlockedSlotRepository;
@@ -67,7 +69,7 @@ public class SlotAvailabilityService {
         }
 
         Care care = careRepo.findById(careId)
-                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + careId));
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + careId));
         int durationMinutes = care.getDuration();
 
         // Get day of week (Monday=1..Sunday=7)
@@ -146,7 +148,7 @@ public class SlotAvailabilityService {
         }
 
         Care care = careRepo.findById(careId)
-                .orElseThrow(() -> new IllegalArgumentException("Care not found: " + careId));
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + careId));
         int durationMinutes = care.getDuration();
 
         // Get day of week (Monday=1..Sunday=7)

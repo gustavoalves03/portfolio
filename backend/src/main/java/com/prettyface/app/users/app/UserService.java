@@ -1,5 +1,7 @@
 package com.prettyface.app.users.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.users.domain.User;
 import com.prettyface.app.users.repo.UserRepository;
 import com.prettyface.app.users.web.dto.UserRequest;
@@ -23,7 +25,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse get(Long id) {
         return repo.findById(id).map(UserMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
     }
 
     @Transactional
@@ -34,7 +36,7 @@ public class UserService {
 
     @Transactional
     public UserResponse update(Long id, UserRequest req) {
-        User u = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        User u = repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
         UserMapper.updateEntity(u, req);
         return UserMapper.toResponse(repo.save(u));
     }

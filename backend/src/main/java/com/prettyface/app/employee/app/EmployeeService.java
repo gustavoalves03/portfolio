@@ -1,5 +1,7 @@
 package com.prettyface.app.employee.app;
 
+
+import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.care.domain.Care;
 import com.prettyface.app.care.repo.CareRepository;
 import com.prettyface.app.employee.domain.Employee;
@@ -64,7 +66,7 @@ public class EmployeeService {
     public EmployeeResponse get(Long id) {
         return employeeRepository.findById(id)
                 .map(this::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -128,7 +130,7 @@ public class EmployeeService {
     @Transactional
     public EmployeeResponse update(Long id, UpdateEmployeeRequest req) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + id));
 
         if (req.name() != null) {
             employee.setName(req.name());
@@ -151,7 +153,7 @@ public class EmployeeService {
     @Transactional
     public void delete(Long id) {
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + id));
         employeeRepository.delete(employee);
     }
 
