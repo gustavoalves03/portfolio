@@ -28,8 +28,13 @@ import { NotificationsStore } from './features/notifications/store/notifications
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Browser uses localhost, SSR uses host.docker.internal (overridden in app.config.server.ts)
-    {provide: API_BASE_URL, useValue: 'http://localhost:8080'},
+    // Browser API base URL.
+    //   - dev (ng serve): hits the backend on localhost:8080 directly.
+    //   - prod build: empty string → relative paths → the reverse proxy routes
+    //     /api/** to the backend on the same origin. No rebuild per environment.
+    // SSR overrides this in app.config.server.ts (uses host.docker.internal or
+    // API_BASE_URL env var).
+    {provide: API_BASE_URL, useValue: isDevMode() ? 'http://localhost:8080' : ''},
     provideHttpClient(
       withFetch(),
       withInterceptors([credentialsInterceptor, csrfInterceptor, authInterceptor]),
