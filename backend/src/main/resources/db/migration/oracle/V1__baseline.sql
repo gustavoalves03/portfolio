@@ -1,0 +1,11 @@
+-- Baseline anchor for Flyway adoption (2026-05-04).
+--
+-- This file is intentionally a no-op. With
+-- spring.flyway.baseline-on-migrate=true and spring.flyway.baseline-version=1,
+-- Flyway will:
+--   - on an existing non-empty database, create a BASELINE row at V1 in
+--     flyway_schema_history WITHOUT executing this SQL, then apply V2+;
+--   - on a brand-new (empty) database, run this SELECT (a no-op) and apply V2+.
+--
+-- All real DDL/DML lives in V2..V5, which reproduce ApplicationSchemaMigrator.
+SELECT 1 FROM DUAL;

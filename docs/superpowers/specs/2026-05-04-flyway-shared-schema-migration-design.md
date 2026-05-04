@@ -140,13 +140,18 @@ Flyway commits the transaction itself — no explicit `COMMIT` needed (and an ex
 
 ## Idempotence and safety
 
-Although Flyway never re-applies a migration once recorded in `flyway_schema_history`, V2–V4 must remain safe when run for the **first time** against a database where `ApplicationSchemaMigrator` has already executed (production case). That is why V2–V4 use defensive PL/SQL:
+Two scenarios force defensive PL/SQL on top of Flyway's own once-only guarantee:
 
-- V2: skip if `EMPLOYEE` is already in the existing constraint.
-- V3, V4: catch ORA-00955 / ORA-01408 inside `EXECUTE IMMEDIATE … EXCEPTION WHEN OTHERS THEN IF SQLCODE NOT IN (-955, -1408) THEN RAISE; END IF`.
-- V5: naturally idempotent via `WHERE … IS NULL`.
+1. **Existing production database** where `ApplicationSchemaMigrator` already ran — the constraint, tables and indexes already exist.
+2. **Fresh database** where Hibernate `ddl-auto` has not yet run — `USERS` and `TENANTS` do not exist yet (Flyway runs before Hibernate).
 
-This is a deliberate departure from the section "no try/catch with Flyway" rule, justified solely by the existing-prod-database scenario.
+Each migration is written to handle both:
+
+- **V2:** early `RETURN` if `USERS` is absent (fresh DB), then a no-op pass if any existing role-check constraint already includes `'EMPLOYEE'` (prod re-run), otherwise drop stale constraints and recreate.
+- **V3, V4:** wrap each `CREATE TABLE` / `CREATE INDEX` in a per-statement `BEGIN ... EXCEPTION ... END` using `PRAGMA EXCEPTION_INIT` against named exceptions for ORA-00955 (object already exists) and ORA-01408 (index list already exists). Any other error is re-raised.
+- **V5:** wrap each `UPDATE TENANTS` in a per-statement `BEGIN ... EXCEPTION ... END` using `PRAGMA EXCEPTION_INIT` for ORA-00942 (table missing) and ORA-00904 (column missing). The `WHERE col IS NULL` clause makes the update naturally idempotent on top.
+
+The named-exception approach is deliberately narrower than `WHEN OTHERS` — only the specific Oracle codes we expect are swallowed; everything else surfaces as a Flyway failure.
 
 ## Code changes
 

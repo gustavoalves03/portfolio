@@ -360,6 +360,7 @@ public class TenantSchemaManager {
                     REVIEWER_NOTE VARCHAR(500),
                     CREATED_AT TIMESTAMP NOT NULL,
                     REVIEWED_AT TIMESTAMP,
+                    VERSION BIGINT,
                     CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
                 )""",
                 """
@@ -412,6 +413,8 @@ public class TenantSchemaManager {
                     CONSENT_PUBLIC_SHARE BOOLEAN NOT NULL,
                     CONSENT_GIVEN_AT TIMESTAMP,
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP,
+                    UPDATED_BY BIGINT,
                     CONSTRAINT UK_CLIENT_PROFILE_USER UNIQUE (USER_ID)
                 )""",
                 """
@@ -427,6 +430,8 @@ public class TenantSchemaManager {
                     SATISFACTION_SCORE INTEGER,
                     SATISFACTION_COMMENT VARCHAR(500),
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP,
+                    UPDATED_BY BIGINT,
                     CONSTRAINT FK_VISIT_PROFILE FOREIGN KEY (CLIENT_PROFILE_ID) REFERENCES CLIENT_PROFILES(ID)
                 )""",
                 """
@@ -437,6 +442,7 @@ public class TenantSchemaManager {
                     IMAGE_PATH VARCHAR(500) NOT NULL,
                     IMAGE_ORDER INTEGER NOT NULL,
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPLOADED_BY BIGINT,
                     CONSTRAINT FK_PHOTO_VISIT FOREIGN KEY (VISIT_RECORD_ID) REFERENCES VISIT_RECORDS(ID)
                 )""",
                 """
@@ -448,7 +454,8 @@ public class TenantSchemaManager {
                     RECOMMENDED_DATE DATE,
                     MESSAGE VARCHAR(500),
                     SENT BOOLEAN NOT NULL,
-                    CREATED_AT TIMESTAMP NOT NULL
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CREATED_BY BIGINT
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS EMPLOYEE_PERMISSIONS (
@@ -663,18 +670,20 @@ public class TenantSchemaManager {
                     ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                     DAY_OF_WEEK NUMBER(10) NOT NULL,
                     OPEN_TIME   TIMESTAMP NOT NULL,
-                    CLOSE_TIME  TIMESTAMP NOT NULL
+                    CLOSE_TIME  TIMESTAMP NOT NULL,
+                    EMPLOYEE_ID NUMBER(19)
                 )""",
 
                 // ── BLOCKED_SLOTS ──
                 """
                 CREATE TABLE BLOCKED_SLOTS (
-                    ID         NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    SLOT_DATE  DATE NOT NULL,
-                    START_TIME TIMESTAMP,
-                    END_TIME   TIMESTAMP,
-                    FULL_DAY   NUMBER(1) NOT NULL,
-                    REASON     VARCHAR2(500 CHAR)
+                    ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    SLOT_DATE   DATE NOT NULL,
+                    START_TIME  TIMESTAMP,
+                    END_TIME    TIMESTAMP,
+                    FULL_DAY    NUMBER(1) NOT NULL,
+                    REASON      VARCHAR2(500 CHAR),
+                    EMPLOYEE_ID NUMBER(19)
                 )""",
 
                 // ── CARE_BOOKINGS ──
@@ -690,6 +699,8 @@ public class TenantSchemaManager {
                     APPOINTMENT_TIME TIMESTAMP NOT NULL,
                     STATUS           VARCHAR2(255 CHAR) NOT NULL,
                     CREATED_AT       TIMESTAMP NOT NULL,
+                    EMPLOYEE_ID      NUMBER(19),
+                    SALON_CLIENT_ID  NUMBER(19),
                     CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
                     CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
                 )""",
@@ -731,6 +742,7 @@ public class TenantSchemaManager {
                     REVIEWER_NOTE VARCHAR2(500 CHAR),
                     CREATED_AT    TIMESTAMP NOT NULL,
                     REVIEWED_AT   TIMESTAMP,
+                    VERSION       NUMBER(19),
                     CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
                 )""",
 
@@ -793,6 +805,8 @@ public class TenantSchemaManager {
                     CONSENT_PUBLIC_SHARE NUMBER(1) NOT NULL,
                     CONSENT_GIVEN_AT     TIMESTAMP,
                     CREATED_AT           TIMESTAMP NOT NULL,
+                    UPDATED_AT           TIMESTAMP,
+                    UPDATED_BY           NUMBER(19),
                     CONSTRAINT UK_CLIENT_PROFILE_USER UNIQUE (USER_ID)
                 )""",
 
@@ -810,6 +824,8 @@ public class TenantSchemaManager {
                     SATISFACTION_SCORE   NUMBER(10),
                     SATISFACTION_COMMENT VARCHAR2(500 CHAR),
                     CREATED_AT           TIMESTAMP NOT NULL,
+                    UPDATED_AT           TIMESTAMP,
+                    UPDATED_BY           NUMBER(19),
                     CONSTRAINT FK_VISIT_PROFILE FOREIGN KEY (CLIENT_PROFILE_ID) REFERENCES CLIENT_PROFILES(ID)
                 )""",
 
@@ -822,6 +838,7 @@ public class TenantSchemaManager {
                     IMAGE_PATH      VARCHAR2(500 CHAR) NOT NULL,
                     IMAGE_ORDER     NUMBER(10) NOT NULL,
                     CREATED_AT      TIMESTAMP NOT NULL,
+                    UPLOADED_BY     NUMBER(19),
                     CONSTRAINT FK_PHOTO_VISIT FOREIGN KEY (VISIT_RECORD_ID) REFERENCES VISIT_RECORDS(ID)
                 )""",
 
@@ -835,7 +852,8 @@ public class TenantSchemaManager {
                     RECOMMENDED_DATE DATE,
                     MESSAGE          VARCHAR2(500 CHAR),
                     SENT             NUMBER(1) NOT NULL,
-                    CREATED_AT       TIMESTAMP NOT NULL
+                    CREATED_AT       TIMESTAMP NOT NULL,
+                    CREATED_BY       NUMBER(19)
                 )""",
 
                 // ── EMPLOYEE_PERMISSIONS ──
@@ -971,7 +989,8 @@ public class TenantSchemaManager {
                     ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
                     DAY_OF_WEEK INTEGER NOT NULL,
                     OPEN_TIME TIME NOT NULL,
-                    CLOSE_TIME TIME NOT NULL
+                    CLOSE_TIME TIME NOT NULL,
+                    EMPLOYEE_ID BIGINT
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS BLOCKED_SLOTS (
@@ -980,7 +999,8 @@ public class TenantSchemaManager {
                     START_TIME TIME,
                     END_TIME TIME,
                     FULL_DAY BOOLEAN NOT NULL,
-                    REASON VARCHAR(500)
+                    REASON VARCHAR(500),
+                    EMPLOYEE_ID BIGINT
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS CARE_BOOKINGS (
@@ -992,6 +1012,8 @@ public class TenantSchemaManager {
                     APPOINTMENT_TIME TIME NOT NULL,
                     STATUS VARCHAR(255) NOT NULL,
                     CREATED_AT TIMESTAMP NOT NULL,
+                    EMPLOYEE_ID BIGINT,
+                    SALON_CLIENT_ID BIGINT,
                     CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
                     CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
                 )""",
@@ -1027,6 +1049,7 @@ public class TenantSchemaManager {
                     REVIEWER_NOTE VARCHAR(500),
                     CREATED_AT TIMESTAMP NOT NULL,
                     REVIEWED_AT TIMESTAMP,
+                    VERSION BIGINT,
                     CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
                 )""",
                 """
@@ -1079,6 +1102,8 @@ public class TenantSchemaManager {
                     CONSENT_PUBLIC_SHARE BOOLEAN NOT NULL,
                     CONSENT_GIVEN_AT TIMESTAMP,
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP,
+                    UPDATED_BY BIGINT,
                     CONSTRAINT UK_CLIENT_PROFILE_USER UNIQUE (USER_ID)
                 )""",
                 """
@@ -1094,6 +1119,8 @@ public class TenantSchemaManager {
                     SATISFACTION_SCORE INTEGER,
                     SATISFACTION_COMMENT VARCHAR(500),
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP,
+                    UPDATED_BY BIGINT,
                     CONSTRAINT FK_VISIT_PROFILE FOREIGN KEY (CLIENT_PROFILE_ID) REFERENCES CLIENT_PROFILES(ID)
                 )""",
                 """
@@ -1104,6 +1131,7 @@ public class TenantSchemaManager {
                     IMAGE_PATH VARCHAR(500) NOT NULL,
                     IMAGE_ORDER INTEGER NOT NULL,
                     CREATED_AT TIMESTAMP NOT NULL,
+                    UPLOADED_BY BIGINT,
                     CONSTRAINT FK_PHOTO_VISIT FOREIGN KEY (VISIT_RECORD_ID) REFERENCES VISIT_RECORDS(ID)
                 )""",
                 """
@@ -1115,7 +1143,8 @@ public class TenantSchemaManager {
                     RECOMMENDED_DATE DATE,
                     MESSAGE VARCHAR(500),
                     SENT BOOLEAN NOT NULL,
-                    CREATED_AT TIMESTAMP NOT NULL
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    CREATED_BY BIGINT
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS EMPLOYEE_PERMISSIONS (
