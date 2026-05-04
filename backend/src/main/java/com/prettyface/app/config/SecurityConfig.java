@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 @Configuration
 public class SecurityConfig {
 
-    @Value("${app.cors.allowed-origins:http://localhost:4300,http://localhost:4200}")
+    @Value("${app.cors.allowed-origins}")
     private String allowedOriginsConfig;
 
     private final RestAccessDeniedHandler accessDeniedHandler;

@@ -32,7 +32,7 @@ public class EmailService {
     @Value("${app.mail.from-name}")
     private String fromName;
 
-    @Value("${app.frontend.base-url:http://localhost:4300}")
+    @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
 
     public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
