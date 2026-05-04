@@ -52,6 +52,9 @@ oradata/
 ### Worktrees ###
 .worktrees/
 
+### Runtime uploads ###
+backend/uploads/
+
 ### OS ###
 .DS_Store
 Thumbs.db
