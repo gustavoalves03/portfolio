@@ -11,7 +11,17 @@
 DECLARE
     v_already_ok    NUMBER := 0;
     v_normalized    VARCHAR2(4000);
+    v_users_exists  NUMBER;
 BEGIN
+    -- On a fresh database, USERS does not exist yet (Hibernate creates it after
+    -- Flyway runs). Skip silently — there is no constraint to migrate.
+    SELECT COUNT(*) INTO v_users_exists
+      FROM user_tables
+     WHERE table_name = 'USERS';
+    IF v_users_exists = 0 THEN
+        RETURN;
+    END IF;
+
     -- Pass 1: do any of the existing role-check constraints already include EMPLOYEE?
     FOR r IN (
         SELECT constraint_name, search_condition_vc
