@@ -123,6 +123,25 @@ class HolidayIntegrationTests {
         lenient().when(tenantRepository.findBySlug(slug)).thenReturn(Optional.of(tenant));
     }
 
+    /**
+     * Next May 1st on or after today that does NOT fall on a Sunday. Tests that
+     * expect non-empty slots need a future date (SlotAvailabilityService returns
+     * empty for past dates) AND a day the salon is open on (Mon-Sat per
+     * setupStandardOpeningHours). May 1 is a French public holiday every year,
+     * so this stays a valid Jollyday "FR" holiday across years.
+     */
+    private static LocalDate nextMay1() {
+        LocalDate today = LocalDate.now();
+        LocalDate candidate = LocalDate.of(today.getYear(), 5, 1);
+        if (today.isAfter(candidate)) {
+            candidate = candidate.plusYears(1);
+        }
+        while (candidate.getDayOfWeek().getValue() == 7) {
+            candidate = candidate.plusYears(1);
+        }
+        return candidate;
+    }
+
     private OpeningHour openingHour(int dow, String open, String close) {
         OpeningHour oh = new OpeningHour();
         oh.setDayOfWeek(dow);
@@ -195,7 +214,7 @@ class HolidayIntegrationTests {
     @Test
     @DisplayName("2. May 1st with exception open=true → salon open, normal slots")
     void may1st_withExceptionOpen_hasSlots() {
-        LocalDate may1 = LocalDate.of(2026, 5, 1);
+        LocalDate may1 = nextMay1();
 
         HolidayException openException = new HolidayException();
         openException.setHolidayDate(may1);
@@ -219,7 +238,7 @@ class HolidayIntegrationTests {
     @Test
     @DisplayName("3. closedOnHolidays=false → May 1st treated as normal day")
     void closedOnHolidaysFalse_may1st_normalDay() {
-        LocalDate may1 = LocalDate.of(2026, 5, 1);
+        LocalDate may1 = nextMay1();
 
         setTenantContext(SLUG_FR_NOT_CLOSED, frTenantNotClosed);
         setupStandardOpeningHours();
@@ -228,7 +247,7 @@ class HolidayIntegrationTests {
         setupNoBookings(may1);
 
         List<SlotAvailabilityService.TimeSlot> slots = slotAvailabilityService.getAvailableSlots(may1, 1L);
-        // May 1, 2026 is a Friday (dow=5), salon is open Mon-Sat
+        // nextMay1() is guaranteed to be Mon-Sat (salon is open Mon-Sat)
         assertThat(slots).isNotEmpty();
     }
 
@@ -410,7 +429,7 @@ class HolidayIntegrationTests {
     @Test
     @DisplayName("11. Holiday with no country on tenant → not closed, normal slots")
     void noCountryOnTenant_notClosed_normalSlots() {
-        LocalDate may1 = LocalDate.of(2026, 5, 1);
+        LocalDate may1 = nextMay1();
 
         setTenantContext(SLUG_NO_COUNTRY, noCountryTenant);
         setupStandardOpeningHours();
