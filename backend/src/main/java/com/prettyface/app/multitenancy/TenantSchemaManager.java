@@ -58,13 +58,15 @@ public class TenantSchemaManager {
     private final String provisioningUsername;
     private final String provisioningPassword;
     private final DatabaseKind databaseKind;
+    private final TenantFlywayService tenantFlywayService;
 
     public TenantSchemaManager(
             DataSource dataSource,
             @Value("${app.multitenancy.application-schema:${APP_USER:appuser}}") String applicationSchemaName,
             @Value("${app.multitenancy.provisioning.jdbc-url:${spring.datasource.url}}") String provisioningJdbcUrl,
             @Value("${app.multitenancy.provisioning.username:}") String provisioningUsername,
-            @Value("${app.multitenancy.provisioning.password:}") String provisioningPassword
+            @Value("${app.multitenancy.provisioning.password:}") String provisioningPassword,
+            TenantFlywayService tenantFlywayService
     ) {
         this.dataSource = dataSource;
         this.applicationSchemaName = normalizeOracleIdentifier(applicationSchemaName);
@@ -72,6 +74,7 @@ public class TenantSchemaManager {
         this.provisioningUsername = provisioningUsername;
         this.provisioningPassword = provisioningPassword;
         this.databaseKind = detectDatabaseKind(dataSource);
+        this.tenantFlywayService = tenantFlywayService;
     }
 
     /**
@@ -91,9 +94,12 @@ public class TenantSchemaManager {
 
         logger.info("Provisioning Oracle schema: {}", schemaName);
 
+        // 1. Create the Oracle user/schema with the right privileges so Flyway can connect.
+        // 2. Hand off all DDL (tables, synonyms, grants) to Flyway against db/migration/tenant.
+        // Existing schemas (legacy tenants provisioned before this change) keep going through
+        // TenantSchemaMigrator at startup until they can be baselined on a staging DB.
         createSchemaUser(schemaName);
-        dropTenantTables(schemaName);
-        createTenantTables(schemaName);
+        tenantFlywayService.migrate(schemaName);
 
         logger.info("Schema {} fully provisioned with tables", schemaName);
     }
@@ -574,369 +580,6 @@ public class TenantSchemaManager {
             );
         }
     }
-
-    /**
-     * Drops all tenant-scoped tables in the given schema (reverse dependency order).
-     * Silently skips tables that don't exist (ORA-00942).
-     */
-    private void dropTenantTables(String schemaName) {
-        // Reverse order to respect FK dependencies
-        List<String> reverseTables = List.of(
-                "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS",
-                "SALON_CLIENTS", "CLIENT_PROFILES",
-                "HOLIDAY_EXCEPTIONS",
-                "POST_IMAGES", "POSTS",
-                "EMPLOYEE_DOCUMENTS", "LEAVE_REQUESTS", "EMPLOYEE_CARES",
-                "EMPLOYEES", "CARE_BOOKINGS", "BLOCKED_SLOTS", "OPENING_HOURS",
-                "CARE_IMAGES", "SERVICES", "CATEGORIES"
-        );
-
-        try (Connection conn = getProvisioningConnection();
-             Statement stmt = conn.createStatement()) {
-
-            setCurrentSchema(stmt, schemaName);
-
-            for (String table : reverseTables) {
-                try {
-                    stmt.execute("DROP TABLE \"" + table + "\" CASCADE CONSTRAINTS PURGE");
-                } catch (SQLException e) {
-                    if (e.getErrorCode() != 942) { // ORA-00942: table or view does not exist
-                        logger.warn("Could not drop {}.{}: {}", schemaName, table, e.getMessage());
-                    }
-                }
-            }
-
-            setCurrentSchema(stmt, applicationSchemaName);
-            logger.debug("Dropped existing tables in schema {}", schemaName);
-
-        } catch (SQLException e) {
-            logger.warn("Could not drop tables in schema {}: {}", schemaName, e.getMessage());
-        }
-    }
-
-    /**
-     * Creates all tenant-scoped tables inside the given schema by using
-     * {@code ALTER SESSION SET CURRENT_SCHEMA}.
-     * <p>
-     * The DDL matches the Hibernate entity mappings for:
-     * Category, Care (SERVICES), CareImage, OpeningHour, BlockedSlot, CareBooking.
-     * <p>
-     * Each CREATE TABLE is wrapped to silently skip ORA-00955 (name already used).
-     */
-    private void createTenantTables(String schemaName) {
-        // DDL statements aligned with the JPA entity definitions and Oracle dialect.
-        // NUMBER(19) = Long, NUMBER(10) = Integer, NUMBER(1) = boolean
-        // VARCHAR2(255 CHAR) = default String, TIMESTAMP = LocalTime/Instant, DATE = LocalDate
-        String[] ddlStatements = {
-
-                // ── CATEGORIES ──
-                """
-                CREATE TABLE CATEGORIES (
-                    ID           NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    NAME         VARCHAR2(255 CHAR) NOT NULL,
-                    DESCRIPTION  VARCHAR2(255 CHAR),
-                    CONSTRAINT UK_CATEGORY_NAME UNIQUE (NAME)
-                )""",
-
-                // ── SERVICES (Care entity) ──
-                """
-                CREATE TABLE SERVICES (
-                    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    NAME          VARCHAR2(255 CHAR) NOT NULL,
-                    PRICE         NUMBER(10) NOT NULL,
-                    DESCRIPTION   VARCHAR2(255 CHAR) NOT NULL,
-                    STATUS        VARCHAR2(255 CHAR) NOT NULL,
-                    DURATION      NUMBER(10) NOT NULL,
-                    DISPLAY_ORDER NUMBER(10),
-                    CATEGORY_ID   NUMBER(19) NOT NULL,
-                    CONSTRAINT FK_CARE_CATEGORY FOREIGN KEY (CATEGORY_ID) REFERENCES CATEGORIES(ID)
-                )""",
-
-                // ── CARE_IMAGES ──
-                """
-                CREATE TABLE CARE_IMAGES (
-                    ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    NAME        VARCHAR2(255 CHAR) NOT NULL,
-                    IMAGE_ORDER NUMBER(10) NOT NULL,
-                    FILENAME    VARCHAR2(100 CHAR) NOT NULL,
-                    FILE_PATH   VARCHAR2(500 CHAR) NOT NULL,
-                    CARE_ID     NUMBER(19) NOT NULL,
-                    CONSTRAINT FK_CARE_IMAGE_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID)
-                )""",
-
-                // ── OPENING_HOURS ──
-                """
-                CREATE TABLE OPENING_HOURS (
-                    ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    DAY_OF_WEEK NUMBER(10) NOT NULL,
-                    OPEN_TIME   TIMESTAMP NOT NULL,
-                    CLOSE_TIME  TIMESTAMP NOT NULL,
-                    EMPLOYEE_ID NUMBER(19)
-                )""",
-
-                // ── BLOCKED_SLOTS ──
-                """
-                CREATE TABLE BLOCKED_SLOTS (
-                    ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    SLOT_DATE   DATE NOT NULL,
-                    START_TIME  TIMESTAMP,
-                    END_TIME    TIMESTAMP,
-                    FULL_DAY    NUMBER(1) NOT NULL,
-                    REASON      VARCHAR2(500 CHAR),
-                    EMPLOYEE_ID NUMBER(19)
-                )""",
-
-                // ── CARE_BOOKINGS ──
-                // NOTE: user_id references the shared USERS table so we do NOT
-                // add a FK constraint here — just store the user id as a plain number.
-                """
-                CREATE TABLE CARE_BOOKINGS (
-                    ID               NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    USER_ID          NUMBER(19) NOT NULL,
-                    CARE_ID          NUMBER(19) NOT NULL,
-                    QUANTITY         NUMBER(10) NOT NULL,
-                    APPOINTMENT_DATE DATE NOT NULL,
-                    APPOINTMENT_TIME TIMESTAMP NOT NULL,
-                    STATUS           VARCHAR2(255 CHAR) NOT NULL,
-                    CREATED_AT       TIMESTAMP NOT NULL,
-                    EMPLOYEE_ID      NUMBER(19),
-                    SALON_CLIENT_ID  NUMBER(19),
-                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
-                    CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
-                )""",
-
-                // ── EMPLOYEES ──
-                """
-                CREATE TABLE EMPLOYEES (
-                    ID         NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    USER_ID    NUMBER(19) NOT NULL,
-                    NAME       VARCHAR2(255 CHAR) NOT NULL,
-                    EMAIL      VARCHAR2(255 CHAR) NOT NULL,
-                    PHONE      VARCHAR2(255 CHAR),
-                    ACTIVE     NUMBER(1) NOT NULL,
-                    CREATED_AT TIMESTAMP NOT NULL,
-                    CONSTRAINT UK_EMPLOYEE_USER UNIQUE (USER_ID)
-                )""",
-
-                // ── EMPLOYEE_CARES (join table) ──
-                """
-                CREATE TABLE EMPLOYEE_CARES (
-                    EMPLOYEE_ID NUMBER(19) NOT NULL,
-                    CARE_ID     NUMBER(19) NOT NULL,
-                    CONSTRAINT FK_EC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
-                    CONSTRAINT FK_EC_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
-                    CONSTRAINT PK_EMPLOYEE_CARES PRIMARY KEY (EMPLOYEE_ID, CARE_ID)
-                )""",
-
-                // ── LEAVE_REQUESTS ──
-                """
-                CREATE TABLE LEAVE_REQUESTS (
-                    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    EMPLOYEE_ID   NUMBER(19) NOT NULL,
-                    LEAVE_TYPE    VARCHAR2(255 CHAR) NOT NULL,
-                    STATUS        VARCHAR2(255 CHAR) NOT NULL,
-                    START_DATE    DATE NOT NULL,
-                    END_DATE      DATE NOT NULL,
-                    REASON        VARCHAR2(500 CHAR),
-                    DOCUMENT_PATH VARCHAR2(500 CHAR),
-                    REVIEWER_NOTE VARCHAR2(500 CHAR),
-                    CREATED_AT    TIMESTAMP NOT NULL,
-                    REVIEWED_AT   TIMESTAMP,
-                    VERSION       NUMBER(19),
-                    CONSTRAINT FK_LEAVE_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
-                )""",
-
-                // ── EMPLOYEE_DOCUMENTS ──
-                """
-                CREATE TABLE EMPLOYEE_DOCUMENTS (
-                    ID                  NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    EMPLOYEE_ID         NUMBER(19) NOT NULL,
-                    DOC_TYPE            VARCHAR2(255 CHAR) NOT NULL,
-                    TITLE               VARCHAR2(255 CHAR) NOT NULL,
-                    FILENAME            VARCHAR2(255 CHAR) NOT NULL,
-                    FILE_PATH           VARCHAR2(500 CHAR) NOT NULL,
-                    UPLOADED_BY_USER_ID NUMBER(19) NOT NULL,
-                    CREATED_AT          TIMESTAMP NOT NULL,
-                    CONSTRAINT FK_DOC_EMPLOYEE FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID)
-                )""",
-
-                // ── POSTS ──
-                """
-                CREATE TABLE POSTS (
-                    ID               NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    POST_TYPE        VARCHAR2(255 CHAR) NOT NULL,
-                    CAPTION          VARCHAR2(1000 CHAR),
-                    BEFORE_IMAGE_PATH VARCHAR2(500 CHAR),
-                    AFTER_IMAGE_PATH  VARCHAR2(500 CHAR),
-                    CARE_ID          NUMBER(19),
-                    CARE_NAME        VARCHAR2(255 CHAR),
-                    CREATED_AT       TIMESTAMP NOT NULL
-                )""",
-
-                // ── POST_IMAGES ──
-                """
-                CREATE TABLE POST_IMAGES (
-                    ID          NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    POST_ID     NUMBER(19) NOT NULL,
-                    IMAGE_PATH  VARCHAR2(500 CHAR) NOT NULL,
-                    IMAGE_ORDER NUMBER(10) NOT NULL,
-                    CONSTRAINT FK_POST_IMAGE_POST FOREIGN KEY (POST_ID) REFERENCES POSTS(ID)
-                )""",
-
-                // ── HOLIDAY_EXCEPTIONS ──
-                """
-                CREATE TABLE HOLIDAY_EXCEPTIONS (
-                    ID           NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    HOLIDAY_DATE DATE NOT NULL,
-                    OPEN         NUMBER(1) NOT NULL
-                )""",
-
-                // ── CLIENT_PROFILES ──
-                """
-                CREATE TABLE CLIENT_PROFILES (
-                    ID                   NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    USER_ID              NUMBER(19) NOT NULL,
-                    NOTES                VARCHAR2(2000 CHAR),
-                    SKIN_TYPE            VARCHAR2(100 CHAR),
-                    HAIR_TYPE            VARCHAR2(100 CHAR),
-                    ALLERGIES            VARCHAR2(500 CHAR),
-                    PREFERENCES          VARCHAR2(500 CHAR),
-                    CONSENT_PHOTOS       NUMBER(1) NOT NULL,
-                    CONSENT_PUBLIC_SHARE NUMBER(1) NOT NULL,
-                    CONSENT_GIVEN_AT     TIMESTAMP,
-                    CREATED_AT           TIMESTAMP NOT NULL,
-                    UPDATED_AT           TIMESTAMP,
-                    UPDATED_BY           NUMBER(19),
-                    CONSTRAINT UK_CLIENT_PROFILE_USER UNIQUE (USER_ID)
-                )""",
-
-                // ── VISIT_RECORDS ──
-                """
-                CREATE TABLE VISIT_RECORDS (
-                    ID                   NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    CLIENT_PROFILE_ID    NUMBER(19) NOT NULL,
-                    BOOKING_ID           NUMBER(19),
-                    CARE_ID              NUMBER(19),
-                    CARE_NAME            VARCHAR2(255 CHAR),
-                    VISIT_DATE           DATE NOT NULL,
-                    PRACTITIONER_NOTES   VARCHAR2(2000 CHAR),
-                    PRODUCTS_USED        VARCHAR2(1000 CHAR),
-                    SATISFACTION_SCORE   NUMBER(10),
-                    SATISFACTION_COMMENT VARCHAR2(500 CHAR),
-                    CREATED_AT           TIMESTAMP NOT NULL,
-                    UPDATED_AT           TIMESTAMP,
-                    UPDATED_BY           NUMBER(19),
-                    CONSTRAINT FK_VISIT_PROFILE FOREIGN KEY (CLIENT_PROFILE_ID) REFERENCES CLIENT_PROFILES(ID)
-                )""",
-
-                // ── VISIT_PHOTOS ──
-                """
-                CREATE TABLE VISIT_PHOTOS (
-                    ID              NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    VISIT_RECORD_ID NUMBER(19) NOT NULL,
-                    PHOTO_TYPE      VARCHAR2(20 CHAR) NOT NULL,
-                    IMAGE_PATH      VARCHAR2(500 CHAR) NOT NULL,
-                    IMAGE_ORDER     NUMBER(10) NOT NULL,
-                    CREATED_AT      TIMESTAMP NOT NULL,
-                    UPLOADED_BY     NUMBER(19),
-                    CONSTRAINT FK_PHOTO_VISIT FOREIGN KEY (VISIT_RECORD_ID) REFERENCES VISIT_RECORDS(ID)
-                )""",
-
-                // ── CLIENT_REMINDERS ──
-                """
-                CREATE TABLE CLIENT_REMINDERS (
-                    ID               NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    USER_ID          NUMBER(19) NOT NULL,
-                    CARE_ID          NUMBER(19),
-                    CARE_NAME        VARCHAR2(255 CHAR),
-                    RECOMMENDED_DATE DATE,
-                    MESSAGE          VARCHAR2(500 CHAR),
-                    SENT             NUMBER(1) NOT NULL,
-                    CREATED_AT       TIMESTAMP NOT NULL,
-                    CREATED_BY       NUMBER(19)
-                )""",
-
-                // ── EMPLOYEE_PERMISSIONS ──
-                """
-                CREATE TABLE EMPLOYEE_PERMISSIONS (
-                    ID NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    EMPLOYEE_ID NUMBER(19) NOT NULL,
-                    DOMAIN VARCHAR2(30 CHAR) NOT NULL,
-                    ACCESS_LEVEL VARCHAR2(10 CHAR) NOT NULL,
-                    CONSTRAINT FK_EMP_PERM_EMP FOREIGN KEY (EMPLOYEE_ID) REFERENCES EMPLOYEES(ID),
-                    CONSTRAINT UQ_EMP_PERM UNIQUE (EMPLOYEE_ID, DOMAIN)
-                )""",
-
-                // ── SALON_CLIENTS ──
-                """
-                CREATE TABLE SALON_CLIENTS (
-                    ID NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                    NAME VARCHAR2(255 CHAR) NOT NULL,
-                    PHONE VARCHAR2(20 CHAR),
-                    EMAIL VARCHAR2(255 CHAR),
-                    DATE_OF_BIRTH DATE,
-                    NOTES VARCHAR2(500 CHAR),
-                    USER_ID NUMBER(19),
-                    IS_MANUAL NUMBER(1) DEFAULT 1 NOT NULL,
-                    CREATED_AT TIMESTAMP NOT NULL,
-                    CREATED_BY NUMBER(19)
-                )"""
-        };
-
-        // Synonyms that point tenant schema references to shared public tables.
-        // This allows Hibernate JPA joins (e.g. CareBooking -> User) to resolve
-        // cross-schema without changing entity mappings.
-        String[] synonyms = {
-                "CREATE OR REPLACE SYNONYM \"" + schemaName + "\".\"USERS\" FOR \"" + applicationSchemaName + "\".\"USERS\"",
-                "CREATE OR REPLACE SYNONYM \"" + schemaName + "\".\"TENANTS\" FOR \"" + applicationSchemaName + "\".\"TENANTS\""
-        };
-
-        try (Connection conn = getProvisioningConnection();
-             Statement stmt = conn.createStatement()) {
-
-            // Create synonyms for public tables (must be done before schema switch,
-            // using fully-qualified names)
-            for (String syn : synonyms) {
-                try {
-                    stmt.execute(syn);
-                } catch (SQLException e) {
-                    logger.warn("Synonym creation skipped in {}: {}", schemaName, e.getMessage());
-                }
-            }
-
-            // Switch to the tenant schema
-            setCurrentSchema(stmt, schemaName);
-
-            for (String ddl : ddlStatements) {
-                try {
-                    stmt.execute(ddl);
-                } catch (SQLException e) {
-                    if (e.getErrorCode() == 955) {
-                        // ORA-00955: name is already used by an existing object — table exists, skip
-                        logger.debug("Table already exists in {}, skipping: {}", schemaName, e.getMessage());
-                    } else {
-                        throw e;
-                    }
-                }
-            }
-
-            // Reset to default schema
-            setCurrentSchema(stmt, applicationSchemaName);
-            grantTenantTablePrivileges(stmt, schemaName);
-
-            logger.info("Tenant tables created in schema {}", schemaName);
-
-        } catch (SQLException e) {
-            logger.error("Failed to create tables in schema {}: {}", schemaName, e.getMessage());
-            throw new RuntimeException(
-                    "Table creation failed in schema: " + schemaName +
-                            ". The provisioning account must be able to create tenant objects and grant " +
-                            "the application user access to them.",
-                    e
-            );
-        }
-    }
-
     private void dropTenantTablesH2(Statement stmt) throws SQLException {
         List<String> reverseTables = List.of(
                 "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS",

@@ -18,12 +18,15 @@ class TenantSchemaManagerH2Tests {
         dataSource.setUser("sa");
         dataSource.setPassword("");
 
+        // TenantFlywayService is null because this test exercises the H2 path,
+        // which never calls Flyway (H2 schema is built in-process by createTenantTablesH2).
         TenantSchemaManager manager = new TenantSchemaManager(
                 dataSource,
                 "appuser",
                 dataSource.getURL(),
                 "",
-                ""
+                "",
+                null
         );
 
         manager.provisionSchema("salon-sophie");
