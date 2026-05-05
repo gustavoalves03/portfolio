@@ -28,6 +28,10 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- Override Spring Boot 3.5.4 BOM (pins Flyway 11.7.2 which only
+		     supports Oracle up to 21.3 and warns on the 23.x container
+		     we run locally). 12.5.0 officially supports Oracle 23ai. -->
+		<flyway.version>12.5.0</flyway.version>
 	</properties>
 	<dependencies>
 		<dependency>
