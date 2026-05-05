@@ -474,13 +474,23 @@ class HolidayIntegrationTests {
         List<SlotAvailabilityService.TimeSlot> slotsMay8 = slotAvailabilityService.getAvailableSlots(may8, 1L);
         assertThat(slotsMay8).isEmpty();
 
-        // A normal day in May (May 4, Monday) should still have slots
-        LocalDate may4 = LocalDate.of(2026, 5, 4);
-        assertThat(realHolidayService.isPublicHoliday(may4, "FR")).isFalse();
-        setupNoBlockedSlots(may4);
-        setupNoBookings(may4);
-        List<SlotAvailabilityService.TimeSlot> slotsMay4 = slotAvailabilityService.getAvailableSlots(may4, 1L);
-        assertThat(slotsMay4).isNotEmpty();
+        // A normal weekday in May (next non-holiday Monday) should still have slots.
+        // Must be in the future because SlotAvailabilityService short-circuits past dates.
+        LocalDate normalMonday = nextNonHolidayMonday();
+        assertThat(realHolidayService.isPublicHoliday(normalMonday, "FR")).isFalse();
+        setupNoBlockedSlots(normalMonday);
+        setupNoBookings(normalMonday);
+        List<SlotAvailabilityService.TimeSlot> slotsNormal = slotAvailabilityService.getAvailableSlots(normalMonday, 1L);
+        assertThat(slotsNormal).isNotEmpty();
+    }
+
+    /** First Monday strictly after today that is NOT a French public holiday. */
+    private LocalDate nextNonHolidayMonday() {
+        LocalDate d = LocalDate.now().plusDays(1);
+        while (d.getDayOfWeek().getValue() != 1 || realHolidayService.isPublicHoliday(d, "FR")) {
+            d = d.plusDays(1);
+        }
+        return d;
     }
 
     // ══════════════════════════════════════════════════════════════
