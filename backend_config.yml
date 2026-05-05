@@ -13,7 +13,7 @@ services:
         volumes:
             - oradata:/opt/oracle/oradata
         healthcheck:
-            test: ["CMD", "/opt/oracle/scripts/healthcheck.sh"]
+            test: ["CMD", "/opt/oracle/healthcheck.sh"]
             interval: 15s
             timeout: 5s
             start_period: 10m
@@ -95,8 +95,6 @@ services:
             MULTITENANCY_PROVISIONING_PASSWORD: ${ORACLE_PASSWORD}
             # (facultatif) Hikari:
             SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT: "0"
-            # (recommandé) Hibernate:
-            SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.OracleDialect
             SPRING_SECURITY_USER_NAME: dev
             SPRING_SECURITY_USER_PASSWORD: dev
         ports:

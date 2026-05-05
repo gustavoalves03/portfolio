@@ -39,6 +39,17 @@ public class TenantSchemaMigrator implements ApplicationRunner {
 
         for (Tenant tenant : allTenants) {
             try {
+                if (!schemaManager.tenantSchemaExists(tenant.getSlug())) {
+                    logger.warn(
+                            "Tenant schema {} is missing for slug {}. Reprovisioning an empty tenant schema.",
+                            TenantSchemaManager.toSchemaName(tenant.getSlug()),
+                            tenant.getSlug()
+                    );
+                    schemaManager.provisionSchema(tenant.getSlug());
+                    logger.info("Reprovisioned missing tenant schema: {}", tenant.getSlug());
+                    continue;
+                }
+
                 schemaManager.migrateSchema(tenant.getSlug());
                 logger.info("Migrated tenant schema: {}", tenant.getSlug());
             } catch (Exception e) {

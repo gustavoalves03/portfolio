@@ -13,7 +13,7 @@ services:
     volumes:
       - oradata:/opt/oracle/oradata
     healthcheck:
-      test: ["CMD", "/opt/oracle/scripts/healthcheck.sh"]
+      test: ["CMD", "/opt/oracle/healthcheck.sh"]
       interval: 15s
       timeout: 5s
       start_period: 10m

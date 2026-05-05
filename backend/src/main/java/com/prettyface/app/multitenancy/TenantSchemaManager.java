@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Base64;
@@ -118,6 +120,37 @@ public class TenantSchemaManager {
         }
 
         migrateOracleSchema(schemaName);
+    }
+
+    public boolean tenantSchemaExists(String slug) {
+        String schemaName = toSchemaName(slug);
+        validateSchemaName(schemaName);
+
+        try {
+            if (databaseKind == DatabaseKind.H2) {
+                try (Connection conn = dataSource.getConnection();
+                     ResultSet schemas = conn.getMetaData().getSchemas()) {
+                    while (schemas.next()) {
+                        if (schemaName.equalsIgnoreCase(schemas.getString("TABLE_SCHEM"))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+
+            try (Connection conn = getProvisioningConnection();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "SELECT COUNT(*) FROM ALL_USERS WHERE USERNAME = ?"
+                 )) {
+                stmt.setString(1, schemaName);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rs.next() && rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to verify tenant schema existence for: " + schemaName, e);
+        }
     }
 
     private void migrateOracleSchema(String schemaName) {
