@@ -651,7 +651,16 @@
     "salons": {
       "title": "Découvre les artistes près de toi",
       "empty": "Aucun salon disponible pour le moment",
-      "discoverAll": "Voir tous les salons"
+      "discoverAll": "Voir tous les salons",
+      "flipToMap": "Voir sur la carte",
+      "flipToPhoto": "Voir la photo",
+      "viewItinerary": "Voir l'itinéraire"
+    },
+    "proCta": {
+      "eyebrow": "Pretty Face Pro",
+      "title": "Vous êtes esthéticien·ne ?",
+      "body": "Une vitrine élégante, un planning intelligent, des outils pensés pour vous.",
+      "button": "Découvrir Pretty Face Pro"
     },
     "cta": {
       "question": "Tu es pro de la beauté ?",
