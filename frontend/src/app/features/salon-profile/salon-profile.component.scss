@@ -267,3 +267,24 @@
   background: linear-gradient(135deg, #a8385d, #c06) !important;
   color: white !important;
 }
+
+.form-validation-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: rgba(192, 0, 102, 0.06);
+  border: 1px solid rgba(192, 0, 102, 0.2);
+  border-radius: 8px;
+  color: #6b1d3f;
+  font-size: 12px;
+  line-height: 1.4;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #c06;
+  }
+}

@@ -43,12 +43,12 @@
           <div class="tab-content">
             <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name">
               <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
-              <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required maxlength="100" name="salonName" />
+              <input matInput [ngModel]="name()" (ngModelChange)="name.set($event); markDirty()" required maxlength="100" name="salonName" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'pro.salon.description' | transloco }}</mat-label>
-              <textarea matInput rows="4" [ngModel]="description()" (ngModelChange)="description.set($event)" name="description" maxlength="10000"></textarea>
+              <textarea matInput rows="4" [ngModel]="description()" (ngModelChange)="description.set($event); markDirty()" name="description" maxlength="10000"></textarea>
               <mat-hint align="end">{{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}</mat-hint>
             </mat-form-field>
 
@@ -134,13 +134,19 @@
         color="primary"
         type="submit"
         class="save-btn"
-        [disabled]="store.isPending() || !name().trim() || descriptionTextLength() > MAX_DESCRIPTION_LENGTH"
+        [disabled]="!canSave()"
       >
         @if (store.isPending()) {
           <mat-spinner diameter="20"></mat-spinner>
         }
         {{ 'pro.salon.save' | transloco }}
       </button>
+      @if (saveBlockedReason()) {
+        <p class="form-validation-hint" role="status">
+          <mat-icon aria-hidden="true">info</mat-icon>
+          <span>{{ saveBlockedReason()! | transloco }}</span>
+        </p>
+      }
     </form>
   </div>
 }
