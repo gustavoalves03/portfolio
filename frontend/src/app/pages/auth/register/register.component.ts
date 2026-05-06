@@ -10,6 +10,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { passwordMatchValidator } from '../../../core/auth/password-match.validator';
+import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
   selector: 'app-register',
@@ -24,6 +26,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     TranslocoModule,
+    FormValidationHintComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
@@ -33,12 +36,16 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
-  readonly form = this.fb.group({
-    name: ['', [Validators.required]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    consent: [false, Validators.requiredTrue],
-  });
+  readonly form = this.fb.group(
+    {
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
+      consent: [false, Validators.requiredTrue],
+    },
+    { validators: [passwordMatchValidator] },
+  );
 
   readonly isLoading = signal(false);
   readonly emailConflictError = signal(false);
@@ -46,6 +53,7 @@ export class RegisterComponent {
   get nameControl() { return this.form.get('name'); }
   get emailControl() { return this.form.get('email'); }
   get passwordControl() { return this.form.get('password'); }
+  get confirmPasswordControl() { return this.form.get('confirmPassword'); }
   get consentControl() { return this.form.get('consent'); }
 
   onSubmit(): void {
