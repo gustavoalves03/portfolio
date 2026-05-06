@@ -242,3 +242,18 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* === Pro page shell === */
+.pro-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px;
+
+  @media (min-width: 768px) {
+    padding: 24px 32px;
+  }
+
+  @media (min-width: 1280px) {
+    padding: 24px 48px;
+  }
+}
