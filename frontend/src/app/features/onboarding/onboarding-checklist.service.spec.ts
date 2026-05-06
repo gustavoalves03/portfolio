@@ -57,6 +57,30 @@ describe('OnboardingChecklistService', () => {
       const cares = steps.find((s) => s.key === 'cares');
       expect(cares?.queryParams).toBeNull();
     });
+
+    it('passes focus=name queryParam when name step is undone', () => {
+      const steps = service.buildSteps(readiness({ name: false }));
+      const nameStep = steps.find((s) => s.key === 'name');
+      expect(nameStep?.queryParams).toEqual({ focus: 'name' });
+    });
+
+    it('passes null queryParams on name step when name is done', () => {
+      const steps = service.buildSteps(readiness({ name: true }));
+      const nameStep = steps.find((s) => s.key === 'name');
+      expect(nameStep?.queryParams).toBeNull();
+    });
+
+    it('passes focus=openingHours queryParam when openingHours step is undone', () => {
+      const steps = service.buildSteps(readiness({ hasOpeningHours: false }));
+      const ohStep = steps.find((s) => s.key === 'openingHours');
+      expect(ohStep?.queryParams).toEqual({ focus: 'openingHours' });
+    });
+
+    it('passes null queryParams on openingHours step when done', () => {
+      const steps = service.buildSteps(readiness({ hasOpeningHours: true }));
+      const ohStep = steps.find((s) => s.key === 'openingHours');
+      expect(ohStep?.queryParams).toBeNull();
+    });
   });
 
   describe('computeProgress', () => {

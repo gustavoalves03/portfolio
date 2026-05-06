@@ -11,7 +11,7 @@ export class OnboardingChecklistService {
         key: 'name',
         done: readiness.name,
         link: '/pro/salon',
-        queryParams: null,
+        queryParams: readiness.name ? null : { focus: 'name' },
       },
       {
         key: 'cares',
@@ -23,7 +23,7 @@ export class OnboardingChecklistService {
         key: 'openingHours',
         done: readiness.hasOpeningHours,
         link: '/pro/planning',
-        queryParams: null,
+        queryParams: readiness.hasOpeningHours ? null : { focus: 'openingHours' },
       },
     ];
   }
