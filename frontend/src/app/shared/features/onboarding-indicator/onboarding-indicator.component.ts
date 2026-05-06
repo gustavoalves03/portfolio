@@ -1,10 +1,19 @@
 import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { OnboardingChecklistService } from '../../../features/onboarding/onboarding-checklist.service';
+import { OnboardingStepKey } from '../../../features/onboarding/onboarding-step.model';
+import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
 import { ONBOARDING_BREAKPOINT } from './breakpoint.token';
+import {
+  OnboardingIndicatorSheetComponent,
+  OnboardingSheetData,
+  OnboardingSheetResult,
+} from './onboarding-indicator-sheet.component';
 
 @Component({
   selector: 'app-onboarding-indicator',
@@ -17,6 +26,8 @@ export class OnboardingIndicatorComponent {
   private readonly store = inject(DashboardStore);
   private readonly checklistService = inject(OnboardingChecklistService);
   private readonly transloco = inject(TranslocoService);
+  private readonly router = inject(Router);
+  protected dialog = inject(MatDialog);
 
   protected readonly isDesktop = inject(ONBOARDING_BREAKPOINT)();
 
@@ -33,4 +44,53 @@ export class OnboardingIndicatorComponent {
     if (!key) return '';
     return this.transloco.translate(`pro.dashboard.checklist.${key}`);
   });
+
+  protected onPillClick(): void {
+    const readiness = this.store.readiness();
+    if (!readiness) return;
+
+    const ref = this.dialog.open<
+      OnboardingIndicatorSheetComponent,
+      OnboardingSheetData,
+      OnboardingSheetResult
+    >(
+      OnboardingIndicatorSheetComponent,
+      bottomSheetConfig<OnboardingSheetData>({
+        data: {
+          steps: this.steps(),
+          progress: this.progress(),
+          canPublish: this.store.canPublish(),
+          slug: readiness.slug,
+        },
+      })
+    );
+
+    ref.afterClosed().subscribe((result) => this.handleSheetResult(result));
+  }
+
+  private handleSheetResult(result: OnboardingSheetResult | undefined): void {
+    if (!result) return;
+    switch (result.action) {
+      case 'step': {
+        const step = this.steps().find((s) => s.key === result.stepKey);
+        if (step) this.router.navigate([step.link], { queryParams: step.queryParams ?? undefined });
+        return;
+      }
+      case 'preview': {
+        const slug = this.store.readiness()?.slug;
+        if (slug) this.router.navigate(['/salon', slug]);
+        return;
+      }
+      case 'publish':
+        this.store.publish();
+        return;
+      case 'dashboard':
+        this.router.navigate(['/pro/dashboard']);
+        return;
+    }
+  }
+
+  protected stepKeyForTrack(_index: number, key: OnboardingStepKey): OnboardingStepKey {
+    return key;
+  }
 }

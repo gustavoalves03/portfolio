@@ -4,6 +4,7 @@
       type="button"
       class="indicator-pill"
       data-testid="onboarding-pill"
+      (click)="onPillClick()"
       [attr.aria-label]="'pro.onboarding.indicator.ariaProgress' | transloco: { done: progress().done, total: progress().total }"
     >
       <span class="pill-ring">

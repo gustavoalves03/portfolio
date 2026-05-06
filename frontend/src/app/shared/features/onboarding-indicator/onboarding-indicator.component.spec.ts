@@ -90,4 +90,21 @@ describe('OnboardingIndicatorComponent', () => {
     );
     expect(pill).toBeNull();
   });
+
+  it('opens the bottom-sheet when the pill is tapped (mobile)', () => {
+    const dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    dialog.open.and.returnValue({
+      afterClosed: () => ({ subscribe: (fn: any) => fn(undefined) }),
+    });
+    setup(false);
+    patchState(store as any, { readiness: readiness({ name: true }) });
+    fixture.componentInstance['dialog'] = dialog as any;
+    fixture.detectChanges();
+
+    const pill = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '[data-testid="onboarding-pill"]'
+    );
+    pill?.click();
+    expect(dialog.open).toHaveBeenCalled();
+  });
 });
