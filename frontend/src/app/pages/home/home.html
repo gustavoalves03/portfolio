@@ -1,69 +1,33 @@
-<!-- Hero Section -->
-<section class="hero">
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-brand">
-      <span class="hero-brand-pretty">Pretty</span>
-      <span class="hero-brand-face">Face</span>
-    </div>
-    <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
-    <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
-      <mat-icon class="hero-search-icon">search</mat-icon>
-      <input
-        type="text"
-        class="hero-search-input"
-        [placeholder]="'home.hero.search' | transloco"
-        [value]="searchQuery()"
-        (input)="searchQuery.set($any($event.target).value)"
-      />
-    </form>
+<!-- Hero -->
+<app-hero-video
+  posterUrl="/hero/hero-poster.jpg"
+  videoUrl="/hero/hero-loop.mp4"
+>
+  <div class="hero-brand">
+    <span class="hero-brand-pretty">Pretty</span>
+    <span class="hero-brand-face">Face</span>
   </div>
-</section>
+  <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
+  <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
+    <mat-icon class="hero-search-icon">search</mat-icon>
+    <input
+      type="text"
+      class="hero-search-input"
+      [placeholder]="'home.hero.search' | transloco"
+      [value]="searchQuery()"
+      (input)="searchQuery.set($any($event.target).value)"
+    />
+  </form>
+</app-hero-video>
 
-<!-- Near You Section -->
-<section class="landing-section">
+<!-- Salons (carousel) -->
+<section class="landing-section landing-section-wide">
   <h2 class="section-title">{{ 'home.nearYou' | transloco }}</h2>
-
-  <div class="near-you-grid">
-    <!-- Mini map (always present) -->
-    <div class="mini-map-wrapper">
-      <div class="mini-map" #miniMap></div>
-    </div>
-
-    <!-- Salon mini cards -->
-    <div class="salon-mini-cards">
-      @if (salons().length > 0) {
-        @for (salon of salons().slice(0, 3); track salon.slug; let i = $index) {
-          <button
-            type="button"
-            class="salon-mini-card"
-            [class.selected]="selectedSlug() === salon.slug"
-            (click)="onSalonCardClick(salon.slug)"
-            (mouseenter)="onSalonHover(salon.slug)"
-            (mouseleave)="onSalonLeave()"
-          >
-            <div
-              class="salon-mini-avatar"
-              [style.background]="salon.logoUrl ? 'url(' + salon.logoUrl + ') center/cover' : getSalonGradient(i)"
-            >
-              @if (!salon.logoUrl) {
-                <span class="salon-mini-initial">{{ salon.name.charAt(0) }}</span>
-              }
-            </div>
-            <div class="salon-mini-info">
-              <span class="salon-mini-name">{{ salon.name }}</span>
-              @if (salon.addressCity) {
-                <span class="salon-mini-city">{{ salon.addressCity }}</span>
-              }
-            </div>
-          </button>
-        }
-      } @else {
-        <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
-      }
-    </div>
-  </div>
-
+  @if (salons().length > 0) {
+    <app-salon-carousel [salons]="salons()" />
+  } @else {
+    <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
+  }
   <div class="discover-all">
     <button type="button" class="discover-all-btn" (click)="onDiscoverAll()">
       {{ 'home.salons.discoverAll' | transloco }} &rarr;
@@ -71,18 +35,24 @@
   </div>
 </section>
 
-<!-- Recent Posts Section -->
-@if (isBrowser && recentPosts().length > 0) {
+<!-- Recent posts (preserved) -->
+@if (recentPosts().length > 0) {
   <section class="landing-section">
     <h2 class="section-title">{{ 'home.recentPosts' | transloco }}</h2>
     <app-recent-posts-viewer [posts]="recentPosts()" />
   </section>
 }
 
-<!-- Pro CTA Section -->
+<!-- Pro CTA -->
 <section class="pro-cta">
-  <p class="pro-cta-question">{{ 'home.cta.question' | transloco }}</p>
-  <button type="button" class="pro-cta-action" (click)="onProCta()">
-    {{ 'home.cta.action' | transloco }} &rarr;
-  </button>
+  <div class="pro-cta-inner">
+    <div class="pro-cta-text">
+      <span class="pro-cta-eyebrow">{{ 'home.proCta.eyebrow' | transloco }}</span>
+      <h3 class="pro-cta-title">{{ 'home.proCta.title' | transloco }}</h3>
+      <p class="pro-cta-body">{{ 'home.proCta.body' | transloco }}</p>
+    </div>
+    <button type="button" class="pro-cta-button" (click)="onProCta()">
+      {{ 'home.proCta.button' | transloco }} &rarr;
+    </button>
+  </div>
 </section>

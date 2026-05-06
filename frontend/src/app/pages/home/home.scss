@@ -1,27 +1,4 @@
-// ===== Hero =====
-.hero {
-  position: relative;
-  padding: 80px 24px 60px;
-  text-align: center;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f9e4d4 0%, #f0d5c0 40%, #e8c8b0 100%);
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.08);
-  z-index: 0;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-// Hero brand — stacked
+// ===== Hero overlay (rendered inside <app-hero-video>'s ng-content slot) =====
 .hero-brand {
   display: flex;
   flex-direction: column;
@@ -48,7 +25,7 @@
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 
   @media (min-width: 768px) {
-    font-size: 3.5rem;
+    font-size: 5rem;
   }
 }
 
@@ -57,6 +34,11 @@
   color: rgba(255, 255, 255, 0.85);
   font-weight: 300;
   margin-bottom: 28px;
+  max-width: 560px;
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
 }
 
 .hero-search {
@@ -70,6 +52,10 @@
   width: 100%;
   max-width: 420px;
   backdrop-filter: blur(4px);
+
+  @media (min-width: 768px) {
+    max-width: 560px;
+  }
 }
 
 .hero-search-icon {
@@ -93,11 +79,15 @@
   }
 }
 
-// ===== Sections =====
+// ===== Landing sections =====
 .landing-section {
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 24px;
+}
+
+.landing-section-wide {
+  max-width: 1280px;
 }
 
 .section-title {
@@ -107,113 +97,6 @@
   margin-bottom: 16px;
 }
 
-// ===== Near You Grid =====
-.near-you-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  @media (min-width: 600px) {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-}
-
-.mini-map-wrapper {
-  width: 100%;
-  height: 180px;
-  border-radius: 14px;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 0; // isolate Leaflet z-index from header
-
-  @media (min-width: 600px) {
-    width: 200px;
-    min-width: 200px;
-  }
-}
-
-.mini-map {
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  position: relative;
-}
-
-// ===== Salon Mini Cards =====
-.salon-mini-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
-
-.salon-mini-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: white;
-  border-radius: 12px;
-  padding: 10px 14px;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  transition:
-    box-shadow 150ms ease,
-    transform 150ms ease;
-
-  &:hover,
-  &.selected {
-    box-shadow: 0 4px 16px rgba(192, 0, 102, 0.12);
-    border: 1.5px solid #c06;
-    transform: translateY(-1px);
-  }
-}
-
-.salon-mini-avatar {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.salon-mini-initial {
-  font-size: 16px;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.salon-mini-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.salon-mini-name {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.salon-mini-city {
-  display: block;
-  font-size: 11px;
-  color: #888;
-  margin-top: 1px;
-}
-
-// ===== Discover All =====
 .discover-all {
   text-align: center;
   margin-top: 20px;
@@ -239,123 +122,78 @@
   text-align: center;
 }
 
-// ===== Recent Posts =====
-.posts-scroll-row {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #ddd;
-    border-radius: 2px;
-  }
-}
-
-.post-thumbnail {
-  flex-shrink: 0;
-  width: 110px;
-  height: 150px;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition:
-    transform 200ms ease,
-    box-shadow 200ms ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  }
-}
-
-.post-thumbnail-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 8px 8px 10px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
-}
-
-.post-thumbnail-type {
-  font-size: 10px;
-  font-weight: 500;
-  color: white;
-  letter-spacing: 0.3px;
-}
-
 // ===== Pro CTA =====
 .pro-cta {
-  max-width: 900px;
-  margin: 20px auto 60px;
-  padding: 24px;
-  background: #fafafa;
-  border-radius: 14px;
+  margin: 40px 0 80px;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, #fdf3f7 0%, #f7ece4 100%);
+  border-top: 1px solid rgba(192, 0, 102, 0.08);
+  border-bottom: 1px solid rgba(192, 0, 102, 0.08);
+}
+
+.pro-cta-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   text-align: center;
 
   @media (min-width: 768px) {
-    margin: 20px auto 80px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    gap: 32px;
   }
 }
 
-.pro-cta-question {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 6px;
+.pro-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.pro-cta-action {
-  font-size: 13px;
-  font-weight: 500;
+.pro-cta-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
   color: #c06;
-  background: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pro-cta-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #222;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    font-size: 1.5rem;
+  }
+}
+
+.pro-cta-body {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+  max-width: 540px;
+}
+
+.pro-cta-button {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: #c06;
   border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
   cursor: pointer;
-  transition: color 150ms ease;
+  transition: background 150ms ease;
+  flex-shrink: 0;
 
   &:hover {
-    color: #a05;
-  }
-}
-
-// ===== Custom map markers (Leaflet) =====
-:host ::ng-deep {
-  .user-location-marker {
-    background: none;
-    border: none;
-  }
-
-  .user-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #4285f4;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  }
-
-  .salon-map-marker {
-    background: none;
-    border: none;
-  }
-
-  .salon-pin-small {
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #a8385d, #c06);
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: #a05;
   }
 }

@@ -1,0 +1,90 @@
+<div
+  class="carousel-stage"
+  data-testid="carousel-stage"
+  role="region"
+  aria-roledescription="carousel"
+  [attr.aria-label]="'home.nearYou' | transloco"
+>
+  @if (salons().length > 0) {
+    <button
+      type="button"
+      class="nav-arrow nav-prev"
+      (click)="prev()"
+      [attr.aria-label]="'home.salons.previous' | transloco"
+    >
+      <mat-icon aria-hidden="true">chevron_left</mat-icon>
+    </button>
+
+    @for (card of displayCards(); track card.salon.slug) {
+      <div
+        class="salon-card-container"
+        [class.center]="card.position === 'center'"
+        [class.side]="card.position === 'side'"
+        [class.side-far]="card.position === 'side-far'"
+        [class.hidden]="card.position === 'hidden'"
+      >
+        <button
+          type="button"
+          class="salon-card"
+          [class.flipped]="isFlipped(card.salon.slug)"
+          [style.background]="card.salon.logoUrl ? 'none' : card.gradient"
+          [attr.data-testid]="'salon-card-' + card.salon.slug"
+          [attr.aria-current]="card.position === 'center' ? 'true' : null"
+          [attr.aria-hidden]="card.position === 'hidden' ? true : null"
+          [attr.tabindex]="card.position === 'center' ? 0 : -1"
+          (click)="onCardClick(card, $event)"
+        >
+          <div class="card-flip-inner">
+            <div class="card-face card-front" [style.background]="card.salon.logoUrl ? 'url(' + card.salon.logoUrl + ') center/cover' : card.gradient">
+              <div class="card-overlay">
+                <span class="card-name">{{ card.salon.name }}</span>
+                @if (card.salon.addressCity) {
+                  <span class="card-loc">{{ card.salon.addressCity }}</span>
+                }
+              </div>
+            </div>
+            <div class="card-face card-back">
+              <div
+                #mapHost
+                class="card-back-map"
+                [attr.data-slug]="card.salon.slug"
+                data-testid="card-map-placeholder"
+              ></div>
+              <div class="card-back-info">
+                <span class="card-back-name">{{ card.salon.name }}</span>
+                @if (card.salon.fullAddress) {
+                  <span class="card-back-addr">{{ card.salon.fullAddress }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </button>
+
+        @if (card.position === 'center') {
+          <button
+            type="button"
+            class="flip-toggle"
+            [class.is-flipped]="isFlipped(card.salon.slug)"
+            (click)="onFlipClick(card, $event)"
+            [attr.aria-pressed]="isFlipped(card.salon.slug)"
+            [attr.aria-label]="
+              (isFlipped(card.salon.slug) ? 'home.salons.flipToPhoto' : 'home.salons.flipToMap') | transloco
+            "
+            [attr.data-testid]="'flip-toggle-' + card.salon.slug"
+          >
+            <mat-icon aria-hidden="true">{{ isFlipped(card.salon.slug) ? 'image' : 'place' }}</mat-icon>
+          </button>
+        }
+      </div>
+    }
+
+    <button
+      type="button"
+      class="nav-arrow nav-next"
+      (click)="next()"
+      [attr.aria-label]="'home.salons.next' | transloco"
+    >
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  }
+</div>

@@ -226,3 +226,19 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.45);
   }
 }
+
+/* === Salon carousel map pin === */
+.salon-pin {
+  background: none !important;
+  border: none !important;
+}
+
+.salon-pin-shape {
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, #a8385d, #c06);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

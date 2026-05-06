@@ -1,0 +1,27 @@
+<div class="hero-wrapper">
+  @if (showVideo()) {
+    <video
+      class="hero-video"
+      [poster]="posterUrl()"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-hidden="true"
+    >
+      @if (videoWebmUrl()) {
+        <source [src]="videoWebmUrl()" type="video/webm" />
+      }
+      <source [src]="videoUrl()" type="video/mp4" />
+    </video>
+  } @else {
+    <img class="hero-poster" [src]="posterUrl()" alt="" aria-hidden="true" />
+  }
+
+  <div class="hero-gradient"></div>
+
+  <div class="hero-content">
+    <ng-content />
+  </div>
+</div>
