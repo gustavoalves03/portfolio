@@ -110,6 +110,14 @@
         </div>
 
         <div class="publish-section">
+          <a
+            mat-stroked-button
+            data-testid="preview-btn"
+            [routerLink]="salonUrl()"
+          >
+            <mat-icon>visibility</mat-icon>
+            {{ 'pro.dashboard.preview' | transloco }}
+          </a>
           <button
             mat-raised-button
             color="primary"
