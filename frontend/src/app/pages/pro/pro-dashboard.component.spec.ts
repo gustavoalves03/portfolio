@@ -13,6 +13,7 @@ import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import { AnalyticsResponse } from '../../features/analytics/analytics.model';
 import { TenantReadiness } from '../../features/dashboard/models/dashboard.model';
+import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { PersonaSetupService, PersonaSetupResult } from '../../features/onboarding/persona-setup.service';
 import { PERSONAS } from '../../features/onboarding/personas';
 
@@ -89,6 +90,7 @@ describe('ProDashboardComponent', () => {
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
         { provide: AnalyticsService, useValue: analyticsSpy },
         { provide: PersonaSetupService, useValue: personaSetupSpy },
+        DashboardStore,
       ],
     }).compileComponents();
 

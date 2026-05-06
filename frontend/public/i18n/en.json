@@ -358,6 +358,21 @@
         "vsLastPeriod": "vs previous period"
       }
     },
+    "onboarding": {
+      "indicator": {
+        "label": "Setup",
+        "next": "Next: {{step}}",
+        "ready": "Storefront ready — publish it",
+        "preview": "Preview",
+        "ariaProgress": "Setup progress: step {{done}} of {{total}}"
+      },
+      "sheet": {
+        "title": "Your setup",
+        "preview": "Preview the storefront",
+        "backToDashboard": "Back to dashboard",
+        "publish": "Publish my storefront"
+      }
+    },
     "salon": {
       "title": "My salon",
       "name": "Salon name",

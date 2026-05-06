@@ -362,6 +362,21 @@
         "vsLastPeriod": "vs période préc."
       }
     },
+    "onboarding": {
+      "indicator": {
+        "label": "Configuration",
+        "next": "Suivant : {{step}}",
+        "ready": "Vitrine prête — publier",
+        "preview": "Aperçu",
+        "ariaProgress": "Progression de la configuration : étape {{done}} sur {{total}}"
+      },
+      "sheet": {
+        "title": "Votre configuration",
+        "preview": "Aperçu de la vitrine",
+        "backToDashboard": "Retour au tableau de bord",
+        "publish": "Publier ma vitrine"
+      }
+    },
     "salon": {
       "title": "Mon salon",
       "name": "Nom du salon",
