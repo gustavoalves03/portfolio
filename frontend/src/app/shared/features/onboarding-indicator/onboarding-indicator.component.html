@@ -1,0 +1,38 @@
+@if (visible()) {
+  @if (!isDesktop()) {
+    <button
+      type="button"
+      class="indicator-pill"
+      data-testid="onboarding-pill"
+      [attr.aria-label]="'pro.onboarding.indicator.ariaProgress' | transloco: { done: progress().done, total: progress().total }"
+    >
+      <span class="pill-ring">
+        <svg viewBox="0 0 30 30" width="30" height="30" aria-hidden="true">
+          <circle cx="15" cy="15" r="12" fill="none" stroke="rgba(192,0,102,0.18)" stroke-width="3"></circle>
+          <circle
+            cx="15"
+            cy="15"
+            r="12"
+            fill="none"
+            stroke="#c06"
+            stroke-width="3"
+            stroke-linecap="round"
+            [attr.stroke-dasharray]="75.4"
+            [attr.stroke-dashoffset]="75.4 * (1 - progress().percent / 100)"
+            transform="rotate(-90 15 15)"
+          ></circle>
+        </svg>
+        <span class="pill-ring-text">{{ progress().done }}/{{ progress().total }}</span>
+      </span>
+      <span class="pill-text">
+        <span class="pill-eyebrow">{{ 'pro.onboarding.indicator.label' | transloco }}</span>
+        @if (progress().nextKey) {
+          <span class="pill-next">{{ 'pro.onboarding.indicator.next' | transloco: { step: nextStepLabel() } }}</span>
+        } @else {
+          <span class="pill-next">{{ 'pro.onboarding.indicator.ready' | transloco }}</span>
+        }
+      </span>
+      <mat-icon class="pill-chevron" aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  }
+}
