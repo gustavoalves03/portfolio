@@ -8,12 +8,17 @@
   <nav class="flex-1 overflow-y-auto">
     <mat-nav-list class="pt-2">
       @for (route of routes(); track route.path) {
+        @let locked = route.lockedUntilPublished && tenantStatus.status() === 'DRAFT';
         <a
           mat-list-item
-          [routerLink]="route.path"
+          [routerLink]="locked ? null : route.path"
           routerLinkActive="active-link"
           [routerLinkActiveOptions]="{exact: route.path === '/'}"
-          (click)="onLinkClick()"
+          [class.is-locked]="locked"
+          [matTooltip]="locked ? ('nav.lockedUntilPublished' | transloco) : null"
+          matTooltipPosition="right"
+          [attr.aria-disabled]="locked ? true : null"
+          (click)="locked ? onLockedClick($event) : onLinkClick()"
           class="nav-item"
         >
           @if (route.icon) {
@@ -22,6 +27,9 @@
           <span matListItemTitle class="text-neutral-900 font-light tracking-wide">
             {{ route.label | transloco }}
           </span>
+          @if (locked) {
+            <mat-icon matListItemMeta class="lock-icon" aria-hidden="true">lock</mat-icon>
+          }
         </a>
       }
     </mat-nav-list>

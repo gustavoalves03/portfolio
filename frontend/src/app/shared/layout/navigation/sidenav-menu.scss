@@ -97,3 +97,20 @@ mat-icon {
     transform: scale(0.97);
   }
 }
+
+.nav-item.is-locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: auto; // keep hover for the tooltip
+
+  .mat-mdc-list-item-title {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .lock-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+  }
+}
