@@ -300,6 +300,7 @@
       "unpublishConfirmBody": "Your salon will no longer be visible on the platform. Existing appointments will be kept.",
       "unpublishConfirmAction": "Unpublish",
       "unpublishSuccess": "Your salon has been unpublished",
+      "preview": "Preview",
       "todayBookings": "Today's appointments",
       "weekBookings": "This week's appointments",
       "recentBookings": "Recent bookings",
@@ -671,6 +672,16 @@
       "notFound": "Salon not found",
       "duration": "Duration",
       "price": "Price"
+    },
+    "preview": {
+      "banner": {
+        "title": "Preview mode",
+        "subtitle": "Your storefront is not yet public",
+        "backToDashboard": "Back to dashboard",
+        "publish": "Publish",
+        "publishing": "Publishing…",
+        "bookingDisabled": "Booking is disabled in preview mode"
+      }
     }
   },
   "posts": {

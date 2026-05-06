@@ -304,6 +304,7 @@
       "unpublishConfirmBody": "Votre salon ne sera plus visible sur la plateforme. Les rendez-vous existants seront maintenus.",
       "unpublishConfirmAction": "Dépublier",
       "unpublishSuccess": "Votre salon a été dépublié",
+      "preview": "Aperçu",
       "todayBookings": "RDV aujourd'hui",
       "weekBookings": "RDV cette semaine",
       "recentBookings": "Dernières réservations",
@@ -675,6 +676,16 @@
       "notFound": "Salon introuvable",
       "duration": "Durée",
       "price": "Prix"
+    },
+    "preview": {
+      "banner": {
+        "title": "Mode aperçu",
+        "subtitle": "Votre vitrine n'est pas encore publique",
+        "backToDashboard": "Retour au tableau de bord",
+        "publish": "Publier",
+        "publishing": "Publication…",
+        "bookingDisabled": "La réservation est désactivée en mode aperçu"
+      }
     }
   },
   "posts": {
