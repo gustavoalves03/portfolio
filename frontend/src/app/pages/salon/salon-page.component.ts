@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -12,6 +12,7 @@ import { PublicSalonResponse, PublicCareDto } from '../../features/salon-profile
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog/booking-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
+import { PreviewBannerComponent } from '../../shared/uis/preview-banner/preview-banner.component';
 
 @Component({
   selector: 'app-salon-page',
@@ -23,6 +24,7 @@ import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-view
     MatIconModule,
     TranslocoPipe,
     SalonPostsViewerComponent,
+    PreviewBannerComponent,
   ],
   templateUrl: './salon-page.component.html',
   styleUrl: './salon-page.component.scss',
@@ -37,6 +39,20 @@ export class SalonPageComponent implements OnDestroy {
   protected loading = signal(true);
   protected notFound = signal(false);
   protected readonly activeTab = signal<'cares' | 'posts' | 'contact'>('cares');
+
+  protected readonly isPreviewMode = computed(() => {
+    const s = this.salon();
+    return !!s && s.status !== 'ACTIVE';
+  });
+
+  protected readonly canPublishFromBanner = computed(() => {
+    // The public DTO doesn't carry canPublish. We conservatively show the
+    // publish button only when status is DRAFT (which means the storefront
+    // was returned because the owner is logged in). The backend returns 400
+    // with a missing-fields list if the request is invalid; the dashboard
+    // remains the authoritative place for the full checklist.
+    return this.isPreviewMode();
+  });
 
   readonly contactMapRef = viewChild<ElementRef<HTMLElement>>('contactMap');
   private mapInstance: any = null;
@@ -104,6 +120,14 @@ export class SalonPageComponent implements OnDestroy {
 
   protected onBook(care: PublicCareDto): void {
     this.openBookingDialog(care);
+  }
+
+  protected onPublishedFromBanner(): void {
+    const slug = this.salon()?.slug;
+    if (!slug) return;
+    this.salonService.getPublicSalon(slug).subscribe({
+      next: (salon) => this.salon.set(salon),
+    });
   }
 
   protected onBookFromPost(careId: number): void {
