@@ -1,0 +1,51 @@
+<div
+  class="carousel-stage"
+  data-testid="carousel-stage"
+  role="region"
+  aria-roledescription="carousel"
+  [attr.aria-label]="'home.nearYou' | transloco"
+>
+  @if (salons().length > 0) {
+    <button
+      type="button"
+      class="nav-arrow nav-prev"
+      (click)="prev()"
+      [attr.aria-label]="'home.salons.previous' | transloco"
+    >
+      <mat-icon aria-hidden="true">chevron_left</mat-icon>
+    </button>
+
+    @for (card of displayCards(); track card.salon.slug) {
+      <button
+        type="button"
+        class="salon-card"
+        [class.center]="card.position === 'center'"
+        [class.side]="card.position === 'side'"
+        [class.side-far]="card.position === 'side-far'"
+        [class.hidden]="card.position === 'hidden'"
+        [style.background]="card.salon.logoUrl ? 'url(' + card.salon.logoUrl + ') center/cover' : card.gradient"
+        [attr.data-testid]="'salon-card-' + card.salon.slug"
+        [attr.aria-current]="card.position === 'center' ? 'true' : null"
+        [attr.aria-hidden]="card.position === 'hidden' ? true : null"
+        [attr.tabindex]="card.position === 'center' ? 0 : -1"
+        (click)="onCardClick(card, $event)"
+      >
+        <div class="card-overlay">
+          <span class="card-name">{{ card.salon.name }}</span>
+          @if (card.salon.addressCity) {
+            <span class="card-loc">{{ card.salon.addressCity }}</span>
+          }
+        </div>
+      </button>
+    }
+
+    <button
+      type="button"
+      class="nav-arrow nav-next"
+      (click)="next()"
+      [attr.aria-label]="'home.salons.next' | transloco"
+    >
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  }
+</div>

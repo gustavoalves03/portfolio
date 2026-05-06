@@ -650,7 +650,9 @@
       "discoverAll": "See all salons",
       "flipToMap": "See on the map",
       "flipToPhoto": "See the photo",
-      "viewItinerary": "Get directions"
+      "viewItinerary": "Get directions",
+      "previous": "Previous salon",
+      "next": "Next salon"
     },
     "proCta": {
       "eyebrow": "Pretty Face Pro",

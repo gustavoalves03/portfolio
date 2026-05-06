@@ -654,7 +654,9 @@
       "discoverAll": "Voir tous les salons",
       "flipToMap": "Voir sur la carte",
       "flipToPhoto": "Voir la photo",
-      "viewItinerary": "Voir l'itinéraire"
+      "viewItinerary": "Voir l'itinéraire",
+      "previous": "Salon précédent",
+      "next": "Salon suivant"
     },
     "proCta": {
       "eyebrow": "Pretty Face Pro",
