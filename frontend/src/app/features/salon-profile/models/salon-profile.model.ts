@@ -66,6 +66,7 @@ export interface PublicCategoryDto {
 export interface PublicSalonResponse {
   name: string;
   slug: string;
+  status: 'DRAFT' | 'ACTIVE' | 'SUSPENDED' | 'DELETED';
   description: string | null;
   logoUrl: string | null;
   heroImageUrl: string | null;
