@@ -1,0 +1,260 @@
+:host {
+  display: block;
+}
+
+// ===== Hero =====
+.pricing-hero-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: white;
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+
+  @media (min-width: 768px) {
+    font-size: 4rem;
+  }
+}
+
+.pricing-hero-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 300;
+  max-width: 580px;
+  margin: 8px 0 12px;
+  line-height: 1.5;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
+}
+
+.pricing-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.pricing-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition:
+    background 150ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.pricing-cta-primary {
+  background: #c06;
+  color: white;
+  border-color: #c06;
+
+  &:hover {
+    background: #a05;
+  }
+}
+
+.pricing-cta-secondary {
+  background: rgba(255, 255, 255, 0.92);
+  color: #6b1d3f;
+  border-color: rgba(255, 255, 255, 0.4);
+
+  &:hover {
+    background: white;
+  }
+}
+
+// ===== Sections =====
+.pricing-section-title {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #222;
+  margin: 0 0 6px;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 2.25rem;
+  }
+}
+
+.pricing-section-subtitle {
+  font-size: 0.95rem;
+  color: #777;
+  margin: 0 0 32px;
+  text-align: center;
+}
+
+// ===== Demo =====
+.pricing-demo {
+  padding: 80px 24px;
+  background: linear-gradient(180deg, #faf7f5 0%, #fff 100%);
+}
+
+.pricing-demo-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pricing-demo-frame {
+  margin: 0 auto;
+  max-width: 980px;
+}
+
+.pricing-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+
+  @media (min-width: 720px) {
+    grid-template-columns: 1fr 1fr;
+
+    app-revenue-widget {
+      grid-column: 1 / 2;
+    }
+    app-calendar-widget {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+    }
+    app-reviews-widget {
+      grid-column: 1 / 2;
+    }
+  }
+}
+
+// ===== Features =====
+.pricing-features {
+  padding: 80px 24px;
+  background: white;
+}
+
+.pricing-features-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pricing-features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (min-width: 720px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+.pricing-feature-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    border-color: rgba(192, 0, 102, 0.3);
+    box-shadow: 0 6px 18px rgba(192, 0, 102, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+.pricing-feature-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: #c06;
+  margin-bottom: 6px;
+}
+
+.pricing-feature-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #222;
+  margin: 0;
+}
+
+.pricing-feature-bullets {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// ===== Plan =====
+.pricing-plan {
+  padding: 60px 24px;
+  background: linear-gradient(135deg, #fdf3f7 0%, #f7ece4 100%);
+}
+
+.pricing-plan-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid rgba(192, 0, 102, 0.18);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 12px 32px rgba(192, 0, 102, 0.1);
+}
+
+.pricing-plan-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #6b1d3f;
+  margin: 0;
+}
+
+.pricing-plan-subtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+// ===== Final CTA =====
+.pricing-final-cta {
+  padding: 80px 24px;
+  background: white;
+  text-align: center;
+}
+
+.pricing-final-cta-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.pricing-final-cta-title {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #222;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    font-size: 2.25rem;
+  }
+}
