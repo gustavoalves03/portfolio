@@ -125,3 +125,7 @@
   background: transparent;
   color: var(--mat-sys-on-surface-variant, #666);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-progress-fill { transition: none; }
+}

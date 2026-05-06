@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { OnboardingProgress, OnboardingStep, OnboardingStepKey } from '../../../features/onboarding/onboarding-step.model';
+import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
 
 export interface OnboardingSheetData {
   readonly steps: readonly OnboardingStep[];
@@ -21,7 +22,7 @@ export type OnboardingSheetResult =
 @Component({
   selector: 'app-onboarding-indicator-sheet',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslocoPipe],
+  imports: [MatIconModule, MatButtonModule, TranslocoPipe, SheetHandleComponent],
   templateUrl: './onboarding-indicator-sheet.component.html',
   styleUrl: './onboarding-indicator-sheet.component.scss',
 })
