@@ -11,6 +11,7 @@ import com.prettyface.app.bookings.app.ClientBookingHistoryService;
 import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.employee.app.EmployeeService;
 import com.prettyface.app.post.app.PostService;
+import com.prettyface.app.tenant.app.SalonPreviewTokenService;
 import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.domain.TenantStatus;
@@ -30,6 +31,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -57,6 +60,7 @@ class PublicSalonControllerPreviewTests {
     @Mock private ClientBookingHistoryService clientBookingHistoryService;
     @Mock private EmployeeService employeeService;
     @Mock private PostService postService;
+    @Mock private SalonPreviewTokenService previewTokenService;
 
     @InjectMocks
     private PublicSalonController controller;
@@ -93,7 +97,7 @@ class PublicSalonControllerPreviewTests {
         when(tenantService.findBySlug(SLUG))
                 .thenReturn(Optional.of(tenantWithStatus(TenantStatus.ACTIVE)));
 
-        ResponseEntity<PublicSalonResponse> response = controller.getSalon(SLUG, null);
+        ResponseEntity<PublicSalonResponse> response = controller.getSalon(SLUG, null, null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -105,7 +109,7 @@ class PublicSalonControllerPreviewTests {
         when(tenantService.findBySlug(SLUG))
                 .thenReturn(Optional.of(tenantWithStatus(TenantStatus.DRAFT)));
 
-        ResponseEntity<PublicSalonResponse> response = controller.getSalon(SLUG, null);
+        ResponseEntity<PublicSalonResponse> response = controller.getSalon(SLUG, null, null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -116,7 +120,7 @@ class PublicSalonControllerPreviewTests {
                 .thenReturn(Optional.of(tenantWithStatus(TenantStatus.DRAFT)));
 
         ResponseEntity<PublicSalonResponse> response =
-                controller.getSalon(SLUG, principal(OWNER_ID));
+                controller.getSalon(SLUG, principal(OWNER_ID), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -129,7 +133,7 @@ class PublicSalonControllerPreviewTests {
                 .thenReturn(Optional.of(tenantWithStatus(TenantStatus.DRAFT)));
 
         ResponseEntity<PublicSalonResponse> response =
-                controller.getSalon(SLUG, principal(OTHER_USER_ID));
+                controller.getSalon(SLUG, principal(OTHER_USER_ID), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -140,7 +144,7 @@ class PublicSalonControllerPreviewTests {
                 .thenReturn(Optional.of(tenantWithStatus(TenantStatus.SUSPENDED)));
 
         ResponseEntity<PublicSalonResponse> response =
-                controller.getSalon(SLUG, principal(OWNER_ID));
+                controller.getSalon(SLUG, principal(OWNER_ID), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -150,8 +154,48 @@ class PublicSalonControllerPreviewTests {
         when(tenantService.findBySlug("unknown")).thenReturn(Optional.empty());
 
         ResponseEntity<PublicSalonResponse> response =
-                controller.getSalon("unknown", principal(OWNER_ID));
+                controller.getSalon("unknown", principal(OWNER_ID), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void anonymousWithValidPreviewTokenCanViewDraftSalon() {
+        when(tenantService.findBySlug(SLUG))
+                .thenReturn(Optional.of(tenantWithStatus(TenantStatus.DRAFT)));
+        when(previewTokenService.isValidForTenant("good-token", 1L)).thenReturn(true);
+
+        ResponseEntity<PublicSalonResponse> response =
+                controller.getSalon(SLUG, null, "good-token");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().status()).isEqualTo("DRAFT");
+    }
+
+    @Test
+    void anonymousWithInvalidPreviewTokenGetsNotFoundForDraft() {
+        when(tenantService.findBySlug(SLUG))
+                .thenReturn(Optional.of(tenantWithStatus(TenantStatus.DRAFT)));
+        when(previewTokenService.isValidForTenant("bad-token", 1L)).thenReturn(false);
+
+        ResponseEntity<PublicSalonResponse> response =
+                controller.getSalon(SLUG, null, "bad-token");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void previewTokenIsIgnoredWhenSalonIsActive() {
+        when(tenantService.findBySlug(SLUG))
+                .thenReturn(Optional.of(tenantWithStatus(TenantStatus.ACTIVE)));
+
+        ResponseEntity<PublicSalonResponse> response =
+                controller.getSalon(SLUG, null, "any-token");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(previewTokenService, never())
+                .isValidForTenant(org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyLong());
     }
 }

@@ -19,6 +19,7 @@ import com.prettyface.app.config.SecurityConfig;
 import com.prettyface.app.employee.app.EmployeeService;
 import com.prettyface.app.multitenancy.TenantFilter;
 import com.prettyface.app.post.app.PostService;
+import com.prettyface.app.tenant.app.SalonPreviewTokenService;
 import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.users.repo.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,7 @@ class PublicSalonControllerValidationTests {
     @MockBean private ClientBookingHistoryService clientBookingHistoryService;
     @MockBean private EmployeeService employeeService;
     @MockBean private PostService postService;
+    @MockBean private SalonPreviewTokenService previewTokenService;
 
     @MockBean private TokenService tokenService;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;

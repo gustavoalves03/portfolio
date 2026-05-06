@@ -55,7 +55,8 @@ class PublicSalonControllerClosedDaysTests {
                 /* userRepository */ null,
                 /* clientBookingHistoryService */ null,
                 /* employeeService */ null,
-                /* postService */ null);
+                /* postService */ null,
+                /* previewTokenService */ null);
     }
 
     @AfterEach

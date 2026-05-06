@@ -22,6 +22,7 @@ import com.prettyface.app.employee.web.dto.EmployeeSlimResponse;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.post.app.PostService;
 import com.prettyface.app.post.web.dto.PostResponse;
+import com.prettyface.app.tenant.app.SalonPreviewTokenService;
 import com.prettyface.app.tenant.app.TenantService;
 import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.web.dto.PublicSalonResponse;
@@ -56,6 +57,7 @@ public class PublicSalonController {
     private final ClientBookingHistoryService clientBookingHistoryService;
     private final EmployeeService employeeService;
     private final PostService postService;
+    private final SalonPreviewTokenService previewTokenService;
 
     public PublicSalonController(TenantService tenantService, CategoryRepository categoryRepository,
                                  AvailabilityService availabilityService, BlockedSlotService blockedSlotService,
@@ -64,7 +66,8 @@ public class PublicSalonController {
                                  ClosedDaysService closedDaysService,
                                  CareBookingService careBookingService, UserRepository userRepository,
                                  ClientBookingHistoryService clientBookingHistoryService,
-                                 EmployeeService employeeService, PostService postService) {
+                                 EmployeeService employeeService, PostService postService,
+                                 SalonPreviewTokenService previewTokenService) {
         this.tenantService = tenantService;
         this.categoryRepository = categoryRepository;
         this.availabilityService = availabilityService;
@@ -77,14 +80,16 @@ public class PublicSalonController {
         this.clientBookingHistoryService = clientBookingHistoryService;
         this.employeeService = employeeService;
         this.postService = postService;
+        this.previewTokenService = previewTokenService;
     }
 
     @GetMapping("/{slug}")
     public ResponseEntity<PublicSalonResponse> getSalon(
             @PathVariable String slug,
-            @AuthenticationPrincipal UserPrincipal principal) {
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam(required = false) String preview) {
         return tenantService.findBySlug(slug)
-                .filter(tenant -> canViewStorefront(tenant, principal))
+                .filter(tenant -> canViewStorefront(tenant, principal, preview))
                 .map(tenant -> {
                     // Set tenant context to query the correct schema
                     TenantContext.setCurrentTenant(tenant.getSlug());
@@ -100,20 +105,25 @@ public class PublicSalonController {
 
     /**
      * Storefront access policy:
-     * - ACTIVE salons are visible to everyone (current behavior).
-     * - DRAFT salons are visible only to their authenticated owner (preview mode).
+     * - ACTIVE salons are visible to everyone.
+     * - DRAFT salons are visible to their authenticated owner OR via a valid preview token.
      * - SUSPENDED / DELETED salons are not visible to anyone.
      */
     private boolean canViewStorefront(
             com.prettyface.app.tenant.domain.Tenant tenant,
-            UserPrincipal principal) {
+            UserPrincipal principal,
+            String previewToken) {
         if (tenant.getStatus() == TenantStatus.ACTIVE) {
             return true;
         }
-        if (tenant.getStatus() == TenantStatus.DRAFT
-                && principal != null
-                && tenant.getOwnerId().equals(principal.getId())) {
-            return true;
+        if (tenant.getStatus() == TenantStatus.DRAFT) {
+            if (principal != null && tenant.getOwnerId().equals(principal.getId())) {
+                return true;
+            }
+            if (previewToken != null
+                    && previewTokenService.isValidForTenant(previewToken, tenant.getId())) {
+                return true;
+            }
         }
         return false;
     }
