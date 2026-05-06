@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -15,7 +15,7 @@ const SALON_GRADIENTS = [
 interface DisplayCard {
   readonly salon: SalonCard;
   readonly index: number;
-  readonly offset: number; // distance from center, signed
+  readonly offset: number;
   readonly position: 'center' | 'side' | 'side-far' | 'hidden';
   readonly gradient: string;
 }
@@ -31,6 +31,7 @@ export class SalonCarouselComponent {
   readonly salons = input.required<SalonCard[]>();
 
   readonly centerIndex = signal(0);
+  private readonly flippedSlugs = signal<ReadonlySet<string>>(new Set());
 
   protected readonly displayCards = computed<DisplayCard[]>(() => {
     const salons = this.salons();
@@ -38,7 +39,6 @@ export class SalonCarouselComponent {
     const center = this.centerIndex();
     return salons.map((salon, index) => {
       const rawOffset = index - center;
-      // Signed offset normalized to [-half, half] for circular layout.
       const half = Math.floor(salons.length / 2);
       const offset =
         rawOffset > half
@@ -55,6 +55,37 @@ export class SalonCarouselComponent {
   });
 
   private readonly router = inject(Router);
+
+  constructor() {
+    // When the center changes, un-flip all cards. Avoids the awkward
+    // visual of a card sliding sideways while showing the map.
+    // We track the previous value so the initial effect run is a no-op.
+    let prevCenter: number | undefined = undefined;
+    effect(
+      () => {
+        const current = this.centerIndex();
+        if (prevCenter !== undefined && prevCenter !== current) {
+          this.flippedSlugs.set(new Set());
+        }
+        prevCenter = current;
+      },
+      { allowSignalWrites: true },
+    );
+  }
+
+  isFlipped(slug: string): boolean {
+    return this.flippedSlugs().has(slug);
+  }
+
+  toggleFlip(slug: string): void {
+    const next = new Set(this.flippedSlugs());
+    if (next.has(slug)) {
+      next.delete(slug);
+    } else {
+      next.add(slug);
+    }
+    this.flippedSlugs.set(next);
+  }
 
   next(): void {
     const len = this.salons().length;
@@ -82,7 +113,16 @@ export class SalonCarouselComponent {
       this.goTo(card.index);
       return;
     }
-    // Center card click: navigate to /salon/<slug>.
+    if (this.isFlipped(card.salon.slug)) {
+      // Don't navigate when the card is flipped — let the user dismiss the map first.
+      return;
+    }
     this.router.navigate(['/salon', card.salon.slug]);
+  }
+
+  onFlipClick(card: DisplayCard, event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.toggleFlip(card.salon.slug);
   }
 }

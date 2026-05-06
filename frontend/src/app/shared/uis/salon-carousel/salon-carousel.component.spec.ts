@@ -55,37 +55,74 @@ describe('SalonCarouselComponent', () => {
 
   it('marks card 0 as the centered one initially', () => {
     setup(5);
-    const center = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-0"]');
-    expect(center?.classList.contains('center')).toBe(true);
+    const card = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-0"]');
+    // The center class is on the parent container in the new structure.
+    expect(card?.parentElement?.classList.contains('center')).toBe(true);
   });
 
   it('next() shifts the center to slug-1', () => {
     setup(5);
     component.next();
     fixture.detectChanges();
-    const center = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-1"]');
-    expect(center?.classList.contains('center')).toBe(true);
+    const card = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-1"]');
+    expect(card?.parentElement?.classList.contains('center')).toBe(true);
   });
 
   it('prev() wraps from index 0 to last', () => {
     setup(5);
     component.prev();
     fixture.detectChanges();
-    const center = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-4"]');
-    expect(center?.classList.contains('center')).toBe(true);
+    const card = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-4"]');
+    expect(card?.parentElement?.classList.contains('center')).toBe(true);
   });
 
   it('goTo(2) centers slug-2', () => {
     setup(5);
     component.goTo(2);
     fixture.detectChanges();
-    const center = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-2"]');
-    expect(center?.classList.contains('center')).toBe(true);
+    const card = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="salon-card-slug-2"]');
+    expect(card?.parentElement?.classList.contains('center')).toBe(true);
   });
 
   it('renders nothing visible when given an empty array', () => {
     setup(0);
     const stage = (fixture.nativeElement as HTMLElement).querySelector('[data-testid="carousel-stage"]');
     expect(stage?.children.length ?? 0).toBe(0);
+  });
+
+  it('toggles flipped state when toggleFlip is called', () => {
+    setup(5);
+    expect(component.isFlipped('slug-0')).toBe(false);
+    component.toggleFlip('slug-0');
+    fixture.detectChanges();
+    expect(component.isFlipped('slug-0')).toBe(true);
+    component.toggleFlip('slug-0');
+    fixture.detectChanges();
+    expect(component.isFlipped('slug-0')).toBe(false);
+  });
+
+  it('un-flips when the center changes', () => {
+    setup(5);
+    component.toggleFlip('slug-0');
+    expect(component.isFlipped('slug-0')).toBe(true);
+    component.next();
+    fixture.detectChanges();
+    expect(component.isFlipped('slug-0')).toBe(false);
+  });
+
+  it('renders a flip toggle button on the center card', () => {
+    setup(5);
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="flip-toggle-slug-0"]',
+    );
+    expect(button).not.toBeNull();
+  });
+
+  it('does not render flip toggle on side cards', () => {
+    setup(5);
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="flip-toggle-slug-1"]',
+    );
+    expect(button).toBeNull();
   });
 });
