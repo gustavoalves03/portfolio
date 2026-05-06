@@ -46,8 +46,13 @@
           <mat-icon class="sheet-step-icon" aria-hidden="true">
             {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
           </mat-icon>
-          <span class="sheet-step-label">
-            {{ 'pro.dashboard.checklist.' + step.key | transloco }}
+          <span class="sheet-step-body">
+            <span class="sheet-step-label">
+              {{ 'pro.dashboard.checklist.' + step.key | transloco }}
+            </span>
+            <span class="sheet-step-desc">
+              {{ 'pro.dashboard.checklist.' + step.key + 'Desc' | transloco }}
+            </span>
           </span>
           <mat-icon class="sheet-step-chevron" aria-hidden="true">chevron_right</mat-icon>
         </button>
