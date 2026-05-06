@@ -47,7 +47,7 @@ type ClientSortKey = 'visitCount' | 'revenue' | 'attendanceRate';
     TranslocoPipe,
     BaseChartDirective,
   ],
-  providers: [DashboardStore, provideCharts(withDefaultRegisterables())],
+  providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './pro-dashboard.component.html',
   styleUrl: './pro-dashboard.component.scss',
 })

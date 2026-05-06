@@ -44,6 +44,8 @@ export const routes: Routes = [
   {
     path: 'pro',
     canActivate: [authGuard, roleGuard(Role.PRO)],
+    loadComponent: () =>
+      import('./pages/pro/pro-shell.component').then((m) => m.ProShellComponent),
     children: [
       {
         path: 'dashboard',
