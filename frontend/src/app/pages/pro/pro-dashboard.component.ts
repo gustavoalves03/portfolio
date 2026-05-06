@@ -16,6 +16,7 @@ import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { PERSONAS, Persona } from '../../features/onboarding/personas';
 import { PersonaSetupService } from '../../features/onboarding/persona-setup.service';
+import { OnboardingChecklistService } from '../../features/onboarding/onboarding-checklist.service';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
 import {
   AnalyticsResponse,
@@ -58,6 +59,7 @@ export class ProDashboardComponent {
   private readonly transloco = inject(TranslocoService);
   private readonly analyticsService = inject(AnalyticsService);
   private readonly personaSetupService = inject(PersonaSetupService);
+  private readonly checklistService = inject(OnboardingChecklistService);
 
   readonly personas = PERSONAS;
   readonly applyingPersona = signal<string | null>(null);
@@ -80,35 +82,21 @@ export class ProDashboardComponent {
     return readiness ? '/salon/' + readiness.slug : '';
   });
 
-  readonly checklistSteps = computed(() => {
-    const r = this.store.readiness();
-    if (!r) return [];
-    return [
-      { key: 'name', done: r.name, link: '/pro/salon', queryParams: null as Record<string, string> | null },
-      {
-        key: 'cares',
-        done: r.hasActiveCare,
-        link: '/pro/cares',
-        queryParams: r.hasActiveCare ? null : { openCreate: 'care' },
-      },
-      { key: 'openingHours', done: r.hasOpeningHours, link: '/pro/planning', queryParams: null },
-    ];
-  });
+  readonly checklistSteps = computed(() =>
+    this.checklistService.buildSteps(this.store.readiness())
+  );
 
-  readonly checklistDone = computed(() => this.checklistSteps().filter((s) => s.done).length);
+  private readonly checklistProgress = computed(() =>
+    this.checklistService.computeProgress(this.checklistSteps())
+  );
 
-  readonly checklistTotal = computed(() => this.checklistSteps().length);
+  readonly checklistDone = computed(() => this.checklistProgress().done);
 
-  readonly nextStepKey = computed(() => {
-    const next = this.checklistSteps().find((s) => !s.done);
-    return next ? next.key : null;
-  });
+  readonly checklistTotal = computed(() => this.checklistProgress().total);
 
-  readonly checklistProgressPercent = computed(() => {
-    const total = this.checklistTotal();
-    if (total === 0) return 0;
-    return Math.round((this.checklistDone() / total) * 100);
-  });
+  readonly nextStepKey = computed(() => this.checklistProgress().nextKey);
+
+  readonly checklistProgressPercent = computed(() => this.checklistProgress().percent);
 
   readonly showQuickstart = computed(() => {
     if (this.skipQuickstart()) return false;
