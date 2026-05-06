@@ -6,7 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { OnboardingChecklistService } from '../../../features/onboarding/onboarding-checklist.service';
-import { OnboardingStepKey } from '../../../features/onboarding/onboarding-step.model';
 import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
 import { ONBOARDING_BREAKPOINT } from './breakpoint.token';
 import {
@@ -88,9 +87,5 @@ export class OnboardingIndicatorComponent {
         this.router.navigate(['/pro/dashboard']);
         return;
     }
-  }
-
-  protected stepKeyForTrack(_index: number, key: OnboardingStepKey): OnboardingStepKey {
-    return key;
   }
 }
