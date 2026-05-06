@@ -32,7 +32,12 @@ describe('SalonPageComponent', () => {
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => 'test-salon' } } },
+          useValue: {
+            snapshot: {
+              paramMap: { get: () => 'test-salon' },
+              queryParamMap: { get: () => null },
+            },
+          },
         },
       ],
     }).compileComponents();
