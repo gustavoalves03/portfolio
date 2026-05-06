@@ -13,6 +13,7 @@ import { CountryPickerComponent } from '../../shared/uis/country-picker/country-
 import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-param/focus-on-query-param.directive';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
+import { PreviewShareComponent } from './preview-share/preview-share.component';
 
 @Component({
   selector: 'app-salon-profile',
@@ -28,6 +29,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     TranslocoPipe,
     CountryPickerComponent,
     FocusOnQueryParamDirective,
+    PreviewShareComponent,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',
