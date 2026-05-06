@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,12 +17,12 @@ import {
 @Component({
   selector: 'app-onboarding-indicator',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslocoPipe],
+  imports: [MatIconModule, MatButtonModule, TranslocoPipe, RouterLink],
   templateUrl: './onboarding-indicator.component.html',
   styleUrl: './onboarding-indicator.component.scss',
 })
 export class OnboardingIndicatorComponent {
-  private readonly store = inject(DashboardStore);
+  protected readonly store = inject(DashboardStore);
   private readonly checklistService = inject(OnboardingChecklistService);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
@@ -65,6 +65,10 @@ export class OnboardingIndicatorComponent {
     );
 
     ref.afterClosed().subscribe((result) => this.handleSheetResult(result));
+  }
+
+  protected onPublishClick(): void {
+    this.store.publish();
   }
 
   private handleSheetResult(result: OnboardingSheetResult | undefined): void {

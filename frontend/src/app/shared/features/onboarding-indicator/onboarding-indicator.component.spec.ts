@@ -107,4 +107,34 @@ describe('OnboardingIndicatorComponent', () => {
     pill?.click();
     expect(dialog.open).toHaveBeenCalled();
   });
+
+  it('renders the desktop stepper with all step labels and a preview button', () => {
+    setup(true);
+    patchState(store as any, { readiness: readiness({ name: true }) });
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('[data-testid="onboarding-stepper"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="stepper-step-name"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="stepper-step-cares"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="stepper-step-openingHours"]')).not.toBeNull();
+    expect(root.querySelector('[data-testid="stepper-preview"]')).not.toBeNull();
+  });
+
+  it('shows publish button only when canPublish is true', () => {
+    setup(true);
+    patchState(store as any, { readiness: readiness({ name: true, hasActiveCare: true, hasOpeningHours: true, canPublish: true }) });
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="stepper-publish"]')
+    ).not.toBeNull();
+  });
+
+  it('does not show publish button when canPublish is false', () => {
+    setup(true);
+    patchState(store as any, { readiness: readiness({ name: true, canPublish: false }) });
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('[data-testid="stepper-publish"]')
+    ).toBeNull();
+  });
 });

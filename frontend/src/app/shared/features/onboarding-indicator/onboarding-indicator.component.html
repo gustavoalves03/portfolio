@@ -35,5 +35,59 @@
       </span>
       <mat-icon class="pill-chevron" aria-hidden="true">chevron_right</mat-icon>
     </button>
+  } @else {
+    <div class="indicator-stepper" data-testid="onboarding-stepper">
+      <span class="stepper-eyebrow">{{ 'pro.onboarding.indicator.label' | transloco }}</span>
+
+      <ol class="stepper-list">
+        @for (step of steps(); track step.key) {
+          <li class="stepper-item"
+              [class.is-done]="step.done"
+              [class.is-next]="!step.done && progress().nextKey === step.key">
+            <a
+              class="stepper-link"
+              [routerLink]="step.link"
+              [queryParams]="step.queryParams"
+              [attr.aria-current]="!step.done && progress().nextKey === step.key ? 'step' : null"
+              [attr.data-testid]="'stepper-step-' + step.key"
+            >
+              <span class="stepper-circle">
+                @if (step.done) {
+                  <mat-icon aria-hidden="true">check</mat-icon>
+                } @else {
+                  <span>{{ $index + 1 }}</span>
+                }
+              </span>
+              <span class="stepper-label">{{ 'pro.dashboard.checklist.' + step.key | transloco }}</span>
+            </a>
+            @if (!$last) {
+              <span class="stepper-connector" aria-hidden="true"></span>
+            }
+          </li>
+        }
+      </ol>
+
+      <div class="stepper-actions">
+        <a
+          class="stepper-preview"
+          [routerLink]="['/salon', store.readiness()?.slug]"
+          data-testid="stepper-preview"
+        >
+          <mat-icon aria-hidden="true">visibility</mat-icon>
+          <span>{{ 'pro.onboarding.indicator.preview' | transloco }}</span>
+        </a>
+        @if (store.canPublish()) {
+          <button
+            type="button"
+            class="stepper-publish"
+            (click)="onPublishClick()"
+            data-testid="stepper-publish"
+          >
+            <mat-icon aria-hidden="true">rocket_launch</mat-icon>
+            <span>{{ 'pro.onboarding.sheet.publish' | transloco }}</span>
+          </button>
+        }
+      </div>
+    </div>
   }
 }
