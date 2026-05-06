@@ -165,8 +165,20 @@ interface DayGroup {
     .bookings-page {
       background: #f5f4f2;
       padding: 16px;
-      max-width: 800px;
+      max-width: 1440px;
       margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      .bookings-page {
+        padding: 24px 32px;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .bookings-page {
+        padding: 24px 48px;
+      }
     }
 
     .page-title {

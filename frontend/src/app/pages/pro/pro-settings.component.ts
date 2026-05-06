@@ -166,7 +166,9 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
         </div>
     `,
     styles: [`
-        .settings-page { background: #f5f4f2; padding: 16px; max-width: 800px; margin: 0 auto; }
+        .settings-page { background: #f5f4f2; padding: 16px; max-width: 1440px; margin: 0 auto; }
+        @media (min-width: 768px) { .settings-page { padding: 24px 32px; } }
+        @media (min-width: 1280px) { .settings-page { padding: 24px 48px; } }
         .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .settings-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .section-title { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 16px; }
