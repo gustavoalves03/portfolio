@@ -365,8 +365,16 @@ describe('ProDashboardComponent', () => {
       expect(caresStep.queryParams).toBeNull();
     });
 
-    it('name and openingHours steps never carry queryParams', () => {
+    it('name and openingHours undone steps carry focus queryParam', () => {
       setReadiness({});
+      const name = component.checklistSteps().find((s) => s.key === 'name')!;
+      const hours = component.checklistSteps().find((s) => s.key === 'openingHours')!;
+      expect(name.queryParams).toEqual({ focus: 'name' });
+      expect(hours.queryParams).toEqual({ focus: 'openingHours' });
+    });
+
+    it('name and openingHours done steps carry no queryParams', () => {
+      setReadiness({ name: true, hasOpeningHours: true });
       const name = component.checklistSteps().find((s) => s.key === 'name')!;
       const hours = component.checklistSteps().find((s) => s.key === 'openingHours')!;
       expect(name.queryParams).toBeNull();
