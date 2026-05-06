@@ -104,6 +104,22 @@ describe('RegisterProComponent', () => {
     expect(c.isAccountValid()).toBeTrue();
   });
 
+  // ── passwordsMatch ──
+
+  it('passwordsMatch is true when both signals match', () => {
+    const c = setup();
+    c.password.set('secret123');
+    c.confirmPassword.set('secret123');
+    expect(c.passwordsMatch()).toBe(true);
+  });
+
+  it('passwordsMatch is false when signals differ', () => {
+    const c = setup();
+    c.password.set('secret123');
+    c.confirmPassword.set('wrong');
+    expect(c.passwordsMatch()).toBe(false);
+  });
+
   // ── isBusinessValid ──
 
   it('isBusinessValid requires salonName AND consent', () => {
