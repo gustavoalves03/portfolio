@@ -2,10 +2,17 @@
   <header class="sheet-header">
     <h2 class="sheet-title">{{ 'pro.onboarding.sheet.title' | transloco }}</h2>
     <div class="sheet-progress">
-      <span class="sheet-progress-label">
+      <span id="sheet-progress-label" class="sheet-progress-label">
         {{ 'pro.dashboard.checklist.progress' | transloco: { done: progress.done, total: progress.total } }}
       </span>
-      <div class="sheet-progress-track">
+      <div
+        class="sheet-progress-track"
+        role="progressbar"
+        [attr.aria-valuenow]="progress.percent"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-labelledby="sheet-progress-label"
+      >
         <div class="sheet-progress-fill" [style.width.%]="progress.percent"></div>
       </div>
     </div>
@@ -18,7 +25,7 @@
       (click)="onPublish()"
       data-testid="sheet-publish"
     >
-      <mat-icon>rocket_launch</mat-icon>
+      <mat-icon aria-hidden="true">rocket_launch</mat-icon>
       <span>{{ 'pro.onboarding.sheet.publish' | transloco }}</span>
     </button>
   }
@@ -31,16 +38,17 @@
           class="sheet-step"
           [class.is-done]="step.done"
           [class.is-next]="!step.done && progress.nextKey === step.key"
+          [attr.aria-current]="!step.done && progress.nextKey === step.key ? 'step' : null"
           (click)="onStep(step.key)"
           [attr.data-testid]="'sheet-step-' + step.key"
         >
-          <mat-icon class="sheet-step-icon">
+          <mat-icon class="sheet-step-icon" aria-hidden="true">
             {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
           </mat-icon>
           <span class="sheet-step-label">
             {{ 'pro.dashboard.checklist.' + step.key | transloco }}
           </span>
-          <mat-icon class="sheet-step-chevron">chevron_right</mat-icon>
+          <mat-icon class="sheet-step-chevron" aria-hidden="true">chevron_right</mat-icon>
         </button>
       </li>
     }
@@ -53,7 +61,7 @@
       (click)="onPreview()"
       data-testid="sheet-preview"
     >
-      <mat-icon>visibility</mat-icon>
+      <mat-icon aria-hidden="true">visibility</mat-icon>
       <span>{{ 'pro.onboarding.sheet.preview' | transloco }}</span>
     </button>
     <button
