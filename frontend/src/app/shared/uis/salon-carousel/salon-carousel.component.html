@@ -44,7 +44,12 @@
               </div>
             </div>
             <div class="card-face card-back">
-              <div class="card-back-map" data-testid="card-map-placeholder"></div>
+              <div
+                #mapHost
+                class="card-back-map"
+                [attr.data-slug]="card.salon.slug"
+                data-testid="card-map-placeholder"
+              ></div>
               <div class="card-back-info">
                 <span class="card-back-name">{{ card.salon.name }}</span>
                 @if (card.salon.fullAddress) {

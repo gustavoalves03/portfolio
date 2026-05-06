@@ -1,8 +1,10 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, ElementRef, PLATFORM_ID, viewChildren } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonCard } from '../../../features/discovery/discovery.model';
+import { GeocodingService } from '../../../core/services/geocoding.service';
 
 const SALON_GRADIENTS = [
   'linear-gradient(135deg, #e8d5c4, #f0e0d0)',
@@ -55,6 +57,11 @@ export class SalonCarouselComponent {
   });
 
   private readonly router = inject(Router);
+  private readonly geocoding = inject(GeocodingService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private leaflet: any = null;
+  private readonly mapRefs = viewChildren<ElementRef<HTMLElement>>('mapHost');
+  private readonly mapsBuilt = new Set<string>();
 
   constructor() {
     // When the center changes, un-flip all cards. Avoids the awkward
@@ -79,12 +86,18 @@ export class SalonCarouselComponent {
 
   toggleFlip(slug: string): void {
     const next = new Set(this.flippedSlugs());
-    if (next.has(slug)) {
+    const wasFlipped = next.has(slug);
+    if (wasFlipped) {
       next.delete(slug);
     } else {
       next.add(slug);
     }
     this.flippedSlugs.set(next);
+
+    if (!wasFlipped) {
+      // Defer to next tick so the back face is in the DOM.
+      setTimeout(() => this.buildMapForSlug(slug), 0);
+    }
   }
 
   next(): void {
@@ -124,5 +137,49 @@ export class SalonCarouselComponent {
     event.preventDefault();
     event.stopPropagation();
     this.toggleFlip(card.salon.slug);
+  }
+
+  private async buildMapFor(slug: string, address: string | null, host: HTMLElement): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.mapsBuilt.has(slug)) return;
+    if (!address) return;
+
+    if (!this.leaflet) {
+      const mod = await import('leaflet');
+      this.leaflet = (mod as any).default ?? mod;
+    }
+    const coords = await this.geocoding.geocode(address);
+    if (!coords) return;
+
+    const map = this.leaflet
+      .map(host, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+      })
+      .setView([coords.lat, coords.lng], 14);
+    this.leaflet
+      .tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 })
+      .addTo(map);
+    const icon = this.leaflet.divIcon({
+      className: 'salon-pin',
+      html: '<div class="salon-pin-shape"></div>',
+      iconSize: [22, 22],
+      iconAnchor: [11, 22],
+    });
+    this.leaflet.marker([coords.lat, coords.lng], { icon }).addTo(map);
+    this.mapsBuilt.add(slug);
+    setTimeout(() => map.invalidateSize(), 50);
+  }
+
+  private buildMapForSlug(slug: string): void {
+    const salon = this.salons().find((s) => s.slug === slug);
+    if (!salon) return;
+    const host = this.mapRefs().find((ref) => ref.nativeElement.dataset['slug'] === slug)?.nativeElement;
+    if (!host) return;
+    void this.buildMapFor(slug, salon.fullAddress, host);
   }
 }
