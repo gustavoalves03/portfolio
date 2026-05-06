@@ -5,6 +5,11 @@ export interface NavigationRoute {
   requiresAuth?: boolean;
   requiredRole?: 'PRO' | 'ADMIN' | 'EMPLOYEE';
   children?: NavigationRoute[];
+  /**
+   * If true, this pro route is locked while the salon is in DRAFT status.
+   * Renders a disabled link with a "available after publication" tooltip.
+   */
+  lockedUntilPublished?: boolean;
 }
 
 /**
@@ -57,6 +62,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'photo_library',
     requiresAuth: true,
     requiredRole: 'PRO',
+    lockedUntilPublished: true,
   },
   {
     label: 'nav.pro.salon',
@@ -71,6 +77,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     icon: 'groups',
     requiresAuth: true,
     requiredRole: 'PRO',
+    lockedUntilPublished: true,
   },
   {
     label: 'nav.pro.settings',
