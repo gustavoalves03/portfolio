@@ -1,0 +1,68 @@
+<div class="sheet-container">
+  <header class="sheet-header">
+    <h2 class="sheet-title">{{ 'pro.onboarding.sheet.title' | transloco }}</h2>
+    <div class="sheet-progress">
+      <span class="sheet-progress-label">
+        {{ 'pro.dashboard.checklist.progress' | transloco: { done: progress.done, total: progress.total } }}
+      </span>
+      <div class="sheet-progress-track">
+        <div class="sheet-progress-fill" [style.width.%]="progress.percent"></div>
+      </div>
+    </div>
+  </header>
+
+  @if (canPublish) {
+    <button
+      type="button"
+      class="sheet-publish"
+      (click)="onPublish()"
+      data-testid="sheet-publish"
+    >
+      <mat-icon>rocket_launch</mat-icon>
+      <span>{{ 'pro.onboarding.sheet.publish' | transloco }}</span>
+    </button>
+  }
+
+  <ul class="sheet-steps">
+    @for (step of steps; track step.key) {
+      <li>
+        <button
+          type="button"
+          class="sheet-step"
+          [class.is-done]="step.done"
+          [class.is-next]="!step.done && progress.nextKey === step.key"
+          (click)="onStep(step.key)"
+          [attr.data-testid]="'sheet-step-' + step.key"
+        >
+          <mat-icon class="sheet-step-icon">
+            {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
+          </mat-icon>
+          <span class="sheet-step-label">
+            {{ 'pro.dashboard.checklist.' + step.key | transloco }}
+          </span>
+          <mat-icon class="sheet-step-chevron">chevron_right</mat-icon>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <footer class="sheet-footer">
+    <button
+      type="button"
+      class="sheet-action sheet-action-primary"
+      (click)="onPreview()"
+      data-testid="sheet-preview"
+    >
+      <mat-icon>visibility</mat-icon>
+      <span>{{ 'pro.onboarding.sheet.preview' | transloco }}</span>
+    </button>
+    <button
+      type="button"
+      class="sheet-action sheet-action-secondary"
+      (click)="onDashboard()"
+      data-testid="sheet-dashboard"
+    >
+      {{ 'pro.onboarding.sheet.backToDashboard' | transloco }}
+    </button>
+  </footer>
+</div>
