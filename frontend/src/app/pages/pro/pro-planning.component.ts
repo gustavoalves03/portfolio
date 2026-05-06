@@ -3,17 +3,18 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AvailabilityComponent } from '../../features/availability/availability.component';
 import { CalendarComponent } from '../../features/calendar/calendar.component';
+import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-param/focus-on-query-param.directive';
 
 @Component({
   selector: 'app-pro-planning',
   standalone: true,
-  imports: [MatTabsModule, TranslocoPipe, AvailabilityComponent, CalendarComponent],
+  imports: [MatTabsModule, TranslocoPipe, AvailabilityComponent, CalendarComponent, FocusOnQueryParamDirective],
   template: `
     <div class="planning-page">
       <h1 class="page-title">{{ 'pro.planning.title' | transloco }}</h1>
       <mat-tab-group animationDuration="150ms">
         <mat-tab [label]="'pro.planning.openingHours' | transloco">
-          <div class="tab-content">
+          <div class="tab-content" appFocusOnQueryParam="openingHours">
             <app-availability></app-availability>
           </div>
         </mat-tab>
