@@ -1062,5 +1062,61 @@
     "persons": "personne(s)",
     "selectPage": "Sélectionner la page",
     "viewAll": "Voir tous les rendez-vous"
+  },
+  "pricing": {
+    "hero": {
+      "title": "Votre salon, augmenté",
+      "subtitle": "Prenez les rendez-vous, fidélisez vos clients, et faites grandir votre activité — en un seul endroit.",
+      "ctaPrimary": "Lancer mon salon",
+      "ctaSecondary": "Voir la démo"
+    },
+    "demo": {
+      "title": "Vos chiffres prennent vie",
+      "subtitle": "Un aperçu de votre futur tableau de bord."
+    },
+    "widgets": {
+      "revenue": {
+        "label": "Chiffre d'affaires",
+        "trendVsLastMonth": "vs mois dernier"
+      },
+      "calendar": {
+        "label": "Réservations cette semaine"
+      },
+      "reviews": {
+        "label": "Note moyenne",
+        "ratingsCount": "{{count}} avis",
+        "quote1": "Service impeccable, je reviens !",
+        "quote2": "Une vraie parenthèse de douceur.",
+        "quote3": "Soin parfait, accueil chaleureux."
+      }
+    },
+    "features": {
+      "title": "Tout ce dont vous avez besoin",
+      "vitrine": {
+        "title": "Vitrine en ligne",
+        "bullets": "Page personnalisée · Photos · Réservation directe"
+      },
+      "planning": {
+        "title": "Planning intelligent",
+        "bullets": "Disponibilités · Buffer · Rappels auto"
+      },
+      "clients": {
+        "title": "Clients suivis",
+        "bullets": "Historique · Notes · Photos avant/après"
+      },
+      "payments": {
+        "title": "Paiements simples",
+        "bullets": "Stripe intégré · Factures auto"
+      }
+    },
+    "plan": {
+      "title": "30 jours gratuits",
+      "subtitle": "Sans engagement, sans carte bancaire",
+      "cta": "Démarrer maintenant"
+    },
+    "finalCta": {
+      "title": "Prêt à lancer votre salon ?",
+      "button": "Créer mon compte pro"
+    }
   }
 }

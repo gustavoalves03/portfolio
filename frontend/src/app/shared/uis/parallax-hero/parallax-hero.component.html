@@ -1,0 +1,12 @@
+<div class="parallax-wrapper">
+  <div
+    class="parallax-bg"
+    [style.background-image]="'url(' + imageUrl() + ')'"
+    [style.transform]="'translate3d(0, ' + translateY() + 'px, 0)'"
+    aria-hidden="true"
+  ></div>
+  <div class="parallax-gradient"></div>
+  <div class="parallax-content">
+    <ng-content />
+  </div>
+</div>

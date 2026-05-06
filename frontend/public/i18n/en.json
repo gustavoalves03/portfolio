@@ -1058,5 +1058,61 @@
     "persons": "person(s)",
     "selectPage": "Select page",
     "viewAll": "View all bookings"
+  },
+  "pricing": {
+    "hero": {
+      "title": "Your salon, amplified",
+      "subtitle": "Book appointments, keep clients coming back, grow your business — all in one place.",
+      "ctaPrimary": "Launch my salon",
+      "ctaSecondary": "See the demo"
+    },
+    "demo": {
+      "title": "Your numbers come to life",
+      "subtitle": "A glimpse of your future dashboard."
+    },
+    "widgets": {
+      "revenue": {
+        "label": "Revenue",
+        "trendVsLastMonth": "vs last month"
+      },
+      "calendar": {
+        "label": "Bookings this week"
+      },
+      "reviews": {
+        "label": "Average rating",
+        "ratingsCount": "{{count}} reviews",
+        "quote1": "Flawless service, I'll be back!",
+        "quote2": "A true bubble of softness.",
+        "quote3": "Perfect treatment, warm welcome."
+      }
+    },
+    "features": {
+      "title": "Everything you need",
+      "vitrine": {
+        "title": "Online storefront",
+        "bullets": "Personal page · Photos · Direct booking"
+      },
+      "planning": {
+        "title": "Smart scheduling",
+        "bullets": "Availability · Buffer · Auto reminders"
+      },
+      "clients": {
+        "title": "Client tracking",
+        "bullets": "History · Notes · Before/after photos"
+      },
+      "payments": {
+        "title": "Simple payments",
+        "bullets": "Stripe built-in · Automatic invoices"
+      }
+    },
+    "plan": {
+      "title": "30 free days",
+      "subtitle": "No commitment, no credit card",
+      "cta": "Start now"
+    },
+    "finalCta": {
+      "title": "Ready to launch your salon?",
+      "button": "Create my pro account"
+    }
   }
 }

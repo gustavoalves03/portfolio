@@ -1,0 +1,16 @@
+<div class="rev-widget">
+  <span class="rev-label" data-testid="revenue-label">{{ 'pricing.widgets.revenue.label' | transloco }}</span>
+  <div class="rev-row">
+    <span class="rev-value" data-testid="revenue-value">{{ displayedRevenue() }} €</span>
+    <span class="rev-trend" data-testid="revenue-trend">▲ +{{ displayedTrend() }}%</span>
+  </div>
+  <svg class="rev-spark" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true">
+    <path
+      data-testid="sparkline"
+      [attr.d]="sparklinePath"
+      [attr.stroke-dasharray]="sparklinePathLength"
+      [attr.stroke-dashoffset]="started() ? 0 : sparklinePathLength"
+    />
+  </svg>
+  <span class="rev-vs">{{ 'pricing.widgets.revenue.trendVsLastMonth' | transloco }}</span>
+</div>
