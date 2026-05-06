@@ -6,6 +6,7 @@ import { Observable, tap, catchError, of, map } from 'rxjs';
 import { User } from './auth.model';
 import { isPlatformBrowser } from '@angular/common';
 import { API_BASE_URL } from '../config/api-base-url.token';
+import { TenantStatusService } from '../tenant/tenant-status.service';
 
 const TOKEN_KEY = 'auth_token';
 
@@ -17,6 +18,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly tenantStatus = inject(TenantStatusService);
 
   // Signals for reactive state
   private readonly currentUser = signal<User | null>(null);
@@ -164,6 +166,7 @@ export class AuthService {
    * Logout user
    */
   logout(): void {
+    this.tenantStatus.reset();
     this.token.set(null);
     this.currentUser.set(null);
     if (isPlatformBrowser(this.platformId)) {
