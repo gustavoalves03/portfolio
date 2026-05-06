@@ -64,6 +64,7 @@ public class TenantMapper {
         return new PublicSalonResponse(
                 tenant.getName(),
                 tenant.getSlug(),
+                tenant.getStatus().name(),
                 tenant.getDescription(),
                 logoUrl,
                 heroImageUrl,
