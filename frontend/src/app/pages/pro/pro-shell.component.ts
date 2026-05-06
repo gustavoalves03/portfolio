@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { OnboardingIndicatorComponent } from '../../shared/features/onboarding-indicator/onboarding-indicator.component';
+import { TenantStatusService } from '../../core/tenant/tenant-status.service';
 
 @Component({
   selector: 'app-pro-shell',
@@ -16,6 +17,7 @@ import { OnboardingIndicatorComponent } from '../../shared/features/onboarding-i
 export class ProShellComponent {
   private readonly store = inject(DashboardStore);
   private readonly router = inject(Router);
+  private readonly tenantStatus = inject(TenantStatusService);
 
   constructor() {
     // Re-fetch readiness on every entry to the dashboard so the checklist
@@ -27,5 +29,12 @@ export class ProShellComponent {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.store.loadReadiness());
+
+    // Mirror tenant status into the global service so the sidenav (which
+    // sits outside this route subtree) can render lock states.
+    effect(() => {
+      const status = this.store.readiness()?.status ?? null;
+      this.tenantStatus.set(status);
+    });
   }
 }
