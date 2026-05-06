@@ -844,6 +844,7 @@
     "home": "Home",
     "discover": "Discover",
     "about": "About",
+    "lockedUntilPublished": "Available after publication",
     "pro": {
       "dashboard": "Dashboard",
       "cares": "Services",

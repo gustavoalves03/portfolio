@@ -848,6 +848,7 @@
     "home": "Accueil",
     "discover": "Découvrir",
     "about": "À propos",
+    "lockedUntilPublished": "Disponible après publication",
     "pro": {
       "dashboard": "Dashboard",
       "cares": "Soins",
