@@ -208,3 +208,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     border-radius: 999px;
   }
 }
+
+/* === Focus pulse (used by [appFocusOnQueryParam]) === */
+.focus-pulse {
+  border-radius: 8px;
+  animation: focus-pulse 800ms ease-in-out 3;
+}
+
+@keyframes focus-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 0, 102, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(192, 0, 102, 0.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-pulse {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.45);
+  }
+}

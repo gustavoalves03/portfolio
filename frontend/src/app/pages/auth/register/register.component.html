@@ -44,6 +44,18 @@
         }
       </mat-form-field>
 
+      <!-- Confirm password field -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ 'auth.field.confirmPassword' | transloco }}</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required />
+        @if (confirmPasswordControl?.touched && confirmPasswordControl?.errors?.['required']) {
+          <mat-error>{{ 'auth.errors.required' | transloco }}</mat-error>
+        }
+        @if (confirmPasswordControl?.touched && form.errors?.['passwordMismatch']) {
+          <mat-error>{{ 'auth.errors.passwordMismatch' | transloco }}</mat-error>
+        }
+      </mat-form-field>
+
       <!-- Consent checkbox (RGPD) -->
       <div class="consent-field">
         <mat-checkbox formControlName="consent" color="primary" data-testid="register-consent">
@@ -68,6 +80,8 @@
           {{ 'auth.register.submit' | transloco }}
         }
       </button>
+
+      <app-form-validation-hint [form]="form" />
 
       <!-- Login link -->
       <p class="login-link">

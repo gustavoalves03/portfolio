@@ -19,9 +19,15 @@
     "loading": "Chargement...",
     "comingSoon": "Bientôt disponible",
     "back": "Retour",
-    "apply": "Appliquer"
+    "apply": "Appliquer",
+    "form": {
+      "fillRequiredFields": "Remplissez tous les champs requis pour continuer"
+    }
   },
   "auth": {
+    "field": {
+      "confirmPassword": "Confirmer le mot de passe"
+    },
     "modal": {
       "title": "Connectez-vous pour continuer",
       "description": "Pour confirmer votre réservation, veuillez vous connecter avec l'un de vos comptes.",
@@ -848,6 +854,7 @@
     "home": "Accueil",
     "discover": "Découvrir",
     "about": "À propos",
+    "lockedUntilPublished": "Disponible après publication",
     "pro": {
       "dashboard": "Dashboard",
       "cares": "Soins",

@@ -48,6 +48,8 @@
               class="stepper-link"
               [routerLink]="step.link"
               [queryParams]="step.queryParams"
+              [matTooltip]="('pro.dashboard.checklist.' + step.key + 'Desc') | transloco"
+              matTooltipPosition="below"
               [attr.aria-current]="!step.done && progress().nextKey === step.key ? 'step' : null"
               [attr.data-testid]="'stepper-step-' + step.key"
             >

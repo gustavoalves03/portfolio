@@ -67,7 +67,7 @@ describe('ResetPasswordComponent', () => {
 
   it('should not submit when passwords do not match', () => {
     setup('valid-token');
-    component.form.setValue({ newPassword: 'password123', confirmPassword: 'different1' });
+    component.form.setValue({ password: 'password123', confirmPassword: 'different1' });
     component.form.markAllAsTouched();
     component.onSubmit();
     expect(authServiceSpy.resetPassword).not.toHaveBeenCalled();
@@ -77,7 +77,7 @@ describe('ResetPasswordComponent', () => {
     setup('valid-token');
     authServiceSpy.resetPassword.and.returnValue(of({ message: 'ok' }));
 
-    component.form.setValue({ newPassword: 'newpass123', confirmPassword: 'newpass123' });
+    component.form.setValue({ password: 'newpass123', confirmPassword: 'newpass123' });
     component.onSubmit();
 
     expect(authServiceSpy.resetPassword).toHaveBeenCalledWith('valid-token', 'newpass123');
@@ -89,7 +89,7 @@ describe('ResetPasswordComponent', () => {
     const error = new HttpErrorResponse({ status: 400, statusText: 'Bad Request' });
     authServiceSpy.resetPassword.and.returnValue(throwError(() => error));
 
-    component.form.setValue({ newPassword: 'newpass123', confirmPassword: 'newpass123' });
+    component.form.setValue({ password: 'newpass123', confirmPassword: 'newpass123' });
     component.onSubmit();
 
     expect(component.invalidToken).toBeTrue();

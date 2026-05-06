@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { OnboardingChecklistService } from '../../../features/onboarding/onboarding-checklist.service';
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-onboarding-indicator',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule, TranslocoPipe, RouterLink],
+  imports: [MatIconModule, MatButtonModule, TranslocoPipe, RouterLink, MatTooltipModule],
   templateUrl: './onboarding-indicator.component.html',
   styleUrl: './onboarding-indicator.component.scss',
 })

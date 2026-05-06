@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
@@ -56,6 +56,14 @@ export class RegisterProComponent implements OnInit {
   readonly name = signal('');
   readonly email = signal('');
   readonly password = signal('');
+  readonly confirmPassword = signal('');
+
+  readonly passwordsMatch = computed(() => {
+    const p = this.password();
+    const c = this.confirmPassword();
+    if (!p || !c) return true; // empty fields handled by required check
+    return p === c;
+  });
 
   // Business fields
   readonly salonName = signal('');
@@ -116,7 +124,8 @@ export class RegisterProComponent implements OnInit {
   isAccountValid(): boolean {
     return this.name().trim().length > 0
       && this.email().includes('@')
-      && this.password().length >= 8;
+      && this.password().length >= 8
+      && this.passwordsMatch();
   }
 
   isBusinessValid(): boolean {

@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { passwordMatchValidator } from '../../../core/auth/password-match.validator';
+import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -22,6 +24,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatButtonModule,
     MatProgressSpinnerModule,
     TranslocoModule,
+    FormValidationHintComponent,
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
@@ -31,22 +34,21 @@ export class ResetPasswordComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
 
-  readonly form = this.fb.group({
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', [Validators.required]],
-  });
+  readonly form = this.fb.group(
+    {
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
+    },
+    { validators: [passwordMatchValidator] },
+  );
 
   token: string | null = null;
   isLoading = false;
   resetSuccess = false;
   invalidToken = false;
 
-  get newPasswordControl() { return this.form.get('newPassword'); }
+  get passwordControl() { return this.form.get('password'); }
   get confirmPasswordControl() { return this.form.get('confirmPassword'); }
-  get passwordsMismatch(): boolean {
-    return this.form.value.newPassword !== this.form.value.confirmPassword
-      && !!this.confirmPasswordControl?.touched;
-  }
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
@@ -56,7 +58,7 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid || this.passwordsMismatch || !this.token) {
+    if (this.form.invalid || !this.token) {
       this.form.markAllAsTouched();
       return;
     }
@@ -64,7 +66,7 @@ export class ResetPasswordComponent implements OnInit {
     this.isLoading = true;
     this.invalidToken = false;
 
-    this.authService.resetPassword(this.token, this.form.value.newPassword!).subscribe({
+    this.authService.resetPassword(this.token, this.form.value.password!).subscribe({
       next: () => {
         this.isLoading = false;
         this.resetSuccess = true;

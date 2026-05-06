@@ -101,6 +101,7 @@ describe('RegisterComponent', () => {
       name: 'Sophie Martin',
       email: 'sophie@salon.fr',
       password: 'password123',
+      confirmPassword: 'password123',
       consent: true,
     });
 
@@ -122,11 +123,24 @@ describe('RegisterComponent', () => {
       name: 'Sophie Martin',
       email: 'existing@salon.fr',
       password: 'password123',
+      confirmPassword: 'password123',
       consent: true,
     });
 
     component.onSubmit();
 
     expect(component.emailConflictError()).toBeTrue();
+  });
+
+  it('marks the form invalid when passwords do not match', () => {
+    component.form.patchValue({
+      name: 'Demo',
+      email: 'demo@example.com',
+      password: 'secret123',
+      confirmPassword: 'wrong',
+      consent: true,
+    });
+    expect(component.form.errors?.['passwordMismatch']).toBe(true);
+    expect(component.form.invalid).toBe(true);
   });
 });

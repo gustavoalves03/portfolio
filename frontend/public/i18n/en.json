@@ -19,9 +19,15 @@
     "loading": "Loading...",
     "comingSoon": "Coming soon",
     "back": "Back",
-    "apply": "Apply"
+    "apply": "Apply",
+    "form": {
+      "fillRequiredFields": "Fill in all required fields to continue"
+    }
   },
   "auth": {
+    "field": {
+      "confirmPassword": "Confirm password"
+    },
     "modal": {
       "title": "Sign in to continue",
       "description": "To confirm your booking, please sign in with one of your accounts.",
@@ -844,6 +850,7 @@
     "home": "Home",
     "discover": "Discover",
     "about": "About",
+    "lockedUntilPublished": "Available after publication",
     "pro": {
       "dashboard": "Dashboard",
       "cares": "Services",

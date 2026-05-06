@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
 import { CountryPickerComponent } from '../../shared/uis/country-picker/country-picker.component';
+import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-param/focus-on-query-param.directive';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
 
@@ -26,6 +27,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatTabsModule,
     TranslocoPipe,
     CountryPickerComponent,
+    FocusOnQueryParamDirective,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',
@@ -61,6 +63,18 @@ export class SalonProfileComponent {
 
   readonly MAX_DESCRIPTION_LENGTH = 10000;
 
+  protected readonly dirty = signal(false);
+
+  protected readonly canSave = computed(
+    () => !this.store.isPending() && !!this.name().trim() && this.descriptionTextLength() <= this.MAX_DESCRIPTION_LENGTH,
+  );
+
+  protected readonly saveBlockedReason = computed<string | null>(() => {
+    if (!this.dirty()) return null;
+    if (this.canSave()) return null;
+    return 'common.form.fillRequiredFields';
+  });
+
   constructor() {
     // Sync store tenant to form fields
     effect(() => {
@@ -89,6 +103,7 @@ export class SalonProfileComponent {
         this.logoChanged = false;
         this.heroImageUrl.set(tenant.heroImageUrl ?? null);
         this.heroChanged = false;
+        this.dirty.set(false);
       }
     });
 
@@ -121,9 +136,14 @@ export class SalonProfileComponent {
   @ViewChild('logoInput') logoInput!: ElementRef<HTMLInputElement>;
   @ViewChild('heroInput') heroInput!: ElementRef<HTMLInputElement>;
 
+  protected markDirty(): void {
+    this.dirty.set(true);
+  }
+
   protected onLogoChange(images: ManagedImage[]): void {
     this.logoImages.set(images);
     this.logoChanged = true;
+    this.markDirty();
   }
 
   protected triggerLogoUpload(): void {
@@ -140,6 +160,7 @@ export class SalonProfileComponent {
       const dataUrl = reader.result as string;
       this.logoImages.set([{ id: 'new-logo', url: dataUrl, name: file.name, order: 0, file }]);
       this.logoChanged = true;
+      this.markDirty();
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -148,6 +169,7 @@ export class SalonProfileComponent {
   protected removeLogo(): void {
     this.logoImages.set([]);
     this.logoChanged = true;
+    this.markDirty();
   }
 
   protected triggerHeroUpload(): void {
@@ -163,6 +185,7 @@ export class SalonProfileComponent {
     reader.onload = () => {
       this.heroImageUrl.set(reader.result as string);
       this.heroChanged = true;
+      this.markDirty();
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -171,6 +194,7 @@ export class SalonProfileComponent {
   protected removeHero(): void {
     this.heroImageUrl.set(null);
     this.heroChanged = true;
+    this.markDirty();
   }
 
   protected onSave(): void {
