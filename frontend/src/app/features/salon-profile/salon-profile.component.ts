@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ManagedImage } from '../../shared/uis/image-manager/image-manager.component';
 import { CountryPickerComponent } from '../../shared/uis/country-picker/country-picker.component';
+import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-param/focus-on-query-param.directive';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
 
@@ -26,6 +27,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
     MatTabsModule,
     TranslocoPipe,
     CountryPickerComponent,
+    FocusOnQueryParamDirective,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',

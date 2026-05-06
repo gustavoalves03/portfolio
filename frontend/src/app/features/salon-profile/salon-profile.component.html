@@ -41,7 +41,7 @@
         <!-- Tab 1: Informations -->
         <mat-tab [label]="'pro.salon.title' | transloco">
           <div class="tab-content">
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name">
               <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
               <input matInput [ngModel]="name()" (ngModelChange)="name.set($event)" required maxlength="100" name="salonName" />
             </mat-form-field>
