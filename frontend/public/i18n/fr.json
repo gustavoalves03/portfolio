@@ -697,6 +697,18 @@
         "publishing": "Publication…",
         "bookingDisabled": "La réservation est désactivée en mode aperçu"
       }
+    },
+    "previewShare": {
+      "title": "Partager un aperçu",
+      "subtitle": "Générez un lien temporaire pour montrer votre vitrine à un proche avant publication.",
+      "generate": "Générer un lien",
+      "noLinks": "Aucun lien actif",
+      "createdAt": "Créé le {{date}}",
+      "copy": "Copier",
+      "copied": "Lien copié",
+      "revoke": "Révoquer",
+      "revoked": "Lien révoqué",
+      "revokeConfirm": "Révoquer ce lien ? Le destinataire n'y aura plus accès."
     }
   },
   "posts": {

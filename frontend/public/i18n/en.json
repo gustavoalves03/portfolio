@@ -693,6 +693,18 @@
         "publishing": "Publishing…",
         "bookingDisabled": "Booking is disabled in preview mode"
       }
+    },
+    "previewShare": {
+      "title": "Share a preview",
+      "subtitle": "Generate a temporary link to show your storefront to someone before publication.",
+      "generate": "Generate a link",
+      "noLinks": "No active links",
+      "createdAt": "Created on {{date}}",
+      "copy": "Copy",
+      "copied": "Link copied",
+      "revoke": "Revoke",
+      "revoked": "Link revoked",
+      "revokeConfirm": "Revoke this link? The recipient won't be able to access it anymore."
     }
   },
   "posts": {
