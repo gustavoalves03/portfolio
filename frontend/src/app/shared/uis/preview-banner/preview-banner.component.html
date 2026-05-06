@@ -1,0 +1,34 @@
+<div class="preview-banner" role="status" aria-live="polite">
+  <div class="banner-text">
+    <mat-icon class="banner-icon" aria-hidden="true">visibility</mat-icon>
+    <div class="banner-labels">
+      <span class="banner-title">{{ 'salon.preview.banner.title' | transloco }}</span>
+      <span class="banner-subtitle">{{ 'salon.preview.banner.subtitle' | transloco }}</span>
+    </div>
+  </div>
+
+  <div class="banner-actions">
+    <a
+      routerLink="/pro/dashboard"
+      class="banner-action banner-action-secondary"
+      data-testid="banner-back"
+    >
+      {{ 'salon.preview.banner.backToDashboard' | transloco }}
+    </a>
+    @if (canPublish()) {
+      <button
+        type="button"
+        class="banner-action banner-action-primary"
+        (click)="onPublish()"
+        [disabled]="publishing()"
+        data-testid="banner-publish"
+      >
+        @if (publishing()) {
+          {{ 'salon.preview.banner.publishing' | transloco }}
+        } @else {
+          {{ 'salon.preview.banner.publish' | transloco }}
+        }
+      </button>
+    }
+  </div>
+</div>

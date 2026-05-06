@@ -80,9 +80,11 @@ public class PublicSalonController {
     }
 
     @GetMapping("/{slug}")
-    public ResponseEntity<PublicSalonResponse> getSalon(@PathVariable String slug) {
+    public ResponseEntity<PublicSalonResponse> getSalon(
+            @PathVariable String slug,
+            @AuthenticationPrincipal UserPrincipal principal) {
         return tenantService.findBySlug(slug)
-                .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
+                .filter(tenant -> canViewStorefront(tenant, principal))
                 .map(tenant -> {
                     // Set tenant context to query the correct schema
                     TenantContext.setCurrentTenant(tenant.getSlug());
@@ -94,6 +96,26 @@ public class PublicSalonController {
                     }
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Storefront access policy:
+     * - ACTIVE salons are visible to everyone (current behavior).
+     * - DRAFT salons are visible only to their authenticated owner (preview mode).
+     * - SUSPENDED / DELETED salons are not visible to anyone.
+     */
+    private boolean canViewStorefront(
+            com.prettyface.app.tenant.domain.Tenant tenant,
+            UserPrincipal principal) {
+        if (tenant.getStatus() == TenantStatus.ACTIVE) {
+            return true;
+        }
+        if (tenant.getStatus() == TenantStatus.DRAFT
+                && principal != null
+                && tenant.getOwnerId().equals(principal.getId())) {
+            return true;
+        }
+        return false;
     }
 
     @GetMapping("/{slug}/opening-hours")
