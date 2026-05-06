@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TenantReadiness } from '../dashboard/models/dashboard.model';
-import { OnboardingStep } from './onboarding-step.model';
+import { OnboardingProgress, OnboardingStep } from './onboarding-step.model';
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingChecklistService {
@@ -26,5 +26,18 @@ export class OnboardingChecklistService {
         queryParams: null,
       },
     ];
+  }
+
+  computeProgress(steps: OnboardingStep[]): OnboardingProgress {
+    const total = steps.length;
+    const done = steps.filter((s) => s.done).length;
+    const next = steps.find((s) => !s.done);
+    const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+    return {
+      done,
+      total,
+      nextKey: next ? next.key : null,
+      percent,
+    };
   }
 }

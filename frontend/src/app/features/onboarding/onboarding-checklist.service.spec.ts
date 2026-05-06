@@ -58,4 +58,47 @@ describe('OnboardingChecklistService', () => {
       expect(cares?.queryParams).toBeNull();
     });
   });
+
+  describe('computeProgress', () => {
+    it('returns zeros when steps is empty', () => {
+      expect(service.computeProgress([])).toEqual({
+        done: 0,
+        total: 0,
+        nextKey: null,
+        percent: 0,
+      });
+    });
+
+    it('counts done steps and identifies the first undone step', () => {
+      const steps = service.buildSteps(
+        readiness({ name: true, hasActiveCare: false, hasOpeningHours: false })
+      );
+      expect(service.computeProgress(steps)).toEqual({
+        done: 1,
+        total: 3,
+        nextKey: 'cares',
+        percent: 33,
+      });
+    });
+
+    it('returns null nextKey when all steps are done', () => {
+      const steps = service.buildSteps(
+        readiness({ name: true, hasActiveCare: true, hasOpeningHours: true })
+      );
+      expect(service.computeProgress(steps)).toEqual({
+        done: 3,
+        total: 3,
+        nextKey: null,
+        percent: 100,
+      });
+    });
+
+    it('rounds percent to nearest integer', () => {
+      const steps = service.buildSteps(
+        readiness({ name: false, hasActiveCare: true, hasOpeningHours: false })
+      );
+      // 1/3 = 33.33 → 33
+      expect(service.computeProgress(steps).percent).toBe(33);
+    });
+  });
 });
