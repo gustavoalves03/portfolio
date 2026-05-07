@@ -2,6 +2,8 @@ export interface TenantReadiness {
   slug: string;
   name: boolean;
   hasCategory: boolean;
+  hasContact: boolean;
+  hasLogo: boolean;
   hasActiveCare: boolean;
   hasOpeningHours: boolean;
   canPublish: boolean;
