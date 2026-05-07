@@ -195,7 +195,11 @@
         "openingHours": "Définis tes horaires d'ouverture",
         "openingHoursDesc": "Indique les jours et heures où tu reçois.",
         "next": "Étape suivante",
-        "done": "Fait"
+        "done": "Fait",
+        "hasContact": "Renseignez vos coordonnées",
+        "hasContactDesc": "Adresse complète et au moins un téléphone ou email pour que vos clientes vous joignent.",
+        "hasLogo": "Ajoutez votre logo",
+        "hasLogoDesc": "Une image carrée affichée sur votre page publique."
       },
       "quickstart": {
         "title": "Démarre en 30 secondes",
@@ -375,7 +379,8 @@
         "next": "Suivant : {{step}}",
         "ready": "Vitrine prête — publier",
         "preview": "Aperçu",
-        "ariaProgress": "Progression de la configuration : étape {{done}} sur {{total}}"
+        "ariaProgress": "Progression de la configuration : étape {{done}} sur {{total}}",
+        "resumeWizard": "Reprendre le tutoriel"
       },
       "sheet": {
         "title": "Votre configuration",
@@ -395,6 +400,77 @@
           "errors": {
             "invalidFile": "Veuillez choisir une image valide (PNG ou JPEG, max 5 Mo).",
             "save": "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+          }
+        },
+        "exit": {
+          "label": "Sortir du tutoriel",
+          "confirmTitle": "Sortir du tutoriel ?",
+          "confirmBody": "Vos données saisies sont sauvegardées. Vous pourrez reprendre depuis le tableau de bord.",
+          "confirmYes": "Sortir",
+          "confirmNo": "Continuer le tutoriel"
+        },
+        "welcome": {
+          "title": "Bienvenue sur Pretty Face Pro.",
+          "sub": "Mettons votre salon en ligne en quelques minutes.",
+          "b1": "Le nom de votre salon",
+          "b2": "Vos coordonnées",
+          "b3": "Votre logo",
+          "b4": "Vos catégories de soins",
+          "b5": "Votre premier soin",
+          "b6": "Vos horaires d'ouverture",
+          "cta": "C'est parti",
+          "exit": "Je préfère explorer le tableau de bord"
+        },
+        "name": {
+          "title": "Comment s'appelle votre salon ?",
+          "sub": "Ce nom apparaîtra sur votre page publique, vos confirmations et factures.",
+          "placeholder": "Ex : Belle de Nuit"
+        },
+        "contact": {
+          "title": "Où vous trouve-t-on ?",
+          "sub": "Adresse complète, et au moins un moyen de vous joindre.",
+          "streetPlaceholder": "Numéro et rue",
+          "postalCodePlaceholder": "Code postal",
+          "cityPlaceholder": "Ville",
+          "atLeastOne": "Et au moins l'un des deux :",
+          "phonePlaceholder": "Téléphone",
+          "emailPlaceholder": "Email"
+        },
+        "categories": {
+          "title": "Que proposez-vous ?",
+          "sub": "Sélectionnez tout ce que vous faites — au moins une catégorie."
+        },
+        "cares": {
+          "title": "Ajoutez votre premier soin.",
+          "sub": "Choisissez un modèle pré-rempli pour démarrer rapidement.",
+          "manual": "Je préfère ajouter mes soins manuellement",
+          "errors": {
+            "apply": "Impossible d'appliquer le modèle. Réessayez."
+          }
+        },
+        "openingHours": {
+          "title": "Quand êtes-vous ouverte ?",
+          "sub": "Vos horaires habituels. Vous pourrez gérer les exceptions plus tard.",
+          "closed": "Fermé",
+          "presetWeekdays": "Lun–Ven 9h–19h",
+          "presetMonSat": "Lun–Sam 10h–20h",
+          "day": {
+            "1": "Lundi",
+            "2": "Mardi",
+            "3": "Mercredi",
+            "4": "Jeudi",
+            "5": "Vendredi",
+            "6": "Samedi",
+            "7": "Dimanche"
+          }
+        },
+        "publish": {
+          "title": "Tout est prêt.",
+          "sub": "Voici un récapitulatif. Cliquez sur Publier pour mettre votre salon en ligne.",
+          "preview": "Prévisualiser ma page publique",
+          "cta": "Publier mon salon",
+          "errors": {
+            "publish": "Impossible de publier votre salon. Vérifiez votre connexion et réessayez."
           }
         }
       }
