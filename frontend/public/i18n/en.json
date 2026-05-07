@@ -22,7 +22,8 @@
     "apply": "Apply",
     "form": {
       "fillRequiredFields": "Fill in all required fields to continue"
-    }
+    },
+    "close": "Close"
   },
   "auth": {
     "field": {
@@ -210,17 +211,32 @@
                 "name": "Facial treatments",
                 "desc": "Hydration, cleansing, anti-aging.",
                 "cares": {
-                  "hydra": { "name": "Hydrating facial", "desc": "For plump, glowing skin." },
-                  "deep": { "name": "Deep cleansing facial", "desc": "Extraction and purification." },
-                  "express": { "name": "Express facial", "desc": "Quick glow in 30 minutes." }
+                  "hydra": {
+                    "name": "Hydrating facial",
+                    "desc": "For plump, glowing skin."
+                  },
+                  "deep": {
+                    "name": "Deep cleansing facial",
+                    "desc": "Extraction and purification."
+                  },
+                  "express": {
+                    "name": "Express facial",
+                    "desc": "Quick glow in 30 minutes."
+                  }
                 }
               },
               "brows": {
                 "name": "Brows & lashes",
                 "desc": "Shaping and tinting.",
                 "cares": {
-                  "shape": { "name": "Brow shaping", "desc": "Tailored to your face." },
-                  "tint": { "name": "Brow tint", "desc": "Long-lasting natural color." }
+                  "shape": {
+                    "name": "Brow shaping",
+                    "desc": "Tailored to your face."
+                  },
+                  "tint": {
+                    "name": "Brow tint",
+                    "desc": "Long-lasting natural color."
+                  }
                 }
               }
             }
@@ -233,15 +249,24 @@
                 "name": "Massages",
                 "desc": "Relaxation and well-being.",
                 "cares": {
-                  "relax": { "name": "Relaxing massage", "desc": "Soft pressure, warm oil." },
-                  "deep": { "name": "Deep tissue massage", "desc": "Releases muscle tension." }
+                  "relax": {
+                    "name": "Relaxing massage",
+                    "desc": "Soft pressure, warm oil."
+                  },
+                  "deep": {
+                    "name": "Deep tissue massage",
+                    "desc": "Releases muscle tension."
+                  }
                 }
               },
               "scrub": {
                 "name": "Scrubs",
                 "desc": "Gentle exfoliation.",
                 "cares": {
-                  "full": { "name": "Full body scrub", "desc": "Smooth, glowing skin." }
+                  "full": {
+                    "name": "Full body scrub",
+                    "desc": "Smooth, glowing skin."
+                  }
                 }
               }
             }
@@ -254,15 +279,24 @@
                 "name": "Manicure",
                 "desc": "Hand care and polish.",
                 "cares": {
-                  "classic": { "name": "Classic manicure", "desc": "Filing, cuticle care, polish." },
-                  "gel": { "name": "Gel manicure", "desc": "Long-lasting gel polish." }
+                  "classic": {
+                    "name": "Classic manicure",
+                    "desc": "Filing, cuticle care, polish."
+                  },
+                  "gel": {
+                    "name": "Gel manicure",
+                    "desc": "Long-lasting gel polish."
+                  }
                 }
               },
               "pedicure": {
                 "name": "Pedicure",
                 "desc": "Foot care.",
                 "cares": {
-                  "classic": { "name": "Classic pedicure", "desc": "Full care and polish." }
+                  "classic": {
+                    "name": "Classic pedicure",
+                    "desc": "Full care and polish."
+                  }
                 }
               }
             }
@@ -275,16 +309,28 @@
                 "name": "Cuts",
                 "desc": "Women and men.",
                 "cares": {
-                  "women": { "name": "Women's cut", "desc": "Cut + blow-dry." },
-                  "men": { "name": "Men's cut", "desc": "Cut + finish." }
+                  "women": {
+                    "name": "Women's cut",
+                    "desc": "Cut + blow-dry."
+                  },
+                  "men": {
+                    "name": "Men's cut",
+                    "desc": "Cut + finish."
+                  }
                 }
               },
               "color": {
                 "name": "Color",
                 "desc": "Coloring and highlights.",
                 "cares": {
-                  "full": { "name": "Full color", "desc": "Roots + lengths application." },
-                  "highlights": { "name": "Highlights", "desc": "Custom luminous effect." }
+                  "full": {
+                    "name": "Full color",
+                    "desc": "Roots + lengths application."
+                  },
+                  "highlights": {
+                    "name": "Highlights",
+                    "desc": "Custom luminous effect."
+                  }
                 }
               }
             }
@@ -363,6 +409,11 @@
         "allEmployees": "All employees",
         "allCares": "All services",
         "vsLastPeriod": "vs previous period"
+      },
+      "publishMissingDialog": {
+        "title": "Before publishing...",
+        "body": "To put your salon online, a few details are still missing:",
+        "goTo": "Go there"
       }
     },
     "onboarding": {
