@@ -75,4 +75,28 @@ describe('ProShellComponent', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ ...READINESS_STUB, name: true });
   });
+
+  it('redirects to /pro/onboarding when DRAFT && !canPublish && no skip flag', () => {
+    sessionStorage.removeItem('pf_skipOnboarding');
+    const router = TestBed.inject(Router);
+    const navSpy = spyOn(router, 'navigate');
+    // Trigger another readiness load to fire the effect again
+    const store = fixture.debugElement.injector.get(DashboardStore);
+    store.loadReadiness();
+    httpTesting.expectOne((req) => req.url.endsWith('/api/pro/tenant/readiness')).flush(READINESS_STUB);
+    fixture.detectChanges();
+    expect(navSpy).toHaveBeenCalledWith(['/pro/onboarding']);
+  });
+
+  it('does NOT redirect when sessionStorage flag is set', () => {
+    const router = TestBed.inject(Router);
+    const navSpy = spyOn(router, 'navigate');
+    sessionStorage.setItem('pf_skipOnboarding', '1');
+    const store = fixture.debugElement.injector.get(DashboardStore);
+    store.loadReadiness();
+    httpTesting.expectOne((req) => req.url.endsWith('/api/pro/tenant/readiness')).flush(READINESS_STUB);
+    fixture.detectChanges();
+    expect(navSpy).not.toHaveBeenCalledWith(['/pro/onboarding']);
+    sessionStorage.removeItem('pf_skipOnboarding');
+  });
 });
