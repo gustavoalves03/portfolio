@@ -1,0 +1,8 @@
+.step { max-width: 640px; margin: 0 auto; padding: 64px 32px; text-align: center; }
+.step-title { font-family: 'Fraunces', serif; font-size: clamp(32px, 4vw, 48px); margin-bottom: 16px; }
+.step-sub { color: var(--pf-ink-mute); font-size: 17px; line-height: 1.55; margin-bottom: 32px; }
+.welcome-bullets { list-style: none; padding: 0; margin: 0 0 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+.welcome-bullets li { display: flex; align-items: center; gap: 10px; color: var(--pf-ink); }
+.step-actions { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.step-cta { background: var(--pf-rose); color: #fff; border: 0; border-radius: 999px; padding: 14px 32px; font-weight: 600; cursor: pointer; }
+.step-exit { background: none; border: 0; color: var(--pf-ink-mute); text-decoration: underline; cursor: pointer; }

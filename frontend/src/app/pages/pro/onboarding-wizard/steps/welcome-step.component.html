@@ -1,0 +1,22 @@
+<section class="step">
+  <h1 class="step-title">{{ 'pro.onboarding.wizard.welcome.title' | transloco }}</h1>
+  <p class="step-sub">{{ 'pro.onboarding.wizard.welcome.sub' | transloco }}</p>
+
+  <ul class="welcome-bullets">
+    <li><mat-icon>edit</mat-icon> {{ 'pro.onboarding.wizard.welcome.b1' | transloco }}</li>
+    <li><mat-icon>place</mat-icon> {{ 'pro.onboarding.wizard.welcome.b2' | transloco }}</li>
+    <li><mat-icon>image</mat-icon> {{ 'pro.onboarding.wizard.welcome.b3' | transloco }}</li>
+    <li><mat-icon>category</mat-icon> {{ 'pro.onboarding.wizard.welcome.b4' | transloco }}</li>
+    <li><mat-icon>spa</mat-icon> {{ 'pro.onboarding.wizard.welcome.b5' | transloco }}</li>
+    <li><mat-icon>schedule</mat-icon> {{ 'pro.onboarding.wizard.welcome.b6' | transloco }}</li>
+  </ul>
+
+  <div class="step-actions">
+    <button type="button" class="step-cta" data-testid="welcome-cta" (click)="completed.emit()">
+      {{ 'pro.onboarding.wizard.welcome.cta' | transloco }} →
+    </button>
+    <button type="button" class="step-exit" (click)="exit.emit()">
+      {{ 'pro.onboarding.wizard.welcome.exit' | transloco }}
+    </button>
+  </div>
+</section>
