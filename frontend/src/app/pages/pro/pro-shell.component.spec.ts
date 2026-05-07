@@ -13,6 +13,8 @@ const READINESS_STUB = {
   slug: 'demo',
   name: false,
   hasCategory: false,
+  hasContact: false,
+  hasLogo: false,
   hasActiveCare: false,
   hasOpeningHours: false,
   canPublish: false,
