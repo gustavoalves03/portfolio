@@ -382,6 +382,21 @@
         "preview": "Aperçu de la vitrine",
         "backToDashboard": "Retour au tableau de bord",
         "publish": "Publier ma vitrine"
+      },
+      "wizard": {
+        "next": "Suivant",
+        "errors": {
+          "save": "Une erreur est survenue. Veuillez réessayer."
+        },
+        "logo": {
+          "title": "Ajoutez votre logo",
+          "sub": "Importez un logo pour personnaliser votre vitrine. Formats acceptés : PNG, JPEG (max 5 Mo).",
+          "dropHere": "Cliquez pour sélectionner une image",
+          "errors": {
+            "invalidFile": "Veuillez choisir une image valide (PNG ou JPEG, max 5 Mo).",
+            "save": "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+          }
+        }
       }
     },
     "salon": {

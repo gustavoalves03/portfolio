@@ -378,6 +378,21 @@
         "preview": "Preview the storefront",
         "backToDashboard": "Back to dashboard",
         "publish": "Publish my storefront"
+      },
+      "wizard": {
+        "next": "Next",
+        "errors": {
+          "save": "An error occurred. Please try again."
+        },
+        "logo": {
+          "title": "Add your logo",
+          "sub": "Upload a logo to personalize your storefront. Accepted formats: PNG, JPEG (max 5 MB).",
+          "dropHere": "Click to select an image",
+          "errors": {
+            "invalidFile": "Please choose a valid image (PNG or JPEG, max 5 MB).",
+            "save": "An error occurred while saving. Please try again."
+          }
+        }
       }
     },
     "salon": {
