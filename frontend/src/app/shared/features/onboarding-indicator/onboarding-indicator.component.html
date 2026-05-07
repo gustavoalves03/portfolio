@@ -90,6 +90,15 @@
           </button>
         }
       </div>
+      <button
+        type="button"
+        class="stepper-resume"
+        (click)="onResumeWizard()"
+        data-testid="resume-wizard"
+      >
+        <mat-icon aria-hidden="true">replay</mat-icon>
+        <span>{{ 'pro.onboarding.indicator.resumeWizard' | transloco }}</span>
+      </button>
     </div>
   }
 }

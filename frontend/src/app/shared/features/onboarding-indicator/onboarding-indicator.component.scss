@@ -226,6 +226,26 @@
   }
 }
 
+.stepper-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  background: none;
+  border: 1px dashed var(--pf-line);
+  border-radius: 999px;
+  padding: 6px 14px;
+  color: var(--pf-ink-mute);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.stepper-resume:hover {
+  border-color: var(--pf-rose);
+  color: var(--pf-rose);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stepper-link, .stepper-preview, .stepper-publish, .indicator-pill {
     transition: none;
