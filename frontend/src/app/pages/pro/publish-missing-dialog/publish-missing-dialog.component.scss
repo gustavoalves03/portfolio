@@ -1,0 +1,13 @@
+.dlg-body { color: var(--pf-ink-mute); margin: 0 0 16px; font-size: 14px; }
+.dlg-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.dlg-item {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+  padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px;
+}
+.dlg-icon { color: var(--pf-rose); }
+.dlg-label { font-weight: 600; margin: 0; }
+.dlg-desc { color: var(--pf-ink-mute); font-size: 13px; margin: 4px 0 0; }
+.dlg-cta {
+  background: var(--pf-rose); color: #fff; border: 0; border-radius: 999px;
+  padding: 8px 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+}

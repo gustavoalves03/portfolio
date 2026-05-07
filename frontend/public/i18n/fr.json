@@ -22,7 +22,8 @@
     "apply": "Appliquer",
     "form": {
       "fillRequiredFields": "Remplissez tous les champs requis pour continuer"
-    }
+    },
+    "close": "Fermer"
   },
   "auth": {
     "field": {
@@ -218,17 +219,32 @@
                 "name": "Soins du visage",
                 "desc": "Hydratation, nettoyage, anti-âge.",
                 "cares": {
-                  "hydra": { "name": "Soin hydratant", "desc": "Pour une peau repulpée et lumineuse." },
-                  "deep": { "name": "Soin nettoyant en profondeur", "desc": "Désincrustation et purification." },
-                  "express": { "name": "Soin express", "desc": "Coup d'éclat en 30 minutes." }
+                  "hydra": {
+                    "name": "Soin hydratant",
+                    "desc": "Pour une peau repulpée et lumineuse."
+                  },
+                  "deep": {
+                    "name": "Soin nettoyant en profondeur",
+                    "desc": "Désincrustation et purification."
+                  },
+                  "express": {
+                    "name": "Soin express",
+                    "desc": "Coup d'éclat en 30 minutes."
+                  }
                 }
               },
               "brows": {
                 "name": "Sourcils & cils",
                 "desc": "Restructuration et teinture.",
                 "cares": {
-                  "shape": { "name": "Restructuration sourcils", "desc": "Forme adaptée à ton visage." },
-                  "tint": { "name": "Teinture sourcils", "desc": "Couleur durable et naturelle." }
+                  "shape": {
+                    "name": "Restructuration sourcils",
+                    "desc": "Forme adaptée à ton visage."
+                  },
+                  "tint": {
+                    "name": "Teinture sourcils",
+                    "desc": "Couleur durable et naturelle."
+                  }
                 }
               }
             }
@@ -241,15 +257,24 @@
                 "name": "Massages",
                 "desc": "Relaxation et bien-être.",
                 "cares": {
-                  "relax": { "name": "Massage relaxant", "desc": "Pression douce, huile chaude." },
-                  "deep": { "name": "Massage profond", "desc": "Pour relâcher les tensions musculaires." }
+                  "relax": {
+                    "name": "Massage relaxant",
+                    "desc": "Pression douce, huile chaude."
+                  },
+                  "deep": {
+                    "name": "Massage profond",
+                    "desc": "Pour relâcher les tensions musculaires."
+                  }
                 }
               },
               "scrub": {
                 "name": "Gommages",
                 "desc": "Exfoliation douce.",
                 "cares": {
-                  "full": { "name": "Gommage corps complet", "desc": "Peau douce et lumineuse." }
+                  "full": {
+                    "name": "Gommage corps complet",
+                    "desc": "Peau douce et lumineuse."
+                  }
                 }
               }
             }
@@ -262,15 +287,24 @@
                 "name": "Manucure",
                 "desc": "Soin des mains et pose de vernis.",
                 "cares": {
-                  "classic": { "name": "Manucure classique", "desc": "Limage, soin des cuticules, vernis." },
-                  "gel": { "name": "Manucure gel", "desc": "Pose de vernis semi-permanent." }
+                  "classic": {
+                    "name": "Manucure classique",
+                    "desc": "Limage, soin des cuticules, vernis."
+                  },
+                  "gel": {
+                    "name": "Manucure gel",
+                    "desc": "Pose de vernis semi-permanent."
+                  }
                 }
               },
               "pedicure": {
                 "name": "Pédicure",
                 "desc": "Soin des pieds.",
                 "cares": {
-                  "classic": { "name": "Pédicure classique", "desc": "Soin complet et vernis." }
+                  "classic": {
+                    "name": "Pédicure classique",
+                    "desc": "Soin complet et vernis."
+                  }
                 }
               }
             }
@@ -283,16 +317,28 @@
                 "name": "Coupes",
                 "desc": "Pour femmes et hommes.",
                 "cares": {
-                  "women": { "name": "Coupe femme", "desc": "Coupe + brushing." },
-                  "men": { "name": "Coupe homme", "desc": "Coupe + finition." }
+                  "women": {
+                    "name": "Coupe femme",
+                    "desc": "Coupe + brushing."
+                  },
+                  "men": {
+                    "name": "Coupe homme",
+                    "desc": "Coupe + finition."
+                  }
                 }
               },
               "color": {
                 "name": "Couleur",
                 "desc": "Coloration et mèches.",
                 "cares": {
-                  "full": { "name": "Couleur complète", "desc": "Application racines + longueurs." },
-                  "highlights": { "name": "Mèches", "desc": "Effet lumineux personnalisé." }
+                  "full": {
+                    "name": "Couleur complète",
+                    "desc": "Application racines + longueurs."
+                  },
+                  "highlights": {
+                    "name": "Mèches",
+                    "desc": "Effet lumineux personnalisé."
+                  }
                 }
               }
             }
@@ -371,6 +417,11 @@
         "allEmployees": "Tous les employés",
         "allCares": "Toutes les prestations",
         "vsLastPeriod": "vs période préc."
+      },
+      "publishMissingDialog": {
+        "title": "Avant de publier...",
+        "body": "Pour mettre votre salon en ligne, il manque encore quelques informations :",
+        "goTo": "Y aller"
       }
     },
     "onboarding": {
@@ -1115,7 +1166,7 @@
       "bookings": "RDV",
       "salons": "Salons",
       "posts": "Posts",
-      "evolution": "\u00c9volution"
+      "evolution": "Évolution"
     },
     "prospect": {
       "home": "Accueil",
