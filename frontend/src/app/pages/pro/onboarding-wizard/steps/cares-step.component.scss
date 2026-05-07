@@ -1,0 +1,22 @@
+.step { max-width: 720px; margin: 0 auto; padding: 64px 32px; text-align: center; }
+.step-title { font-family: 'Fraunces', serif; font-size: clamp(32px, 4vw, 48px); margin-bottom: 16px; }
+.step-sub { color: var(--pf-ink-mute); font-size: 17px; line-height: 1.55; margin-bottom: 32px; }
+.step-back { background: none; border: 0; color: var(--pf-ink-mute); cursor: pointer; margin-bottom: 16px; }
+.step-error { color: #b00020; font-size: 14px; margin: 16px 0; }
+
+.persona-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;
+}
+.persona-card {
+  display: flex; flex-direction: column; gap: 8px; padding: 24px;
+  background: #fff; border: 1px solid var(--pf-line); border-radius: 16px;
+  text-align: left; cursor: pointer; transition: all 200ms ease;
+  font-family: inherit;
+}
+.persona-card:hover:not(:disabled) { border-color: var(--pf-rose); }
+.persona-card:disabled { opacity: 0.5; cursor: not-allowed; }
+.persona-card.is-loading { border-color: var(--pf-rose); }
+.persona-label { font-family: 'Fraunces', serif; font-size: 22px; }
+.persona-desc { color: var(--pf-ink-mute); font-size: 14px; }
+
+.step-manual { color: var(--pf-ink-mute); font-size: 14px; text-decoration: underline; cursor: pointer; }
