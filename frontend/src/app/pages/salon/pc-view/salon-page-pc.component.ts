@@ -1,4 +1,5 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, input, output, viewChild } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   PublicSalonResponse,
@@ -16,12 +17,39 @@ import { SalonPostsViewerComponent } from '../../../features/posts/salon-posts-v
   styleUrl: './salon-page-pc.component.scss',
 })
 export class SalonPagePcComponent {
+  private readonly platformId = inject(PLATFORM_ID);
+
   readonly salon = input.required<PublicSalonResponse>();
   readonly slug = input.required<string>();
   readonly isPreviewMode = input(false);
 
   readonly book = output<PublicCareDto>();
   readonly bookFromPost = output<number>();
+
+  // Leaflet map ref + state
+  readonly contactMapRef = viewChild<ElementRef<HTMLElement>>('contactMap');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private mapInstance: any = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private L: any = null;
+  private mapInitialized = false;
+
+  constructor() {
+    // Init contact map when the element appears (browser only).
+    effect(() => {
+      const el = this.contactMapRef()?.nativeElement;
+      const salon = this.salon();
+      if (
+        el &&
+        salon &&
+        !this.mapInitialized &&
+        isPlatformBrowser(this.platformId)
+      ) {
+        this.mapInitialized = true;
+        this.initContactMap(salon);
+      }
+    });
+  }
 
   // ── Address helpers ───────────────────────────────────────────────────
   readonly fullAddress = computed(() => {
@@ -74,5 +102,49 @@ export class SalonPagePcComponent {
   protected onBookFromPost(careId: number): void {
     if (this.isPreviewMode()) return;
     this.bookFromPost.emit(careId);
+  }
+
+  private async initContactMap(salon: PublicSalonResponse): Promise<void> {
+    const address = this.fullAddress();
+    if (!address) return;
+
+    const leaflet = await import('leaflet');
+    this.L = leaflet.default || leaflet;
+
+    const el = this.contactMapRef()?.nativeElement;
+    if (!el) return;
+
+    this.mapInstance = this.L.map(el, {
+      zoomControl: true,
+      attributionControl: false,
+    }).setView([46.6, 2.3], 6);
+
+    this.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+    }).addTo(this.mapInstance);
+
+    setTimeout(() => this.mapInstance?.invalidateSize(), 250);
+
+    // Geocode the salon address via Nominatim
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        this.mapInstance.setView([lat, lng], 15);
+
+        const salonIcon = this.L.divIcon({
+          className: 'salon-map-marker',
+          html: '<div class="salon-pin"></div>',
+          iconSize: [28, 28],
+          iconAnchor: [14, 28],
+        });
+        this.L.marker([lat, lng], { icon: salonIcon }).addTo(this.mapInstance);
+      }
+    } catch {
+      // Geocoding failed — keep the default world view.
+    }
   }
 }

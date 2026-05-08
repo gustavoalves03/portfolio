@@ -56,10 +56,10 @@
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 1440px;
+  max-width: 1760px;
   margin: 0 auto;
   height: 100%;
-  padding: 0 32px;
+  padding: 0 56px;
   display: flex;
   align-items: end;
   padding-bottom: 56px;
@@ -126,9 +126,9 @@
   border-bottom: 1px solid var(--d-rule);
 }
 .ribbon-inner {
-  max-width: 1440px;
+  max-width: 1760px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 16px 56px;
   display: flex;
   flex-wrap: wrap;
   gap: 36px;
@@ -163,9 +163,9 @@
 
 /* ===== Page wrapper ===== */
 .page {
-  max-width: 1440px;
+  max-width: 1760px;
   margin: 0 auto;
-  padding: 56px 32px 80px;
+  padding: 56px 56px 80px;
 }
 
 /* ===== Section ===== */
@@ -230,7 +230,7 @@
 
 .cares-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 .care {
@@ -403,23 +403,31 @@
 }
 
 .contact-map {
-  background:
-    linear-gradient(135deg, #e6e0d4 0%, #d6cfc1 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='220'%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23c8c0b0' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)' /%3E%3C/svg%3E");
   position: relative;
   min-height: 360px;
+  height: 100%;
+  background: var(--d-rule-soft);
 }
-.map-pin {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 32px;
-  height: 32px;
-  background: var(--d-rose);
-  border: 3px solid #fff;
-  border-radius: 50% 50% 50% 0;
-  transform: translate(-50%, -100%) rotate(-45deg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+
+/* Leaflet marker styles (rendered into div produced by L.divIcon) */
+:host ::ng-deep {
+  .salon-map-marker {
+    background: none;
+    border: none;
+  }
+  .salon-pin {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--d-rose-deep), var(--d-rose));
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    border: 3px solid #fff;
+  }
+  .leaflet-container {
+    font-family: inherit;
+    background: var(--d-rule-soft);
+  }
 }
 
 /* ===== Footer signature ===== */
