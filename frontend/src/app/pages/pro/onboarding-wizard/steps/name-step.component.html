@@ -1,0 +1,22 @@
+<section class="step">
+  <button type="button" class="step-back" (click)="back.emit()">← {{ 'common.back' | transloco }}</button>
+  <h1 class="step-title">{{ 'pro.onboarding.wizard.name.title' | transloco }}</h1>
+  <p class="step-sub">{{ 'pro.onboarding.wizard.name.sub' | transloco }}</p>
+
+  <form (submit)="onSubmit(); $event.preventDefault()" class="step-form">
+    <input
+      type="text"
+      class="step-input"
+      [value]="value()"
+      (input)="onInput($event)"
+      [placeholder]="'pro.onboarding.wizard.name.placeholder' | transloco"
+      autofocus
+    />
+    @if (error()) {
+      <p class="step-error">{{ 'pro.onboarding.wizard.errors.save' | transloco }}</p>
+    }
+    <button type="submit" class="step-cta" data-testid="next" [disabled]="!value().trim() || saving()">
+      {{ 'pro.onboarding.wizard.next' | transloco }} →
+    </button>
+  </form>
+</section>

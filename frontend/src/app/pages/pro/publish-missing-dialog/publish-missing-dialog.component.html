@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ 'pro.dashboard.publishMissingDialog.title' | transloco }}</h2>
+<mat-dialog-content>
+  <p class="dlg-body">{{ 'pro.dashboard.publishMissingDialog.body' | transloco }}</p>
+  <ul class="dlg-list">
+    @for (key of data.missing; track key) {
+      <li class="dlg-item" [attr.data-testid]="'missing-item-' + key">
+        <mat-icon class="dlg-icon" aria-hidden="true">error_outline</mat-icon>
+        <div class="dlg-text">
+          <p class="dlg-label">{{ 'pro.dashboard.checklist.' + key | transloco }}</p>
+          <p class="dlg-desc">{{ 'pro.dashboard.checklist.' + key + 'Desc' | transloco }}</p>
+        </div>
+        @if (stepFor(key); as step) {
+          <button type="button" class="dlg-cta" data-testid="goto" (click)="goTo(key)">
+            {{ 'pro.dashboard.publishMissingDialog.goTo' | transloco }} →
+          </button>
+        }
+      </li>
+    }
+  </ul>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button type="button" data-testid="close" mat-button (click)="cancel()">
+    {{ 'common.close' | transloco }}
+  </button>
+</mat-dialog-actions>

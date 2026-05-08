@@ -22,7 +22,8 @@
     "apply": "Appliquer",
     "form": {
       "fillRequiredFields": "Remplissez tous les champs requis pour continuer"
-    }
+    },
+    "close": "Fermer"
   },
   "auth": {
     "field": {
@@ -195,7 +196,17 @@
         "openingHours": "Définis tes horaires d'ouverture",
         "openingHoursDesc": "Indique les jours et heures où tu reçois.",
         "next": "Étape suivante",
-        "done": "Fait"
+        "done": "Fait",
+        "hasCategory": "Sélectionnez vos catégories",
+        "hasCategoryDesc": "Au moins une famille de soins (visage, manucure, etc.) pour aider vos clientes à vous trouver.",
+        "hasActiveCare": "Ajoutez votre premier soin",
+        "hasActiveCareDesc": "Au moins un soin actif est nécessaire pour publier votre salon.",
+        "hasContact": "Renseignez vos coordonnées",
+        "hasContactDesc": "Adresse complète et au moins un téléphone ou email pour que vos clientes vous joignent.",
+        "hasLogo": "Ajoutez votre logo",
+        "hasLogoDesc": "Une image carrée affichée sur votre page publique.",
+        "hasOpeningHours": "Définissez vos horaires",
+        "hasOpeningHoursDesc": "Vos jours et heures d'ouverture pour que les clientes puissent réserver."
       },
       "quickstart": {
         "title": "Démarre en 30 secondes",
@@ -214,17 +225,32 @@
                 "name": "Soins du visage",
                 "desc": "Hydratation, nettoyage, anti-âge.",
                 "cares": {
-                  "hydra": { "name": "Soin hydratant", "desc": "Pour une peau repulpée et lumineuse." },
-                  "deep": { "name": "Soin nettoyant en profondeur", "desc": "Désincrustation et purification." },
-                  "express": { "name": "Soin express", "desc": "Coup d'éclat en 30 minutes." }
+                  "hydra": {
+                    "name": "Soin hydratant",
+                    "desc": "Pour une peau repulpée et lumineuse."
+                  },
+                  "deep": {
+                    "name": "Soin nettoyant en profondeur",
+                    "desc": "Désincrustation et purification."
+                  },
+                  "express": {
+                    "name": "Soin express",
+                    "desc": "Coup d'éclat en 30 minutes."
+                  }
                 }
               },
               "brows": {
                 "name": "Sourcils & cils",
                 "desc": "Restructuration et teinture.",
                 "cares": {
-                  "shape": { "name": "Restructuration sourcils", "desc": "Forme adaptée à ton visage." },
-                  "tint": { "name": "Teinture sourcils", "desc": "Couleur durable et naturelle." }
+                  "shape": {
+                    "name": "Restructuration sourcils",
+                    "desc": "Forme adaptée à ton visage."
+                  },
+                  "tint": {
+                    "name": "Teinture sourcils",
+                    "desc": "Couleur durable et naturelle."
+                  }
                 }
               }
             }
@@ -237,15 +263,24 @@
                 "name": "Massages",
                 "desc": "Relaxation et bien-être.",
                 "cares": {
-                  "relax": { "name": "Massage relaxant", "desc": "Pression douce, huile chaude." },
-                  "deep": { "name": "Massage profond", "desc": "Pour relâcher les tensions musculaires." }
+                  "relax": {
+                    "name": "Massage relaxant",
+                    "desc": "Pression douce, huile chaude."
+                  },
+                  "deep": {
+                    "name": "Massage profond",
+                    "desc": "Pour relâcher les tensions musculaires."
+                  }
                 }
               },
               "scrub": {
                 "name": "Gommages",
                 "desc": "Exfoliation douce.",
                 "cares": {
-                  "full": { "name": "Gommage corps complet", "desc": "Peau douce et lumineuse." }
+                  "full": {
+                    "name": "Gommage corps complet",
+                    "desc": "Peau douce et lumineuse."
+                  }
                 }
               }
             }
@@ -258,15 +293,24 @@
                 "name": "Manucure",
                 "desc": "Soin des mains et pose de vernis.",
                 "cares": {
-                  "classic": { "name": "Manucure classique", "desc": "Limage, soin des cuticules, vernis." },
-                  "gel": { "name": "Manucure gel", "desc": "Pose de vernis semi-permanent." }
+                  "classic": {
+                    "name": "Manucure classique",
+                    "desc": "Limage, soin des cuticules, vernis."
+                  },
+                  "gel": {
+                    "name": "Manucure gel",
+                    "desc": "Pose de vernis semi-permanent."
+                  }
                 }
               },
               "pedicure": {
                 "name": "Pédicure",
                 "desc": "Soin des pieds.",
                 "cares": {
-                  "classic": { "name": "Pédicure classique", "desc": "Soin complet et vernis." }
+                  "classic": {
+                    "name": "Pédicure classique",
+                    "desc": "Soin complet et vernis."
+                  }
                 }
               }
             }
@@ -279,16 +323,28 @@
                 "name": "Coupes",
                 "desc": "Pour femmes et hommes.",
                 "cares": {
-                  "women": { "name": "Coupe femme", "desc": "Coupe + brushing." },
-                  "men": { "name": "Coupe homme", "desc": "Coupe + finition." }
+                  "women": {
+                    "name": "Coupe femme",
+                    "desc": "Coupe + brushing."
+                  },
+                  "men": {
+                    "name": "Coupe homme",
+                    "desc": "Coupe + finition."
+                  }
                 }
               },
               "color": {
                 "name": "Couleur",
                 "desc": "Coloration et mèches.",
                 "cares": {
-                  "full": { "name": "Couleur complète", "desc": "Application racines + longueurs." },
-                  "highlights": { "name": "Mèches", "desc": "Effet lumineux personnalisé." }
+                  "full": {
+                    "name": "Couleur complète",
+                    "desc": "Application racines + longueurs."
+                  },
+                  "highlights": {
+                    "name": "Mèches",
+                    "desc": "Effet lumineux personnalisé."
+                  }
                 }
               }
             }
@@ -367,6 +423,11 @@
         "allEmployees": "Tous les employés",
         "allCares": "Toutes les prestations",
         "vsLastPeriod": "vs période préc."
+      },
+      "publishMissingDialog": {
+        "title": "Avant de publier...",
+        "body": "Pour mettre votre salon en ligne, il manque encore quelques informations :",
+        "goTo": "Y aller"
       }
     },
     "onboarding": {
@@ -375,13 +436,112 @@
         "next": "Suivant : {{step}}",
         "ready": "Vitrine prête — publier",
         "preview": "Aperçu",
-        "ariaProgress": "Progression de la configuration : étape {{done}} sur {{total}}"
+        "ariaProgress": "Progression de la configuration : étape {{done}} sur {{total}}",
+        "resumeWizard": "Reprendre le tutoriel"
       },
       "sheet": {
         "title": "Votre configuration",
         "preview": "Aperçu de la vitrine",
         "backToDashboard": "Retour au tableau de bord",
         "publish": "Publier ma vitrine"
+      },
+      "wizard": {
+        "next": "Suivant",
+        "errors": {
+          "save": "Une erreur est survenue. Veuillez réessayer."
+        },
+        "logo": {
+          "title": "Ajoutez votre logo",
+          "sub": "Importez un logo pour personnaliser votre vitrine. Formats acceptés : PNG, JPEG (max 5 Mo).",
+          "dropHere": "Cliquez pour sélectionner une image",
+          "errors": {
+            "invalidFile": "Veuillez choisir une image valide (PNG ou JPEG, max 5 Mo).",
+            "save": "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+          }
+        },
+        "exit": {
+          "label": "Sortir du tutoriel",
+          "confirmTitle": "Sortir du tutoriel ?",
+          "confirmBody": "Vos données saisies sont sauvegardées. Vous pourrez reprendre depuis le tableau de bord.",
+          "confirmYes": "Sortir",
+          "confirmNo": "Continuer le tutoriel"
+        },
+        "welcome": {
+          "title": "Bienvenue sur Pretty Face Pro.",
+          "sub": "Mettons votre salon en ligne en quelques minutes.",
+          "b1": "Le nom de votre salon",
+          "b2": "Vos coordonnées",
+          "b3": "Votre logo",
+          "b4": "Vos catégories de soins",
+          "b5": "Votre premier soin",
+          "b6": "Vos horaires d'ouverture",
+          "cta": "C'est parti",
+          "exit": "Je préfère explorer le tableau de bord"
+        },
+        "name": {
+          "title": "Comment s'appelle votre salon ?",
+          "sub": "Ce nom apparaîtra sur votre page publique, vos confirmations et factures.",
+          "placeholder": "Ex : Belle de Nuit"
+        },
+        "contact": {
+          "title": "Où vous trouve-t-on ?",
+          "sub": "Adresse complète, et au moins un moyen de vous joindre.",
+          "streetPlaceholder": "Numéro et rue",
+          "postalCodePlaceholder": "Code postal",
+          "cityPlaceholder": "Ville",
+          "atLeastOne": "Et au moins l'un des deux :",
+          "phonePlaceholder": "Téléphone",
+          "emailPlaceholder": "Email"
+        },
+        "categories": {
+          "title": "Que proposez-vous ?",
+          "sub": "Sélectionnez tout ce que vous faites — au moins une catégorie.",
+          "items": {
+            "facial": "Soin du visage",
+            "hair": "Coiffure",
+            "nails": "Manucure",
+            "massage": "Massage",
+            "lashes": "Cils & sourcils",
+            "makeup": "Maquillage",
+            "waxing": "Épilation",
+            "wellness": "Bien-être",
+            "barber": "Barbier",
+            "rituals": "Rituels longs"
+          }
+        },
+        "cares": {
+          "title": "Ajoutez votre premier soin.",
+          "sub": "Choisissez un modèle pré-rempli pour démarrer rapidement.",
+          "manual": "Je préfère ajouter mes soins manuellement",
+          "errors": {
+            "apply": "Impossible d'appliquer le modèle. Réessayez."
+          }
+        },
+        "openingHours": {
+          "title": "Quand êtes-vous ouverte ?",
+          "sub": "Vos horaires habituels. Vous pourrez gérer les exceptions plus tard.",
+          "closed": "Fermé",
+          "presetWeekdays": "Lun–Ven 9h–19h",
+          "presetMonSat": "Lun–Sam 10h–20h",
+          "day": {
+            "1": "Lundi",
+            "2": "Mardi",
+            "3": "Mercredi",
+            "4": "Jeudi",
+            "5": "Vendredi",
+            "6": "Samedi",
+            "7": "Dimanche"
+          }
+        },
+        "publish": {
+          "title": "Tout est prêt.",
+          "sub": "Voici un récapitulatif. Cliquez sur Publier pour mettre votre salon en ligne.",
+          "preview": "Prévisualiser ma page publique",
+          "cta": "Publier mon salon",
+          "errors": {
+            "publish": "Impossible de publier votre salon. Vérifiez votre connexion et réessayez."
+          }
+        }
       }
     },
     "salon": {
@@ -1024,7 +1184,7 @@
       "bookings": "RDV",
       "salons": "Salons",
       "posts": "Posts",
-      "evolution": "\u00c9volution"
+      "evolution": "Évolution"
     },
     "prospect": {
       "home": "Accueil",

@@ -2,12 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
 import { patchState } from '@ngrx/signals';
 import { of, throwError } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProDashboardComponent } from './pro-dashboard.component';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
@@ -16,6 +17,7 @@ import { TenantReadiness } from '../../features/dashboard/models/dashboard.model
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { PersonaSetupService, PersonaSetupResult } from '../../features/onboarding/persona-setup.service';
 import { PERSONAS } from '../../features/onboarding/personas';
+import { PublishMissingDialogComponent } from './publish-missing-dialog/publish-missing-dialog.component';
 
 function mockAnalytics(): AnalyticsResponse {
   return {
@@ -243,6 +245,8 @@ describe('ProDashboardComponent', () => {
         slug: 'test-salon',
         name: false,
         hasCategory: false,
+        hasContact: false,
+        hasLogo: false,
         hasActiveCare: false,
         hasOpeningHours: false,
         canPublish: false,
@@ -392,6 +396,8 @@ describe('ProDashboardComponent', () => {
         slug: 'test-salon',
         name: false,
         hasCategory: false,
+        hasContact: false,
+        hasLogo: false,
         hasActiveCare: false,
         hasOpeningHours: false,
         canPublish: false,
@@ -488,6 +494,115 @@ describe('ProDashboardComponent', () => {
       setReadiness({});
       component.applyPersona(component.personas[0]);
       expect(component.skipQuickstart()).toBeFalse();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // PublishMissingDialog wiring
+  // ─────────────────────────────────────────────────────────────
+
+  describe('publish missing dialog wiring', () => {
+    let dialogSpy: jasmine.SpyObj<MatDialog>;
+    let refSpy: jasmine.SpyObj<MatDialogRef<unknown>>;
+    let publishMissingFixture: ComponentFixture<ProDashboardComponent>;
+    let publishMissingComponent: ProDashboardComponent;
+
+    beforeEach(async () => {
+      TestBed.resetTestingModule();
+
+      const analyticsSpy2 = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['getAnalytics']);
+      analyticsSpy2.getAnalytics.and.returnValue(of(mockAnalytics()));
+
+      const personaSetupSpy2 = jasmine.createSpyObj<PersonaSetupService>('PersonaSetupService', ['apply']);
+      personaSetupSpy2.apply.and.returnValue(of<PersonaSetupResult>({
+        categoriesCreated: 0, caresCreated: 0, failures: 0,
+      }));
+
+      refSpy = jasmine.createSpyObj<MatDialogRef<unknown>>('MatDialogRef', ['afterClosed']);
+      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', step: 'contact' }));
+
+      dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
+      dialogSpy.open.and.returnValue(refSpy as MatDialogRef<unknown>);
+
+      await TestBed.configureTestingModule({
+        imports: [
+          ProDashboardComponent,
+          TranslocoTestingModule.forRoot({
+            langs: { fr: {}, en: {} },
+            translocoConfig: { defaultLang: 'fr', availableLangs: ['fr', 'en'] },
+          }),
+        ],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+          provideNoopAnimations(),
+          provideTranslocoLocale({
+            defaultLocale: 'fr-FR',
+            langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' },
+          }),
+          { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
+          { provide: AnalyticsService, useValue: analyticsSpy2 },
+          { provide: PersonaSetupService, useValue: personaSetupSpy2 },
+          { provide: MatDialog, useValue: dialogSpy },
+          DashboardStore,
+        ],
+      }).compileComponents();
+
+      publishMissingFixture = TestBed.createComponent(ProDashboardComponent);
+      publishMissingComponent = publishMissingFixture.componentInstance;
+    });
+
+    it('opens PublishMissingDialogComponent when store.publishMissing becomes non-empty', () => {
+      // Drive publishMissing to a non-empty value via patchState
+      patchState(publishMissingComponent.store as any, { publishMissing: ['contact', 'logo'] });
+      publishMissingFixture.detectChanges();
+
+      expect(dialogSpy.open).toHaveBeenCalledWith(
+        PublishMissingDialogComponent,
+        jasmine.objectContaining({ data: { missing: ['contact', 'logo'] } })
+      );
+    });
+
+    it('calls clearPublishMissing after the dialog closes', () => {
+      const clearSpy = spyOn(publishMissingComponent.store, 'clearPublishMissing');
+
+      patchState(publishMissingComponent.store as any, { publishMissing: ['contact'] });
+      publishMissingFixture.detectChanges();
+
+      // afterClosed was set to emit { action: 'goTo', step: 'contact' }
+      expect(clearSpy).toHaveBeenCalled();
+    });
+
+    it('navigates to /pro/onboarding when result action is goTo', () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = spyOn(router, 'navigate');
+
+      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', step: 'contact' }));
+
+      patchState(publishMissingComponent.store as any, { publishMissing: ['contact'] });
+      publishMissingFixture.detectChanges();
+
+      expect(navigateSpy).toHaveBeenCalledWith(['/pro/onboarding']);
+    });
+
+    it('does not navigate when result action is cancel', () => {
+      const router = TestBed.inject(Router);
+      const navigateSpy = spyOn(router, 'navigate');
+
+      refSpy.afterClosed.and.returnValue(of({ action: 'cancel' }));
+
+      patchState(publishMissingComponent.store as any, { publishMissing: ['contact'] });
+      publishMissingFixture.detectChanges();
+
+      expect(navigateSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not open the dialog when publishMissing is empty', () => {
+      publishMissingFixture.detectChanges();
+      // publishMissing starts as [] — dialog must not open
+      expect(dialogSpy.open).not.toHaveBeenCalled();
     });
   });
 });

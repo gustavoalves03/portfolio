@@ -1,0 +1,27 @@
+.wpb {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wpb-segment {
+  flex: 1;
+}
+.wpb-button {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  border: none;
+  background: var(--pf-line-soft);
+  cursor: default;
+  padding: 0;
+}
+.wpb-segment.is-done .wpb-button {
+  background: var(--pf-rose);
+  cursor: pointer;
+}
+.wpb-segment.is-current .wpb-button {
+  background: linear-gradient(90deg, var(--pf-rose) 60%, var(--pf-line-soft) 60%);
+}
+.wpb-dot { display: none; }

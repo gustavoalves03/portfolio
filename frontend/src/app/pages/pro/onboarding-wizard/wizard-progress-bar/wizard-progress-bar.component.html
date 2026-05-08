@@ -1,0 +1,19 @@
+<ol class="wpb">
+  @for (i of segments(); track i) {
+    <li
+      class="wpb-segment"
+      [class.is-done]="i < currentIndex()"
+      [class.is-current]="i === currentIndex()"
+      [attr.aria-current]="i === currentIndex() ? 'step' : null"
+    >
+      <button
+        type="button"
+        class="wpb-button"
+        [disabled]="i >= currentIndex()"
+        (click)="onSegmentClick(i)"
+      >
+        <span class="wpb-dot" aria-hidden="true"></span>
+      </button>
+    </li>
+  }
+</ol>

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, signal, WritableSignal } from '@angular/core';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
@@ -17,6 +18,8 @@ function readiness(overrides: Partial<TenantReadiness> = {}): TenantReadiness {
     slug: 'demo',
     name: false,
     hasCategory: false,
+    hasContact: false,
+    hasLogo: false,
     hasActiveCare: false,
     hasOpeningHours: false,
     canPublish: false,
@@ -151,5 +154,21 @@ describe('OnboardingIndicatorComponent', () => {
     // somewhere in the rendered DOM tree (matTooltip text is hidden until
     // hover but the input value is bound on the directive).
     expect(stepName.nativeElement).toBeTruthy();
+  });
+
+  it('clicking the Resume Wizard button clears the skip flag and navigates to /pro/onboarding', () => {
+    setup(true);
+    patchState(store as any, { readiness: readiness({ status: 'DRAFT' }) });
+    fixture.detectChanges();
+
+    sessionStorage.setItem('pf_skipOnboarding', '1');
+    const router = TestBed.inject(Router);
+    const navSpy = spyOn(router, 'navigate');
+
+    const btn = fixture.nativeElement.querySelector('[data-testid="resume-wizard"]');
+    btn.click();
+
+    expect(sessionStorage.getItem('pf_skipOnboarding')).toBeNull();
+    expect(navSpy).toHaveBeenCalledWith(['/pro/onboarding']);
   });
 });

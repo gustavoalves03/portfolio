@@ -7,6 +7,7 @@ import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
+import com.prettyface.app.tenant.web.dto.PatchTenantRequest;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import com.prettyface.app.tenant.web.mapper.TenantMapper;
 import org.springframework.stereotype.Service;
@@ -121,6 +122,52 @@ public class TenantService {
 
         Tenant saved = tenantRepository.save(tenant);
         return TenantMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public TenantResponse patchProfile(Long ownerId, PatchTenantRequest request) {
+        TenantContext.requireActive();
+        Tenant tenant = tenantRepository.findByOwnerId(ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found for owner: " + ownerId));
+
+        if (request.name() != null) tenant.setName(request.name());
+        if (request.description() != null) tenant.setDescription(sanitizeHtml(request.description()));
+        if (request.addressStreet() != null) tenant.setAddressStreet(request.addressStreet());
+        if (request.addressPostalCode() != null) tenant.setAddressPostalCode(request.addressPostalCode());
+        if (request.addressCity() != null) tenant.setAddressCity(request.addressCity());
+        if (request.addressCountry() != null) tenant.setAddressCountry(request.addressCountry());
+        if (request.phone() != null) tenant.setPhone(request.phone());
+        if (request.contactEmail() != null) tenant.setContactEmail(request.contactEmail());
+        if (request.categorySlugs() != null) tenant.setCategorySlugs(request.categorySlugs());
+
+        if (request.logo() != null) {
+            if (request.logo().isEmpty()) {
+                if (tenant.getLogoPath() != null) {
+                    fileStorageService.deleteFile(tenant.getLogoPath());
+                    tenant.setLogoPath(null);
+                }
+            } else {
+                if (tenant.getLogoPath() != null) {
+                    fileStorageService.deleteFile(tenant.getLogoPath());
+                }
+                tenant.setLogoPath(fileStorageService.saveBase64Image(request.logo(), "tenant", tenant.getId()));
+            }
+        }
+        if (request.heroImage() != null) {
+            if (request.heroImage().isEmpty()) {
+                if (tenant.getHeroImagePath() != null) {
+                    fileStorageService.deleteFile(tenant.getHeroImagePath());
+                    tenant.setHeroImagePath(null);
+                }
+            } else {
+                if (tenant.getHeroImagePath() != null) {
+                    fileStorageService.deleteFile(tenant.getHeroImagePath());
+                }
+                tenant.setHeroImagePath(fileStorageService.saveBase64Image(request.heroImage(), "tenant", tenant.getId()));
+            }
+        }
+
+        return TenantMapper.toResponse(tenantRepository.save(tenant));
     }
 
     public TenantResponse getProfile(Long ownerId) {

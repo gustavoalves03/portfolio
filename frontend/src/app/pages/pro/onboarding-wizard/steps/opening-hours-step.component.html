@@ -1,0 +1,40 @@
+<section class="step">
+  <button type="button" class="step-back" (click)="back.emit()">← {{ 'common.back' | transloco }}</button>
+  <h1 class="step-title">{{ 'pro.onboarding.wizard.openingHours.title' | transloco }}</h1>
+  <p class="step-sub">{{ 'pro.onboarding.wizard.openingHours.sub' | transloco }}</p>
+
+  <div class="presets">
+    <button type="button" class="preset" data-testid="preset-weekdays" (click)="presetWeekdays()">
+      {{ 'pro.onboarding.wizard.openingHours.presetWeekdays' | transloco }}
+    </button>
+    <button type="button" class="preset" data-testid="preset-monsat" (click)="presetMonSat()">
+      {{ 'pro.onboarding.wizard.openingHours.presetMonSat' | transloco }}
+    </button>
+  </div>
+
+  <ul class="day-list">
+    @for (row of rows(); track row.dayOfWeek; let i = $index) {
+      <li class="day-row" [class.is-open]="row.open" [attr.data-testid]="'day-row-' + row.dayOfWeek">
+        <label class="day-name">
+          <input type="checkbox" [checked]="row.open" (change)="toggle(i)" />
+          {{ 'pro.onboarding.wizard.openingHours.day.' + row.dayOfWeek | transloco }}
+        </label>
+        @if (row.open) {
+          <input type="time" [value]="row.openTime" (input)="setTime(i, 'openTime', $any($event.target).value)" class="time-input" />
+          <span class="time-sep">→</span>
+          <input type="time" [value]="row.closeTime" (input)="setTime(i, 'closeTime', $any($event.target).value)" class="time-input" />
+        } @else {
+          <span class="day-closed">{{ 'pro.onboarding.wizard.openingHours.closed' | transloco }}</span>
+        }
+      </li>
+    }
+  </ul>
+
+  @if (error()) {
+    <p class="step-error">{{ 'pro.onboarding.wizard.errors.save' | transloco }}</p>
+  }
+
+  <button type="button" class="step-cta" data-testid="next" [disabled]="!canSubmit() || saving()" (click)="onSubmit()">
+    {{ 'pro.onboarding.wizard.next' | transloco }} →
+  </button>
+</section>
