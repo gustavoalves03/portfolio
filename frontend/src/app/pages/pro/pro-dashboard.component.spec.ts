@@ -519,7 +519,7 @@ describe('ProDashboardComponent', () => {
       }));
 
       refSpy = jasmine.createSpyObj<MatDialogRef<unknown>>('MatDialogRef', ['afterClosed']);
-      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', step: 'contact' }));
+      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', route: '/pro/salon' }));
 
       dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
       dialogSpy.open.and.returnValue(refSpy as MatDialogRef<unknown>);
@@ -571,20 +571,20 @@ describe('ProDashboardComponent', () => {
       patchState(publishMissingComponent.store as any, { publishMissing: ['contact'] });
       publishMissingFixture.detectChanges();
 
-      // afterClosed was set to emit { action: 'goTo', step: 'contact' }
+      // afterClosed was set to emit { action: 'goTo', route: '/pro/salon' }
       expect(clearSpy).toHaveBeenCalled();
     });
 
-    it('navigates to /pro/onboarding when result action is goTo', () => {
+    it('navigates to the route emitted by the dialog when action is goTo', () => {
       const router = TestBed.inject(Router);
-      const navigateSpy = spyOn(router, 'navigate');
+      const navigateSpy = spyOn(router, 'navigateByUrl');
 
-      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', step: 'contact' }));
+      refSpy.afterClosed.and.returnValue(of({ action: 'goTo', route: '/pro/salon' }));
 
       patchState(publishMissingComponent.store as any, { publishMissing: ['contact'] });
       publishMissingFixture.detectChanges();
 
-      expect(navigateSpy).toHaveBeenCalledWith(['/pro/onboarding']);
+      expect(navigateSpy).toHaveBeenCalledWith('/pro/salon');
     });
 
     it('does not navigate when result action is cancel', () => {

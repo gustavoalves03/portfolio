@@ -36,11 +36,11 @@ describe('PublishMissingDialogComponent', () => {
     expect(items.length).toBe(2);
   });
 
-  it('clicking goTo closes the dialog with the corresponding wizard step key', () => {
+  it('clicking goTo closes the dialog with the corresponding pro page route', () => {
     setup(['hasContact']);
     const goto = fixture.nativeElement.querySelector('[data-testid="goto"]');
     goto.click();
-    expect(closeSpy).toHaveBeenCalledWith({ action: 'goTo', step: 'contact' });
+    expect(closeSpy).toHaveBeenCalledWith({ action: 'goTo', route: '/pro/salon' });
   });
 
   it('clicking close emits a cancel result', () => {

@@ -340,7 +340,7 @@ export class ProDashboardComponent {
       ref.afterClosed().subscribe((result) => {
         this.store.clearPublishMissing();
         if (result?.action === 'goTo') {
-          this.router.navigate(['/pro/onboarding']);
+          this.router.navigateByUrl(result.route);
         }
       });
     });

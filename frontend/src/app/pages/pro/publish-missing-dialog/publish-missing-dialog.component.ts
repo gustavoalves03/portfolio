@@ -2,17 +2,23 @@ import { Component, inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  MISSING_KEY_TO_STEP,
-  WizardStepKey,
-} from '../../../features/onboarding/wizard/wizard-step.model';
+
+/** Maps a backend `missing[]` key to the pro page that lets the pro fix it. */
+const MISSING_KEY_TO_ROUTE: Readonly<Record<string, string>> = {
+  name: '/pro/salon',
+  hasContact: '/pro/salon',
+  hasLogo: '/pro/salon',
+  hasCategory: '/pro/cares',
+  hasActiveCare: '/pro/cares',
+  hasOpeningHours: '/pro/planning',
+};
 
 export interface PublishMissingDialogData {
   missing: string[];
 }
 
 export type PublishMissingDialogResult =
-  | { action: 'goTo'; step: WizardStepKey }
+  | { action: 'goTo'; route: string }
   | { action: 'cancel' };
 
 @Component({
@@ -28,13 +34,13 @@ export class PublishMissingDialogComponent {
   );
   protected readonly data = inject<PublishMissingDialogData>(MAT_DIALOG_DATA);
 
-  protected stepFor(missingKey: string): WizardStepKey | null {
-    return MISSING_KEY_TO_STEP[missingKey] ?? null;
+  protected routeFor(missingKey: string): string | null {
+    return MISSING_KEY_TO_ROUTE[missingKey] ?? null;
   }
 
   protected goTo(missingKey: string): void {
-    const step = this.stepFor(missingKey);
-    if (step) this.ref.close({ action: 'goTo', step });
+    const route = this.routeFor(missingKey);
+    if (route) this.ref.close({ action: 'goTo', route });
   }
 
   protected cancel(): void {

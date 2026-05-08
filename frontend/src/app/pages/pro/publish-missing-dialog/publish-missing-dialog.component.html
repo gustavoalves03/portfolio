@@ -9,7 +9,7 @@
           <p class="dlg-label">{{ 'pro.dashboard.checklist.' + key | transloco }}</p>
           <p class="dlg-desc">{{ 'pro.dashboard.checklist.' + key + 'Desc' | transloco }}</p>
         </div>
-        @if (stepFor(key); as step) {
+        @if (routeFor(key); as route) {
           <button type="button" class="dlg-cta" data-testid="goto" (click)="goTo(key)">
             {{ 'pro.dashboard.publishMissingDialog.goTo' | transloco }} →
           </button>
