@@ -532,7 +532,22 @@
       "detailTitle": "Team member details",
       "toggleActive": "Active / Inactive",
       "empty": "No team members",
-      "deleteConfirm": "Delete this team member?"
+      "deleteConfirm": "Delete this team member?",
+      "subtitle": "Salon practitioners and roles",
+      "memberSince": "Member since",
+      "totalMembers": "members total",
+      "activeShort": "active",
+      "inactiveShort": "inactive",
+      "kpi": {
+        "activeMembers": "Active members",
+        "coveredCares": "Covered services"
+      },
+      "col": {
+        "member": "Practitioner",
+        "contact": "Contact",
+        "assignedCares": "Assigned services",
+        "status": "Status"
+      }
     },
     "leaves": {
       "pendingTitle": "Pending requests",

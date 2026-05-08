@@ -536,7 +536,22 @@
       "detailTitle": "Détails collaborateur",
       "toggleActive": "Actif / Inactif",
       "empty": "Aucun collaborateur",
-      "deleteConfirm": "Supprimer ce collaborateur ?"
+      "deleteConfirm": "Supprimer ce collaborateur ?",
+      "subtitle": "Praticiennes et droits du salon",
+      "memberSince": "Membre depuis",
+      "totalMembers": "membres au total",
+      "activeShort": "actifs",
+      "inactiveShort": "inactif",
+      "kpi": {
+        "activeMembers": "Membres actifs",
+        "coveredCares": "Soins couverts"
+      },
+      "col": {
+        "member": "Praticienne",
+        "contact": "Contact",
+        "assignedCares": "Soins assignés",
+        "status": "Statut"
+      }
     },
     "leaves": {
       "pendingTitle": "Demandes en attente",
