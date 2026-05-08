@@ -14,44 +14,44 @@
     <!-- Sticky anchor nav -->
     <aside class="anchor-nav">
       <div class="anchor-nav-head">{{ 'pro.settings.sectionsLabel' | transloco }}</div>
-      <a
-        href="#features"
+      <button
+        type="button"
         class="anchor-link"
         [class.is-active]="activeSection() === 'features'"
-        (click)="activeSection.set('features')"
+        (click)="scrollTo('features')"
       >
         <mat-icon>tune</mat-icon>
         {{ 'pro.settings.features' | transloco }}
-      </a>
+      </button>
       @if (featuresService.employeesEnabled()) {
-        <a
-          href="#leave"
+        <button
+          type="button"
           class="anchor-link"
           [class.is-active]="activeSection() === 'leave'"
-          (click)="activeSection.set('leave')"
+          (click)="scrollTo('leave')"
         >
           <mat-icon>beach_access</mat-icon>
           {{ 'pro.settings.leaveSection' | transloco }}
-        </a>
+        </button>
       }
-      <a
-        href="#booking"
+      <button
+        type="button"
         class="anchor-link"
         [class.is-active]="activeSection() === 'booking'"
-        (click)="activeSection.set('booking')"
+        (click)="scrollTo('booking')"
       >
         <mat-icon>event</mat-icon>
         {{ 'pro.settings.bookingSection' | transloco }}
-      </a>
-      <a
-        href="#holidays"
+      </button>
+      <button
+        type="button"
         class="anchor-link"
         [class.is-active]="activeSection() === 'holidays'"
-        (click)="activeSection.set('holidays')"
+        (click)="scrollTo('holidays')"
       >
         <mat-icon>celebration</mat-icon>
         {{ 'pro.settings.holidaysSection' | transloco }}
-      </a>
+      </button>
     </aside>
 
     <!-- Content -->

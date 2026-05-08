@@ -51,6 +51,14 @@ export class ProSettingsComponent implements OnInit {
         this.loadExceptions();
     }
 
+    scrollTo(section: 'features' | 'leave' | 'booking' | 'holidays'): void {
+        this.activeSection.set(section);
+        const el = document.getElementById(section);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
     onLeaveDaysChange(value: string): void {
         const days = parseInt(value, 10);
         if (!isNaN(days) && days >= 0 && days <= 365) {
