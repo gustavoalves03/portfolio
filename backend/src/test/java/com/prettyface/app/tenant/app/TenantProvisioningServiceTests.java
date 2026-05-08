@@ -77,4 +77,16 @@ class TenantProvisioningServiceTests {
 
         assertThat(result.getSlug()).isEqualTo("sophie-martin-2");
     }
+
+    @Test
+    void provision_leavesNameNullSoProMustConfirmInWizard() {
+        when(tenantRepository.existsBySlug(anyString())).thenReturn(false);
+
+        Tenant result = service.provision(user(42L, "Sophie Martin"));
+
+        assertThat(result.getName()).isNull();
+        ArgumentCaptor<Tenant> captor = ArgumentCaptor.forClass(Tenant.class);
+        org.mockito.Mockito.verify(tenantRepository).save(captor.capture());
+        assertThat(captor.getValue().getName()).isNull();
+    }
 }
