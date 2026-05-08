@@ -3,6 +3,7 @@ package com.prettyface.app.tenant.app;
 import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.web.dto.TenantReadinessResponse;
 import org.springframework.stereotype.Service;
@@ -15,16 +16,24 @@ public class TenantReadinessService {
 
     private final CareRepository careRepository;
     private final OpeningHourRepository openingHourRepository;
+    private final CategoryRepository categoryRepository;
 
     public TenantReadinessService(CareRepository careRepository,
-                                   OpeningHourRepository openingHourRepository) {
+                                   OpeningHourRepository openingHourRepository,
+                                   CategoryRepository categoryRepository) {
         this.careRepository = careRepository;
         this.openingHourRepository = openingHourRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public TenantReadinessResponse getReadiness(Tenant tenant) {
         boolean name = notBlank(tenant.getName());
-        boolean hasCategory = notBlank(tenant.getCategorySlugs());
+        // Prefer the denormalized categorySlugs (kept in sync by CategoryService).
+        // Fall back to a tenant-scoped Category row count for legacy tenants whose
+        // categorySlugs was never backfilled — avoids forcing them through the wizard
+        // on every login when they already have categories in their schema.
+        boolean hasCategory = notBlank(tenant.getCategorySlugs())
+                || categoryRepository.count() > 0;
         boolean hasContact = computeHasContact(tenant);
         boolean hasLogo = notBlank(tenant.getLogoPath());
         boolean hasActiveCare = careRepository.countByStatus(CareStatus.ACTIVE) > 0;
