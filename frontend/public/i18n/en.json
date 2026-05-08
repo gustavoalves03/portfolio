@@ -459,7 +459,8 @@
       "contactEmail": "Contact email",
       "businessSection": "Business information",
       "siret": "SIRET",
-      "addressCountry": "Country"
+      "addressCountry": "Country",
+      "unsaved": "Unsaved changes"
     },
     "categories": {
       "add": "Add category",

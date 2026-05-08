@@ -463,7 +463,8 @@
       "contactEmail": "Email de contact",
       "businessSection": "Informations entreprise",
       "siret": "SIRET",
-      "addressCountry": "Pays"
+      "addressCountry": "Pays",
+      "unsaved": "Modifications non enregistrées"
     },
     "categories": {
       "add": "Ajouter une catégorie",
