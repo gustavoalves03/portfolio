@@ -1,22 +1,30 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, afterNextRender, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, afterNextRender, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { BookingHistoryStore } from './booking-history.store';
-import { BookingCardComponent } from '../../../features/bookings/components/booking-card/booking-card.component';
 import { CareBookingDetailed, CareBookingStatus } from '../../../features/bookings/models/bookings.model';
-import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet.config';
-import { PeriodFilterSheetComponent, PeriodResult } from './filters/period-filter-sheet.component';
-import { StatusFilterSheetComponent } from './filters/status-filter-sheet.component';
-import { EmployeeFilterSheetComponent } from './filters/employee-filter-sheet.component';
-import { BackButtonComponent } from '../../../shared/uis/back-button/back-button.component';
+import { EmployeesStore } from '../../../features/employees/employees.store';
+
+const ALL_STATUSES: CareBookingStatus[] = [
+  CareBookingStatus.CONFIRMED,
+  CareBookingStatus.PENDING,
+  CareBookingStatus.CANCELLED,
+  CareBookingStatus.NO_SHOW,
+];
+
+const STATUS_CLASSES: Record<string, string> = {
+  CONFIRMED: 's-confirmed',
+  PENDING: 's-pending',
+  CANCELLED: 's-cancelled',
+  NO_SHOW: 's-noshow',
+};
+
+type PeriodPreset = '7d' | '30d' | '90d' | '12m';
 
 @Component({
   selector: 'app-pro-booking-history',
@@ -25,132 +33,85 @@ import { BackButtonComponent } from '../../../shared/uis/back-button/back-button
     CommonModule,
     FormsModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     TranslocoPipe,
-    BookingCardComponent,
-    BackButtonComponent,
   ],
-  providers: [BookingHistoryStore],
-  template: `
-    <div class="history-page">
-      <header class="page-header">
-        <app-back-button fallbackUrl="/pro/manage" [showLabel]="false" />
-        <h1>{{ 'pro.history.title' | transloco }}</h1>
-      </header>
-
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          [placeholder]="'pro.history.search' | transloco"
-          [ngModel]="store.filters().clientQuery"
-          (ngModelChange)="store.searchClient($event)"
-        />
-      </div>
-
-      <div class="filters-row">
-        <button class="chip" (click)="openPeriod()">{{ periodLabel() }}</button>
-        <button class="chip" (click)="openStatus()">{{ statusLabel() }}</button>
-        <button class="chip" (click)="openEmployee()">{{ employeeLabel() }}</button>
-      </div>
-
-      @if (store.isPending() && store.items().length === 0) {
-        <div class="loading"><mat-spinner diameter="32" /></div>
-      } @else if (store.emptyState()) {
-        <div class="empty">
-          <mat-icon>history</mat-icon>
-          <p>{{ 'pro.history.empty' | transloco }}</p>
-        </div>
-      } @else {
-        @for (group of store.groupedByDay(); track group.date) {
-          <div class="day-label">{{ group.label }}</div>
-          @for (b of group.items; track b.id) {
-            <app-booking-card [booking]="b" (cardClick)="openClient($event)" />
-          }
-        }
-        <div #sentinel class="sentinel">
-          @if (store.isPending()) {
-            <mat-spinner diameter="20" />
-          } @else if (!store.hasMore()) {
-            <span class="end">{{ 'pro.history.endOfList' | transloco }}</span>
-          }
-        </div>
-      }
-    </div>
-  `,
-  styles: [`
-    .history-page {
-      padding: 12px 14px 40px;
-      max-width: 720px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 100vh;
-    }
-    .page-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 0;
-    }
-    .page-header h1 {
-      font-size: 18px; font-weight: 600; margin: 0; color: #333;
-    }
-    .search-box {
-      background: white; border-radius: 10px;
-      padding: 8px 12px; display: flex; align-items: center; gap: 8px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
-    .search-box input {
-      border: none; outline: none; font-size: 14px; flex: 1;
-      background: transparent;
-    }
-    .search-box mat-icon { color: #999; font-size: 18px; width: 18px; height: 18px; }
-    .filters-row {
-      display: flex; gap: 6px; overflow-x: auto;
-      padding: 4px 0 8px;
-    }
-    .chip {
-      background: white;
-      border: 1px solid #e5e5e5;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-      color: #555;
-      font-weight: 500;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .chip:hover { border-color: var(--pf-rose); color: var(--pf-rose); }
-    .day-label {
-      font-size: 11px; font-weight: 700; color: #666;
-      text-transform: uppercase; letter-spacing: 0.5px;
-      margin: 10px 2px 4px;
-    }
-    .empty {
-      text-align: center; padding: 40px 0; color: #999;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-    }
-    .empty mat-icon { font-size: 48px; width: 48px; height: 48px; }
-    .loading { display: flex; justify-content: center; padding: 30px 0; }
-    .sentinel {
-      min-height: 30px;
-      display: flex; justify-content: center; align-items: center;
-      padding: 16px 0;
-    }
-    .sentinel .end { font-size: 12px; color: #999; font-style: italic; }
-  `],
+  providers: [BookingHistoryStore, EmployeesStore],
+  templateUrl: './pro-booking-history.component.html',
+  styleUrl: './pro-booking-history.component.scss',
 })
 export class ProBookingHistoryComponent implements AfterViewInit, OnDestroy {
   protected readonly store = inject(BookingHistoryStore);
+  protected readonly employeesStore = inject(EmployeesStore);
   private readonly router = inject(Router);
-  private readonly dialog = inject(MatDialog);
+  private readonly i18n = inject(TranslocoService);
+
+  protected readonly statuses = ALL_STATUSES;
 
   @ViewChild('sentinel') sentinel?: ElementRef<HTMLElement>;
   private observer?: IntersectionObserver;
 
+  // ── Aggregated stats ──────────────────────────────────────────────────
+  protected readonly totalBookings = computed(() => this.store.items().length);
+
+  protected readonly totalRevenue = computed(() => {
+    const cents = this.store.items()
+      .filter((b) =>
+        b.status !== CareBookingStatus.CANCELLED && b.status !== CareBookingStatus.NO_SHOW
+      )
+      .reduce((sum, b) => sum + b.care.price * b.quantity, 0);
+    return this.formatPrice(cents);
+  });
+
+  protected readonly attendanceRate = computed(() => {
+    const items = this.store.items();
+    if (items.length === 0) return '—';
+    const honored = items.filter(
+      (b) => b.status === CareBookingStatus.CONFIRMED
+    ).length;
+    return Math.round((honored / items.length) * 100) + ' %';
+  });
+
+  protected readonly cancelledCount = computed(
+    () => this.store.items().filter((b) => b.status === CareBookingStatus.CANCELLED).length
+  );
+
+  protected readonly noShowCount = computed(
+    () => this.store.items().filter((b) => b.status === CareBookingStatus.NO_SHOW).length
+  );
+
+  protected readonly statusCounts = computed(() => {
+    const counts: Record<string, number> = {
+      CONFIRMED: 0,
+      PENDING: 0,
+      CANCELLED: 0,
+      NO_SHOW: 0,
+    };
+    for (const b of this.store.items()) {
+      counts[b.status] = (counts[b.status] ?? 0) + 1;
+    }
+    return counts;
+  });
+
+  protected readonly periodLabelText = computed(() => {
+    const f = this.store.filters();
+    const days = this.daysBetween(f.from, f.to);
+    return `${this.formatDateLabel(f.from)} → ${this.formatDateLabel(f.to)} · ${days}`;
+  });
+
+  protected readonly activePeriodPreset = computed<PeriodPreset | null>(() => {
+    const f = this.store.filters();
+    const days = this.daysBetween(f.from, f.to, /*asNumber*/ true) as number;
+    if (Math.abs(days - 7) < 2) return '7d';
+    if (Math.abs(days - 30) < 2) return '30d';
+    if (Math.abs(days - 90) < 3) return '90d';
+    if (Math.abs(days - 365) < 5) return '12m';
+    return null;
+  });
+
+  // ── Lifecycle ─────────────────────────────────────────────────────────
   constructor() {
+    this.employeesStore.loadEmployees();
     afterNextRender(() => this.setupObserver());
   }
 
@@ -173,60 +134,188 @@ export class ProBookingHistoryComponent implements AfterViewInit, OnDestroy {
     this.observer.observe(this.sentinel.nativeElement);
   }
 
-  protected periodLabel(): string {
-    const f = this.store.filters();
-    return `${formatDM(f.from)} → ${formatDM(f.to)}`;
+  // ── Filters actions ───────────────────────────────────────────────────
+  protected setPeriodPreset(preset: PeriodPreset): void {
+    const today = new Date();
+    const from = new Date(today);
+    switch (preset) {
+      case '7d':  from.setDate(from.getDate() - 7); break;
+      case '30d': from.setDate(from.getDate() - 30); break;
+      case '90d': from.setDate(from.getDate() - 90); break;
+      case '12m': from.setFullYear(from.getFullYear() - 1); break;
+    }
+    this.store.updateFilters({ from: this.toYMD(from), to: this.toYMD(today) });
   }
 
-  protected statusLabel(): string {
-    const n = this.store.filters().statuses.length;
-    if (n === 4 || n === 0) return 'Statut: Tous';
-    return `Statut: ${n}`;
+  protected setFromDate(value: string): void {
+    if (!value) return;
+    this.store.updateFilters({ from: value });
   }
 
-  protected employeeLabel(): string {
-    return this.store.filters().employeeId === null ? 'Employé: Tous' : 'Employé: 1';
+  protected setToDate(value: string): void {
+    if (!value) return;
+    this.store.updateFilters({ to: value });
   }
 
+  protected isStatusSelected(status: CareBookingStatus): boolean {
+    return this.store.filters().statuses.includes(status);
+  }
+
+  protected toggleStatus(status: CareBookingStatus): void {
+    const current = this.store.filters().statuses;
+    const next = current.includes(status)
+      ? current.filter((s) => s !== status)
+      : [...current, status];
+    this.store.updateFilters({ statuses: next });
+  }
+
+  protected setEmployee(value: string): void {
+    const employeeId = value === '' ? null : Number(value);
+    this.store.updateFilters({ employeeId });
+  }
+
+  protected resetFilters(): void {
+    const today = new Date();
+    const from = new Date(today);
+    from.setDate(from.getDate() - 30);
+    this.store.updateFilters({
+      from: this.toYMD(from),
+      to: this.toYMD(today),
+      statuses: [...ALL_STATUSES],
+      employeeId: null,
+      clientQuery: '',
+    });
+  }
+
+  // ── Booking actions ───────────────────────────────────────────────────
   protected openClient(b: CareBookingDetailed): void {
     this.router.navigate(['/pro/clients', b.user.id]);
   }
 
-  protected openPeriod(): void {
-    const ref = this.dialog.open<PeriodFilterSheetComponent, unknown, PeriodResult>(
-      PeriodFilterSheetComponent,
-      bottomSheetConfig(),
-    );
-    ref.afterClosed().subscribe((res) => {
-      if (!res) return;
-      this.store.updateFilters({ from: res.from, to: res.to });
-    });
+  // ── Display helpers ───────────────────────────────────────────────────
+  protected statusLabel(status: CareBookingStatus): string {
+    switch (status) {
+      case CareBookingStatus.PENDING:   return this.i18n.translate('drawer.pending');
+      case CareBookingStatus.CONFIRMED: return this.i18n.translate('drawer.confirmed');
+      case CareBookingStatus.CANCELLED: return this.i18n.translate('drawer.cancelled');
+      case CareBookingStatus.NO_SHOW:   return this.i18n.translate('pro.bookings.noShow');
+      default: return status;
+    }
   }
 
-  protected openStatus(): void {
-    const ref = this.dialog.open<StatusFilterSheetComponent, unknown, CareBookingStatus[]>(
-      StatusFilterSheetComponent,
-      bottomSheetConfig({ data: { selected: this.store.filters().statuses } }),
-    );
-    ref.afterClosed().subscribe((selected) => {
-      if (!selected) return;
-      this.store.updateFilters({ statuses: selected });
-    });
+  protected statusBadgeClass(status: string): string {
+    return 'badge-' + (STATUS_CLASSES[status]?.replace('s-', '') ?? 'confirmed');
   }
 
-  protected openEmployee(): void {
-    const ref = this.dialog.open<EmployeeFilterSheetComponent, unknown, number | null>(
-      EmployeeFilterSheetComponent,
-      bottomSheetConfig({ data: { selected: this.store.filters().employeeId } }),
-    );
-    ref.afterClosed().subscribe((value) => {
-      if (value === undefined) return;
-      this.store.updateFilters({ employeeId: value });
-    });
+  protected formatTime(time: string): string {
+    const [h, m] = time.split(':');
+    return `${h}:${m}`;
   }
-}
 
-function formatDM(ymd: string): string {
-  const [, m, d] = ymd.split('-');
-  return `${d}/${m}`;
+  protected formatEndTime(startTime: string, durationMin: number): string {
+    const [h, m] = startTime.split(':').map(Number);
+    const totalMin = h * 60 + m + durationMin;
+    const endH = Math.floor(totalMin / 60) % 24;
+    const endM = totalMin % 60;
+    return `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
+  }
+
+  protected formatDuration(min: number): string {
+    if (min < 60) return `${min} min`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m > 0 ? `${h} h ${m.toString().padStart(2, '0')}` : `${h} h`;
+  }
+
+  protected formatPrice(cents: number): string {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(cents / 100);
+  }
+
+  protected initials(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  // ── Internal helpers ──────────────────────────────────────────────────
+  private toYMD(d: Date): string {
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private daysBetween(fromYMD: string, toYMD: string, asNumber = false): string | number {
+    const f = this.parseYMD(fromYMD);
+    const t = this.parseYMD(toYMD);
+    if (!f || !t) return asNumber ? 0 : '';
+    const diff = Math.round((t.getTime() - f.getTime()) / 86400000);
+    if (asNumber) return diff;
+    return this.i18n.translate('pro.history.nDays', { n: diff });
+  }
+
+  private formatDateLabel(ymd: string): string {
+    const d = this.parseYMD(ymd);
+    if (!d) return '';
+    const lang = this.i18n.getActiveLang();
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  private parseYMD(ymd: string): Date | null {
+    if (!ymd) return null;
+    const [y, m, d] = ymd.split('-').map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+  }
+
+  /** Build day-group label "Jeudi 7 mai" with i18n today/yesterday markers. */
+  protected dayLabel(ymd: string): { label: string; isToday: boolean } {
+    const d = this.parseYMD(ymd);
+    if (!d) return { label: ymd, isToday: false };
+    const todayStr = this.toYMD(new Date());
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = this.toYMD(yesterdayDate);
+
+    const lang = this.i18n.getActiveLang();
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    const dayName = d.toLocaleDateString(locale, { weekday: 'long' });
+    const dayNum = d.getDate();
+    const monthName = d.toLocaleDateString(locale, { month: 'long' });
+    const formatted = `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${dayNum} ${monthName}`;
+
+    if (ymd === todayStr) {
+      return {
+        label: `${formatted} · ${this.i18n.translate('pro.bookings.today')}`,
+        isToday: true,
+      };
+    }
+    if (ymd === yesterdayStr) {
+      return {
+        label: `${formatted} · ${this.i18n.translate('pro.history.yesterday')}`,
+        isToday: false,
+      };
+    }
+    return { label: formatted, isToday: false };
+  }
+
+  /** Sum of bookings in a day group (for the day-row meta). */
+  protected daySum(bookings: CareBookingDetailed[]): { count: number; revenue: string } {
+    const cents = bookings
+      .filter((b) =>
+        b.status !== CareBookingStatus.CANCELLED && b.status !== CareBookingStatus.NO_SHOW
+      )
+      .reduce((sum, b) => sum + b.care.price * b.quantity, 0);
+    return {
+      count: bookings.length,
+      revenue: this.formatPrice(cents),
+    };
+  }
 }

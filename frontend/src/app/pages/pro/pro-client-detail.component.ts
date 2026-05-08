@@ -35,46 +35,83 @@ import { ClientBookingsComponent } from '../../features/tracking/components/clie
       </div>
     } @else if (history()) {
       <div class="client-detail-page">
+        <!-- Header full width -->
         <app-client-header
+          class="client-header-block"
           [clientName]="history()!.clientName"
           [allergies]="history()!.profile.allergies"
           [visitCount]="history()!.visits.length"
           [createdAt]="history()!.profile.createdAt" />
 
-        <app-client-bookings [userId]="userId" />
+        <!-- 2-column layout : bookings/visits on the left, notes/info on the right -->
+        <div class="layout">
+          <div class="col col-main">
+            <app-client-bookings [userId]="userId" />
 
-        <app-client-visits
-          [visits]="history()!.visits"
-          [accessLevel]="'WRITE'"
-          [apiBaseUrl]="apiBaseUrl"
-          (createVisit)="onCreateVisit()" />
+            <app-client-visits
+              [visits]="history()!.visits"
+              [accessLevel]="'WRITE'"
+              [apiBaseUrl]="apiBaseUrl"
+              (createVisit)="onCreateVisit()" />
+          </div>
 
-        <app-client-notes
-          [notes]="history()!.profile.notes"
-          [updatedByName]="history()!.profile.updatedByName"
-          [updatedAt]="history()!.profile.updatedAt"
-          [accessLevel]="'WRITE'"
-          (saveNotes)="onSaveNotes($event)" />
+          <div class="col col-side">
+            <app-client-notes
+              [notes]="history()!.profile.notes"
+              [updatedByName]="history()!.profile.updatedByName"
+              [updatedAt]="history()!.profile.updatedAt"
+              [accessLevel]="'WRITE'"
+              (saveNotes)="onSaveNotes($event)" />
 
-        <app-client-info
-          [profile]="history()!.profile"
-          [accessLevel]="'WRITE'"
-          (saveInfo)="onSaveInfo($event)" />
+            <app-client-info
+              [profile]="history()!.profile"
+              [accessLevel]="'WRITE'"
+              (saveInfo)="onSaveInfo($event)" />
+          </div>
+        </div>
       </div>
     }
   `,
   styles: [`
     :host {
       display: block;
-      background: var(--pf-paper);
+      background: #fafafa;
       min-height: 100vh;
-      padding: 16px;
     }
 
     .client-detail-page {
-      max-width: 600px;
+      max-width: 1440px;
       margin: 0 auto;
-      padding-bottom: 80px;
+      padding: 24px 32px 60px;
+    }
+
+    .client-header-block {
+      display: block;
+      margin-bottom: 24px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      min-width: 0;
+    }
+
+    @media (max-width: 1023px) {
+      .client-detail-page {
+        padding: 16px;
+      }
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
     }
   `],
 })

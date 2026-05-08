@@ -4,399 +4,265 @@
       <mat-spinner diameter="40"></mat-spinner>
     </div>
   } @else if (store.readiness()) {
-    <!-- Header -->
-    <div class="dashboard-header">
-      <div class="flex items-center gap-3">
-        <h1 class="page-title">
-          {{ 'pro.dashboard.title' | transloco }}
-        </h1>
-        @if (store.isDraft()) {
-          <span class="mat-mdc-chip draft-chip">{{ 'pro.dashboard.draft' | transloco }}</span>
-        } @else if (store.isActive()) {
-          <span class="mat-mdc-chip active-chip">{{ 'pro.dashboard.active' | transloco }}</span>
-        }
-      </div>
-    </div>
 
+    <!-- ============ DRAFT MODE (onboarding) ============ -->
     @if (store.isDraft()) {
-      <!-- DRAFT: Onboarding checklist -->
-      <div class="onboarding-wrap" data-testid="onboarding-wrap">
-        @if (showQuickstart()) {
-          <div class="quickstart-block" data-testid="quickstart-block">
-            <h2 class="quickstart-title">{{ 'pro.dashboard.quickstart.title' | transloco }}</h2>
-            <p class="quickstart-subtitle">{{ 'pro.dashboard.quickstart.subtitle' | transloco }}</p>
-            <div class="quickstart-grid">
-              @for (persona of personas; track persona.key) {
-                <button
-                  type="button"
-                  class="persona-card"
-                  [class.is-applying]="applyingPersona() === persona.key"
-                  [disabled]="applyingPersona() !== null"
-                  (click)="applyPersona(persona)"
-                  [attr.data-testid]="'persona-card-' + persona.key"
-                >
-                  <mat-icon class="persona-icon">{{ persona.icon }}</mat-icon>
-                  <span class="persona-label">
-                    {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.label' | transloco }}
-                  </span>
-                  <span class="persona-desc">
-                    {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.desc' | transloco }}
-                  </span>
-                  @if (applyingPersona() === persona.key) {
-                    <span class="persona-applying">{{ 'pro.dashboard.quickstart.applying' | transloco }}</span>
-                  }
-                </button>
-              }
-            </div>
-            <button
-              type="button"
-              class="quickstart-skip"
-              data-testid="quickstart-skip"
-              [disabled]="applyingPersona() !== null"
-              (click)="onSkipQuickstart()"
-            >
-              {{ 'pro.dashboard.quickstart.skip' | transloco }}
-            </button>
-          </div>
-        }
-        <div class="onboarding-welcome">
-          <h2 class="onboarding-title">{{ 'pro.dashboard.checklist.welcome' | transloco }}</h2>
-          <p class="onboarding-sub">{{ 'pro.dashboard.checklist.welcomeSub' | transloco }}</p>
-          <div class="onboarding-progress" data-testid="onboarding-progress">
-            <span class="onboarding-progress-label">
-              {{ 'pro.dashboard.checklist.progress' | transloco: { done: checklistDone(), total: checklistTotal() } }}
+      <div class="dashboard-page draft-mode">
+        <!-- Header -->
+        <div class="page-header">
+          <div class="page-header-titles">
+            <span class="page-eyebrow">
+              {{ 'pro.dashboard.title' | transloco }}
             </span>
-            <div class="onboarding-progress-track">
-              <div class="onboarding-progress-fill" [style.width.%]="checklistProgressPercent()"></div>
-            </div>
+            <h1 class="page-title">
+              {{ 'pro.dashboard.checklist.welcome' | transloco }}
+              <span class="status-chip status-chip-draft">{{ 'pro.dashboard.draft' | transloco }}</span>
+            </h1>
           </div>
         </div>
 
-        <div class="onboarding-steps" data-testid="onboarding-steps">
-          @for (step of checklistSteps(); track step.key) {
-            <a
-              class="onboarding-step"
-              [class.is-done]="step.done"
-              [class.is-next]="!step.done && step.key === nextStepKey()"
-              [routerLink]="step.link"
-              [queryParams]="step.queryParams"
-              [attr.data-testid]="'onboarding-step-' + step.key"
-            >
-              <div class="onboarding-step-icon">
-                <mat-icon>
-                  {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
-                </mat-icon>
+        <div class="onboarding-wrap" data-testid="onboarding-wrap">
+          @if (showQuickstart()) {
+            <div class="quickstart-block" data-testid="quickstart-block">
+              <h2 class="quickstart-title">{{ 'pro.dashboard.quickstart.title' | transloco }}</h2>
+              <p class="quickstart-subtitle">{{ 'pro.dashboard.quickstart.subtitle' | transloco }}</p>
+              <div class="quickstart-grid">
+                @for (persona of personas; track persona.key) {
+                  <button
+                    type="button"
+                    class="persona-card"
+                    [class.is-applying]="applyingPersona() === persona.key"
+                    [disabled]="applyingPersona() !== null"
+                    (click)="applyPersona(persona)"
+                    [attr.data-testid]="'persona-card-' + persona.key"
+                  >
+                    <mat-icon class="persona-icon">{{ persona.icon }}</mat-icon>
+                    <span class="persona-label">
+                      {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.label' | transloco }}
+                    </span>
+                    <span class="persona-desc">
+                      {{ 'pro.dashboard.quickstart.persona.' + persona.key + '.desc' | transloco }}
+                    </span>
+                    @if (applyingPersona() === persona.key) {
+                      <span class="persona-applying">{{ 'pro.dashboard.quickstart.applying' | transloco }}</span>
+                    }
+                  </button>
+                }
               </div>
-              <div class="onboarding-step-body">
-                <span class="onboarding-step-title">
-                  {{ 'pro.dashboard.checklist.' + step.key | transloco }}
-                </span>
-                <span class="onboarding-step-desc">
-                  {{ 'pro.dashboard.checklist.' + step.key + 'Desc' | transloco }}
-                </span>
-              </div>
-              @if (!step.done && step.key === nextStepKey()) {
-                <span class="onboarding-step-tag">
-                  {{ 'pro.dashboard.checklist.next' | transloco }}
-                </span>
-              } @else if (step.done) {
-                <span class="onboarding-step-tag onboarding-step-tag-done">
-                  {{ 'pro.dashboard.checklist.done' | transloco }}
-                </span>
-              }
-              <mat-icon class="onboarding-step-chevron">chevron_right</mat-icon>
-            </a>
-          }
-        </div>
-
-        <div class="publish-section">
-          <a
-            mat-stroked-button
-            data-testid="preview-btn"
-            [routerLink]="salonUrl()"
-          >
-            <mat-icon>visibility</mat-icon>
-            {{ 'pro.dashboard.preview' | transloco }}
-          </a>
-          <button
-            mat-raised-button
-            color="primary"
-            data-testid="publish-btn"
-            [disabled]="!store.canPublish()"
-            (click)="onPublish()"
-          >
-            {{ 'pro.dashboard.publish' | transloco }}
-          </button>
-          @if (!store.canPublish()) {
-            <p class="publish-hint">
-              {{ 'pro.dashboard.publishDisabledHint' | transloco }}
-            </p>
-          }
-        </div>
-      </div>
-    } @else if (store.isActive()) {
-      <!-- ACTIVE: Analytics Dashboard -->
-
-      <!-- Filter Bar (sticky) -->
-      <div class="filter-bar">
-        <div class="period-pills">
-          @for (p of periods; track p) {
-            <button
-              class="period-pill"
-              [class.active]="period() === p"
-              (click)="setPeriod(p)"
-            >
-              {{ 'pro.dashboard.analytics.period.' + p | transloco }}
-            </button>
-          }
-        </div>
-
-        <div class="filter-selects">
-          @if (analyticsData()?.employeeRankings?.length) {
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-select
-                [value]="selectedEmployeeId()"
-                (selectionChange)="selectedEmployeeId.set($event.value)"
-                [placeholder]="'pro.dashboard.analytics.allEmployees' | transloco"
+              <button
+                type="button"
+                class="quickstart-skip"
+                data-testid="quickstart-skip"
+                [disabled]="applyingPersona() !== null"
+                (click)="onSkipQuickstart()"
               >
-                <mat-option [value]="undefined">
-                  {{ 'pro.dashboard.analytics.allEmployees' | transloco }}
-                </mat-option>
-                @for (emp of analyticsData()!.employeeRankings; track emp.id) {
-                  <mat-option [value]="emp.id">{{ emp.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          }
-
-          @if (analyticsData()?.careRankings?.length) {
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-select
-                [value]="selectedCareId()"
-                (selectionChange)="selectedCareId.set($event.value)"
-                [placeholder]="'pro.dashboard.analytics.allCares' | transloco"
-              >
-                <mat-option [value]="undefined">
-                  {{ 'pro.dashboard.analytics.allCares' | transloco }}
-                </mat-option>
-                @for (care of analyticsData()!.careRankings; track care.id) {
-                  <mat-option [value]="care.id">{{ care.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          }
-        </div>
-      </div>
-
-      @if (analyticsLoading()) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="32"></mat-spinner>
-        </div>
-      } @else if (analyticsData()) {
-        <!-- KPI Cards Row -->
-        <div class="kpi-row">
-          @for (kpi of kpis(); track kpi.key) {
-            <div class="kpi-card kpi-{{ kpi.color }}">
-              <div class="kpi-icon">
-                <mat-icon>{{ kpi.icon }}</mat-icon>
-              </div>
-              <div class="kpi-content">
-                <span class="kpi-label">{{ 'pro.dashboard.analytics.kpi.' + kpi.key | transloco }}</span>
-                <span class="kpi-value">{{ kpi.value }}</span>
-                @if (kpi.trend !== null) {
-                  <span class="kpi-trend" [class]="trendClass(kpi.trend)">
-                    {{ trendArrow(kpi.trend) }} {{ trendValue(kpi.trend) }}
-                  </span>
-                }
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Widget Grid -->
-        <div class="widget-grid">
-          <!-- Revenue Chart -->
-          <div class="widget-card">
-            <div class="widget-header">
-              <h3>{{ 'pro.dashboard.analytics.charts.revenueTitle' | transloco }}</h3>
-              <button class="chart-toggle" (click)="toggleRevenueChartType()">
-                @if (revenueChartType() === 'bar') {
-                  {{ 'pro.dashboard.analytics.charts.line' | transloco }}
-                } @else {
-                  {{ 'pro.dashboard.analytics.charts.bars' | transloco }}
-                }
+                {{ 'pro.dashboard.quickstart.skip' | transloco }}
               </button>
             </div>
-            <div class="chart-container">
-              <canvas
-                baseChart
-                [type]="revenueChartType()"
-                [data]="revenueChartData()"
-                [options]="revenueChartOptions()"
-              ></canvas>
+          }
+          <div class="onboarding-welcome">
+            <p class="onboarding-sub">{{ 'pro.dashboard.checklist.welcomeSub' | transloco }}</p>
+            <div class="onboarding-progress" data-testid="onboarding-progress">
+              <span class="onboarding-progress-label">
+                {{ 'pro.dashboard.checklist.progress' | transloco: { done: checklistDone(), total: checklistTotal() } }}
+              </span>
+              <div class="onboarding-progress-track">
+                <div class="onboarding-progress-fill" [style.width.%]="checklistProgressPercent()"></div>
+              </div>
             </div>
           </div>
 
-          <!-- Heatmap -->
-          <div class="widget-card">
-            <div class="widget-header">
-              <h3>{{ 'pro.dashboard.analytics.heatmap.title' | transloco }}</h3>
-            </div>
-            <div class="heatmap-container">
-              @if (heatmapData().hours.length > 0) {
-                <div
-                  class="heatmap-grid"
-                  [style.grid-template-columns]="'auto repeat(' + heatmapData().days.length + ', 1fr)'"
-                  [style.grid-template-rows]="'auto repeat(' + heatmapData().hours.length + ', 1fr)'"
-                >
-                  <!-- Empty corner cell -->
-                  <div class="heatmap-label"></div>
-                  <!-- Day headers -->
-                  @for (day of heatmapData().days; track day) {
-                    <div class="heatmap-day-label">{{ dayLabel(day) | slice:0:3 }}</div>
-                  }
-                  <!-- Hour rows -->
-                  @for (hour of heatmapData().hours; track hour) {
-                    <div class="heatmap-hour-label">{{ hour }}h</div>
-                    @for (day of heatmapData().days; track day) {
-                      @let cell = heatmapData().cells[(heatmapData().days.indexOf(day)) + (heatmapData().hours.indexOf(hour)) * heatmapData().days.length];
-                      <div
-                        class="heatmap-cell"
-                        [style.background]="heatmapCellColor(cell.opacity)"
-                        [title]="cell.count + ' RDV'"
-                      >
-                        @if (cell.count > 0) {
-                          <span class="heatmap-count">{{ cell.count }}</span>
-                        }
-                      </div>
-                    }
-                  }
+          <div class="onboarding-steps" data-testid="onboarding-steps">
+            @for (step of checklistSteps(); track step.key) {
+              <a
+                class="onboarding-step"
+                [class.is-done]="step.done"
+                [class.is-next]="!step.done && step.key === nextStepKey()"
+                [routerLink]="step.link"
+                [queryParams]="step.queryParams"
+                [attr.data-testid]="'onboarding-step-' + step.key"
+              >
+                <div class="onboarding-step-icon">
+                  <mat-icon>
+                    {{ step.done ? 'check_circle' : 'radio_button_unchecked' }}
+                  </mat-icon>
                 </div>
-              } @else {
-                <p class="text-neutral-400 text-sm text-center py-4">--</p>
-              }
-            </div>
+                <div class="onboarding-step-body">
+                  <span class="onboarding-step-title">
+                    {{ 'pro.dashboard.checklist.' + step.key | transloco }}
+                  </span>
+                  <span class="onboarding-step-desc">
+                    {{ 'pro.dashboard.checklist.' + step.key + 'Desc' | transloco }}
+                  </span>
+                </div>
+                @if (!step.done && step.key === nextStepKey()) {
+                  <span class="onboarding-step-tag">
+                    {{ 'pro.dashboard.checklist.next' | transloco }}
+                  </span>
+                } @else if (step.done) {
+                  <span class="onboarding-step-tag onboarding-step-tag-done">
+                    {{ 'pro.dashboard.checklist.done' | transloco }}
+                  </span>
+                }
+                <mat-icon class="onboarding-step-chevron">chevron_right</mat-icon>
+              </a>
+            }
           </div>
 
-          <!-- Employee Rankings -->
-          @if (sortedEmployees().length > 0) {
-            <div class="widget-card">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.employees.title' | transloco }}</h3>
-                <div class="sort-pills">
-                  <button
-                    class="sort-pill"
-                    [class.active]="employeeSortKey() === 'revenue'"
-                    (click)="setEmployeeSort('revenue')"
-                  >{{ 'pro.dashboard.analytics.employees.sortCA' | transloco }}</button>
-                  <button
-                    class="sort-pill"
-                    [class.active]="employeeSortKey() === 'bookingCount'"
-                    (click)="setEmployeeSort('bookingCount')"
-                  >{{ 'pro.dashboard.analytics.employees.sortBookings' | transloco }}</button>
-                  <button
-                    class="sort-pill"
-                    [class.active]="employeeSortKey() === 'attendanceRate'"
-                    (click)="setEmployeeSort('attendanceRate')"
-                  >{{ 'pro.dashboard.analytics.employees.sortRate' | transloco }}</button>
-                </div>
-              </div>
-              <div class="ranking-list">
-                @for (emp of sortedEmployees(); track emp.id) {
-                  <div class="ranking-item">
-                    <div class="ranking-info">
-                      <span class="ranking-name">{{ emp.name }}</span>
-                      <span class="ranking-detail">
-                        {{ formatCurrency(emp.revenue) }} &middot; {{ emp.bookingCount }} RDV &middot; {{ formatPercent(emp.attendanceRate) }}
-                      </span>
-                    </div>
-                    <div class="ranking-bar-container">
-                      <div class="ranking-bar" [style.width.%]="employeeBarWidth(emp)"></div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
+          <div class="publish-section">
+            <a
+              mat-stroked-button
+              data-testid="preview-btn"
+              [routerLink]="salonUrl()"
+            >
+              <mat-icon>visibility</mat-icon>
+              {{ 'pro.dashboard.preview' | transloco }}
+            </a>
+            <button
+              mat-raised-button
+              color="primary"
+              data-testid="publish-btn"
+              [disabled]="!store.canPublish()"
+              (click)="onPublish()"
+            >
+              {{ 'pro.dashboard.publish' | transloco }}
+            </button>
+            @if (!store.canPublish()) {
+              <p class="publish-hint">
+                {{ 'pro.dashboard.publishDisabledHint' | transloco }}
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    }
 
-          <!-- Client Rankings -->
-          @if (sortedClients().length > 0) {
-            <div class="widget-card">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.clients.title' | transloco }}</h3>
-                <div class="sort-pills">
-                  <button
-                    class="sort-pill"
-                    [class.active]="clientSortKey() === 'visitCount'"
-                    (click)="setClientSort('visitCount')"
-                  >{{ 'pro.dashboard.analytics.clients.sortVisits' | transloco }}</button>
-                  <button
-                    class="sort-pill"
-                    [class.active]="clientSortKey() === 'revenue'"
-                    (click)="setClientSort('revenue')"
-                  >{{ 'pro.dashboard.analytics.clients.sortCA' | transloco }}</button>
-                  <button
-                    class="sort-pill"
-                    [class.active]="clientSortKey() === 'attendanceRate'"
-                    (click)="setClientSort('attendanceRate')"
-                  >{{ 'pro.dashboard.analytics.clients.sortReliability' | transloco }}</button>
-                </div>
-              </div>
-              <div class="ranking-list">
-                @for (client of sortedClients(); track client.id) {
-                  <div class="ranking-item">
-                    <div class="ranking-info">
-                      <a class="ranking-name client-link" [routerLink]="['/pro/clients', client.id]">{{ client.name }}</a>
-                      <span class="ranking-detail">
-                        {{ client.visitCount }} {{ 'pro.dashboard.analytics.clients.sortVisits' | transloco | lowercase }}
-                        &middot; {{ formatCurrency(client.revenue) }}
-                      </span>
-                    </div>
-                    <div class="attendance-badge" [class]="clientReliability(client) >= 0.8 ? 'badge-good' : clientReliability(client) >= 0.5 ? 'badge-warn' : 'badge-bad'">
-                      {{ formatPercent(clientReliability(client)) }}
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
+    <!-- ============ ACTIVE MODE (analytics) ============ -->
+    @else if (store.isActive()) {
+      <div class="dashboard-page active-mode">
+
+        <!-- Page header -->
+        <div class="page-header">
+          <div class="page-header-titles">
+            <span class="page-eyebrow">{{ 'pro.dashboard.title' | transloco }}</span>
+            <h1 class="page-title">
+              {{ 'pro.dashboard.title' | transloco }}
+              <span class="status-chip status-chip-active">{{ 'pro.dashboard.active' | transloco }}</span>
+            </h1>
+          </div>
+          <div class="page-header-actions">
+            <a mat-stroked-button [href]="salonUrl()" target="_blank">
+              {{ 'pro.dashboard.viewSalon' | transloco }}
+            </a>
+            <button mat-stroked-button color="warn" (click)="onUnpublish()">
+              {{ 'pro.dashboard.unpublish' | transloco }}
+            </button>
+          </div>
         </div>
 
-        <!-- Full-width bottom section -->
-        <div class="bottom-row">
-          <!-- Care Rankings -->
-          @if (sortedCares().length > 0) {
-            <div class="widget-card">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.cares.title' | transloco }}</h3>
-              </div>
-              <div class="ranking-list">
-                @for (care of sortedCares(); track care.id; let i = $index) {
-                  <div class="ranking-item">
-                    <div class="ranking-info">
-                      <span class="ranking-position">{{ i + 1 }}</span>
-                      <span class="ranking-name">{{ care.name }}</span>
-                      <span class="ranking-detail">
-                        {{ formatCurrency(care.revenue) }} &middot; {{ care.bookingCount }} RDV
-                      </span>
-                    </div>
-                    <div class="ranking-bar-container">
-                      <div class="ranking-bar bar-care" [style.width.%]="careBarWidth(care)"></div>
-                    </div>
+        <!-- Toolbar : period pills + filters -->
+        <div class="toolbar">
+          <div class="period-pills">
+            @for (p of periods; track p) {
+              <button
+                class="period-pill"
+                [class.is-active]="period() === p"
+                (click)="setPeriod(p)"
+              >
+                {{ 'pro.dashboard.analytics.period.' + p | transloco }}
+              </button>
+            }
+          </div>
+
+          <div class="filter-selects">
+            @if (analyticsData()?.employeeRankings?.length) {
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-select
+                  [value]="selectedEmployeeId()"
+                  (selectionChange)="selectedEmployeeId.set($event.value)"
+                  [placeholder]="'pro.dashboard.analytics.allEmployees' | transloco"
+                >
+                  <mat-option [value]="undefined">
+                    {{ 'pro.dashboard.analytics.allEmployees' | transloco }}
+                  </mat-option>
+                  @for (emp of analyticsData()!.employeeRankings; track emp.id) {
+                    <mat-option [value]="emp.id">{{ emp.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            @if (analyticsData()?.careRankings?.length) {
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-select
+                  [value]="selectedCareId()"
+                  (selectionChange)="selectedCareId.set($event.value)"
+                  [placeholder]="'pro.dashboard.analytics.allCares' | transloco"
+                >
+                  <mat-option [value]="undefined">
+                    {{ 'pro.dashboard.analytics.allCares' | transloco }}
+                  </mat-option>
+                  @for (care of analyticsData()!.careRankings; track care.id) {
+                    <mat-option [value]="care.id">{{ care.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+          </div>
+        </div>
+
+        @if (analyticsLoading()) {
+          <div class="flex justify-center py-12">
+            <mat-spinner diameter="32"></mat-spinner>
+          </div>
+        } @else if (analyticsData()) {
+
+          <!-- KPI strip -->
+          <section class="kpis">
+            @for (kpi of kpis(); track kpi.key) {
+              <div class="kpi kpi-{{ kpi.color }}">
+                <div class="kpi-label">
+                  <span class="dot"></span>
+                  {{ 'pro.dashboard.analytics.kpi.' + kpi.key | transloco }}
+                </div>
+                <div class="kpi-value">{{ kpi.value }}</div>
+                @if (kpi.trend !== null) {
+                  <div class="kpi-trend" [class]="trendClass(kpi.trend)">
+                    {{ trendArrow(kpi.trend) }} {{ trendValue(kpi.trend) }}
                   </div>
                 }
               </div>
-            </div>
-          }
+            }
+          </section>
 
-          <!-- Status Doughnut + Forecast -->
-          <div class="status-forecast-row">
-            <!-- Status Donut -->
-            <div class="widget-card widget-card-half">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.status.title' | transloco }}</h3>
+          <!-- Row 1 : revenue chart 8 + status donut 4 -->
+          <section class="grid">
+            <div class="panel col-8">
+              <div class="panel-head">
+                <h3 class="panel-title">{{ 'pro.dashboard.analytics.charts.revenueTitle' | transloco }}</h3>
+                <button class="toggle-btn" (click)="toggleRevenueChartType()">
+                  @if (revenueChartType() === 'bar') {
+                    {{ 'pro.dashboard.analytics.charts.line' | transloco }}
+                  } @else {
+                    {{ 'pro.dashboard.analytics.charts.bars' | transloco }}
+                  }
+                </button>
               </div>
-              <div class="chart-container chart-container-sm">
+              <div class="panel-body chart-wrap">
+                <canvas
+                  baseChart
+                  [type]="revenueChartType()"
+                  [data]="revenueChartData()"
+                  [options]="revenueChartOptions()"
+                ></canvas>
+              </div>
+            </div>
+
+            <div class="panel col-4">
+              <div class="panel-head">
+                <h3 class="panel-title">{{ 'pro.dashboard.analytics.status.title' | transloco }}</h3>
+              </div>
+              <div class="panel-body chart-wrap chart-wrap-sm">
                 <canvas
                   baseChart
                   type="doughnut"
@@ -405,15 +271,178 @@
                 ></canvas>
               </div>
             </div>
+          </section>
 
-            <!-- Revenue Forecast -->
-            <div class="widget-card widget-card-half forecast-card">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.forecast.title' | transloco }}</h3>
+          <!-- Row 2 : heatmap 7 + employees 5 -->
+          <section class="grid">
+            <div class="panel col-7">
+              <div class="panel-head">
+                <h3 class="panel-title">{{ 'pro.dashboard.analytics.heatmap.title' | transloco }}</h3>
               </div>
-              <div class="forecast-content">
+              <div class="panel-body">
+                @if (heatmapData().hours.length > 0) {
+                  <div
+                    class="heatmap-grid"
+                    [style.grid-template-columns]="'auto repeat(' + heatmapData().days.length + ', 1fr)'"
+                    [style.grid-template-rows]="'auto repeat(' + heatmapData().hours.length + ', 1fr)'"
+                  >
+                    <div class="heatmap-label"></div>
+                    @for (day of heatmapData().days; track day) {
+                      <div class="heatmap-day-label">{{ dayLabel(day) | slice:0:3 }}</div>
+                    }
+                    @for (hour of heatmapData().hours; track hour) {
+                      <div class="heatmap-hour-label">{{ hour }}h</div>
+                      @for (day of heatmapData().days; track day) {
+                        @let cell = heatmapData().cells[(heatmapData().days.indexOf(day)) + (heatmapData().hours.indexOf(hour)) * heatmapData().days.length];
+                        <div
+                          class="heatmap-cell"
+                          [style.background]="heatmapCellColor(cell.opacity)"
+                          [title]="cell.count + ' RDV'"
+                        >
+                          @if (cell.count > 0) {
+                            <span class="heatmap-count">{{ cell.count }}</span>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                } @else {
+                  <p class="empty-hint">--</p>
+                }
+              </div>
+            </div>
+
+            @if (sortedEmployees().length > 0) {
+              <div class="panel col-5">
+                <div class="panel-head">
+                  <h3 class="panel-title">{{ 'pro.dashboard.analytics.employees.title' | transloco }}</h3>
+                  <div class="sort-tabs">
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="employeeSortKey() === 'revenue'"
+                      (click)="setEmployeeSort('revenue')"
+                    >{{ 'pro.dashboard.analytics.employees.sortCA' | transloco }}</button>
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="employeeSortKey() === 'bookingCount'"
+                      (click)="setEmployeeSort('bookingCount')"
+                    >{{ 'pro.dashboard.analytics.employees.sortBookings' | transloco }}</button>
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="employeeSortKey() === 'attendanceRate'"
+                      (click)="setEmployeeSort('attendanceRate')"
+                    >{{ 'pro.dashboard.analytics.employees.sortRate' | transloco }}</button>
+                  </div>
+                </div>
+                <div class="panel-body panel-body-list">
+                  <div class="ranking">
+                    @for (emp of sortedEmployees(); track emp.id; let i = $index) {
+                      <div class="rank-row">
+                        <span class="rank-pos" [class.top]="i === 0">{{ i + 1 }}</span>
+                        <div class="rank-info">
+                          <span class="rank-name">{{ emp.name }}</span>
+                          <span class="rank-detail">
+                            {{ formatCurrency(emp.revenue) }} · {{ emp.bookingCount }} RDV · {{ formatPercent(emp.attendanceRate) }}
+                          </span>
+                        </div>
+                        <div class="rank-bar">
+                          <div class="rank-bar-fill" [style.width.%]="employeeBarWidth(emp)"></div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+
+          <!-- Row 3 : cares 6 + clients 6 -->
+          <section class="grid">
+            @if (sortedCares().length > 0) {
+              <div class="panel col-6">
+                <div class="panel-head">
+                  <h3 class="panel-title">{{ 'pro.dashboard.analytics.cares.title' | transloco }}</h3>
+                </div>
+                <div class="panel-body panel-body-list">
+                  <div class="ranking">
+                    @for (care of sortedCares(); track care.id; let i = $index) {
+                      <div class="rank-row">
+                        <span class="rank-pos" [class.top]="i === 0">{{ i + 1 }}</span>
+                        <div class="rank-info">
+                          <span class="rank-name">{{ care.name }}</span>
+                          <span class="rank-detail">
+                            {{ formatCurrency(care.revenue) }} · {{ care.bookingCount }} RDV
+                          </span>
+                        </div>
+                        <div class="rank-bar">
+                          <div class="rank-bar-fill" [style.width.%]="careBarWidth(care)"></div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (sortedClients().length > 0) {
+              <div class="panel col-6">
+                <div class="panel-head">
+                  <h3 class="panel-title">{{ 'pro.dashboard.analytics.clients.title' | transloco }}</h3>
+                  <div class="sort-tabs">
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="clientSortKey() === 'visitCount'"
+                      (click)="setClientSort('visitCount')"
+                    >{{ 'pro.dashboard.analytics.clients.sortVisits' | transloco }}</button>
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="clientSortKey() === 'revenue'"
+                      (click)="setClientSort('revenue')"
+                    >{{ 'pro.dashboard.analytics.clients.sortCA' | transloco }}</button>
+                    <button
+                      class="sort-tab"
+                      [class.is-active]="clientSortKey() === 'attendanceRate'"
+                      (click)="setClientSort('attendanceRate')"
+                    >{{ 'pro.dashboard.analytics.clients.sortReliability' | transloco }}</button>
+                  </div>
+                </div>
+                <div class="panel-body panel-body-list">
+                  <div class="ranking">
+                    @for (client of sortedClients(); track client.id; let i = $index) {
+                      <div class="rank-row">
+                        <span class="rank-pos" [class.top]="i === 0">{{ i + 1 }}</span>
+                        <div class="rank-info">
+                          <a class="rank-name client-link" [routerLink]="['/pro/clients', client.id]">{{ client.name }}</a>
+                          <span class="rank-detail">
+                            {{ client.visitCount }} {{ 'pro.dashboard.analytics.clients.sortVisits' | transloco | lowercase }}
+                            · {{ formatCurrency(client.revenue) }}
+                          </span>
+                        </div>
+                        <span
+                          class="badge"
+                          [class.badge-good]="clientReliability(client) >= 0.8"
+                          [class.badge-warn]="clientReliability(client) >= 0.5 && clientReliability(client) < 0.8"
+                          [class.badge-bad]="clientReliability(client) < 0.5"
+                        >
+                          {{ formatPercent(clientReliability(client)) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+
+          <!-- Row 4 : forecast 4 + at-risk 8 -->
+          <section class="grid">
+            <div class="panel col-4">
+              <div class="panel-head">
+                <h3 class="panel-title">{{ 'pro.dashboard.analytics.forecast.title' | transloco }}</h3>
+              </div>
+              <div class="panel-body forecast-content">
                 <span class="forecast-value">{{ formatCurrency(analyticsData()!.forecastRevenue) }}</span>
-                <span class="forecast-subtitle">{{ 'pro.dashboard.analytics.forecast.subtitle' | transloco }}</span>
+                <span class="forecast-sub">{{ 'pro.dashboard.analytics.forecast.subtitle' | transloco }}</span>
                 @if (analyticsData()!.forecastTrend !== null) {
                   <span class="kpi-trend" [class]="trendClass(analyticsData()!.forecastTrend)">
                     {{ trendArrow(analyticsData()!.forecastTrend) }} {{ trendValue(analyticsData()!.forecastTrend) }}
@@ -422,44 +451,35 @@
                 }
               </div>
             </div>
-          </div>
 
-          <!-- At-Risk Clients -->
-          @if (analyticsData()!.atRiskClients.length > 0) {
-            <div class="widget-card">
-              <div class="widget-header">
-                <h3>{{ 'pro.dashboard.analytics.atRisk.title' | transloco }}</h3>
-              </div>
-              <div class="at-risk-scroll">
-                @for (client of analyticsData()!.atRiskClients; track client.id) {
-                  <div class="at-risk-card">
-                    <div class="at-risk-avatar">
-                      <mat-icon>person</mat-icon>
-                    </div>
-                    <span class="at-risk-name">{{ client.name }}</span>
-                    <span class="at-risk-detail">
-                      {{ 'pro.dashboard.analytics.atRisk.lastVisit' | transloco }}: {{ client.lastVisitDate }}
-                    </span>
-                    <span class="at-risk-days">
-                      {{ client.daysSinceLastVisit }}j
-                    </span>
+            @if (analyticsData()!.atRiskClients.length > 0) {
+              <div class="panel col-8">
+                <div class="panel-head">
+                  <h3 class="panel-title">{{ 'pro.dashboard.analytics.atRisk.title' | transloco }}</h3>
+                </div>
+                <div class="panel-body panel-body-list">
+                  <div class="at-risk-list">
+                    @for (client of analyticsData()!.atRiskClients; track client.id) {
+                      <div class="at-risk-row">
+                        <div class="at-risk-avatar">
+                          <mat-icon>person</mat-icon>
+                        </div>
+                        <div class="at-risk-info">
+                          <span class="at-risk-name">{{ client.name }}</span>
+                          <span class="at-risk-detail">
+                            {{ 'pro.dashboard.analytics.atRisk.lastVisit' | transloco }}: {{ client.lastVisitDate }}
+                          </span>
+                        </div>
+                        <span class="at-risk-days">{{ client.daysSinceLastVisit }}j</span>
+                      </div>
+                    }
                   </div>
-                }
+                </div>
               </div>
-            </div>
-          }
-        </div>
-
-        <!-- Salon Actions -->
-        <div class="salon-actions">
-          <a mat-raised-button color="primary" [href]="salonUrl()" target="_blank">
-            {{ 'pro.dashboard.viewSalon' | transloco }}
-          </a>
-          <button mat-stroked-button color="warn" (click)="onUnpublish()">
-            {{ 'pro.dashboard.unpublish' | transloco }}
-          </button>
-        </div>
-      }
+            }
+          </section>
+        }
+      </div>
     }
   }
 </div>

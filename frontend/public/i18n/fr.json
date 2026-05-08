@@ -143,6 +143,11 @@
     "deleteError": "Erreur lors de la suppression",
     "autoOpen": {
       "needCategoryFirst": "Crée d'abord une catégorie pour pouvoir ajouter un soin."
+    },
+    "allCategories": "Toutes les catégories",
+    "kpi": {
+      "activeCares": "Soins actifs",
+      "categories": "Catégories"
     }
   },
   "categories": {
@@ -463,7 +468,8 @@
       "contactEmail": "Email de contact",
       "businessSection": "Informations entreprise",
       "siret": "SIRET",
-      "addressCountry": "Pays"
+      "addressCountry": "Pays",
+      "unsaved": "Modifications non enregistrées"
     },
     "categories": {
       "add": "Ajouter une catégorie",
@@ -530,7 +536,22 @@
       "detailTitle": "Détails collaborateur",
       "toggleActive": "Actif / Inactif",
       "empty": "Aucun collaborateur",
-      "deleteConfirm": "Supprimer ce collaborateur ?"
+      "deleteConfirm": "Supprimer ce collaborateur ?",
+      "subtitle": "Praticiennes et droits du salon",
+      "memberSince": "Membre depuis",
+      "totalMembers": "membres au total",
+      "activeShort": "actifs",
+      "inactiveShort": "inactif",
+      "kpi": {
+        "activeMembers": "Membres actifs",
+        "coveredCares": "Soins couverts"
+      },
+      "col": {
+        "member": "Praticienne",
+        "contact": "Contact",
+        "assignedCares": "Soins assignés",
+        "status": "Statut"
+      }
     },
     "leaves": {
       "pendingTitle": "Demandes en attente",
@@ -600,7 +621,16 @@
           "title": "Historique des bookings",
           "desc": "Consulter les rendez-vous passés"
         }
-      }
+      },
+      "subtitle": "Configuration du compte pro",
+      "sectionsLabel": "Sections",
+      "featuresDesc": "Active les modules qui correspondent à ton usage.",
+      "leaveSectionDesc": "Quota de jours de congés annuels par employé. Sert au calcul du solde dans la page Équipe.",
+      "bookingSectionDesc": "Règles qui s'appliquent aux clientes lorsqu'elles tentent de réserver.",
+      "holidaysSectionDesc": "Décide ce qui se passe par défaut sur les jours fériés français.",
+      "today": "aujourd'hui",
+      "inOneDay": "dans 1 jour",
+      "inDays": "dans {{n}} jours"
     },
     "availability": {
       "title": "Mes disponibilités",
@@ -621,6 +651,12 @@
         "5": "Vendredi",
         "6": "Samedi",
         "7": "Dimanche"
+      },
+      "subtitle": "Disponibilités hebdomadaires",
+      "kpi": {
+        "openDays": "Jours ouverts",
+        "weeklyHours": "Heures hebdo",
+        "totalSlots": "Créneaux totaux"
       }
     },
     "manage": {
@@ -650,7 +686,17 @@
       "occupied": "Temps occupé",
       "empty": "Aucun rendez-vous",
       "noShow": "Absent",
-      "addBooking": "Nouveau RDV"
+      "addBooking": "Nouveau RDV",
+      "subtitle": "Agenda hebdomadaire",
+      "week": "Semaine",
+      "kpi": {
+        "weekBookings": "RDV de la semaine",
+        "estimatedRevenue": "CA estimé",
+        "occupiedTime": "Temps occupé"
+      },
+      "filters": {
+        "statusTitle": "Statuts"
+      }
     },
     "history": {
       "title": "Historique des bookings",
@@ -673,7 +719,30 @@
           "all": "Tous les employés"
         }
       },
-      "endOfList": "Plus rien à charger"
+      "endOfList": "Plus rien à charger",
+      "filtersTitle": "Filtres",
+      "reset": "Réinitialiser",
+      "from": "Du",
+      "to": "Au",
+      "allEmployees": "Tous les employés",
+      "bookings": "RDV",
+      "yesterday": "hier",
+      "nDays": "{{n}} jours",
+      "kpi": {
+        "totalBookings": "Total RDV",
+        "totalRevenue": "CA encaissé",
+        "attendanceRate": "Taux de présence",
+        "cancelled": "Annulations",
+        "noShow": "No-show"
+      },
+      "col": {
+        "dateTime": "Heure",
+        "client": "Cliente",
+        "care": "Soin",
+        "employee": "Employée",
+        "status": "Statut",
+        "price": "Prix"
+      }
     },
     "camera": {
       "title": "Prendre une photo",

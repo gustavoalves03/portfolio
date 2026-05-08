@@ -60,4 +60,34 @@ export class EmployeesComponent {
       }
     });
   }
+
+  initials(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? '')
+      .join('');
+  }
+
+  formatJoinDate(iso: string): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+  }
+
+  countActive(employees: Employee[]): number {
+    return employees.filter((e) => e.active).length;
+  }
+
+  /** Number of distinct cares covered by at least one active employee. */
+  countCoveredCares(employees: Employee[]): number {
+    const ids = new Set<number>();
+    for (const e of employees) {
+      if (!e.active) continue;
+      for (const c of e.assignedCares) ids.add(c.id);
+    }
+    return ids.size;
+  }
 }

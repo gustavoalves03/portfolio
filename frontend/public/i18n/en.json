@@ -139,6 +139,11 @@
     "deleteError": "Error deleting service",
     "autoOpen": {
       "needCategoryFirst": "Create a category first so you can add a service."
+    },
+    "allCategories": "All categories",
+    "kpi": {
+      "activeCares": "Active services",
+      "categories": "Categories"
     }
   },
   "categories": {
@@ -459,7 +464,8 @@
       "contactEmail": "Contact email",
       "businessSection": "Business information",
       "siret": "SIRET",
-      "addressCountry": "Country"
+      "addressCountry": "Country",
+      "unsaved": "Unsaved changes"
     },
     "categories": {
       "add": "Add category",
@@ -526,7 +532,22 @@
       "detailTitle": "Team member details",
       "toggleActive": "Active / Inactive",
       "empty": "No team members",
-      "deleteConfirm": "Delete this team member?"
+      "deleteConfirm": "Delete this team member?",
+      "subtitle": "Salon practitioners and roles",
+      "memberSince": "Member since",
+      "totalMembers": "members total",
+      "activeShort": "active",
+      "inactiveShort": "inactive",
+      "kpi": {
+        "activeMembers": "Active members",
+        "coveredCares": "Covered services"
+      },
+      "col": {
+        "member": "Practitioner",
+        "contact": "Contact",
+        "assignedCares": "Assigned services",
+        "status": "Status"
+      }
     },
     "leaves": {
       "pendingTitle": "Pending requests",
@@ -596,7 +617,16 @@
           "title": "Booking history",
           "desc": "Browse past appointments"
         }
-      }
+      },
+      "subtitle": "Pro account configuration",
+      "sectionsLabel": "Sections",
+      "featuresDesc": "Enable the modules that match your usage.",
+      "leaveSectionDesc": "Annual leave quota per employee. Used to compute balance in the Team page.",
+      "bookingSectionDesc": "Rules that apply when clients try to book.",
+      "holidaysSectionDesc": "Decide what happens by default on French public holidays.",
+      "today": "today",
+      "inOneDay": "in 1 day",
+      "inDays": "in {{n}} days"
     },
     "availability": {
       "title": "My availability",
@@ -617,6 +647,12 @@
         "5": "Friday",
         "6": "Saturday",
         "7": "Sunday"
+      },
+      "subtitle": "Weekly availability",
+      "kpi": {
+        "openDays": "Open days",
+        "weeklyHours": "Weekly hours",
+        "totalSlots": "Total slots"
       }
     },
     "manage": {
@@ -646,7 +682,17 @@
       "occupied": "Time occupied",
       "empty": "No appointments",
       "noShow": "No-show",
-      "addBooking": "New booking"
+      "addBooking": "New booking",
+      "subtitle": "Weekly agenda",
+      "week": "Week",
+      "kpi": {
+        "weekBookings": "Bookings this week",
+        "estimatedRevenue": "Estimated revenue",
+        "occupiedTime": "Occupied time"
+      },
+      "filters": {
+        "statusTitle": "Status"
+      }
     },
     "history": {
       "title": "Booking history",
@@ -669,7 +715,30 @@
           "all": "All employees"
         }
       },
-      "endOfList": "End of list"
+      "endOfList": "End of list",
+      "filtersTitle": "Filters",
+      "reset": "Reset",
+      "from": "From",
+      "to": "To",
+      "allEmployees": "All employees",
+      "bookings": "bookings",
+      "yesterday": "yesterday",
+      "nDays": "{{n}} days",
+      "kpi": {
+        "totalBookings": "Total bookings",
+        "totalRevenue": "Total revenue",
+        "attendanceRate": "Attendance rate",
+        "cancelled": "Cancellations",
+        "noShow": "No-shows"
+      },
+      "col": {
+        "dateTime": "Time",
+        "client": "Client",
+        "care": "Service",
+        "employee": "Practitioner",
+        "status": "Status",
+        "price": "Price"
+      }
     },
     "camera": {
       "title": "Take a photo",

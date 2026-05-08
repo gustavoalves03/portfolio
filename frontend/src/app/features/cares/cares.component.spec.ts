@@ -141,12 +141,14 @@ describe('CaresComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render category chips', () => {
-    const chips = fixture.nativeElement.querySelectorAll('.category-chip');
-    expect(chips.length).toBe(3);
-    expect(chips[0].textContent.trim()).toBe('Visage');
-    expect(chips[1].textContent.trim()).toBe('Corps');
-    expect(chips[2].textContent.trim()).toBe('Ongles');
+  it('should render category items in the sidebar', () => {
+    // Sidebar has an "All categories" item first, then one per category.
+    const items = fixture.nativeElement.querySelectorAll('.side-item .name');
+    // 1 ("All") + 3 categories = 4
+    expect(items.length).toBe(4);
+    expect(items[1].textContent.trim()).toBe('Visage');
+    expect(items[2].textContent.trim()).toBe('Corps');
+    expect(items[3].textContent.trim()).toBe('Ongles');
   });
 
   it('should toggle filter on chip click', () => {

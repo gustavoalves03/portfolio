@@ -105,6 +105,68 @@ export class AvailabilityComponent {
     );
   }
 
+  /** Close a day by clearing all its slots. The save bar still requires Save. */
+  closeDay(dayOfWeek: number): void {
+    this.week.update((w) =>
+      w.map((d) => (d.dayOfWeek === dayOfWeek ? { ...d, slots: [] } : d))
+    );
+  }
+
+  /** Total opening minutes per day, used to display "10 h" or "9 h 30" in the day header. */
+  dayTotalMinutes(dayOfWeek: number): number {
+    const slots = this.getDaySlots(dayOfWeek);
+    return slots.reduce((acc, s) => {
+      if (!s.openTime || !s.closeTime || s.closeTime <= s.openTime) return acc;
+      const [oh, om] = s.openTime.split(':').map(Number);
+      const [ch, cm] = s.closeTime.split(':').map(Number);
+      return acc + (ch * 60 + cm) - (oh * 60 + om);
+    }, 0);
+  }
+
+  /** Format minutes as "10 h" or "9 h 30". */
+  formatDuration(min: number): string {
+    if (min <= 0) return '0 h';
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    if (h === 0) return `${m} min`;
+    return m === 0 ? `${h} h` : `${h} h ${m.toString().padStart(2, '0')}`;
+  }
+
+  /** First slot start time, e.g. "9 h" or "9 h 30". */
+  dayRangeLabel(dayOfWeek: number): string {
+    const slots = this.getDaySlots(dayOfWeek);
+    if (slots.length === 0) return '';
+    const first = slots[0].openTime;
+    const last = slots[slots.length - 1].closeTime;
+    return `${this.formatTime(first)} – ${this.formatTime(last)}`;
+  }
+
+  private formatTime(t: string): string {
+    if (!t) return '';
+    const [h, m] = t.split(':');
+    return m === '00' ? `${parseInt(h, 10)} h` : `${parseInt(h, 10)} h ${m}`;
+  }
+
+  /** Total weekly opening hours, used in the KPI strip. */
+  readonly weeklyTotalMinutes = computed(() =>
+    this.week().reduce((acc, d) => {
+      return acc + d.slots.reduce((dAcc, s) => {
+        if (!s.openTime || !s.closeTime || s.closeTime <= s.openTime) return dAcc;
+        const [oh, om] = s.openTime.split(':').map(Number);
+        const [ch, cm] = s.closeTime.split(':').map(Number);
+        return dAcc + (ch * 60 + cm) - (oh * 60 + om);
+      }, 0);
+    }, 0)
+  );
+
+  readonly openDaysCount = computed(
+    () => this.week().filter((d) => d.slots.length > 0).length
+  );
+
+  readonly totalSlotsCount = computed(
+    () => this.week().reduce((acc, d) => acc + d.slots.length, 0)
+  );
+
   addSlot(dayOfWeek: number): void {
     // Refuse to append a degenerate slot once the day already covers up to 23:59.
     if (!this.canAddSlot(dayOfWeek)) return;

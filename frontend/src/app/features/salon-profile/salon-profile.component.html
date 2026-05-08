@@ -3,152 +3,241 @@
     <mat-spinner diameter="40"></mat-spinner>
   </div>
 } @else if (store.tenant()) {
-  <div class="salon-profile">
-    <h1 class="page-title">{{ 'pro.salon.title' | transloco }}</h1>
+  <form class="salon-profile" (ngSubmit)="onSave()">
 
-    <!-- Header: Logo + Name + Edit button -->
-    <div class="profile-card header-card">
-      <div class="header-row">
-        <div class="logo-wrapper" (click)="triggerLogoUpload()" data-tour-step="logo">
-          @if (logoImages().length > 0) {
-            <img [src]="logoImages()[0].url" alt="Logo" class="logo-img" />
-          } @else {
-            <mat-icon class="logo-placeholder">add_a_photo</mat-icon>
-          }
-        </div>
-        <div class="header-info">
-          <h1 class="salon-name">{{ name() || ('pro.salon.name' | transloco) }}</h1>
-          <div class="salon-slug">/salon/{{ slug() }}</div>
-        </div>
-        <div class="logo-btn-group">
-          <button mat-stroked-button class="logo-edit-btn" type="button" (click)="triggerLogoUpload()">
-            <mat-icon>photo_camera</mat-icon>
-            {{ 'pro.salon.changeLogo' | transloco }}
-          </button>
-          @if (logoImages().length > 0) {
-            <button mat-icon-button class="logo-remove-btn" type="button" (click)="removeLogo()">
-              <mat-icon>close</mat-icon>
-            </button>
-          }
-        </div>
-        <input #logoInput type="file" accept="image/*" hidden (change)="onLogoFileSelected($event)" />
+    <!-- ============ Page header ============ -->
+    <div class="page-header">
+      <div class="page-header-titles">
+        <span class="page-eyebrow">{{ 'pro.salon.title' | transloco }}</span>
+        <h1 class="page-title">{{ name() || ('pro.salon.name' | transloco) }}</h1>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <form (ngSubmit)="onSave()">
-      <mat-tab-group animationDuration="150ms" class="salon-tabs" data-tour-step="contact">
-        <!-- Tab 1: Informations -->
-        <mat-tab [label]="'pro.salon.title' | transloco">
-          <div class="tab-content">
-            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name" data-tour-step="name">
-              <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
-              <input matInput [ngModel]="name()" (ngModelChange)="name.set($event); markDirty()" required maxlength="100" name="salonName" />
-            </mat-form-field>
+    <!-- ============ Identity strip (logo + name + slug) ============ -->
+    <section class="identity">
+      <div
+        class="logo-box"
+        [class.has-logo]="logoImages().length > 0"
+        (click)="triggerLogoUpload()"
+        data-tour-step="logo"
+      >
+        @if (logoImages().length > 0) {
+          <img [src]="logoImages()[0].url" alt="Logo"/>
+        } @else {
+          <span class="logo-placeholder">
+            <mat-icon>add_a_photo</mat-icon>
+            {{ 'pro.salon.changeLogo' | transloco }}
+          </span>
+        }
+      </div>
+      <div class="identity-info">
+        <h2 class="identity-name">{{ name() || ('pro.salon.name' | transloco) }}</h2>
+        <span class="identity-slug">/salon/<strong>{{ slug() }}</strong></span>
+      </div>
+      <div class="identity-actions">
+        <button mat-stroked-button type="button" class="logo-edit-btn" (click)="triggerLogoUpload()">
+          <mat-icon>photo_camera</mat-icon>
+          {{ 'pro.salon.changeLogo' | transloco }}
+        </button>
+        @if (logoImages().length > 0) {
+          <button mat-icon-button class="logo-remove-btn" type="button" (click)="removeLogo()" [attr.aria-label]="'common.cancel' | transloco">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <input #logoInput type="file" accept="image/*" hidden (change)="onLogoFileSelected($event)"/>
+      </div>
+    </section>
 
+    <!-- ============ Row 1 : présentation 8 + image hero 4 ============ -->
+    <section class="grid">
+      <div class="panel col-8">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.title' | transloco }}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <label class="field-label">
+              {{ 'pro.salon.name' | transloco }}<span class="req">*</span>
+            </label>
+            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name" data-tour-step="name">
+              <input matInput
+                [ngModel]="name()"
+                (ngModelChange)="name.set($event); markDirty()"
+                required maxlength="100" name="salonName"/>
+            </mat-form-field>
+          </div>
+
+          <div class="field">
+            <label class="field-label">{{ 'pro.salon.description' | transloco }}</label>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'pro.salon.description' | transloco }}</mat-label>
-              <textarea matInput rows="4" [ngModel]="description()" (ngModelChange)="description.set($event); markDirty()" name="description" maxlength="10000"></textarea>
+              <textarea matInput rows="4"
+                [ngModel]="description()"
+                (ngModelChange)="description.set($event); markDirty()"
+                name="description" maxlength="10000"></textarea>
               <mat-hint align="end">{{ descriptionTextLength() }} / {{ MAX_DESCRIPTION_LENGTH }}</mat-hint>
             </mat-form-field>
+          </div>
+        </div>
+      </div>
 
-            <!-- Hero image -->
-            <div class="hero-section">
-              <label class="hero-label">{{ 'pro.salon.heroImage' | transloco }}</label>
-              @if (heroImageUrl()) {
-                <div class="hero-preview">
-                  <img [src]="heroImageUrl()!" alt="Hero" class="hero-img" />
-                  <div class="hero-overlay">
-                    <button mat-icon-button class="hero-action" (click)="triggerHeroUpload()">
-                      <mat-icon>photo_camera</mat-icon>
-                    </button>
-                    <button mat-icon-button class="hero-action delete" (click)="removeHero()">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              } @else {
-                <button type="button" class="hero-upload-zone" (click)="triggerHeroUpload()">
-                  <mat-icon>add_photo_alternate</mat-icon>
-                  <span>{{ 'pro.salon.addHeroImage' | transloco }}</span>
+      <div class="panel col-4">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.heroImage' | transloco }}</h3>
+        </div>
+        <div class="panel-body">
+          @if (heroImageUrl()) {
+            <div class="hero-preview">
+              <img [src]="heroImageUrl()!" alt="Hero" class="hero-img"/>
+              <div class="hero-overlay">
+                <button mat-icon-button type="button" class="hero-action" (click)="triggerHeroUpload()">
+                  <mat-icon>photo_camera</mat-icon>
                 </button>
-              }
-              <input #heroInput type="file" accept="image/*" hidden (change)="onHeroFileSelected($event)" />
+                <button mat-icon-button type="button" class="hero-action delete" (click)="removeHero()">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
             </div>
-          </div>
-        </mat-tab>
+          } @else {
+            <button type="button" class="hero-upload-zone" (click)="triggerHeroUpload()">
+              <mat-icon>add_photo_alternate</mat-icon>
+              <span>{{ 'pro.salon.addHeroImage' | transloco }}</span>
+            </button>
+          }
+          <input #heroInput type="file" accept="image/*" hidden (change)="onHeroFileSelected($event)"/>
+        </div>
+      </div>
+    </section>
 
-        <!-- Tab 2: Adresse -->
-        <mat-tab [label]="'pro.salon.addressSection' | transloco">
-          <div class="tab-content">
+    <!-- ============ Row 2 : adresse 8 + country 4 ============ -->
+    <section class="grid" data-tour-step="contact">
+      <div class="panel col-8">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.addressSection' | transloco }}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <label class="field-label">{{ 'pro.salon.addressStreet' | transloco }}</label>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'pro.salon.addressStreet' | transloco }}</mat-label>
-              <input matInput [ngModel]="addressStreet()" (ngModelChange)="addressStreet.set($event)" maxlength="255" name="addressStreet" />
+              <input matInput
+                [ngModel]="addressStreet()"
+                (ngModelChange)="addressStreet.set($event); markDirty()"
+                maxlength="255" name="addressStreet"/>
             </mat-form-field>
+          </div>
 
-            <div class="field-row">
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">{{ 'pro.salon.addressPostalCode' | transloco }}</label>
               <mat-form-field appearance="outline" class="field-small">
-                <mat-label>{{ 'pro.salon.addressPostalCode' | transloco }}</mat-label>
-                <input matInput [ngModel]="addressPostalCode()" (ngModelChange)="addressPostalCode.set($event)" maxlength="10" name="addressPostalCode" />
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="field-grow">
-                <mat-label>{{ 'pro.salon.addressCity' | transloco }}</mat-label>
-                <input matInput [ngModel]="addressCity()" (ngModelChange)="addressCity.set($event)" maxlength="100" name="addressCity" />
+                <input matInput
+                  [ngModel]="addressPostalCode()"
+                  (ngModelChange)="addressPostalCode.set($event); markDirty()"
+                  maxlength="10" name="addressPostalCode"/>
               </mat-form-field>
             </div>
-
-            <app-country-picker
-              [countryCode]="addressCountry()"
-              (countryCodeChange)="addressCountry.set($event)"
-            />
+            <div class="field">
+              <label class="field-label">{{ 'pro.salon.addressCity' | transloco }}</label>
+              <mat-form-field appearance="outline" class="field-grow">
+                <input matInput
+                  [ngModel]="addressCity()"
+                  (ngModelChange)="addressCity.set($event); markDirty()"
+                  maxlength="100" name="addressCity"/>
+              </mat-form-field>
+            </div>
           </div>
-        </mat-tab>
+        </div>
+      </div>
 
-        <!-- Tab 3: Contact & Entreprise -->
-        <mat-tab [label]="'pro.salon.contactSection' | transloco">
-          <div class="tab-content">
-            <div class="field-row">
-              <mat-form-field appearance="outline" class="field-grow">
-                <mat-label>{{ 'pro.salon.phone' | transloco }}</mat-label>
-                <input matInput [ngModel]="phone()" (ngModelChange)="phone.set($event)" maxlength="20" name="phone" type="tel" />
-              </mat-form-field>
+      <div class="panel col-4">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.addressCountry' | transloco }}</h3>
+        </div>
+        <div class="panel-body country-body">
+          <app-country-picker
+            [countryCode]="addressCountry()"
+            (countryCodeChange)="addressCountry.set($event); markDirty()"
+          />
+        </div>
+      </div>
+    </section>
 
-              <mat-form-field appearance="outline" class="field-grow">
-                <mat-label>{{ 'pro.salon.contactEmail' | transloco }}</mat-label>
-                <input matInput [ngModel]="contactEmail()" (ngModelChange)="contactEmail.set($event)" maxlength="255" name="contactEmail" type="email" />
-              </mat-form-field>
-            </div>
-
+    <!-- ============ Row 3 : contact 6 + entreprise 6 ============ -->
+    <section class="grid">
+      <div class="panel col-6">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.contactSection' | transloco }}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <label class="field-label">{{ 'pro.salon.phone' | transloco }}</label>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'pro.salon.siret' | transloco }}</mat-label>
-              <input matInput [ngModel]="siret()" (ngModelChange)="siret.set($event)" maxlength="14" name="siret" />
+              <input matInput
+                [ngModel]="phone()"
+                (ngModelChange)="phone.set($event); markDirty()"
+                maxlength="20" name="phone" type="tel"/>
             </mat-form-field>
           </div>
-        </mat-tab>
-      </mat-tab-group>
+          <div class="field">
+            <label class="field-label">{{ 'pro.salon.contactEmail' | transloco }}</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput
+                [ngModel]="contactEmail()"
+                (ngModelChange)="contactEmail.set($event); markDirty()"
+                maxlength="255" name="contactEmail" type="email"/>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
 
-      <app-preview-share class="preview-share-block" />
+      <div class="panel col-6">
+        <div class="panel-head">
+          <h3 class="panel-title">{{ 'pro.salon.siret' | transloco }}</h3>
+        </div>
+        <div class="panel-body">
+          <div class="field">
+            <label class="field-label">{{ 'pro.salon.siret' | transloco }}</label>
+            <mat-form-field appearance="outline" class="full-width">
+              <input matInput
+                [ngModel]="siret()"
+                (ngModelChange)="siret.set($event); markDirty()"
+                maxlength="14" name="siret"/>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Save button -->
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        class="save-btn"
-        [disabled]="!canSave()"
-      >
-        @if (store.isPending()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        }
-        {{ 'pro.salon.save' | transloco }}
-      </button>
-      @if (saveBlockedReason()) {
-        <p class="form-validation-hint" role="status">
-          <mat-icon aria-hidden="true">info</mat-icon>
-          <span>{{ saveBlockedReason()! | transloco }}</span>
-        </p>
-      }
-    </form>
-  </div>
+    <!-- ============ Preview share block ============ -->
+    <app-preview-share class="preview-share-block"/>
+
+    <!-- ============ Sticky save bar ============ -->
+    <div class="savebar">
+      <div class="savebar-inner">
+        <div class="savebar-status">
+          @if (saveBlockedReason()) {
+            <p class="form-validation-hint" role="status">
+              <mat-icon aria-hidden="true">info</mat-icon>
+              <span>{{ saveBlockedReason()! | transloco }}</span>
+            </p>
+          } @else if (dirty()) {
+            <span class="dirty-hint">{{ 'pro.salon.unsaved' | transloco }}</span>
+          }
+        </div>
+        <div class="savebar-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="save-btn"
+            [disabled]="!canSave()"
+          >
+            @if (store.isPending()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            {{ 'pro.salon.save' | transloco }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
 }

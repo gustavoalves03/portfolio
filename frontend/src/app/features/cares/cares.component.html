@@ -1,129 +1,184 @@
-<section class="cares-page">
-  <h1 class="page-title">{{ 'pro.manage.cares' | transloco }}</h1>
+<div class="cares-page">
 
-  <!-- Category chips (kept as-is) -->
-  <div class="flex flex-wrap items-center gap-2 mb-4 px-1">
-    @for (category of categoriesStore.categories(); track category.id) {
-      <div class="category-chip-wrapper">
-        <button
-          type="button"
-          class="category-chip"
-          [class.selected]="selectedCategoryId() === category.id"
-          [style.--chip-color]="getCategoryColor(category.id)"
-          (click)="onSelectCategory(category.id)"
-        >
-          {{ category.name }}
-        </button>
-        <button
-          type="button"
-          class="chip-menu-trigger"
-          [matMenuTriggerFor]="chipMenu"
-          (click)="$event.stopPropagation()"
-        >
-          <mat-icon class="text-sm">more_vert</mat-icon>
-        </button>
-        <mat-menu #chipMenu="matMenu">
-          <button mat-menu-item (click)="onEditCategory(category)">
-            <mat-icon>edit</mat-icon>
-            {{ 'pro.categories.edit' | transloco }}
-          </button>
-          <button mat-menu-item (click)="onDeleteCategory(category)">
-            <mat-icon>delete</mat-icon>
-            {{ 'pro.categories.delete' | transloco }}
-          </button>
-        </mat-menu>
+  <!-- ============ Page header ============ -->
+  <div class="page-header">
+    <div class="page-header-titles">
+      <span class="page-eyebrow">{{ 'pro.manage.cares' | transloco }}</span>
+      <h1 class="page-title">{{ 'pro.manage.cares' | transloco }}</h1>
+    </div>
+  </div>
+
+  <!-- ============ KPI strip ============ -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">{{ 'cares.kpi.activeCares' | transloco }}</div>
+      <div class="kpi-value">
+        {{ store.availableCares().length }}<small>/ {{ store.cares().length }}</small>
       </div>
-    }
-    <button
-      type="button"
-      class="add-category-chip"
-      data-tour-step="categories"
-      (click)="onAddCategory()"
-    >
-      <mat-icon class="text-sm">add</mat-icon>
-      {{ 'pro.categories.add' | transloco }}
-    </button>
-  </div>
-
-  <!-- Search + Add bar -->
-  <div class="toolbar">
-    <input
-      type="text"
-      class="search-input"
-      [placeholder]="'table.search.placeholder' | transloco"
-      [ngModel]="searchQuery()"
-      (ngModelChange)="searchQuery.set($event)"
-    />
-    <button mat-raised-button color="primary" class="add-btn" data-tour-step="add-care" (click)="onAddCare()">
-      <mat-icon>add</mat-icon>
-      {{ 'cares.title' | transloco }}
-    </button>
-  </div>
-
-  <!-- Loading -->
-  @if (store.isPending() && store.availableCares().length === 0) {
-    <div class="flex justify-center py-12">
-      <mat-spinner diameter="40"></mat-spinner>
     </div>
-  }
-
-  <!-- Error -->
-  @if (store.error()) {
-    <div class="error-banner">{{ store.error() }}</div>
-  }
-
-  <!-- Care cards -->
-  @if (filteredCares().length === 0 && !store.isPending()) {
-    <div class="empty-state">
-      <mat-icon>spa</mat-icon>
-      <p>{{ 'table.empty' | transloco }}</p>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'cares.kpi.categories' | transloco }}</div>
+      <div class="kpi-value">{{ categoriesStore.categories().length }}</div>
     </div>
-  } @else {
-    <div class="care-grid">
-      @for (care of filteredCares(); track care.id; let i = $index) {
-        <div class="care-card" (click)="onViewCareDetails(care)">
-          <!-- Image -->
-          <div class="care-image-wrapper"
-               [style.background]="care.images && care.images.length > 0 ? 'none' : fallbackGradient(i)">
-            @if (care.images && care.images.length > 0) {
-              <img [src]="care.images[0].url" [alt]="care.name" class="care-image" />
-            }
+  </section>
+
+  <!-- ============ Layout : sidebar + main ============ -->
+  <div class="layout">
+
+    <!-- Sidebar : categories -->
+    <aside class="side">
+      <div class="side-head">
+        <h3 class="side-title">{{ 'pro.categories.title' | transloco }}</h3>
+        <button
+          type="button"
+          class="side-add"
+          data-tour-step="categories"
+          (click)="onAddCategory()"
+        >
+          + {{ 'pro.categories.add' | transloco }}
+        </button>
+      </div>
+      <div class="side-list">
+        <button
+          type="button"
+          class="side-item"
+          [class.is-active]="selectedCategoryId() === null"
+          (click)="selectedCategoryId.set(null)"
+        >
+          <span class="dot" style="background: var(--d-rose);"></span>
+          <span class="name">{{ 'cares.allCategories' | transloco }}</span>
+          <span class="count">{{ store.cares().length }}</span>
+        </button>
+        @for (category of categoriesStore.categories(); track category.id) {
+          <div class="side-item-wrapper">
+            <button
+              type="button"
+              class="side-item"
+              [class.is-active]="selectedCategoryId() === category.id"
+              [style.--cat-color]="getCategoryColor(category.id)"
+              (click)="onSelectCategory(category.id)"
+            >
+              <span class="dot" [style.background]="getCategoryColor(category.id)"></span>
+              <span class="name">{{ category.name }}</span>
+              <span class="count">{{ countCaresInCategory(category.id) }}</span>
+            </button>
+            <button
+              type="button"
+              class="side-menu"
+              [matMenuTriggerFor]="catMenu"
+              (click)="$event.stopPropagation()"
+              [attr.aria-label]="'common.more' | transloco"
+            >
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #catMenu="matMenu">
+              <button mat-menu-item (click)="onEditCategory(category)">
+                <mat-icon>edit</mat-icon>
+                {{ 'pro.categories.edit' | transloco }}
+              </button>
+              <button mat-menu-item (click)="onDeleteCategory(category)">
+                <mat-icon>delete</mat-icon>
+                {{ 'pro.categories.delete' | transloco }}
+              </button>
+            </mat-menu>
           </div>
+        }
+      </div>
+    </aside>
 
-          <!-- Content -->
-          <div class="care-content">
-            <div class="care-header">
-              <div class="care-name">{{ care.name }}</div>
-              <mat-slide-toggle
-                [checked]="care.status === 'ACTIVE'"
-                (change)="onToggleStatus(care, $event.checked)"
-                (click)="$event.stopPropagation()"
-                color="primary"
-              ></mat-slide-toggle>
-            </div>
+    <!-- Main : toolbar + grid -->
+    <div class="main">
 
-            @if (care.description) {
-              <div class="care-description">{{ care.description }}</div>
-            }
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search">
+          <mat-icon class="ico">search</mat-icon>
+          <input
+            type="text"
+            [placeholder]="'table.search.placeholder' | transloco"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+        </div>
+        <button
+          type="button"
+          class="add-btn"
+          data-tour-step="add-care"
+          (click)="onAddCare()"
+        >
+          <mat-icon>add</mat-icon>
+          {{ 'cares.title' | transloco }}
+        </button>
+      </div>
 
-            <div class="care-bottom">
-              <div class="care-meta">
-                <span class="care-duration">{{ formatDuration(care.duration) }}</span>
-                <span class="care-separator">·</span>
-                <span class="care-price">{{ formatPrice(care.price) }}</span>
+      <!-- Loading -->
+      @if (store.isPending() && store.availableCares().length === 0) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (store.error()) {
+        <div class="error-banner">{{ store.error() }}</div>
+      }
+
+      <!-- Care cards -->
+      @if (filteredCares().length === 0 && !store.isPending()) {
+        <div class="empty-state">
+          <mat-icon>spa</mat-icon>
+          <p class="empty-title">{{ 'table.empty' | transloco }}</p>
+        </div>
+      } @else {
+        <div class="care-grid">
+          @for (care of filteredCares(); track care.id; let i = $index) {
+            <article class="care" [class.is-inactive]="care.status !== 'ACTIVE'" (click)="onViewCareDetails(care)">
+              <!-- Image -->
+              <div class="care-img"
+                   [class.no-img]="!care.images || care.images.length === 0"
+                   [style.background]="care.images && care.images.length > 0 ? 'none' : fallbackGradient(i)">
+                @if (care.images && care.images.length > 0) {
+                  <img [src]="care.images[0].url" [alt]="care.name"/>
+                }
+                <span class="care-cat" [style.--cat-color]="getCategoryColor(care.category.id)">
+                  <span class="dot" [style.background]="getCategoryColor(care.category.id)"></span>
+                  {{ care.category.name }}
+                </span>
+                <div class="care-status" (click)="$event.stopPropagation()">
+                  <mat-slide-toggle
+                    [checked]="care.status === 'ACTIVE'"
+                    (change)="onToggleStatus(care, $event.checked)"
+                    color="primary"
+                  ></mat-slide-toggle>
+                </div>
               </div>
-              <div class="care-actions" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="onEditCare(care)" class="action-btn">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button (click)="onDeleteCare(care)" class="action-btn delete">
-                  <mat-icon>delete</mat-icon>
-                </button>
+
+              <!-- Body -->
+              <div class="care-body">
+                <h4 class="care-name">{{ care.name }}</h4>
+                @if (care.description) {
+                  <p class="care-desc">{{ care.description }}</p>
+                }
+                <div class="care-foot">
+                  <div class="care-meta">
+                    <span class="care-duration">{{ formatDuration(care.duration) }}</span>
+                    <span class="care-sep">·</span>
+                    <span class="care-price">{{ formatPrice(care.price) }}</span>
+                  </div>
+                  <div class="care-actions" (click)="$event.stopPropagation()">
+                    <button mat-icon-button class="icon-btn" (click)="onEditCare(care)" [attr.aria-label]="'common.edit' | transloco">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button class="icon-btn del" (click)="onDeleteCare(care)" [attr.aria-label]="'common.delete' | transloco">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </article>
+          }
         </div>
       }
     </div>
-  }
-</section>
+  </div>
+</div>

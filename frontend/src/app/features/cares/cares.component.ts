@@ -140,6 +140,10 @@ export class CaresComponent {
     return CATEGORY_COLORS[categoryId % CATEGORY_COLORS.length];
   }
 
+  countCaresInCategory(categoryId: number): number {
+    return this.store.cares().filter((c) => c.category.id === categoryId).length;
+  }
+
   fallbackGradient(index: number): string {
     return this.fallbackGradients[index % this.fallbackGradients.length];
   }

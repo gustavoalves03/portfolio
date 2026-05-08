@@ -1,0 +1,203 @@
+<div class="bookings-page">
+
+  <!-- ============ Page header ============ -->
+  <div class="page-header">
+    <div class="page-header-titles">
+      <span class="page-eyebrow">{{ 'pro.bookings.subtitle' | transloco }}</span>
+      <h1 class="page-title">{{ 'pro.bookings.title' | transloco }}</h1>
+    </div>
+    <div class="page-header-actions">
+      <button type="button" class="btn btn-primary" data-testid="add-booking-btn" (click)="onAddBooking()">
+        <mat-icon>add</mat-icon>
+        {{ 'pro.bookings.addBooking' | transloco }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ KPI strip ============ -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.bookings.kpi.weekBookings' | transloco }}</div>
+      <div class="kpi-value">{{ totalBookings() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.bookings.kpi.estimatedRevenue' | transloco }}</div>
+      <div class="kpi-value">{{ estimatedRevenue() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.bookings.kpi.occupiedTime' | transloco }}</div>
+      <div class="kpi-value">{{ occupiedTime() }}</div>
+    </div>
+  </section>
+
+  <!-- ============ Toolbar : nav semaine ============ -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="nav-group">
+        <button type="button" class="nav-btn" (click)="prevWeek()" [attr.aria-label]="'common.prev' | transloco">‹</button>
+        <button type="button" class="today-btn" (click)="goToday()">{{ 'pro.bookings.today' | transloco }}</button>
+        <button type="button" class="nav-btn" (click)="nextWeek()" [attr.aria-label]="'common.next' | transloco">›</button>
+      </div>
+      <span class="week-label">
+        {{ 'pro.bookings.week' | transloco }} {{ weekNumber() }}
+        <small>· {{ weekLabel() }}</small>
+      </span>
+    </div>
+  </div>
+
+  <!-- ============ Layout : sidebar mini cal + week grid ============ -->
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="side">
+
+      <!-- Mini calendar -->
+      <div class="mini-cal">
+        <div class="mini-cal-head">
+          <span class="mini-cal-month">{{ monthLabel() }}</span>
+          <div class="mini-cal-nav">
+            <button type="button" (click)="prevMonth()" [attr.aria-label]="'common.prev' | transloco">‹</button>
+            <button type="button" (click)="nextMonth()" [attr.aria-label]="'common.next' | transloco">›</button>
+          </div>
+        </div>
+        <div class="mini-cal-grid">
+          <span class="mini-cal-dow">L</span>
+          <span class="mini-cal-dow">M</span>
+          <span class="mini-cal-dow">M</span>
+          <span class="mini-cal-dow">J</span>
+          <span class="mini-cal-dow">V</span>
+          <span class="mini-cal-dow">S</span>
+          <span class="mini-cal-dow">D</span>
+          @for (day of miniCalDays(); track day.date) {
+            <button
+              type="button"
+              class="mini-day"
+              [class.other]="!day.isCurrentMonth"
+              [class.today]="day.isToday"
+              [class.in-week]="day.isInWeek"
+              [class.has-bookings]="day.hasBookings"
+              [class.busy]="day.busy"
+              [class.closed]="day.isClosed"
+              (click)="jumpToDate(day.date)"
+            >{{ day.dayOfMonth }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Filters statuts -->
+      <div class="filters-card">
+        <div class="filters-head">{{ 'pro.bookings.filters.statusTitle' | transloco }}</div>
+        <div class="filters-body">
+          @for (status of ['CONFIRMED', 'PENDING', 'CANCELLED', 'NO_SHOW']; track status) {
+            <label class="filter-row">
+              <input
+                type="checkbox"
+                [checked]="statusFilters()[status]"
+                (change)="toggleStatusFilter(status)"
+              />
+              <span class="filter-name">
+                <span class="filter-dot" [class]="statusClass(status)"></span>
+                {{ getStatusLabel($any(status)) }}
+              </span>
+              <span class="filter-count">{{ statusCounts()[$any(status)] }}</span>
+            </label>
+          }
+        </div>
+      </div>
+    </aside>
+
+    <!-- Week grid -->
+    <section class="week">
+
+      <!-- Day headers -->
+      <div class="week-head">
+        <div class="week-head-cell is-corner">UTC</div>
+        @for (day of weekDays(); track day.date) {
+          <div class="week-head-cell" [class.is-today]="day.isToday">
+            <div>
+              <div class="week-head-day">{{ day.dayName }}</div>
+              <div class="week-head-num">{{ day.dayOfMonth }}</div>
+            </div>
+            @if (day.isClosed) {
+              <span class="week-head-bookings">— {{ 'pro.availability.closed' | transloco }}</span>
+            } @else {
+              <span class="week-head-bookings">
+                {{ day.bookings.length }} {{ day.bookings.length === 1 ? 'RDV' : 'RDV' }}
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Body : hour col + 7 day cols -->
+      <div class="week-body">
+        <!-- Hour labels -->
+        <div class="hour-col">
+          @for (h of hourLabels; track h) {
+            <div class="hour-cell" [style.height.px]="hourHeight">{{ h }} h</div>
+          }
+        </div>
+
+        @for (day of weekDays(); track day.date) {
+          <div
+            class="day-col"
+            [class.is-today]="day.isToday"
+            [class.is-closed]="day.isClosed"
+            [style.height.px]="hourHeight * hourLabels.length"
+          >
+            @if (day.isClosed) {
+              <span class="closed-label">{{ 'pro.availability.closed' | transloco }}</span>
+            } @else {
+              <!-- Hour grid lines -->
+              @for (h of hourLabels; track h) {
+                <div class="row-cell" [style.height.px]="hourHeight"></div>
+              }
+
+              <!-- Booking events positioned absolutely -->
+              @for (b of day.bookings; track b.id) {
+                @if (isVisible(b)) {
+                  <div
+                    class="ev"
+                    [class]="statusClass(b.status)"
+                    [class.short]="b.care.duration < 30"
+                    [style.top.px]="bookingTopPx(b)"
+                    [style.height.px]="bookingHeightPx(b)"
+                    [id]="'booking-' + b.id"
+                    (click)="openBooking(b)"
+                  >
+                    <div class="ev-name">{{ b.salonClientName || b.user.name }}</div>
+                    <div class="ev-care">{{ b.care.name }}</div>
+                    <div class="ev-time">
+                      {{ formatTime(b.appointmentTime) }} → {{ formatEndTime(b.appointmentTime, b.care.duration) }}
+                    </div>
+                  </div>
+                }
+              }
+
+              <!-- Now line on today -->
+              @if (day.isToday && nowOffsetPx() !== null) {
+                <div class="now-line" [style.top.px]="nowOffsetPx()"></div>
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Loading -->
+      @if (isLoading()) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+      }
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot s-confirmed"></span>{{ getStatusLabel(CareBookingStatus.CONFIRMED) }}</div>
+        <div class="legend-item"><span class="legend-dot s-pending"></span>{{ getStatusLabel(CareBookingStatus.PENDING) }}</div>
+        <div class="legend-item"><span class="legend-dot s-cancelled"></span>{{ getStatusLabel(CareBookingStatus.CANCELLED) }}</div>
+        <div class="legend-item"><span class="legend-dot s-noshow"></span>{{ getStatusLabel(CareBookingStatus.NO_SHOW) }}</div>
+      </div>
+    </section>
+
+  </div>
+</div>
