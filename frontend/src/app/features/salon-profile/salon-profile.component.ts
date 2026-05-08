@@ -13,6 +13,7 @@ import { CountryPickerComponent } from '../../shared/uis/country-picker/country-
 import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-param/focus-on-query-param.directive';
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
+import { DashboardStore } from '../dashboard/store/dashboard.store';
 
 @Component({
   selector: 'app-salon-profile',
@@ -35,6 +36,7 @@ import { UpdateTenantRequest } from './models/salon-profile.model';
 })
 export class SalonProfileComponent {
   protected readonly store = inject(SalonProfileStore);
+  private readonly dashboardStore = inject(DashboardStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
 
@@ -107,7 +109,8 @@ export class SalonProfileComponent {
       }
     });
 
-    // Show snackbar on save success
+    // Show snackbar on save success and refresh tenant readiness so the
+    // guided tour (which reacts to readiness flags) auto-advances.
     effect(() => {
       if (this.store.saveSuccess()) {
         this.snackBar.open(
@@ -115,6 +118,7 @@ export class SalonProfileComponent {
           undefined,
           { duration: 3000 }
         );
+        this.dashboardStore.loadReadiness();
         this.store.clearStatus();
       }
     });

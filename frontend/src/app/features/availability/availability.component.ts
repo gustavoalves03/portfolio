@@ -11,6 +11,7 @@ import {
   OpeningHourResponse,
   TimeSlot,
 } from './availability.model';
+import { DashboardStore } from '../dashboard/store/dashboard.store';
 
 const DEFAULT_SLOT: TimeSlot = { openTime: '09:00', closeTime: '18:00' };
 
@@ -41,6 +42,7 @@ export function nextValidClose(openTime: string): string {
 })
 export class AvailabilityComponent {
   readonly store = inject(AvailabilityStore);
+  private dashboardStore = inject(DashboardStore);
   private snackBar = inject(MatSnackBar);
   private i18n = inject(TranslocoService);
 
@@ -52,6 +54,14 @@ export class AvailabilityComponent {
       const hours = this.store.hours();
       if (hours) {
         this.syncFromStoreData(hours);
+      }
+    });
+    // Refresh tenant readiness after a successful save so the guided tour
+    // (which reacts to readiness flags) auto-advances.
+    effect(() => {
+      if (this.store.saveSuccess()) {
+        this.dashboardStore.loadReadiness();
+        this.store.clearSaveSuccess();
       }
     });
   }
