@@ -197,10 +197,16 @@
         "openingHoursDesc": "Indique les jours et heures où tu reçois.",
         "next": "Étape suivante",
         "done": "Fait",
+        "hasCategory": "Sélectionnez vos catégories",
+        "hasCategoryDesc": "Au moins une famille de soins (visage, manucure, etc.) pour aider vos clientes à vous trouver.",
+        "hasActiveCare": "Ajoutez votre premier soin",
+        "hasActiveCareDesc": "Au moins un soin actif est nécessaire pour publier votre salon.",
         "hasContact": "Renseignez vos coordonnées",
         "hasContactDesc": "Adresse complète et au moins un téléphone ou email pour que vos clientes vous joignent.",
         "hasLogo": "Ajoutez votre logo",
-        "hasLogoDesc": "Une image carrée affichée sur votre page publique."
+        "hasLogoDesc": "Une image carrée affichée sur votre page publique.",
+        "hasOpeningHours": "Définissez vos horaires",
+        "hasOpeningHoursDesc": "Vos jours et heures d'ouverture pour que les clientes puissent réserver."
       },
       "quickstart": {
         "title": "Démarre en 30 secondes",
@@ -489,7 +495,19 @@
         },
         "categories": {
           "title": "Que proposez-vous ?",
-          "sub": "Sélectionnez tout ce que vous faites — au moins une catégorie."
+          "sub": "Sélectionnez tout ce que vous faites — au moins une catégorie.",
+          "items": {
+            "facial": "Soin du visage",
+            "hair": "Coiffure",
+            "nails": "Manucure",
+            "massage": "Massage",
+            "lashes": "Cils & sourcils",
+            "makeup": "Maquillage",
+            "waxing": "Épilation",
+            "wellness": "Bien-être",
+            "barber": "Barbier",
+            "rituals": "Rituels longs"
+          }
         },
         "cares": {
           "title": "Ajoutez votre premier soin.",

@@ -193,10 +193,16 @@
         "openingHoursDesc": "Tell clients which days and times you welcome them.",
         "next": "Next step",
         "done": "Done",
+        "hasCategory": "Pick your categories",
+        "hasCategoryDesc": "At least one service family (facial, nails…) so clients can find you.",
+        "hasActiveCare": "Add your first service",
+        "hasActiveCareDesc": "At least one active service is required before publishing.",
         "hasContact": "Fill in your contact details",
         "hasContactDesc": "Full address and at least a phone or email so clients can reach you.",
         "hasLogo": "Add your logo",
-        "hasLogoDesc": "A square image shown on your public page."
+        "hasLogoDesc": "A square image shown on your public page.",
+        "hasOpeningHours": "Set your opening hours",
+        "hasOpeningHoursDesc": "Your days and times so clients can book."
       },
       "quickstart": {
         "title": "Start in 30 seconds",
@@ -485,7 +491,19 @@
         },
         "categories": {
           "title": "What do you offer?",
-          "sub": "Pick everything you do — at least one category."
+          "sub": "Pick everything you do — at least one category.",
+          "items": {
+            "facial": "Facial",
+            "hair": "Hair",
+            "nails": "Nails",
+            "massage": "Massage",
+            "lashes": "Lashes & brows",
+            "makeup": "Makeup",
+            "waxing": "Waxing",
+            "wellness": "Wellness",
+            "barber": "Barber",
+            "rituals": "Long rituals"
+          }
         },
         "cares": {
           "title": "Add your first service.",
