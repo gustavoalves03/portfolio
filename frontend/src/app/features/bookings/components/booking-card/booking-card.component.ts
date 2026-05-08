@@ -41,7 +41,7 @@ import { CareBookingDetailed, CareBookingStatus } from '../../models/bookings.mo
       transition: background 150ms ease;
     }
     .card:hover { background: #fafafa; }
-    .time { font-weight: 600; color: #c06; font-size: 13px; min-width: 44px; }
+    .time { font-weight: 600; color: var(--pf-rose); font-size: 13px; min-width: 44px; }
     .info { flex: 1; min-width: 0; }
     .care { font-weight: 500; color: #333; font-size: 13px; }
     .people { font-size: 11px; color: #666; margin-top: 2px; }

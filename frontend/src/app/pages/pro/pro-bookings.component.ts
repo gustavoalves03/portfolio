@@ -163,7 +163,7 @@ interface DayGroup {
   `,
   styles: `
     .bookings-page {
-      background: #f5f4f2;
+      background: var(--pf-paper);
       padding: 16px;
       max-width: 1440px;
       margin: 0 auto;
@@ -209,9 +209,9 @@ interface DayGroup {
     }
 
     .period-pill.active {
-      background: #c06;
+      background: var(--pf-rose);
       color: #fff;
-      border-color: #c06;
+      border-color: var(--pf-rose);
     }
 
     /* Summary bar */
@@ -288,7 +288,7 @@ interface DayGroup {
     }
 
     .day-header.today {
-      color: #c06;
+      color: var(--pf-rose);
     }
 
     .day-header.other {
@@ -303,7 +303,7 @@ interface DayGroup {
     }
 
     .day-dot.today {
-      background: #c06;
+      background: var(--pf-rose);
     }
 
     .day-dot.other {
@@ -408,7 +408,7 @@ interface DayGroup {
     }
 
     .employee-name {
-      color: #c06;
+      color: var(--pf-rose);
       font-weight: 500;
     }
 
@@ -471,7 +471,7 @@ interface DayGroup {
       padding: 6px 14px;
       border-radius: 8px;
       border: none;
-      background: #c06;
+      background: var(--pf-rose);
       color: white;
       font-size: 13px;
       font-weight: 500;

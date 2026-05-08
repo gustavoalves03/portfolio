@@ -14,15 +14,17 @@
   font-weight: 600;
   letter-spacing: 0.5em;
   text-transform: uppercase;
-  color: #c06;
+  color: var(--pf-rose);
 }
 
 .brand-face {
+  font-family: var(--pf-font-display);
   font-size: 22px;
-  font-weight: 200;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #333;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--pf-ink);
 
   @media (min-width: 768px) {
     font-size: 26px;
@@ -43,7 +45,7 @@ header a {
   text-align: center;
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: var(--pf-ink);
   text-decoration: none;
   max-width: 200px;
   overflow-wrap: break-word;
@@ -64,12 +66,12 @@ header a {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: #999;
+  color: var(--pf-ink-mute);
   transition: color 150ms ease, background 150ms ease;
 
   &:hover {
-    color: #c06;
-    background: rgba(192, 0, 102, 0.06);
+    color: var(--pf-rose);
+    background: rgba(198, 96, 117, 0.08);
   }
 }
 
@@ -112,9 +114,9 @@ header a {
   }
 
   &.active {
-    border-color: #d6a17a;
-    box-shadow: 0 0 0 1px rgba(214, 161, 122, 0.4);
-    background: rgba(214, 161, 122, 0.1);
+    border-color: var(--pf-shell-2);
+    box-shadow: 0 0 0 1px rgba(236, 196, 179, 0.6);
+    background: rgba(236, 196, 179, 0.18);
   }
 }
 
@@ -128,7 +130,7 @@ header a {
   right: 4px;
   min-width: 12px;
   height: 12px;
-  background: #e11d48;
+  background: var(--pf-rose-deep);
   border-radius: 9px;
   border: 2px solid white;
   display: flex;
@@ -138,7 +140,7 @@ header a {
   font-weight: 700;
   color: white;
   padding: 0 3px;
-  box-shadow: 0 1px 3px rgba(225, 29, 72, 0.4);
+  box-shadow: 0 1px 3px rgba(168, 62, 88, 0.4);
   animation: badgeAppear 200ms ease-out;
 
   &:empty {

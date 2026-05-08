@@ -123,7 +123,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
       }
 
       .choice-card.active {
-        border-color: #c06;
+        border-color: var(--pf-rose);
         background: #fff5f7;
       }
 
@@ -131,7 +131,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
         font-size: 32px;
         width: 32px;
         height: 32px;
-        color: #c06;
+        color: var(--pf-rose);
         margin-bottom: 8px;
       }
 
@@ -183,7 +183,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
       }
 
       .client-row.selected {
-        border-color: #c06;
+        border-color: var(--pf-rose);
         background: #fff5f7;
       }
 
@@ -191,7 +191,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         display: flex;
         align-items: center;
@@ -226,7 +226,7 @@ import { ClientCreateFormComponent } from '../client-create-form/client-create-f
       }
 
       .btn-confirm {
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         border: none;
         border-radius: 8px;

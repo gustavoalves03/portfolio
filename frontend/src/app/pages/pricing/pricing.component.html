@@ -1,59 +1,20 @@
-<!-- Hero -->
-<app-parallax-hero imageUrl="/pricing/parallax-hero.jpg">
-  <h1 class="pricing-hero-title">{{ 'pricing.hero.title' | transloco }}</h1>
-  <p class="pricing-hero-subtitle">{{ 'pricing.hero.subtitle' | transloco }}</p>
-  <div class="pricing-hero-ctas">
-    <a routerLink="/register/pro" class="pricing-cta pricing-cta-primary">
-      {{ 'pricing.hero.ctaPrimary' | transloco }}
-    </a>
-    <button type="button" class="pricing-cta pricing-cta-secondary" (click)="scrollToDemo()">
-      {{ 'pricing.hero.ctaSecondary' | transloco }} ↓
-    </button>
-  </div>
-</app-parallax-hero>
-
-<!-- Demo -->
-<section class="pricing-demo">
-  <div class="pricing-demo-inner">
-    <h2 class="pricing-section-title">{{ 'pricing.demo.title' | transloco }}</h2>
-    <p class="pricing-section-subtitle">{{ 'pricing.demo.subtitle' | transloco }}</p>
-
-    <div #demoSentinel class="pricing-demo-frame">
-      <app-mock-browser url="prettyface.app/dashboard">
-        <div class="pricing-demo-grid">
-          <app-revenue-widget [started]="w1Started()" />
-          <app-calendar-widget [started]="w2Started()" />
-          <app-reviews-widget [started]="w3Started()" />
-        </div>
-      </app-mock-browser>
-    </div>
-  </div>
-</section>
-
-<!-- Features -->
-<section class="pricing-features">
-  <div class="pricing-features-inner">
-    <h2 class="pricing-section-title">{{ 'pricing.features.title' | transloco }}</h2>
-    <div class="pricing-features-grid">
-      @for (feature of features; track feature.key) {
-        <article class="pricing-feature-card" data-testid="feature-card">
-          <mat-icon class="pricing-feature-icon" aria-hidden="true">{{ feature.icon }}</mat-icon>
-          <h3 class="pricing-feature-title">
-            {{ 'pricing.features.' + feature.key + '.title' | transloco }}
-          </h3>
-          <p class="pricing-feature-bullets">
-            {{ 'pricing.features.' + feature.key + '.bullets' | transloco }}
-          </p>
-        </article>
-      }
-    </div>
+<!-- Header -->
+<section class="pricing-header">
+  <div class="pricing-header-inner">
+    <p class="pricing-eyebrow">{{ 'pricing.header.eyebrow' | transloco }}</p>
+    <h1 class="pricing-title">
+      {{ 'pricing.header.titleStart' | transloco }}
+      <em>{{ 'pricing.header.titleAccent' | transloco }}</em
+      >{{ 'pricing.header.titleEnd' | transloco }}
+    </h1>
+    <p class="pricing-sub">{{ 'pricing.header.subtitle' | transloco }}</p>
   </div>
 </section>
 
 <!-- Plan -->
 <section class="pricing-plan">
   <article class="pricing-plan-card" data-testid="plan-card">
-    <h3 class="pricing-plan-title">{{ 'pricing.plan.title' | transloco }}</h3>
+    <h2 class="pricing-plan-title">{{ 'pricing.plan.title' | transloco }}</h2>
     <p class="pricing-plan-subtitle">{{ 'pricing.plan.subtitle' | transloco }}</p>
     <a routerLink="/register/pro" class="pricing-cta pricing-cta-primary">
       {{ 'pricing.plan.cta' | transloco }} →

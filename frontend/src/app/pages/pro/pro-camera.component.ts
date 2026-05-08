@@ -39,7 +39,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f5f4f2;
+      background: var(--pf-paper);
     }
 
     .hidden-input {
@@ -69,7 +69,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       transition: border-color 150ms, box-shadow 150ms;
 
       &:hover {
-        border-color: #c06;
+        border-color: var(--pf-rose);
         box-shadow: 0 2px 8px rgba(192, 0, 102, 0.1);
       }
 
@@ -77,7 +77,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
         font-size: 48px;
         width: 48px;
         height: 48px;
-        color: #c06;
+        color: var(--pf-rose);
       }
 
       span {

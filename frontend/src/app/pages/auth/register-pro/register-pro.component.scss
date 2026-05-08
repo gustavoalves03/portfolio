@@ -43,7 +43,7 @@
 
   &.active {
     background: white;
-    color: #c06;
+    color: var(--pf-rose);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 }
@@ -81,7 +81,7 @@
   transition: box-shadow 150ms ease;
 
   &.highlighted {
-    border-color: #c06;
+    border-color: var(--pf-rose);
     box-shadow: 0 2px 16px rgba(192, 102, 102, 0.15);
     flex: 1.1;
   }
@@ -95,7 +95,7 @@
 .plan-badge {
   position: absolute;
   top: -10px;
-  background: #c06;
+  background: var(--pf-rose);
   color: white;
   font-size: 9px;
   font-weight: 600;
@@ -147,13 +147,13 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid #c06;
+  border: 1.5px solid var(--pf-rose);
   background: white;
-  color: #c06;
+  color: var(--pf-rose);
   transition: all 150ms ease;
 
   &.primary {
-    background: linear-gradient(135deg, #a8385d, #c06);
+    background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
     color: white;
     border: none;
   }
@@ -169,7 +169,7 @@
   color: #999;
 
   a {
-    color: #c06;
+    color: var(--pf-rose);
     text-decoration: none;
 
     &:hover {
@@ -190,7 +190,7 @@
 .plan-badge-top {
   font-size: 11px;
   background: #f0e8ec;
-  color: #c06;
+  color: var(--pf-rose);
   padding: 4px 14px;
   border-radius: 10px;
   font-weight: 500;
@@ -217,7 +217,7 @@
   font-weight: 600;
 
   &.active {
-    background: #c06;
+    background: var(--pf-rose);
     color: white;
   }
 
@@ -233,7 +233,7 @@
   background: #e0e0e0;
 
   &.active {
-    background: #c06;
+    background: var(--pf-rose);
   }
 }
 
@@ -290,7 +290,7 @@
 .next-btn {
   flex: 1;
   border-radius: 24px !important;
-  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose)) !important;
   color: white !important;
 }
 

@@ -44,13 +44,13 @@ import { MatButtonModule } from '@angular/material/button';
     .section { margin-bottom: 12px; }
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .section-title { font-size: 13px; font-weight: 600; color: #333; }
-    .view-all { background: none; border: none; font-size: 11px; color: #c06; font-weight: 600; cursor: pointer; }
+    .view-all { background: none; border: none; font-size: 11px; color: var(--pf-rose); font-weight: 600; cursor: pointer; }
     .empty { text-align: center; padding: 2rem; color: #9ca3af; font-size: 13px; }
     .visit-list { display: flex; flex-direction: column; gap: 8px; }
     .new-visit-btn {
       width: 100%;
       margin-top: 12px;
-      background: #c06;
+      background: var(--pf-rose);
       color: white;
       border-radius: 10px;
     }

@@ -35,7 +35,7 @@
 }
 
 .seg-count {
-  background: #c06;
+  background: var(--pf-rose);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -74,14 +74,14 @@
   transition: all 150ms ease;
 
   &:hover {
-    border-color: #c06;
-    color: #c06;
+    border-color: var(--pf-rose);
+    color: var(--pf-rose);
   }
 
   &.active {
-    background: #c06;
+    background: var(--pf-rose);
     color: #fff;
-    border-color: #c06;
+    border-color: var(--pf-rose);
   }
 }
 
@@ -258,7 +258,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: #fff;
   border: none;
   padding: 8px 20px;

@@ -29,7 +29,7 @@ import { NavigationHistoryService } from '../../../core/navigation/navigation-hi
       cursor: pointer;
       font-size: 13px;
     }
-    .back-btn:hover { color: #c06; }
+    .back-btn:hover { color: var(--pf-rose); }
     .back-btn mat-icon { font-size: 20px; width: 20px; height: 20px; }
   `],
 })

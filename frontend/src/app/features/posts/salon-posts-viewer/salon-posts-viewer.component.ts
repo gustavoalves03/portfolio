@@ -221,7 +221,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
       padding: 8px 20px;
       border: none;
       border-radius: 20px;
-      background: linear-gradient(135deg, #a8385d, #c06);
+      background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
       color: #fff;
       font-size: 13px;
       font-weight: 500;

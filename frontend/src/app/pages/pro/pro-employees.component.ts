@@ -22,7 +22,7 @@ import { LeavesComponent } from '../../features/leaves/leaves.component';
         </div>
     `,
     styles: [`
-        .employees-page { background: #f5f4f2; padding: 16px; max-width: 1440px; margin: 0 auto; }
+        .employees-page { background: var(--pf-paper); padding: 16px; max-width: 1440px; margin: 0 auto; }
         @media (min-width: 768px) { .employees-page { padding: 24px 32px; } }
         @media (min-width: 1280px) { .employees-page { padding: 24px 48px; } }
         .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }

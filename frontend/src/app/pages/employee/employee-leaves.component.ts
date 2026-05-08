@@ -373,14 +373,14 @@ interface CalDay {
             }
 
             .type-chip:hover {
-                border-color: #c06;
-                color: #c06;
+                border-color: var(--pf-rose);
+                color: var(--pf-rose);
             }
 
             .type-chip.selected {
-                border-color: #c06;
+                border-color: var(--pf-rose);
                 background: #fef2f2;
-                color: #c06;
+                color: var(--pf-rose);
             }
 
             .type-chip mat-icon {
@@ -466,7 +466,7 @@ interface CalDay {
                 font-size: 16px;
                 width: 16px;
                 height: 16px;
-                color: #c06;
+                color: var(--pf-rose);
             }
 
             .date-bar .date-value {
@@ -481,7 +481,7 @@ interface CalDay {
             .date-bar .day-count {
                 margin-left: auto;
                 font-size: 11px;
-                color: #c06;
+                color: var(--pf-rose);
                 font-weight: 500;
             }
 
@@ -514,7 +514,7 @@ interface CalDay {
             }
 
             .mc-nav-btn:hover {
-                color: #c06;
+                color: var(--pf-rose);
             }
 
             .mc-nav-btn mat-icon {
@@ -580,14 +580,14 @@ interface CalDay {
             }
 
             .mc-day.range-start {
-                background: #c06;
+                background: var(--pf-rose);
                 color: #fff;
                 font-weight: 600;
                 border-radius: 50% 0 0 50%;
             }
 
             .mc-day.range-end {
-                background: #c06;
+                background: var(--pf-rose);
                 color: #fff;
                 font-weight: 600;
                 border-radius: 0 50% 50% 0;
@@ -599,7 +599,7 @@ interface CalDay {
 
             .mc-day.in-range {
                 background: #fef2f2;
-                color: #a8385d;
+                color: var(--pf-rose-deep);
             }
 
             /* ── Reason textarea (compact) ── */
@@ -619,8 +619,8 @@ interface CalDay {
             }
 
             .reason-area:focus {
-                border-color: #c06;
-                box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.08);
+                border-color: var(--pf-rose);
+                box-shadow: 0 0 0 2px rgba(198, 96, 117, 0.10);
             }
 
             .form-actions {
@@ -638,7 +638,7 @@ interface CalDay {
 
             /* ── Leave balance card ── */
             .balance-card {
-                background: linear-gradient(135deg, #a8385d, #c06);
+                background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
                 border-radius: 12px;
                 padding: 14px 16px;
                 color: #fff;
@@ -712,7 +712,7 @@ interface CalDay {
             }
 
             .seg-count {
-                background: #c06;
+                background: var(--pf-rose);
                 color: #fff;
                 font-size: 9px;
                 font-weight: 700;

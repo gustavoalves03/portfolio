@@ -1,5 +1,5 @@
 .cares-page {
-  background: #f5f4f2;
+  background: var(--pf-paper);
   padding: 16px;
   max-width: 1440px;
   margin: 0 auto;
@@ -125,7 +125,7 @@
   transition: border-color 150ms ease;
 
   &:focus {
-    border-color: #c06;
+    border-color: var(--pf-rose);
   }
 }
 
@@ -269,7 +269,7 @@
 .care-price {
   font-size: 13px;
   font-weight: 600;
-  color: #c06;
+  color: var(--pf-rose);
 }
 
 .care-actions {

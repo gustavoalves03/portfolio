@@ -331,7 +331,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
     .stat-value {
       font-size: 28px;
       font-weight: 700;
-      color: var(--mat-sys-primary, #a8385d);
+      color: var(--mat-sys-primary, var(--pf-rose-deep));
     }
 
     .stat-label {
@@ -353,7 +353,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
       font-size: 14px;
 
       mat-icon {
-        color: var(--mat-sys-primary, #a8385d);
+        color: var(--mat-sys-primary, var(--pf-rose-deep));
         flex-shrink: 0;
       }
     }
@@ -528,7 +528,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
       transition: border-color 200ms ease;
 
       &.active {
-        border-color: var(--mat-sys-primary, #a8385d);
+        border-color: var(--mat-sys-primary, var(--pf-rose-deep));
       }
 
       img {
@@ -554,7 +554,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
     }
 
     .share-btn {
-      background: var(--mat-sys-primary, #a8385d) !important;
+      background: var(--mat-sys-primary, var(--pf-rose-deep)) !important;
       color: #fff !important;
       border-radius: 24px !important;
       padding: 0 24px !important;
@@ -566,7 +566,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
 
     .share-toast {
       font-size: 13px;
-      color: var(--mat-sys-primary, #a8385d);
+      color: var(--mat-sys-primary, var(--pf-rose-deep));
       font-weight: 500;
       animation: fadeIn 200ms ease;
     }
@@ -629,7 +629,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
 
     .visit-care {
       font-size: 12px;
-      color: var(--mat-sys-primary, #a8385d);
+      color: var(--mat-sys-primary, var(--pf-rose-deep));
     }
 
     .visit-salon {

@@ -127,8 +127,8 @@
   }
 
   &.active {
-    color: #c06;
-    border-bottom-color: #c06;
+    color: var(--pf-rose);
+    border-bottom-color: var(--pf-rose);
   }
 }
 
@@ -184,7 +184,7 @@
 }
 
 .contact-icon {
-  color: #c06;
+  color: var(--pf-rose);
   font-size: 22px;
   width: 22px;
   height: 22px;
@@ -208,7 +208,7 @@
   .salon-pin {
     width: 28px;
     height: 28px;
-    background: linear-gradient(135deg, #a8385d, #c06);
+    background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     border: 3px solid white;
@@ -311,14 +311,14 @@
 .care-price {
   font-size: 13px;
   font-weight: 600;
-  color: #c06;
+  color: var(--pf-rose);
 }
 
 .book-btn {
   border-radius: 16px !important;
   font-size: 11px !important;
   padding: 4px 16px !important;
-  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose)) !important;
   color: white !important;
   line-height: 1.5 !important;
 }

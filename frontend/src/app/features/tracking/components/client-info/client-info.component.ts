@@ -79,12 +79,12 @@ import { ClientProfileResponse, AccessLevel, UpdateProfileRequest } from '../../
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .info-label { font-size: 10px; color: #9ca3af; text-transform: uppercase; }
     .info-value { font-size: 13px; color: #333; font-weight: 500; margin-top: 2px; }
-    .info-value.reminder { color: #c06; }
+    .info-value.reminder { color: var(--pf-rose); }
     .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .field label { font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; margin-bottom: 4px; }
     .field-input { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; font-size: 13px; font-family: inherit; }
     .edit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
-    .save-btn { background: #c06 !important; color: white !important; border-radius: 8px; }
+    .save-btn { background: var(--pf-rose) !important; color: white !important; border-radius: 8px; }
     .audit-line { font-size: 10px; color: #9ca3af; margin-top: 8px; }
   `
 })

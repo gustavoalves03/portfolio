@@ -209,7 +209,7 @@ describe('ProDashboardComponent', () => {
   });
 
   it('heatmapCellColor returns neutral color for zero opacity, rose tint otherwise', () => {
-    expect(component.heatmapCellColor(0)).toBe('#f5f4f2');
+    expect(component.heatmapCellColor(0)).toBe('var(--pf-paper)');
     expect(component.heatmapCellColor(0.5)).toBe('rgba(192, 0, 102, 0.5)');
     expect(component.heatmapCellColor(1)).toBe('rgba(192, 0, 102, 0.9)');
   });

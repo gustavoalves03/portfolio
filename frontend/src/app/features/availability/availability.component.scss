@@ -79,7 +79,7 @@
   transition: color 150ms ease;
 
   &:hover {
-    color: #c06;
+    color: var(--pf-rose);
   }
 }
 
@@ -112,7 +112,7 @@
   transition: border-color 150ms ease;
 
   &:focus {
-    border-color: #c06;
+    border-color: var(--pf-rose);
     box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.15);
   }
 
@@ -142,7 +142,7 @@
   transition: color 150ms ease;
 
   &:hover {
-    color: #c06;
+    color: var(--pf-rose);
   }
 
   mat-icon {
@@ -166,7 +166,7 @@
   transition: color 150ms ease;
 
   &:hover {
-    color: #c06;
+    color: var(--pf-rose);
   }
 
   mat-icon {
@@ -183,7 +183,7 @@
 }
 
 .save-btn {
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: white;
   border: none;
   padding: 12px 32px;

@@ -164,7 +164,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
           font-weight: 600;
         }
         ::ng-deep .mat-button-toggle-checked {
-          background: #c06;
+          background: var(--pf-rose);
           color: white;
         }
       }
@@ -176,7 +176,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
       }
       .today-card {
-        border: 1.5px solid #c06;
+        border: 1.5px solid var(--pf-rose);
         position: relative;
         margin-top: 8px;
       }
@@ -184,7 +184,7 @@ import { bottomSheetConfig } from '../../../../shared/uis/sheet-handle/bottom-sh
         position: absolute;
         top: -8px;
         left: 12px;
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         font-size: 9px;
         font-weight: 700;

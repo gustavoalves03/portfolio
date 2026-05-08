@@ -1,5 +1,5 @@
 .posts-page {
-  background: #f5f4f2;
+  background: var(--pf-paper);
   padding: 16px;
   max-width: 800px;
   margin: 0 auto;
@@ -26,7 +26,7 @@
   padding: 8px 16px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: #fff;
   font-size: 13px;
   font-weight: 500;
@@ -82,14 +82,14 @@
   }
 
   &:hover {
-    border-color: #c06;
-    color: #c06;
+    border-color: var(--pf-rose);
+    color: var(--pf-rose);
   }
 
   &.selected {
-    border-color: #c06;
+    border-color: var(--pf-rose);
     background: #fef2f2;
-    color: #c06;
+    color: var(--pf-rose);
   }
 }
 
@@ -121,8 +121,8 @@
   transition: border-color 150ms ease;
 
   &:hover {
-    border-color: #c06;
-    color: #c06;
+    border-color: var(--pf-rose);
+    color: var(--pf-rose);
   }
 
   mat-icon {
@@ -247,7 +247,7 @@
     box-sizing: border-box;
 
     &:focus {
-      border-color: #c06;
+      border-color: var(--pf-rose);
     }
   }
 }
@@ -277,7 +277,7 @@
     cursor: pointer;
 
     &:focus {
-      border-color: #c06;
+      border-color: var(--pf-rose);
     }
   }
 }
@@ -292,7 +292,7 @@
   padding: 10px 28px;
   border: none;
   border-radius: 20px;
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: #fff;
   font-size: 14px;
   font-weight: 500;
@@ -393,7 +393,7 @@
 }
 
 .thumb-ba {
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: #fff;
 }
 
@@ -479,7 +479,7 @@
   font-size: 9px;
   padding: 1px 6px;
   background: #f9d5d3;
-  color: #a8385d;
+  color: var(--pf-rose-deep);
   border-radius: 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -512,7 +512,7 @@
 }
 
 .post-thumb-edit:hover {
-  color: #c06;
+  color: var(--pf-rose);
 }
 
 .post-thumb-delete:hover {

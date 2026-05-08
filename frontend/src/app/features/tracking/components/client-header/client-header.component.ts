@@ -46,7 +46,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: #c06;
+      background: var(--pf-rose);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -65,7 +65,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       border-radius: 8px;
       font-weight: 600;
     }
-    .badge.visits { background: #fdf2f8; color: #c06; }
+    .badge.visits { background: #fdf2f8; color: var(--pf-rose); }
     .badge.loyal { background: #f3e8ff; color: #7b2cbf; }
     .allergy-alert {
       background: #fef2f2;
