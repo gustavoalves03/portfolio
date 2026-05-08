@@ -14,6 +14,7 @@ import { SalonProfileStore } from './store/salon-profile.store';
 import { SalonProfileService } from './services/salon-profile.service';
 import { TenantResponse, UpdateTenantRequest } from './models/salon-profile.model';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
+import { DashboardStore } from '../dashboard/store/dashboard.store';
 
 function makeTenant(overrides: Partial<TenantResponse> = {}): TenantResponse {
   return {
@@ -112,6 +113,12 @@ describe('SalonProfileComponent', () => {
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
         { provide: MatSnackBar, useValue: mockSnackBar },
         { provide: SalonProfileService, useValue: mockService },
+        // Component depends on DashboardStore to refresh tenant readiness
+        // after a successful save (drives the guided tour's auto-advance).
+        {
+          provide: DashboardStore,
+          useValue: { readiness: signal(null), loadReadiness: () => {} },
+        },
       ],
     })
       .overrideComponent(SalonProfileComponent, {

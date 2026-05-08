@@ -1,0 +1,46 @@
+:host {
+  display: contents;
+}
+
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 31, 37, 0.55);
+  backdrop-filter: blur(1px);
+  z-index: 800;
+  pointer-events: auto;
+  /* Carve out the target rect so clicks pass through. */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 0,
+    var(--target-x) var(--target-y),
+    var(--target-x) calc(var(--target-y) + var(--target-h)),
+    calc(var(--target-x) + var(--target-w)) calc(var(--target-y) + var(--target-h)),
+    calc(var(--target-x) + var(--target-w)) var(--target-y),
+    var(--target-x) var(--target-y)
+  );
+  animation: tour-overlay-fade-in 200ms ease;
+}
+
+.tour-halo {
+  position: fixed;
+  border: 3px solid var(--pf-rose, #c66075);
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+  z-index: 801;
+  animation: tour-halo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tour-halo-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(198, 96, 117, 0.3); }
+  50%      { box-shadow: 0 0 0 6px rgba(198, 96, 117, 0.15); }
+}
+
+@keyframes tour-overlay-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

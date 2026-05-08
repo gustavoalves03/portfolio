@@ -6,6 +6,7 @@ import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
 import { Care, CareStatus, CreateCareRequest, UpdateCareRequest } from '../models/cares.model';
 import { CaresService } from '../services/cares.service';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
+import { DashboardStore } from '../../dashboard/store/dashboard.store';
 
 
 type CaresState = {
@@ -49,7 +50,7 @@ export const CaresStore = signalStore(
   withComputed((store) => ({
     availableCares: computed(() => store.cares()),
   })),
-  withMethods((store, caresGateway = inject(CaresService)) => ({
+  withMethods((store, caresGateway = inject(CaresService), dashboardStore = inject(DashboardStore)) => ({
     getCares: rxMethod<void>(
       pipe(
         tap(() => patchState(store, setPending())),
@@ -95,9 +96,12 @@ export const CaresStore = signalStore(
         tap(() => patchState(store, setPending())),
         exhaustMap((payload) =>
           caresGateway.create(payload).pipe(
-            tap((newCare) =>
-              patchState(store, { cares: [...store.cares(), newCare] }, setFulfilled())
-            ),
+            tap((newCare) => {
+              patchState(store, { cares: [...store.cares(), newCare] }, setFulfilled());
+              // Refresh tenant readiness so the guided tour auto-advances
+              // when this is the first active care created.
+              dashboardStore.loadReadiness();
+            }),
             catchError((err) => {
               patchState(store, setError(extractErrorMessage(err, 'Erreur lors de la création du soin')));
               return EMPTY;
@@ -154,11 +158,14 @@ export const CaresStore = signalStore(
       pipe(
         exhaustMap(({ id, status }) =>
           caresGateway.toggleStatus(id, status).pipe(
-            tap((updatedCare) =>
+            tap((updatedCare) => {
               patchState(store, {
                 cares: store.cares().map((care) => (care.id === id ? updatedCare : care)),
-              })
-            ),
+              });
+              // Toggling status changes hasActiveCare → refresh readiness so
+              // the guided tour auto-advances.
+              dashboardStore.loadReadiness();
+            }),
             catchError((err) => {
               patchState(store, setError(extractErrorMessage(err, 'Erreur lors du changement de statut')));
               return EMPTY;

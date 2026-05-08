@@ -14,10 +14,11 @@ import { ClosedDaysStore } from './closed-days.store';
 
 type AvailabilityState = {
   hours: OpeningHourResponse[];
+  saveSuccess: boolean;
 };
 
 export const AvailabilityStore = signalStore(
-  withState<AvailabilityState>({ hours: [] }),
+  withState<AvailabilityState>({ hours: [], saveSuccess: false }),
   withRequestStatus(),
   withMethods((store, service = inject(AvailabilityService), closedDaysStore = inject(ClosedDaysStore)) => ({
     loadHours: rxMethod<void>(
@@ -36,11 +37,11 @@ export const AvailabilityStore = signalStore(
     ),
     saveHours: rxMethod<OpeningHourRequest[]>(
       pipe(
-        tap(() => patchState(store, setPending())),
+        tap(() => patchState(store, { saveSuccess: false }, setPending())),
         exhaustMap((requests) =>
           service.saveHours(requests).pipe(
             tap((hours) => {
-              patchState(store, { hours }, setFulfilled());
+              patchState(store, { hours, saveSuccess: true }, setFulfilled());
               closedDaysStore.invalidate();
             }),
             catchError((err) => {
@@ -54,6 +55,9 @@ export const AvailabilityStore = signalStore(
         )
       )
     ),
+    clearSaveSuccess() {
+      patchState(store, { saveSuccess: false });
+    },
   })),
   withHooks((store) => ({
     onInit() {

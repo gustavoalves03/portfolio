@@ -33,17 +33,41 @@ describe('OnboardingChecklistService', () => {
       expect(service.buildSteps(null)).toEqual([]);
     });
 
-    it('returns three steps with correct keys and links', () => {
+    it('returns six steps in wizard order with correct links', () => {
       const steps = service.buildSteps(readiness());
-      expect(steps.map((s) => s.key)).toEqual(['name', 'cares', 'openingHours']);
-      expect(steps.map((s) => s.link)).toEqual(['/pro/salon', '/pro/cares', '/pro/planning']);
+      expect(steps.map((s) => s.key)).toEqual([
+        'name',
+        'contact',
+        'logo',
+        'categories',
+        'cares',
+        'openingHours',
+      ]);
+      expect(steps.map((s) => s.link)).toEqual([
+        '/pro/salon',
+        '/pro/salon',
+        '/pro/salon',
+        '/pro/cares',
+        '/pro/cares',
+        '/pro/planning',
+      ]);
     });
 
     it('marks each step done according to readiness flags', () => {
       const steps = service.buildSteps(
-        readiness({ name: true, hasActiveCare: false, hasOpeningHours: true })
+        readiness({
+          name: true,
+          hasContact: false,
+          hasLogo: true,
+          hasCategory: false,
+          hasActiveCare: false,
+          hasOpeningHours: true,
+        })
       );
       expect(steps.find((s) => s.key === 'name')?.done).toBe(true);
+      expect(steps.find((s) => s.key === 'contact')?.done).toBe(false);
+      expect(steps.find((s) => s.key === 'logo')?.done).toBe(true);
+      expect(steps.find((s) => s.key === 'categories')?.done).toBe(false);
       expect(steps.find((s) => s.key === 'cares')?.done).toBe(false);
       expect(steps.find((s) => s.key === 'openingHours')?.done).toBe(true);
     });
@@ -83,6 +107,24 @@ describe('OnboardingChecklistService', () => {
       const ohStep = steps.find((s) => s.key === 'openingHours');
       expect(ohStep?.queryParams).toBeNull();
     });
+
+    it('passes focus=contact queryParam when contact step is undone', () => {
+      const steps = service.buildSteps(readiness({ hasContact: false }));
+      const step = steps.find((s) => s.key === 'contact');
+      expect(step?.queryParams).toEqual({ focus: 'contact' });
+    });
+
+    it('passes focus=logo queryParam when logo step is undone', () => {
+      const steps = service.buildSteps(readiness({ hasLogo: false }));
+      const step = steps.find((s) => s.key === 'logo');
+      expect(step?.queryParams).toEqual({ focus: 'logo' });
+    });
+
+    it('passes focus=categories queryParam when categories step is undone', () => {
+      const steps = service.buildSteps(readiness({ hasCategory: false }));
+      const step = steps.find((s) => s.key === 'categories');
+      expect(step?.queryParams).toEqual({ focus: 'categories' });
+    });
   });
 
   describe('computeProgress', () => {
@@ -99,21 +141,29 @@ describe('OnboardingChecklistService', () => {
       const steps = service.buildSteps(
         readiness({ name: true, hasActiveCare: false, hasOpeningHours: false })
       );
+      // 1 of 6 done (name) → next undone is contact
       expect(service.computeProgress(steps)).toEqual({
         done: 1,
-        total: 3,
-        nextKey: 'cares',
-        percent: 33,
+        total: 6,
+        nextKey: 'contact',
+        percent: 17,
       });
     });
 
     it('returns null nextKey when all steps are done', () => {
       const steps = service.buildSteps(
-        readiness({ name: true, hasActiveCare: true, hasOpeningHours: true })
+        readiness({
+          name: true,
+          hasContact: true,
+          hasLogo: true,
+          hasCategory: true,
+          hasActiveCare: true,
+          hasOpeningHours: true,
+        })
       );
       expect(service.computeProgress(steps)).toEqual({
-        done: 3,
-        total: 3,
+        done: 6,
+        total: 6,
         nextKey: null,
         percent: 100,
       });
@@ -123,8 +173,8 @@ describe('OnboardingChecklistService', () => {
       const steps = service.buildSteps(
         readiness({ name: false, hasActiveCare: true, hasOpeningHours: false })
       );
-      // 1/3 = 33.33 → 33
-      expect(service.computeProgress(steps).percent).toBe(33);
+      // 1/6 = 16.67 → 17
+      expect(service.computeProgress(steps).percent).toBe(17);
     });
   });
 });

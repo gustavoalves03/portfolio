@@ -44,10 +44,10 @@
           <li class="stepper-item"
               [class.is-done]="step.done"
               [class.is-next]="!step.done && progress().nextKey === step.key">
-            <a
+            <button
+              type="button"
               class="stepper-link"
-              [routerLink]="step.link"
-              [queryParams]="step.queryParams"
+              (click)="onStepClick(step.key, $event)"
               [matTooltip]="('pro.dashboard.checklist.' + step.key + 'Desc') | transloco"
               matTooltipPosition="below"
               [attr.aria-current]="!step.done && progress().nextKey === step.key ? 'step' : null"
@@ -61,7 +61,7 @@
                 }
               </span>
               <span class="stepper-label">{{ 'pro.dashboard.checklist.' + step.key | transloco }}</span>
-            </a>
+            </button>
             @if (!$last) {
               <span class="stepper-connector" aria-hidden="true"></span>
             }

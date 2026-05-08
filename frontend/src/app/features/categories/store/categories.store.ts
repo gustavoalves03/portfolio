@@ -6,6 +6,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { catchError, EMPTY, exhaustMap, map, pipe, switchMap, tap } from 'rxjs';
 import { setError, setFulfilled, setPending, withRequestStatus } from '../../../shared/features/request.status.feature';
 import {CareStatus} from '../../cares/models/cares.model';
+import { DashboardStore } from '../../dashboard/store/dashboard.store';
 
 type CategoriesState = {
   categories: Category[];
@@ -17,7 +18,7 @@ export const CategoriesStore = signalStore(
   withComputed((store) => ({
     availableCategories: computed(() => store.categories),
   })),
-  withMethods((store, gateway = inject(CategoriesService)) => ({
+  withMethods((store, gateway = inject(CategoriesService), dashboardStore = inject(DashboardStore)) => ({
     getCategories: rxMethod<void>(
       pipe(
         tap(() => patchState(store, setPending())),
@@ -96,7 +97,12 @@ export const CategoriesStore = signalStore(
         tap(() => patchState(store, setPending())),
         exhaustMap((payload) =>
           gateway.createPro(payload).pipe(
-            tap((created) => patchState(store, { categories: [...store.categories(), created] }, setFulfilled())),
+            tap((created) => {
+              patchState(store, { categories: [...store.categories(), created] }, setFulfilled());
+              // Refresh tenant readiness so the guided tour auto-advances
+              // when this is the first category created.
+              dashboardStore.loadReadiness();
+            }),
             catchError((err) => {
               patchState(store, setError(err?.message ?? 'Erreur lors de la création'));
               return EMPTY;

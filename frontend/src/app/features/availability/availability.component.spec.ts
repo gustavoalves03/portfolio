@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
 import { AvailabilityComponent, nextValidClose } from './availability.component';
+import { DashboardStore } from '../dashboard/store/dashboard.store';
 
 const mockTranslations = {
   'pro.availability.title': 'My availability',
@@ -46,6 +47,12 @@ describe('AvailabilityComponent', () => {
           defaultLocale: 'en-US',
           langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' },
         }),
+        // Component depends on DashboardStore to refresh tenant readiness
+        // after a successful save (drives the guided tour's auto-advance).
+        {
+          provide: DashboardStore,
+          useValue: { readiness: signal(null), loadReadiness: () => {} },
+        },
       ],
     }).compileComponents();
 
