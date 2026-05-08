@@ -7,7 +7,12 @@ import { TourStep, WizardStepKey } from './tour-step.model';
 
 const TRANSITION_DELAY_MS = 1500;
 
-@Injectable({ providedIn: 'root' })
+/**
+ * Provided at `ProShellComponent` level (not root) because it depends on
+ * `DashboardStore`, which itself is scoped to the pro shell. The tour
+ * has no meaning outside the pro section anyway.
+ */
+@Injectable()
 export class TourService {
   private readonly router = inject(Router);
   private readonly store = inject(DashboardStore);

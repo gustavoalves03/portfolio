@@ -5,12 +5,14 @@ import { filter } from 'rxjs/operators';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { OnboardingIndicatorComponent } from '../../shared/features/onboarding-indicator/onboarding-indicator.component';
 import { TenantStatusService } from '../../core/tenant/tenant-status.service';
+import { TourOverlayComponent } from '../../shared/uis/tour-overlay/tour-overlay.component';
+import { TourService } from '../../features/onboarding/tour/tour.service';
 
 @Component({
   selector: 'app-pro-shell',
   standalone: true,
-  imports: [RouterOutlet, OnboardingIndicatorComponent],
-  providers: [DashboardStore],
+  imports: [RouterOutlet, OnboardingIndicatorComponent, TourOverlayComponent],
+  providers: [DashboardStore, TourService],
   templateUrl: './pro-shell.component.html',
   styleUrl: './pro-shell.component.scss',
 })
