@@ -686,6 +686,40 @@
       "deleteSuccess": "Post supprimé",
       "editPost": "Modifier le post",
       "saveBtn": "Enregistrer"
+    },
+    "tour": {
+      "steps": {
+        "name": {
+          "title": "Renseignez le nom de votre salon",
+          "desc": "Le nom affiché à vos clientes sur votre page publique, vos confirmations et vos factures."
+        },
+        "contact": {
+          "title": "Ajoutez vos coordonnées",
+          "desc": "Adresse complète + téléphone ou email. C'est ce qui permet aux clientes de vous trouver et de vous contacter."
+        },
+        "logo": {
+          "title": "Ajoutez votre logo",
+          "desc": "Une image carrée représentant votre salon. Visible sur votre vitrine et dans les confirmations."
+        },
+        "categories": {
+          "title": "Créez votre première catégorie",
+          "desc": "Regroupez vos soins par famille (visage, manucure, massage…) pour aider vos clientes à s'y retrouver."
+        },
+        "cares": {
+          "title": "Ajoutez votre premier soin",
+          "desc": "Au moins un soin actif est nécessaire pour publier votre salon. Vous pourrez en ajouter d'autres ensuite."
+        },
+        "openingHours": {
+          "title": "Définissez vos horaires",
+          "desc": "Les jours et heures où vous recevez. Vous pourrez gérer fermetures et exceptions plus tard."
+        }
+      },
+      "transition": {
+        "success": "Sauvegardé — étape suivante…"
+      },
+      "actions": {
+        "later": "Plus tard"
+      }
     }
   },
   "home": {
