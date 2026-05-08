@@ -715,7 +715,30 @@
           "all": "All employees"
         }
       },
-      "endOfList": "End of list"
+      "endOfList": "End of list",
+      "filtersTitle": "Filters",
+      "reset": "Reset",
+      "from": "From",
+      "to": "To",
+      "allEmployees": "All employees",
+      "bookings": "bookings",
+      "yesterday": "yesterday",
+      "nDays": "{{n}} days",
+      "kpi": {
+        "totalBookings": "Total bookings",
+        "totalRevenue": "Total revenue",
+        "attendanceRate": "Attendance rate",
+        "cancelled": "Cancellations",
+        "noShow": "No-shows"
+      },
+      "col": {
+        "dateTime": "Time",
+        "client": "Client",
+        "care": "Service",
+        "employee": "Practitioner",
+        "status": "Status",
+        "price": "Price"
+      }
     },
     "camera": {
       "title": "Take a photo",

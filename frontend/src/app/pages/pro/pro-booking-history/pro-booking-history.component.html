@@ -1,0 +1,226 @@
+<div class="history-page">
+
+  <!-- ============ Page header ============ -->
+  <div class="page-header">
+    <div class="page-header-titles">
+      <span class="page-eyebrow">{{ periodLabelText() }}</span>
+      <h1 class="page-title">{{ 'pro.history.title' | transloco }}</h1>
+    </div>
+  </div>
+
+  <!-- ============ KPI strip ============ -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.history.kpi.totalBookings' | transloco }}</div>
+      <div class="kpi-value">{{ totalBookings() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.history.kpi.totalRevenue' | transloco }}</div>
+      <div class="kpi-value">{{ totalRevenue() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.history.kpi.attendanceRate' | transloco }}</div>
+      <div class="kpi-value">{{ attendanceRate() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.history.kpi.cancelled' | transloco }}</div>
+      <div class="kpi-value">{{ cancelledCount() }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">{{ 'pro.history.kpi.noShow' | transloco }}</div>
+      <div class="kpi-value">{{ noShowCount() }}</div>
+    </div>
+  </section>
+
+  <div class="layout">
+
+    <!-- ============ Sidebar : filtres ============ -->
+    <aside class="filters">
+      <div class="filters-head">
+        <h3 class="filters-title">{{ 'pro.history.filtersTitle' | transloco }}</h3>
+        <button type="button" class="filters-reset" (click)="resetFilters()">
+          {{ 'pro.history.reset' | transloco }}
+        </button>
+      </div>
+
+      <!-- Period -->
+      <div class="filter-group">
+        <p class="filter-group-label">{{ 'pro.history.filter.period' | transloco }}</p>
+        <div class="period-pills">
+          <button type="button" class="period-pill"
+                  [class.is-active]="activePeriodPreset() === '7d'"
+                  (click)="setPeriodPreset('7d')">7 j</button>
+          <button type="button" class="period-pill"
+                  [class.is-active]="activePeriodPreset() === '30d'"
+                  (click)="setPeriodPreset('30d')">30 j</button>
+          <button type="button" class="period-pill"
+                  [class.is-active]="activePeriodPreset() === '90d'"
+                  (click)="setPeriodPreset('90d')">90 j</button>
+          <button type="button" class="period-pill"
+                  [class.is-active]="activePeriodPreset() === '12m'"
+                  (click)="setPeriodPreset('12m')">12 m</button>
+        </div>
+        <div class="date-range">
+          <label class="date-input">
+            <small>{{ 'pro.history.from' | transloco }}</small>
+            <input type="date"
+                   [value]="store.filters().from"
+                   (change)="setFromDate($any($event.target).value)"/>
+          </label>
+          <label class="date-input">
+            <small>{{ 'pro.history.to' | transloco }}</small>
+            <input type="date"
+                   [value]="store.filters().to"
+                   (change)="setToDate($any($event.target).value)"/>
+          </label>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="filter-group">
+        <p class="filter-group-label">{{ 'pro.history.filter.status' | transloco }}</p>
+        <div class="checks">
+          @for (status of statuses; track status) {
+            <label class="check-row">
+              <input type="checkbox"
+                     [checked]="isStatusSelected(status)"
+                     (change)="toggleStatus(status)"/>
+              <span class="check-name">
+                <span class="check-dot" [class]="statusBadgeClass(status)"></span>
+                {{ statusLabel(status) }}
+              </span>
+              <span class="check-count">{{ statusCounts()[status] }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Employee -->
+      @if (employeesStore.employees().length > 0) {
+        <div class="filter-group">
+          <p class="filter-group-label">{{ 'pro.history.filter.employee' | transloco }}</p>
+          <select class="select"
+                  [value]="store.filters().employeeId ?? ''"
+                  (change)="setEmployee($any($event.target).value)">
+            <option value="">{{ 'pro.history.allEmployees' | transloco }}</option>
+            @for (emp of employeesStore.employees(); track emp.id) {
+              <option [value]="emp.id">{{ emp.name }}</option>
+            }
+          </select>
+        </div>
+      }
+    </aside>
+
+    <!-- ============ Main : toolbar + table ============ -->
+    <div class="main">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search">
+          <mat-icon class="ico">search</mat-icon>
+          <input
+            type="text"
+            [placeholder]="'pro.history.search' | transloco"
+            [ngModel]="store.filters().clientQuery"
+            (ngModelChange)="store.searchClient($event)"
+          />
+        </div>
+        <div class="toolbar-info">
+          <strong>{{ totalBookings() }}</strong> {{ 'pro.history.bookings' | transloco }}
+        </div>
+      </div>
+
+      <!-- Loading initial -->
+      @if (store.isPending() && store.items().length === 0) {
+        <div class="loading-block">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+      } @else if (store.emptyState()) {
+        <!-- Empty state -->
+        <div class="empty-state">
+          <mat-icon>history</mat-icon>
+          <p class="empty-title">{{ 'pro.history.empty' | transloco }}</p>
+        </div>
+      } @else {
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ 'pro.history.col.dateTime' | transloco }}</th>
+                <th>{{ 'pro.history.col.client' | transloco }}</th>
+                <th>{{ 'pro.history.col.care' | transloco }}</th>
+                <th>{{ 'pro.history.col.employee' | transloco }}</th>
+                <th>{{ 'pro.history.col.status' | transloco }}</th>
+                <th class="right">{{ 'pro.history.col.price' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (group of store.groupedByDay(); track group.date) {
+                @let info = dayLabel(group.date);
+                @let sum = daySum(group.items);
+                <tr class="day-row">
+                  <td colspan="6">
+                    <span [class.is-today]="info.isToday">{{ info.label }}</span>
+                    <span class="day-meta">
+                      {{ sum.count }} {{ 'pro.history.bookings' | transloco }} · {{ sum.revenue }}
+                    </span>
+                  </td>
+                </tr>
+                @for (b of group.items; track b.id) {
+                  <tr [class.is-cancelled]="b.status === 'CANCELLED'" (click)="openClient(b)">
+                    <td>
+                      <div class="time-cell">
+                        {{ formatTime(b.appointmentTime) }}
+                        <small>{{ formatDuration(b.care.duration) }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="person">
+                        <div class="avatar" [style.--seed]="b.user.id">{{ initials(b.salonClientName || b.user.name) }}</div>
+                        <div class="person-info">
+                          <div class="person-name">{{ b.salonClientName || b.user.name }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="care">
+                        {{ b.care.name }}
+                        <small>{{ formatTime(b.appointmentTime) }} → {{ formatEndTime(b.appointmentTime, b.care.duration) }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      @if (b.employeeName) {
+                        <span class="emp-chip">{{ b.employeeName }}</span>
+                      } @else {
+                        <span class="emp-chip muted">—</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="badge" [class]="statusBadgeClass(b.status)">
+                        {{ statusLabel(b.status) }}
+                      </span>
+                    </td>
+                    <td class="right">
+                      <span class="price">{{ formatPrice(b.care.price * b.quantity) }}</span>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sentinel for lazy load -->
+        <div #sentinel class="sentinel">
+          @if (store.isPending()) {
+            <mat-spinner diameter="20"/>
+          } @else if (!store.hasMore()) {
+            <span class="end">{{ 'pro.history.endOfList' | transloco }}</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

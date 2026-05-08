@@ -719,7 +719,30 @@
           "all": "Tous les employés"
         }
       },
-      "endOfList": "Plus rien à charger"
+      "endOfList": "Plus rien à charger",
+      "filtersTitle": "Filtres",
+      "reset": "Réinitialiser",
+      "from": "Du",
+      "to": "Au",
+      "allEmployees": "Tous les employés",
+      "bookings": "RDV",
+      "yesterday": "hier",
+      "nDays": "{{n}} jours",
+      "kpi": {
+        "totalBookings": "Total RDV",
+        "totalRevenue": "CA encaissé",
+        "attendanceRate": "Taux de présence",
+        "cancelled": "Annulations",
+        "noShow": "No-show"
+      },
+      "col": {
+        "dateTime": "Heure",
+        "client": "Cliente",
+        "care": "Soin",
+        "employee": "Employée",
+        "status": "Statut",
+        "price": "Prix"
+      }
     },
     "camera": {
       "title": "Prendre une photo",
