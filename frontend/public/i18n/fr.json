@@ -1053,6 +1053,22 @@
       "revoke": "Révoquer",
       "revoked": "Lien révoqué",
       "revokeConfirm": "Révoquer ce lien ? Le destinataire n'y aura plus accès."
+    },
+    "pc": {
+      "beauty": "Esthétique",
+      "caresEyebrow": "La carte des soins",
+      "caresTitle": "Choisis ton instant",
+      "serviceSingular": "soin",
+      "servicesPlural": "soins",
+      "photoSoon": "Photo bientôt",
+      "postsEyebrow": "Inspirations",
+      "postsTitle": "Le carnet du salon",
+      "contactEyebrow": "Nous trouver",
+      "contactTitle": "Adresse & contact",
+      "addressLabel": "Adresse",
+      "phoneLabel": "Téléphone",
+      "emailLabel": "Email",
+      "poweredBy": "Propulsé par"
     }
   },
   "posts": {

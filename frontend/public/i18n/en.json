@@ -1049,6 +1049,22 @@
       "revoke": "Revoke",
       "revoked": "Link revoked",
       "revokeConfirm": "Revoke this link? The recipient won't be able to access it anymore."
+    },
+    "pc": {
+      "beauty": "Beauty",
+      "caresEyebrow": "The service menu",
+      "caresTitle": "Choose your moment",
+      "serviceSingular": "service",
+      "servicesPlural": "services",
+      "photoSoon": "Photo soon",
+      "postsEyebrow": "Inspirations",
+      "postsTitle": "The salon's notebook",
+      "contactEyebrow": "Find us",
+      "contactTitle": "Address & contact",
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "emailLabel": "Email",
+      "poweredBy": "Powered by"
     }
   },
   "posts": {

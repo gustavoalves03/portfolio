@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -13,6 +13,7 @@ import { BookingDialogComponent, BookingDialogData } from './booking-dialog/book
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
 import { PreviewBannerComponent } from '../../shared/uis/preview-banner/preview-banner.component';
+import { SalonPagePcComponent } from './pc-view/salon-page-pc.component';
 
 @Component({
   selector: 'app-salon-page',
@@ -25,6 +26,7 @@ import { PreviewBannerComponent } from '../../shared/uis/preview-banner/preview-
     TranslocoPipe,
     SalonPostsViewerComponent,
     PreviewBannerComponent,
+    SalonPagePcComponent,
   ],
   templateUrl: './salon-page.component.html',
   styleUrl: './salon-page.component.scss',
@@ -34,11 +36,18 @@ export class SalonPageComponent implements OnDestroy {
   private readonly salonService = inject(SalonProfileService);
   private readonly dialog = inject(MatDialog);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected salon = signal<PublicSalonResponse | null>(null);
   protected loading = signal(true);
   protected notFound = signal(false);
   protected readonly activeTab = signal<'cares' | 'posts' | 'contact'>('cares');
+
+  /**
+   * True when viewport ≥ 1024px and we're in a browser. SSR returns false so
+   * the mobile layout is rendered server-side (the historical behaviour).
+   */
+  protected readonly isPc = signal(false);
 
   protected readonly isPreviewMode = computed(() => {
     const s = this.salon();
@@ -60,6 +69,15 @@ export class SalonPageComponent implements OnDestroy {
   private contactMapInitialized = false;
 
   constructor() {
+    // Track viewport ≥ 1024px (PC). SSR-safe: stays false until hydration.
+    if (isPlatformBrowser(this.platformId)) {
+      const mql = window.matchMedia('(min-width: 1024px)');
+      this.isPc.set(mql.matches);
+      const handler = (e: MediaQueryListEvent) => this.isPc.set(e.matches);
+      mql.addEventListener('change', handler);
+      this.destroyRef.onDestroy(() => mql.removeEventListener('change', handler));
+    }
+
     // Load salon
     const slug = this.route.snapshot.paramMap.get('slug');
     const previewToken = this.route.snapshot.queryParamMap.get('preview');

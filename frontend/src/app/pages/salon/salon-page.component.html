@@ -10,7 +10,7 @@
   </div>
 } @else if (salon()) {
   @if (salon(); as salon) {
-    <div class="salon-page">
+    <div class="salon-page" [class.is-pc]="isPc()">
       @if (isPreviewMode()) {
         <app-preview-banner
           [slug]="salon.slug"
@@ -18,6 +18,17 @@
           (published)="onPublishedFromBanner()"
         />
       }
+
+      @if (isPc()) {
+        <!-- ===== PC view (≥ 1024px) ===== -->
+        <app-salon-page-pc
+          [salon]="salon"
+          [slug]="slug"
+          [isPreviewMode]="isPreviewMode()"
+          (book)="onBook($event)"
+          (bookFromPost)="onBookFromPost($event)"
+        />
+      } @else {
 
       <!-- Hero Banner -->
       <section class="salon-hero" [class.has-image]="!!salon.heroImageUrl">
@@ -156,6 +167,7 @@
             }
           </div>
         </div>
+      }
       }
     </div>
   }
