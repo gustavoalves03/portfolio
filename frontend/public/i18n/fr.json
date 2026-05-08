@@ -621,7 +621,16 @@
           "title": "Historique des bookings",
           "desc": "Consulter les rendez-vous passés"
         }
-      }
+      },
+      "subtitle": "Configuration du compte pro",
+      "sectionsLabel": "Sections",
+      "featuresDesc": "Active les modules qui correspondent à ton usage.",
+      "leaveSectionDesc": "Quota de jours de congés annuels par employé. Sert au calcul du solde dans la page Équipe.",
+      "bookingSectionDesc": "Règles qui s'appliquent aux clientes lorsqu'elles tentent de réserver.",
+      "holidaysSectionDesc": "Décide ce qui se passe par défaut sur les jours fériés français.",
+      "today": "aujourd'hui",
+      "inOneDay": "dans 1 jour",
+      "inDays": "dans {{n}} jours"
     },
     "availability": {
       "title": "Mes disponibilités",

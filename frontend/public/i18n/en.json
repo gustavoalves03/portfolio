@@ -617,7 +617,16 @@
           "title": "Booking history",
           "desc": "Browse past appointments"
         }
-      }
+      },
+      "subtitle": "Pro account configuration",
+      "sectionsLabel": "Sections",
+      "featuresDesc": "Enable the modules that match your usage.",
+      "leaveSectionDesc": "Annual leave quota per employee. Used to compute balance in the Team page.",
+      "bookingSectionDesc": "Rules that apply when clients try to book.",
+      "holidaysSectionDesc": "Decide what happens by default on French public holidays.",
+      "today": "today",
+      "inOneDay": "in 1 day",
+      "inDays": "in {{n}} days"
     },
     "availability": {
       "title": "My availability",

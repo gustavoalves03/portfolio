@@ -1,0 +1,227 @@
+<div class="settings-page">
+
+  <!-- ============ Page header ============ -->
+  <div class="page-header">
+    <div class="page-header-titles">
+      <span class="page-eyebrow">{{ 'pro.settings.subtitle' | transloco }}</span>
+      <h1 class="page-title">{{ 'pro.settings.title' | transloco }}</h1>
+    </div>
+  </div>
+
+  <!-- ============ Layout : sidebar nav + content ============ -->
+  <div class="layout">
+
+    <!-- Sticky anchor nav -->
+    <aside class="anchor-nav">
+      <div class="anchor-nav-head">{{ 'pro.settings.sectionsLabel' | transloco }}</div>
+      <a
+        href="#features"
+        class="anchor-link"
+        [class.is-active]="activeSection() === 'features'"
+        (click)="activeSection.set('features')"
+      >
+        <mat-icon>tune</mat-icon>
+        {{ 'pro.settings.features' | transloco }}
+      </a>
+      @if (featuresService.employeesEnabled()) {
+        <a
+          href="#leave"
+          class="anchor-link"
+          [class.is-active]="activeSection() === 'leave'"
+          (click)="activeSection.set('leave')"
+        >
+          <mat-icon>beach_access</mat-icon>
+          {{ 'pro.settings.leaveSection' | transloco }}
+        </a>
+      }
+      <a
+        href="#booking"
+        class="anchor-link"
+        [class.is-active]="activeSection() === 'booking'"
+        (click)="activeSection.set('booking')"
+      >
+        <mat-icon>event</mat-icon>
+        {{ 'pro.settings.bookingSection' | transloco }}
+      </a>
+      <a
+        href="#holidays"
+        class="anchor-link"
+        [class.is-active]="activeSection() === 'holidays'"
+        (click)="activeSection.set('holidays')"
+      >
+        <mat-icon>celebration</mat-icon>
+        {{ 'pro.settings.holidaysSection' | transloco }}
+      </a>
+    </aside>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ============ Fonctionnalités ============ -->
+      <section class="section" id="features">
+        <div class="section-head">
+          <div class="section-titles">
+            <h3 class="section-title">{{ 'pro.settings.features' | transloco }}</h3>
+            <p class="section-desc">{{ 'pro.settings.featuresDesc' | transloco }}</p>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'pro.settings.employeesLabel' | transloco }}</span>
+            <span class="setting-desc">{{ 'pro.settings.employeesDesc' | transloco }}</span>
+          </div>
+          <div class="setting-control">
+            <mat-slide-toggle
+              [checked]="featuresService.employeesEnabled()"
+              (change)="featuresService.toggleEmployees($event.checked)"
+            ></mat-slide-toggle>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Congés (only when employees enabled) ============ -->
+      @if (featuresService.employeesEnabled()) {
+        <section class="section" id="leave">
+          <div class="section-head">
+            <div class="section-titles">
+              <h3 class="section-title">{{ 'pro.settings.leaveSection' | transloco }}</h3>
+              <p class="section-desc">{{ 'pro.settings.leaveSectionDesc' | transloco }}</p>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">{{ 'pro.settings.annualLeaveDaysLabel' | transloco }}</span>
+              <span class="setting-desc">{{ 'pro.settings.annualLeaveDaysDesc' | transloco }}</span>
+            </div>
+            <div class="setting-control">
+              <div class="num-input">
+                <input
+                  type="number"
+                  [value]="featuresService.annualLeaveDays()"
+                  min="0"
+                  max="365"
+                  (change)="onLeaveDaysChange($any($event.target).value)"
+                />
+                <span class="unit">{{ 'pro.settings.daysUnit' | transloco }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ============ Réservations ============ -->
+      <section class="section" id="booking">
+        <div class="section-head">
+          <div class="section-titles">
+            <h3 class="section-title">{{ 'pro.settings.bookingSection' | transloco }}</h3>
+            <p class="section-desc">{{ 'pro.settings.bookingSectionDesc' | transloco }}</p>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'pro.settings.minAdvanceLabel' | transloco }}</span>
+            <span class="setting-desc">{{ 'pro.settings.minAdvanceDesc' | transloco }}</span>
+          </div>
+          <div class="setting-control">
+            <div class="num-input">
+              <input
+                type="number"
+                [value]="featuresService.minAdvanceMinutes()"
+                min="0"
+                (change)="onMinAdvanceChange($any($event.target).value)"
+              />
+              <span class="unit">{{ 'pro.settings.minutesUnit' | transloco }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'pro.settings.maxAdvanceLabel' | transloco }}</span>
+            <span class="setting-desc">{{ 'pro.settings.maxAdvanceDesc' | transloco }}</span>
+          </div>
+          <div class="setting-control">
+            <div class="num-input">
+              <input
+                type="number"
+                [value]="featuresService.maxAdvanceDays()"
+                min="0"
+                (change)="onMaxAdvanceChange($any($event.target).value)"
+              />
+              <span class="unit">{{ 'pro.settings.daysAdvanceUnit' | transloco }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'pro.settings.maxClientHoursLabel' | transloco }}</span>
+            <span class="setting-desc">{{ 'pro.settings.maxClientHoursDesc' | transloco }}</span>
+          </div>
+          <div class="setting-control">
+            <div class="num-input">
+              <input
+                type="number"
+                [value]="featuresService.maxClientHoursPerDay()"
+                min="0"
+                (change)="onMaxClientHoursChange($any($event.target).value)"
+              />
+              <span class="unit">{{ 'pro.settings.hoursUnit' | transloco }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Jours fériés ============ -->
+      <section class="section" id="holidays">
+        <div class="section-head">
+          <div class="section-titles">
+            <h3 class="section-title">{{ 'pro.settings.holidaysSection' | transloco }}</h3>
+            <p class="section-desc">{{ 'pro.settings.holidaysSectionDesc' | transloco }}</p>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">{{ 'pro.settings.closedOnHolidaysLabel' | transloco }}</span>
+            <span class="setting-desc">{{ 'pro.settings.closedOnHolidaysDesc' | transloco }}</span>
+          </div>
+          <div class="setting-control">
+            <mat-slide-toggle
+              [checked]="featuresService.closedOnHolidays()"
+              (change)="featuresService.toggleClosedOnHolidays($event.checked)"
+            ></mat-slide-toggle>
+          </div>
+        </div>
+
+        @if (featuresService.closedOnHolidays() && upcomingHolidays().length > 0) {
+          <div class="holidays-list">
+            @for (holiday of upcomingHolidays(); track holiday.date) {
+              <div class="holiday-row">
+                <div class="holiday-date">
+                  <span class="holiday-day">{{ holiday.date | date:'d' }}</span>
+                  <span class="holiday-month">{{ holiday.date | date:'MMM' }}</span>
+                </div>
+                <div class="holiday-info">
+                  <div class="holiday-name">{{ holiday.name }}</div>
+                  <div class="holiday-meta">
+                    {{ weekdayName(holiday.date) }} · {{ daysUntil(holiday.date) }}
+                  </div>
+                </div>
+                <button
+                  class="toggle-pill"
+                  [class.is-open]="isHolidayOpen(holiday.date)"
+                  (click)="toggleHolidayException(holiday.date)"
+                >
+                  @if (isHolidayOpen(holiday.date)) {
+                    {{ 'pro.settings.holidayOpen' | transloco }}
+                  } @else {
+                    {{ 'pro.settings.holidayClosed' | transloco }}
+                  }
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+    </div>
+  </div>
+</div>
