@@ -627,6 +627,12 @@
         "5": "Vendredi",
         "6": "Samedi",
         "7": "Dimanche"
+      },
+      "subtitle": "Disponibilités hebdomadaires",
+      "kpi": {
+        "openDays": "Jours ouverts",
+        "weeklyHours": "Heures hebdo",
+        "totalSlots": "Créneaux totaux"
       }
     },
     "manage": {

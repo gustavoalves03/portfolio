@@ -623,6 +623,12 @@
         "5": "Friday",
         "6": "Saturday",
         "7": "Sunday"
+      },
+      "subtitle": "Weekly availability",
+      "kpi": {
+        "openDays": "Open days",
+        "weeklyHours": "Weekly hours",
+        "totalSlots": "Total slots"
       }
     },
     "manage": {
