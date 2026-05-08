@@ -22,8 +22,7 @@
     "apply": "Apply",
     "form": {
       "fillRequiredFields": "Fill in all required fields to continue"
-    },
-    "close": "Close"
+    }
   },
   "auth": {
     "field": {
@@ -192,17 +191,7 @@
         "openingHours": "Set your opening hours",
         "openingHoursDesc": "Tell clients which days and times you welcome them.",
         "next": "Next step",
-        "done": "Done",
-        "hasCategory": "Pick your categories",
-        "hasCategoryDesc": "At least one service family (facial, nails…) so clients can find you.",
-        "hasActiveCare": "Add your first service",
-        "hasActiveCareDesc": "At least one active service is required before publishing.",
-        "hasContact": "Fill in your contact details",
-        "hasContactDesc": "Full address and at least a phone or email so clients can reach you.",
-        "hasLogo": "Add your logo",
-        "hasLogoDesc": "A square image shown on your public page.",
-        "hasOpeningHours": "Set your opening hours",
-        "hasOpeningHoursDesc": "Your days and times so clients can book."
+        "done": "Done"
       },
       "quickstart": {
         "title": "Start in 30 seconds",
@@ -221,32 +210,17 @@
                 "name": "Facial treatments",
                 "desc": "Hydration, cleansing, anti-aging.",
                 "cares": {
-                  "hydra": {
-                    "name": "Hydrating facial",
-                    "desc": "For plump, glowing skin."
-                  },
-                  "deep": {
-                    "name": "Deep cleansing facial",
-                    "desc": "Extraction and purification."
-                  },
-                  "express": {
-                    "name": "Express facial",
-                    "desc": "Quick glow in 30 minutes."
-                  }
+                  "hydra": { "name": "Hydrating facial", "desc": "For plump, glowing skin." },
+                  "deep": { "name": "Deep cleansing facial", "desc": "Extraction and purification." },
+                  "express": { "name": "Express facial", "desc": "Quick glow in 30 minutes." }
                 }
               },
               "brows": {
                 "name": "Brows & lashes",
                 "desc": "Shaping and tinting.",
                 "cares": {
-                  "shape": {
-                    "name": "Brow shaping",
-                    "desc": "Tailored to your face."
-                  },
-                  "tint": {
-                    "name": "Brow tint",
-                    "desc": "Long-lasting natural color."
-                  }
+                  "shape": { "name": "Brow shaping", "desc": "Tailored to your face." },
+                  "tint": { "name": "Brow tint", "desc": "Long-lasting natural color." }
                 }
               }
             }
@@ -259,24 +233,15 @@
                 "name": "Massages",
                 "desc": "Relaxation and well-being.",
                 "cares": {
-                  "relax": {
-                    "name": "Relaxing massage",
-                    "desc": "Soft pressure, warm oil."
-                  },
-                  "deep": {
-                    "name": "Deep tissue massage",
-                    "desc": "Releases muscle tension."
-                  }
+                  "relax": { "name": "Relaxing massage", "desc": "Soft pressure, warm oil." },
+                  "deep": { "name": "Deep tissue massage", "desc": "Releases muscle tension." }
                 }
               },
               "scrub": {
                 "name": "Scrubs",
                 "desc": "Gentle exfoliation.",
                 "cares": {
-                  "full": {
-                    "name": "Full body scrub",
-                    "desc": "Smooth, glowing skin."
-                  }
+                  "full": { "name": "Full body scrub", "desc": "Smooth, glowing skin." }
                 }
               }
             }
@@ -289,24 +254,15 @@
                 "name": "Manicure",
                 "desc": "Hand care and polish.",
                 "cares": {
-                  "classic": {
-                    "name": "Classic manicure",
-                    "desc": "Filing, cuticle care, polish."
-                  },
-                  "gel": {
-                    "name": "Gel manicure",
-                    "desc": "Long-lasting gel polish."
-                  }
+                  "classic": { "name": "Classic manicure", "desc": "Filing, cuticle care, polish." },
+                  "gel": { "name": "Gel manicure", "desc": "Long-lasting gel polish." }
                 }
               },
               "pedicure": {
                 "name": "Pedicure",
                 "desc": "Foot care.",
                 "cares": {
-                  "classic": {
-                    "name": "Classic pedicure",
-                    "desc": "Full care and polish."
-                  }
+                  "classic": { "name": "Classic pedicure", "desc": "Full care and polish." }
                 }
               }
             }
@@ -319,28 +275,16 @@
                 "name": "Cuts",
                 "desc": "Women and men.",
                 "cares": {
-                  "women": {
-                    "name": "Women's cut",
-                    "desc": "Cut + blow-dry."
-                  },
-                  "men": {
-                    "name": "Men's cut",
-                    "desc": "Cut + finish."
-                  }
+                  "women": { "name": "Women's cut", "desc": "Cut + blow-dry." },
+                  "men": { "name": "Men's cut", "desc": "Cut + finish." }
                 }
               },
               "color": {
                 "name": "Color",
                 "desc": "Coloring and highlights.",
                 "cares": {
-                  "full": {
-                    "name": "Full color",
-                    "desc": "Roots + lengths application."
-                  },
-                  "highlights": {
-                    "name": "Highlights",
-                    "desc": "Custom luminous effect."
-                  }
+                  "full": { "name": "Full color", "desc": "Roots + lengths application." },
+                  "highlights": { "name": "Highlights", "desc": "Custom luminous effect." }
                 }
               }
             }
@@ -419,11 +363,6 @@
         "allEmployees": "All employees",
         "allCares": "All services",
         "vsLastPeriod": "vs previous period"
-      },
-      "publishMissingDialog": {
-        "title": "Before publishing...",
-        "body": "To put your salon online, a few details are still missing:",
-        "goTo": "Go there"
       }
     },
     "onboarding": {
@@ -432,112 +371,13 @@
         "next": "Next: {{step}}",
         "ready": "Storefront ready — publish it",
         "preview": "Preview",
-        "ariaProgress": "Setup progress: step {{done}} of {{total}}",
-        "resumeWizard": "Resume tutorial"
+        "ariaProgress": "Setup progress: step {{done}} of {{total}}"
       },
       "sheet": {
         "title": "Your setup",
         "preview": "Preview the storefront",
         "backToDashboard": "Back to dashboard",
         "publish": "Publish my storefront"
-      },
-      "wizard": {
-        "next": "Next",
-        "errors": {
-          "save": "An error occurred. Please try again."
-        },
-        "logo": {
-          "title": "Add your logo",
-          "sub": "Upload a logo to personalize your storefront. Accepted formats: PNG, JPEG (max 5 MB).",
-          "dropHere": "Click to select an image",
-          "errors": {
-            "invalidFile": "Please choose a valid image (PNG or JPEG, max 5 MB).",
-            "save": "An error occurred while saving. Please try again."
-          }
-        },
-        "exit": {
-          "label": "Exit tutorial",
-          "confirmTitle": "Exit the tutorial?",
-          "confirmBody": "Your data is saved. You can resume from the dashboard.",
-          "confirmYes": "Exit",
-          "confirmNo": "Keep going"
-        },
-        "welcome": {
-          "title": "Welcome to Pretty Face Pro.",
-          "sub": "Let's get your salon online in a few minutes.",
-          "b1": "Your salon name",
-          "b2": "Your contact details",
-          "b3": "Your logo",
-          "b4": "Your service categories",
-          "b5": "Your first service",
-          "b6": "Your opening hours",
-          "cta": "Let's go",
-          "exit": "I'd rather explore the dashboard"
-        },
-        "name": {
-          "title": "What's your salon called?",
-          "sub": "This name appears on your public page, confirmations and invoices.",
-          "placeholder": "e.g. Belle de Nuit"
-        },
-        "contact": {
-          "title": "Where can clients find you?",
-          "sub": "Full address, plus at least one way to reach you.",
-          "streetPlaceholder": "Street and number",
-          "postalCodePlaceholder": "Postal code",
-          "cityPlaceholder": "City",
-          "atLeastOne": "And at least one of:",
-          "phonePlaceholder": "Phone",
-          "emailPlaceholder": "Email"
-        },
-        "categories": {
-          "title": "What do you offer?",
-          "sub": "Pick everything you do — at least one category.",
-          "items": {
-            "facial": "Facial",
-            "hair": "Hair",
-            "nails": "Nails",
-            "massage": "Massage",
-            "lashes": "Lashes & brows",
-            "makeup": "Makeup",
-            "waxing": "Waxing",
-            "wellness": "Wellness",
-            "barber": "Barber",
-            "rituals": "Long rituals"
-          }
-        },
-        "cares": {
-          "title": "Add your first service.",
-          "sub": "Pick a pre-filled template to get started quickly.",
-          "manual": "I'd rather add services manually",
-          "errors": {
-            "apply": "Couldn't apply the template. Please retry."
-          }
-        },
-        "openingHours": {
-          "title": "When are you open?",
-          "sub": "Your usual hours. You can manage exceptions later.",
-          "closed": "Closed",
-          "presetWeekdays": "Mon–Fri 9am–7pm",
-          "presetMonSat": "Mon–Sat 10am–8pm",
-          "day": {
-            "1": "Monday",
-            "2": "Tuesday",
-            "3": "Wednesday",
-            "4": "Thursday",
-            "5": "Friday",
-            "6": "Saturday",
-            "7": "Sunday"
-          }
-        },
-        "publish": {
-          "title": "All set.",
-          "sub": "Here's a recap. Click Publish to put your salon online.",
-          "preview": "Preview my public page",
-          "cta": "Publish my salon",
-          "errors": {
-            "publish": "Couldn't publish your salon. Check your connection and try again."
-          }
-        }
       }
     },
     "salon": {

@@ -5,10 +5,8 @@ import com.prettyface.app.common.error.ResourceNotFoundException;
 import com.prettyface.app.common.storage.FileStorageService;
 import com.prettyface.app.multitenancy.TenantContext;
 import com.prettyface.app.tenant.domain.Tenant;
-import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
-import com.prettyface.app.tenant.web.dto.PatchTenantRequest;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -168,74 +166,5 @@ class TenantServiceTests {
 
         verify(tenantRepository, never()).findByOwnerId(any());
         verify(tenantRepository, never()).save(any());
-    }
-
-    // ══════════════════════════════════════════════════════════════
-    // ── patchProfile tests ──
-    // ══════════════════════════════════════════════════════════════
-
-    @Test
-    void patchProfile_onlyUpdatesFieldsPresentInRequest() {
-        Tenant existing = Tenant.builder()
-                .id(1L).slug("test-tenant").ownerId(7L).status(TenantStatus.DRAFT)
-                .name(null).addressCity("Paris").build();
-        when(tenantRepository.findByOwnerId(7L)).thenReturn(Optional.of(existing));
-        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        PatchTenantRequest req = new PatchTenantRequest(
-                "Belle de Nuit", null, null, null,
-                null, null, null, null, null, null, null);
-
-        tenantService.patchProfile(7L, req);
-
-        assertThat(existing.getName()).isEqualTo("Belle de Nuit");
-        assertThat(existing.getAddressCity()).isEqualTo("Paris"); // untouched
-    }
-
-    @Test
-    void patchProfile_updatesCategorySlugsWhenProvided() {
-        Tenant existing = Tenant.builder()
-                .id(1L).slug("test-tenant").ownerId(7L).status(TenantStatus.DRAFT).build();
-        when(tenantRepository.findByOwnerId(7L)).thenReturn(Optional.of(existing));
-        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        PatchTenantRequest req = new PatchTenantRequest(
-                null, null, null, null, null, null, null, null, null, null, "facial,hair");
-
-        tenantService.patchProfile(7L, req);
-        assertThat(existing.getCategorySlugs()).isEqualTo("facial,hair");
-    }
-
-    @Test
-    void patchProfile_persistsLogoViaFileStorageService() {
-        Tenant existing = Tenant.builder()
-                .id(1L).slug("test-tenant").ownerId(7L).status(TenantStatus.DRAFT).build();
-        when(tenantRepository.findByOwnerId(7L)).thenReturn(Optional.of(existing));
-        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(fileStorageService.saveBase64Image("data:image/png;base64,xxx", "tenant", 1L))
-                .thenReturn("uploads/tenant/1/logo.png");
-
-        PatchTenantRequest req = new PatchTenantRequest(
-                null, null, "data:image/png;base64,xxx", null,
-                null, null, null, null, null, null, null);
-
-        tenantService.patchProfile(7L, req);
-        assertThat(existing.getLogoPath()).isEqualTo("uploads/tenant/1/logo.png");
-    }
-
-    @Test
-    void patchProfile_emptyLogoStringRemovesLogo() {
-        Tenant existing = Tenant.builder()
-                .id(1L).slug("test-tenant").ownerId(7L).status(TenantStatus.DRAFT)
-                .logoPath("uploads/tenant/1/old.png").build();
-        when(tenantRepository.findByOwnerId(7L)).thenReturn(Optional.of(existing));
-        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        PatchTenantRequest req = new PatchTenantRequest(
-                null, null, "", null, null, null, null, null, null, null, null);
-
-        tenantService.patchProfile(7L, req);
-        assertThat(existing.getLogoPath()).isNull();
-        verify(fileStorageService).deleteFile("uploads/tenant/1/old.png");
     }
 }

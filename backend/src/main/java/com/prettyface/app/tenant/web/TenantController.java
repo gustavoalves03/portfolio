@@ -12,7 +12,6 @@ import com.prettyface.app.tenant.repo.TenantRepository;
 import com.prettyface.app.tenant.web.dto.PublishErrorResponse;
 import com.prettyface.app.tenant.web.dto.TenantReadinessResponse;
 import com.prettyface.app.tenant.web.dto.TenantResponse;
-import com.prettyface.app.tenant.web.dto.PatchTenantRequest;
 import com.prettyface.app.tenant.web.dto.UpdateTenantRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -49,20 +48,6 @@ public class TenantController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody @Valid UpdateTenantRequest request) {
         return tenantService.updateProfile(principal.getId(), request);
-    }
-
-    @PatchMapping
-    public TenantResponse patchProfile(
-            @AuthenticationPrincipal UserPrincipal principal,
-            @RequestBody @Valid PatchTenantRequest request) {
-        Tenant tenant = tenantRepository.findByOwnerId(principal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
-        TenantContext.setCurrentTenant(tenant.getSlug());
-        try {
-            return tenantService.patchProfile(principal.getId(), request);
-        } finally {
-            TenantContext.clear();
-        }
     }
 
     @GetMapping("/readiness")

@@ -36,7 +36,7 @@ public class TenantProvisioningService {
         // (name, first care, opening hours) before publishing to the public storefront.
         Tenant tenant = Tenant.builder()
                 .slug(slug)
-                .name(null)
+                .name(owner.getName())
                 .ownerId(owner.getId())
                 .status(TenantStatus.DRAFT)
                 .build();

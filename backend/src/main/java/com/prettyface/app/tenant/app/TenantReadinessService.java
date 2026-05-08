@@ -27,24 +27,17 @@ public class TenantReadinessService {
     }
 
     public TenantReadinessResponse getReadiness(Tenant tenant) {
-        boolean name = notBlank(tenant.getName());
-        // Prefer the denormalized categorySlugs (kept in sync by CategoryService).
-        // Fall back to a tenant-scoped Category row count for legacy tenants whose
-        // categorySlugs was never backfilled — avoids forcing them through the wizard
-        // on every login when they already have categories in their schema.
-        boolean hasCategory = notBlank(tenant.getCategorySlugs())
-                || categoryRepository.count() > 0;
-        boolean hasContact = computeHasContact(tenant);
-        boolean hasLogo = notBlank(tenant.getLogoPath());
+        boolean name = tenant.getName() != null && !tenant.getName().isBlank();
+        boolean hasCategory = categoryRepository.count() > 0;
         boolean hasActiveCare = careRepository.countByStatus(CareStatus.ACTIVE) > 0;
         boolean hasOpeningHours = openingHourRepository.count() > 0;
-        boolean canPublish = name && hasCategory && hasContact && hasLogo && hasActiveCare && hasOpeningHours;
+        boolean canPublish = name && hasActiveCare && hasOpeningHours;
 
         int annualLeaveDays = tenant.getAnnualLeaveDays() != null ? tenant.getAnnualLeaveDays() : 25;
 
         return new TenantReadinessResponse(
             tenant.getSlug(),
-            name, hasCategory, hasContact, hasLogo, hasActiveCare, hasOpeningHours,
+            name, hasCategory, hasActiveCare, hasOpeningHours,
             canPublish, tenant.getStatus().name(),
             Boolean.TRUE.equals(tenant.getEmployeesEnabled()),
             annualLeaveDays
@@ -55,24 +48,8 @@ public class TenantReadinessService {
         TenantReadinessResponse r = getReadiness(tenant);
         List<String> missing = new ArrayList<>();
         if (!r.name()) missing.add("name");
-        if (!r.hasContact()) missing.add("hasContact");
-        if (!r.hasLogo()) missing.add("hasLogo");
-        if (!r.hasCategory()) missing.add("hasCategory");
         if (!r.hasActiveCare()) missing.add("hasActiveCare");
         if (!r.hasOpeningHours()) missing.add("hasOpeningHours");
         return missing;
-    }
-
-    private boolean computeHasContact(Tenant t) {
-        boolean addressFull = notBlank(t.getAddressStreet())
-                && notBlank(t.getAddressPostalCode())
-                && notBlank(t.getAddressCity())
-                && notBlank(t.getAddressCountry());
-        boolean reachable = notBlank(t.getPhone()) || notBlank(t.getContactEmail());
-        return addressFull && reachable;
-    }
-
-    private static boolean notBlank(String s) {
-        return s != null && !s.isBlank();
     }
 }

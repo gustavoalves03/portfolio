@@ -4,8 +4,6 @@ public record TenantReadinessResponse(
     String slug,
     boolean name,
     boolean hasCategory,
-    boolean hasContact,
-    boolean hasLogo,
     boolean hasActiveCare,
     boolean hasOpeningHours,
     boolean canPublish,

@@ -7,18 +7,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { LowerCasePipe, SlicePipe } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { parseYMD } from '../../core/utils/date-format';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
-import {
-  PublishMissingDialogComponent,
-  PublishMissingDialogData,
-  PublishMissingDialogResult,
-} from './publish-missing-dialog/publish-missing-dialog.component';
 import { PERSONAS, Persona } from '../../features/onboarding/personas';
 import { PersonaSetupService } from '../../features/onboarding/persona-setup.service';
 import { OnboardingChecklistService } from '../../features/onboarding/onboarding-checklist.service';
@@ -62,7 +57,6 @@ export class ProDashboardComponent {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
-  private readonly router = inject(Router);
   private readonly analyticsService = inject(AnalyticsService);
   private readonly personaSetupService = inject(PersonaSetupService);
   private readonly checklistService = inject(OnboardingChecklistService);
@@ -324,25 +318,6 @@ export class ProDashboardComponent {
       if (this.store.isActive()) {
         this.loadAnalytics(period, employeeId, careId);
       }
-    });
-
-    // Open publish-missing dialog when a 422 populates publishMissing
-    effect(() => {
-      const missing = this.store.publishMissing();
-      if (missing.length === 0) return;
-
-      const ref = this.dialog.open<
-        PublishMissingDialogComponent,
-        PublishMissingDialogData,
-        PublishMissingDialogResult
-      >(PublishMissingDialogComponent, { data: { missing } });
-
-      ref.afterClosed().subscribe((result) => {
-        this.store.clearPublishMissing();
-        if (result?.action === 'goTo') {
-          this.router.navigate(['/pro/onboarding']);
-        }
-      });
     });
   }
 

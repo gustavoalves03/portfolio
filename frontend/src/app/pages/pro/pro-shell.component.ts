@@ -36,16 +36,5 @@ export class ProShellComponent {
       const status = this.store.readiness()?.status ?? null;
       this.tenantStatus.set(status);
     });
-
-    // Auto-redirect new pros to the wizard.
-    effect(() => {
-      const r = this.store.readiness();
-      if (!r) return;
-      if (r.status !== 'DRAFT') return;
-      if (r.canPublish) return;
-      if (sessionStorage.getItem('pf_skipOnboarding') === '1') return;
-      if (this.router.url.startsWith('/pro/onboarding')) return;
-      this.router.navigate(['/pro/onboarding']);
-    });
   }
 }

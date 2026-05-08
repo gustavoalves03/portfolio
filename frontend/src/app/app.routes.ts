@@ -115,14 +115,6 @@ export const routes: Routes = [
             (m) => m.ProClientDetailComponent
           ),
       },
-      {
-        path: 'onboarding',
-        loadComponent: () =>
-          import('./pages/pro/onboarding-wizard/pro-onboarding-wizard.component').then(
-            (m) => m.ProOnboardingWizardComponent
-          ),
-        data: { hideBottomNav: true },
-      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

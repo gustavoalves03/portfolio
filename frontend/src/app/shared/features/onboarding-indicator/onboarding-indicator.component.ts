@@ -72,11 +72,6 @@ export class OnboardingIndicatorComponent {
     this.store.publish();
   }
 
-  protected onResumeWizard(): void {
-    sessionStorage.removeItem('pf_skipOnboarding');
-    this.router.navigate(['/pro/onboarding']);
-  }
-
   private handleSheetResult(result: OnboardingSheetResult | undefined): void {
     if (!result) return;
     switch (result.action) {

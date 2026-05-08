@@ -8,8 +8,6 @@ function readiness(overrides: Partial<TenantReadiness> = {}): TenantReadiness {
     slug: 'demo',
     name: false,
     hasCategory: false,
-    hasContact: false,
-    hasLogo: false,
     hasActiveCare: false,
     hasOpeningHours: false,
     canPublish: false,

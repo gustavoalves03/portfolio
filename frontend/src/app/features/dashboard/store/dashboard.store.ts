@@ -1,5 +1,4 @@
 import { computed, inject } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
@@ -21,7 +20,6 @@ type DashboardState = {
   weekCount: number;
   publishSuccess: boolean;
   unpublishSuccess: boolean;
-  publishMissing: string[];
 };
 
 export const DashboardStore = signalStore(
@@ -32,7 +30,6 @@ export const DashboardStore = signalStore(
     weekCount: 0,
     publishSuccess: false,
     unpublishSuccess: false,
-    publishMissing: [],
   }),
   withRequestStatus(),
   withComputed((store) => ({
@@ -96,30 +93,21 @@ export const DashboardStore = signalStore(
       ),
       publish: rxMethod<void>(
         pipe(
-          tap(() => patchState(store, { publishSuccess: false, publishMissing: [] }, setPending())),
+          tap(() => patchState(store, { publishSuccess: false }, setPending())),
           exhaustMap(() =>
             dashboardService.publish().pipe(
               switchMap(() => dashboardService.getReadiness()),
               tap((readiness) => {
                 patchState(store, { readiness, publishSuccess: true }, setFulfilled());
               }),
-              catchError((err: HttpErrorResponse) => {
-                if (err.status === 422 && err.error?.missing) {
-                  patchState(
-                    store,
-                    { publishMissing: err.error.missing as string[] },
-                    setFulfilled()
-                  );
-                } else {
-                  patchState(store, setError('Erreur lors de la publication'));
-                }
+              catchError(() => {
+                patchState(store, setError('Erreur lors de la publication'));
                 return EMPTY;
               })
             )
           )
         )
       ),
-      clearPublishMissing: () => patchState(store, { publishMissing: [] }),
       unpublish: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { unpublishSuccess: false }, setPending())),
