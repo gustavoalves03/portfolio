@@ -73,7 +73,7 @@ export class CaresComponent {
     const query = this.searchQuery().toLowerCase().trim();
     let cares = this.store.availableCares();
     if (selectedId) {
-      cares = cares.filter(c => c.category.id === selectedId);
+      cares = cares.filter(c => c.category?.id === selectedId);
     }
     if (query) {
       cares = cares.filter(
@@ -141,7 +141,7 @@ export class CaresComponent {
   }
 
   countCaresInCategory(categoryId: number): number {
-    return this.store.cares().filter((c) => c.category.id === categoryId).length;
+    return this.store.cares().filter((c) => c.category?.id === categoryId).length;
   }
 
   fallbackGradient(index: number): string {
@@ -205,7 +205,7 @@ export class CaresComponent {
   }
 
   onDeleteCategory(category: Category): void {
-    const caresInCategory = this.store.cares().filter(c => c.category.id === category.id);
+    const caresInCategory = this.store.cares().filter(c => c.category?.id === category.id);
 
     if (caresInCategory.length > 0) {
       const dialogRef = this.dialog.open(ReassignCategoryDialogComponent, bottomSheetConfig({

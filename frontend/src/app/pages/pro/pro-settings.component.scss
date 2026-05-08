@@ -80,6 +80,14 @@
   margin-bottom: 6px;
 }
 .anchor-link {
+  /* Reset native button styles since we use <button> now */
+  background: transparent;
+  border: 0;
+  border-left: 2px solid transparent;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+
   display: flex;
   align-items: center;
   gap: 10px;
@@ -87,7 +95,6 @@
   color: var(--d-ink-2);
   text-decoration: none;
   font-size: 13px;
-  border-left: 2px solid transparent;
   transition: background .12s, color .12s;
   cursor: pointer;
 }

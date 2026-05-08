@@ -140,10 +140,12 @@
                 @if (care.images && care.images.length > 0) {
                   <img [src]="care.images[0].url" [alt]="care.name"/>
                 }
-                <span class="care-cat" [style.--cat-color]="getCategoryColor(care.category.id)">
-                  <span class="dot" [style.background]="getCategoryColor(care.category.id)"></span>
-                  {{ care.category.name }}
-                </span>
+                @if (care.category) {
+                  <span class="care-cat" [style.--cat-color]="getCategoryColor(care.category.id)">
+                    <span class="dot" [style.background]="getCategoryColor(care.category.id)"></span>
+                    {{ care.category.name }}
+                  </span>
+                }
                 <div class="care-status" (click)="$event.stopPropagation()">
                   <mat-slide-toggle
                     [checked]="care.status === 'ACTIVE'"
