@@ -1,0 +1,143 @@
+<div #stage class="story-stage">
+  <!-- Caption above the browser -->
+  <div class="story-caption-row">
+    <p class="story-caption" aria-live="polite">
+      <span class="story-step">{{ captionStepKey() | transloco }}</span>
+      <span class="story-caption-text">{{ captionKey() | transloco }}</span>
+    </p>
+  </div>
+
+  <app-mock-browser url="prettyface.app/dashboard">
+    <div class="story-grid">
+      <!-- Notification -->
+      <article
+        class="story-widget story-widget-notif"
+        [class.story-active]="notifActive()"
+        aria-label="Notifications"
+      >
+        <div class="story-w-head">
+          <h3 class="story-w-title">{{ 'home.v1.demo.widgets.notif' | transloco }}</h3>
+          @if (notifActive()) {
+            <span class="story-pulse" aria-hidden="true"></span>
+          }
+        </div>
+
+        @if (!notifShown()) {
+          <p class="story-empty">— {{ 'home.v1.demo.empty' | transloco }} —</p>
+        } @else {
+          <div class="story-notif-card">
+            <div class="story-notif-row">
+              <span class="story-avatar story-avatar-rose" aria-hidden="true">S</span>
+              <div class="story-notif-text">
+                <strong>Sarah B.</strong> {{ 'home.v1.demo.notif.text' | transloco }}
+                <span class="story-notif-time">{{ 'home.v1.demo.notif.time' | transloco }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </article>
+
+      <!-- Calendar -->
+      <article
+        class="story-widget story-widget-cal"
+        [class.story-active]="calActive()"
+        aria-label="Planning"
+      >
+        <div class="story-w-head">
+          <h3 class="story-w-title">{{ 'home.v1.demo.widgets.calendar' | transloco }}</h3>
+          @if (calActive()) {
+            <span class="story-pulse" aria-hidden="true"></span>
+          }
+        </div>
+        <div class="story-cal-grid" role="presentation">
+          <span></span>
+          <span class="story-cal-h">L</span>
+          <span class="story-cal-h">M</span>
+          <span class="story-cal-h">M</span>
+          <span class="story-cal-h">J</span>
+          <span class="story-cal-h">V</span>
+
+          <span class="story-cal-time">9h</span>
+          <span class="story-cal-slot story-cal-slot-new" [class.story-cal-slot-on]="calShown()">
+            @if (calShown()) {
+              <span class="story-cal-label">Sarah</span>
+            }
+          </span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot"></span>
+
+          <span class="story-cal-time">11h</span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+
+          <span class="story-cal-time">14h</span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+
+          <span class="story-cal-time">16h</span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot story-cal-slot-busy"></span>
+          <span class="story-cal-slot"></span>
+          <span class="story-cal-slot"></span>
+        </div>
+      </article>
+
+      <!-- Revenue -->
+      <article
+        class="story-widget story-widget-rev"
+        [class.story-active]="revActive()"
+        aria-label="Chiffre d'affaires"
+      >
+        <div class="story-w-head">
+          <h3 class="story-w-title">{{ 'home.v1.demo.widgets.revenue' | transloco }}</h3>
+          @if (revActive()) {
+            <span class="story-pulse" aria-hidden="true"></span>
+          }
+        </div>
+        <p class="story-rev-amount">2 480 €</p>
+        <span class="story-rev-delta">+18%</span>
+        @if (revShown()) {
+          <p class="story-rev-bump">
+            <strong>+85 €</strong> · {{ 'home.v1.demo.revenue.bump' | transloco }}
+          </p>
+        }
+      </article>
+
+      <!-- Review (full width row) -->
+      <article
+        class="story-widget story-widget-rvs"
+        [class.story-active]="rvsActive()"
+        aria-label="Avis client"
+      >
+        <div class="story-w-head">
+          <h3 class="story-w-title">{{ 'home.v1.demo.widgets.review' | transloco }}</h3>
+          @if (rvsActive()) {
+            <span class="story-pulse" aria-hidden="true"></span>
+          }
+        </div>
+        @if (rvsShown()) {
+          <div class="story-rv-row">
+            <span class="story-avatar story-avatar-burgundy" aria-hidden="true">S</span>
+            <p class="story-rv-quote">
+              « {{ 'home.v1.demo.review.quote' | transloco }} »
+            </p>
+            <span class="story-rv-stars" aria-label="5 étoiles">
+              <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+            </span>
+          </div>
+        } @else {
+          <p class="story-empty">— {{ 'home.v1.demo.empty' | transloco }} —</p>
+        }
+      </article>
+    </div>
+  </app-mock-browser>
+</div>
