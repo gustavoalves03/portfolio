@@ -3,6 +3,7 @@ package com.prettyface.app.tenant.app;
 import com.prettyface.app.availability.repo.OpeningHourRepository;
 import com.prettyface.app.care.domain.CareStatus;
 import com.prettyface.app.care.repo.CareRepository;
+import com.prettyface.app.category.repo.CategoryRepository;
 import com.prettyface.app.tenant.domain.Tenant;
 import com.prettyface.app.tenant.domain.TenantStatus;
 import com.prettyface.app.tenant.web.dto.TenantReadinessResponse;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,12 +22,15 @@ class TenantReadinessServiceTests {
 
     @Mock private CareRepository careRepository;
     @Mock private OpeningHourRepository openingHourRepository;
+    @Mock private CategoryRepository categoryRepository;
 
     private TenantReadinessService service;
 
     @BeforeEach
     void setUp() {
-        service = new TenantReadinessService(careRepository, openingHourRepository);
+        service = new TenantReadinessService(careRepository, openingHourRepository, categoryRepository);
+        // Default: no legacy Category rows — new tenants see hasCategory=false unless categorySlugs is set.
+        lenient().when(categoryRepository.count()).thenReturn(0L);
     }
 
     @Test
@@ -190,6 +195,25 @@ class TenantReadinessServiceTests {
         when(openingHourRepository.count()).thenReturn(0L);
         assertThat(service.getMissingConditions(t))
                 .containsExactly("name", "hasContact", "hasLogo", "hasCategory", "hasActiveCare", "hasOpeningHours");
+    }
+
+    // --- Fallback: legacy CategoryRepository.count() ---
+
+    @Test
+    void hasCategory_trueWhenCategorySlugsBlankButLegacyCategoryRowsExist() {
+        Tenant t = baseTenant();
+        // categorySlugs is null/blank but the tenant still has Category rows
+        // from before syncTenantCategories existed. Fallback should kick in.
+        when(categoryRepository.count()).thenReturn(2L);
+        assertThat(service.getReadiness(t).hasCategory()).isTrue();
+    }
+
+    @Test
+    void hasCategory_falseWhenBothCategorySlugsBlankAndNoCategoryRows() {
+        Tenant t = baseTenant();
+        // categorySlugs blank AND no Category rows — truly empty tenant.
+        when(categoryRepository.count()).thenReturn(0L);
+        assertThat(service.getReadiness(t).hasCategory()).isFalse();
     }
 
     // --- Helpers ---
