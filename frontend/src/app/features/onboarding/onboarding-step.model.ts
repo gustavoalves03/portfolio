@@ -1,5 +1,11 @@
 /** Identifier matching i18n keys under `pro.dashboard.checklist.*` and `pro.onboarding.*`. */
-export type OnboardingStepKey = 'name' | 'cares' | 'openingHours';
+export type OnboardingStepKey =
+  | 'name'
+  | 'contact'
+  | 'logo'
+  | 'categories'
+  | 'cares'
+  | 'openingHours';
 
 /** A single step in the onboarding checklist. */
 export interface OnboardingStep {

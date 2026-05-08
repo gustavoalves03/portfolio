@@ -14,6 +14,24 @@ export class OnboardingChecklistService {
         queryParams: readiness.name ? null : { focus: 'name' },
       },
       {
+        key: 'contact',
+        done: readiness.hasContact,
+        link: '/pro/salon',
+        queryParams: readiness.hasContact ? null : { focus: 'contact' },
+      },
+      {
+        key: 'logo',
+        done: readiness.hasLogo,
+        link: '/pro/salon',
+        queryParams: readiness.hasLogo ? null : { focus: 'logo' },
+      },
+      {
+        key: 'categories',
+        done: readiness.hasCategory,
+        link: '/pro/cares',
+        queryParams: readiness.hasCategory ? null : { focus: 'categories' },
+      },
+      {
         key: 'cares',
         done: readiness.hasActiveCare,
         link: '/pro/cares',
