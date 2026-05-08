@@ -7,6 +7,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { OnboardingChecklistService } from '../../../features/onboarding/onboarding-checklist.service';
+import { OnboardingStepKey } from '../../../features/onboarding/onboarding-step.model';
+import { TourService } from '../../../features/onboarding/tour/tour.service';
+import { TOUR_STEPS } from '../../../features/onboarding/tour/tour-steps';
 import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
 import { ONBOARDING_BREAKPOINT } from './breakpoint.token';
 import {
@@ -27,6 +30,7 @@ export class OnboardingIndicatorComponent {
   private readonly checklistService = inject(OnboardingChecklistService);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  private readonly tour = inject(TourService);
   protected dialog = inject(MatDialog);
 
   protected readonly isDesktop = inject(ONBOARDING_BREAKPOINT)();
@@ -72,12 +76,23 @@ export class OnboardingIndicatorComponent {
     this.store.publish();
   }
 
+  protected onStepClick(stepKey: OnboardingStepKey, event?: Event): void {
+    if (TOUR_STEPS.some((s) => s.key === stepKey)) {
+      event?.preventDefault();
+      this.tour.start(stepKey);
+      return;
+    }
+    // Fallback: legacy navigation for keys the tour doesn't cover (none today,
+    // but keeps the indicator robust if the catalogue shrinks later).
+    const step = this.steps().find((s) => s.key === stepKey);
+    if (step) this.router.navigate([step.link], { queryParams: step.queryParams ?? undefined });
+  }
+
   private handleSheetResult(result: OnboardingSheetResult | undefined): void {
     if (!result) return;
     switch (result.action) {
       case 'step': {
-        const step = this.steps().find((s) => s.key === result.stepKey);
-        if (step) this.router.navigate([step.link], { queryParams: step.queryParams ?? undefined });
+        this.onStepClick(result.stepKey);
         return;
       }
       case 'preview': {

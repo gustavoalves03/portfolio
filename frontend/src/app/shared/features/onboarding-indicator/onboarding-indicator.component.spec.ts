@@ -9,6 +9,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { patchState } from '@ngrx/signals';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { TenantReadiness } from '../../../features/dashboard/models/dashboard.model';
+import { TourService } from '../../../features/onboarding/tour/tour.service';
 import { OnboardingIndicatorComponent } from './onboarding-indicator.component';
 import { ONBOARDING_BREAKPOINT } from './breakpoint.token';
 
@@ -31,9 +32,11 @@ describe('OnboardingIndicatorComponent', () => {
   let fixture: ComponentFixture<OnboardingIndicatorComponent>;
   let store: InstanceType<typeof DashboardStore>;
   let isDesktop: WritableSignal<boolean>;
+  let tourSpy: jasmine.SpyObj<TourService>;
 
   function setup(initialDesktop: boolean) {
     isDesktop = signal(initialDesktop);
+    tourSpy = jasmine.createSpyObj<TourService>('TourService', ['start', 'stop']);
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -43,6 +46,7 @@ describe('OnboardingIndicatorComponent', () => {
         provideHttpClientTesting(),
         DashboardStore,
         { provide: ONBOARDING_BREAKPOINT, useValue: () => isDesktop },
+        { provide: TourService, useValue: tourSpy },
       ],
       imports: [
         OnboardingIndicatorComponent,
@@ -153,5 +157,16 @@ describe('OnboardingIndicatorComponent', () => {
     // somewhere in the rendered DOM tree (matTooltip text is hidden until
     // hover but the input value is bound on the directive).
     expect(stepName.nativeElement).toBeTruthy();
+  });
+
+  it('clicking a covered step calls tour.start with the step key', () => {
+    setup(true);
+    patchState(store as any, { readiness: readiness({ name: false }) });
+    fixture.detectChanges();
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '[data-testid="stepper-step-name"]'
+    );
+    link?.click();
+    expect(tourSpy.start).toHaveBeenCalledWith('name');
   });
 });
