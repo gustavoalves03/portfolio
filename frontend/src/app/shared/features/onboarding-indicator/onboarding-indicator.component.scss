@@ -117,6 +117,9 @@
   color: #555;
   padding: 4px 6px;
   border-radius: 6px;
+  // Allow the inner label to shrink and ellipse instead of pushing siblings.
+  min-width: 0;
+  overflow: hidden;
   // Reset native <button> styles (was <a> previously).
   background: transparent;
   border: 0;
