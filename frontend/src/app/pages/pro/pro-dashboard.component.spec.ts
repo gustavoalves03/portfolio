@@ -265,10 +265,10 @@ describe('ProDashboardComponent', () => {
       expect(component.checklistProgressPercent()).toBe(0);
     });
 
-    it('exposes 3 steps in fixed order: name, cares, openingHours', () => {
+    it('exposes 6 steps in fixed wizard order', () => {
       setReadiness({});
       const keys = component.checklistSteps().map((s) => s.key);
-      expect(keys).toEqual(['name', 'cares', 'openingHours']);
+      expect(keys).toEqual(['name', 'contact', 'logo', 'categories', 'cares', 'openingHours']);
     });
 
     it('zero done → next is the first step (name), progress 0%', () => {
@@ -278,23 +278,31 @@ describe('ProDashboardComponent', () => {
       expect(component.checklistProgressPercent()).toBe(0);
     });
 
-    it('only name done → next is cares, progress ~33%', () => {
+    it('only name done → next is contact, progress ~17%', () => {
       setReadiness({ name: true });
       expect(component.checklistDone()).toBe(1);
-      expect(component.nextStepKey()).toBe('cares');
+      expect(component.nextStepKey()).toBe('contact');
+      expect(component.checklistProgressPercent()).toBe(17);
+    });
+
+    it('name+cares done → next is contact (first missing), progress ~33%', () => {
+      setReadiness({ name: true, hasActiveCare: true });
+      expect(component.checklistDone()).toBe(2);
+      expect(component.nextStepKey()).toBe('contact');
       expect(component.checklistProgressPercent()).toBe(33);
     });
 
-    it('name+cares done → next is openingHours, progress ~67%', () => {
-      setReadiness({ name: true, hasActiveCare: true });
-      expect(component.checklistDone()).toBe(2);
-      expect(component.nextStepKey()).toBe('openingHours');
-      expect(component.checklistProgressPercent()).toBe(67);
-    });
-
     it('all done → no next step, progress 100%', () => {
-      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true, canPublish: true });
-      expect(component.checklistDone()).toBe(3);
+      setReadiness({
+        name: true,
+        hasContact: true,
+        hasLogo: true,
+        hasCategory: true,
+        hasActiveCare: true,
+        hasOpeningHours: true,
+        canPublish: true,
+      });
+      expect(component.checklistDone()).toBe(6);
       expect(component.nextStepKey()).toBeNull();
       expect(component.checklistProgressPercent()).toBe(100);
     });
@@ -317,44 +325,80 @@ describe('ProDashboardComponent', () => {
     it('inconsistent backend: canPublish=true but a step is unflagged → trust per-step flags', () => {
       // Defensive: the UI relies on per-step booleans, not on canPublish, so even a
       // contradictory canPublish doesn't lie about which step is missing.
-      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: false, canPublish: true });
-      expect(component.checklistDone()).toBe(2);
+      setReadiness({
+        name: true,
+        hasContact: true,
+        hasLogo: true,
+        hasCategory: true,
+        hasActiveCare: true,
+        hasOpeningHours: false,
+        canPublish: true,
+      });
+      expect(component.checklistDone()).toBe(5);
       expect(component.nextStepKey()).toBe('openingHours');
     });
 
-    it('hasCategory has no impact on the checklist (currently not displayed)', () => {
-      // `hasCategory` is in the readiness DTO but not part of the user-facing 3 steps.
-      // Toggling it must not change displayed state.
+    it('hasCategory is now part of the displayed checklist', () => {
+      // Since the guided-tour rewrite, hasCategory is one of the 6 user-facing steps.
       setReadiness({ hasCategory: true });
-      expect(component.checklistDone()).toBe(0);
+      expect(component.checklistDone()).toBe(1);
+      // `name` still missing → it's the first uncompleted
       expect(component.nextStepKey()).toBe('name');
     });
 
     it('readiness present but status=ACTIVE: computed signals still derive cleanly', () => {
       // The template hides the checklist when status !== DRAFT, but the derived
       // signals must remain side-effect-free regardless of status.
-      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true, status: 'ACTIVE', canPublish: true });
-      expect(component.checklistDone()).toBe(3);
+      setReadiness({
+        name: true,
+        hasContact: true,
+        hasLogo: true,
+        hasCategory: true,
+        hasActiveCare: true,
+        hasOpeningHours: true,
+        status: 'ACTIVE',
+        canPublish: true,
+      });
+      expect(component.checklistDone()).toBe(6);
       expect(component.nextStepKey()).toBeNull();
       expect(component.checklistProgressPercent()).toBe(100);
     });
 
     it('readiness toggled back from done to undone updates next/progress reactively', () => {
-      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: true });
-      expect(component.checklistDone()).toBe(3);
+      setReadiness({
+        name: true,
+        hasContact: true,
+        hasLogo: true,
+        hasCategory: true,
+        hasActiveCare: true,
+        hasOpeningHours: true,
+      });
+      expect(component.checklistDone()).toBe(6);
 
-      setReadiness({ name: true, hasActiveCare: true, hasOpeningHours: false });
-      expect(component.checklistDone()).toBe(2);
+      setReadiness({
+        name: true,
+        hasContact: true,
+        hasLogo: true,
+        hasCategory: true,
+        hasActiveCare: true,
+        hasOpeningHours: false,
+      });
+      expect(component.checklistDone()).toBe(5);
       expect(component.nextStepKey()).toBe('openingHours');
-      expect(component.checklistProgressPercent()).toBe(67);
+      expect(component.checklistProgressPercent()).toBe(83);
     });
 
-    it('each step has a unique routerLink to the editor screen', () => {
+    it('each step links to one of the three editor screens', () => {
       setReadiness({});
       const links = component.checklistSteps().map((s) => s.link);
-      expect(links).toEqual(['/pro/salon', '/pro/cares', '/pro/planning']);
-      // No duplicates
-      expect(new Set(links).size).toBe(links.length);
+      expect(links).toEqual([
+        '/pro/salon',    // name
+        '/pro/salon',    // contact
+        '/pro/salon',    // logo
+        '/pro/cares',    // categories
+        '/pro/cares',    // cares
+        '/pro/planning', // openingHours
+      ]);
     });
 
     it('cares step carries openCreate=care queryParams when undone', () => {
