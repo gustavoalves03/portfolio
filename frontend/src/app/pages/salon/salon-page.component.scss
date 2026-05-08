@@ -3,6 +3,13 @@
   margin: 0 auto;
 }
 
+/* PC view takes full width — the inner sub-component handles its own
+   max-width and padding. */
+.salon-page.is-pc {
+  max-width: none;
+  margin: 0;
+}
+
 // Hero banner
 .salon-hero {
   position: relative;

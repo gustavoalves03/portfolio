@@ -60,6 +60,7 @@
     <!-- ===== Cares ===== -->
     @if (salon().categories && salon().categories.length > 0) {
       <section class="section" id="cares">
+        <div class="section-inner">
         <div class="section-head">
           <p class="section-eyebrow">{{ 'salon.pc.caresEyebrow' | transloco }}</p>
           <h2 class="section-title serif">{{ 'salon.pc.caresTitle' | transloco }}</h2>
@@ -116,21 +117,25 @@
             </div>
           </div>
         }
+        </div>
       </section>
     }
 
     <!-- ===== Posts ===== -->
     <section class="section" id="posts">
-      <div class="section-head">
-        <p class="section-eyebrow">{{ 'salon.pc.postsEyebrow' | transloco }}</p>
-        <h2 class="section-title serif">{{ 'salon.pc.postsTitle' | transloco }}</h2>
+      <div class="section-inner">
+        <div class="section-head">
+          <p class="section-eyebrow">{{ 'salon.pc.postsEyebrow' | transloco }}</p>
+          <h2 class="section-title serif">{{ 'salon.pc.postsTitle' | transloco }}</h2>
+        </div>
+        <app-salon-posts-viewer [slug]="slug()" (bookCare)="onBookFromPost($event)"/>
       </div>
-      <app-salon-posts-viewer [slug]="slug()" (bookCare)="onBookFromPost($event)"/>
     </section>
 
     <!-- ===== Contact ===== -->
     @if (fullAddress() || salon().phone || salon().contactEmail) {
       <section class="section" id="contact">
+        <div class="section-inner">
         <div class="section-head">
           <p class="section-eyebrow">{{ 'salon.pc.contactEyebrow' | transloco }}</p>
           <h2 class="section-title serif">{{ 'salon.pc.contactTitle' | transloco }}</h2>
@@ -174,6 +179,7 @@
           @if (fullAddress()) {
             <div class="contact-map" #contactMap></div>
           }
+        </div>
         </div>
       </section>
     }
