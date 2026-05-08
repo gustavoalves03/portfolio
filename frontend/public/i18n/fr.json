@@ -662,7 +662,17 @@
       "occupied": "Temps occupé",
       "empty": "Aucun rendez-vous",
       "noShow": "Absent",
-      "addBooking": "Nouveau RDV"
+      "addBooking": "Nouveau RDV",
+      "subtitle": "Agenda hebdomadaire",
+      "week": "Semaine",
+      "kpi": {
+        "weekBookings": "RDV de la semaine",
+        "estimatedRevenue": "CA estimé",
+        "occupiedTime": "Temps occupé"
+      },
+      "filters": {
+        "statusTitle": "Statuts"
+      }
     },
     "history": {
       "title": "Historique des bookings",

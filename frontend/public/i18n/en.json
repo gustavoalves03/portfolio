@@ -658,7 +658,17 @@
       "occupied": "Time occupied",
       "empty": "No appointments",
       "noShow": "No-show",
-      "addBooking": "New booking"
+      "addBooking": "New booking",
+      "subtitle": "Weekly agenda",
+      "week": "Week",
+      "kpi": {
+        "weekBookings": "Bookings this week",
+        "estimatedRevenue": "Estimated revenue",
+        "occupiedTime": "Occupied time"
+      },
+      "filters": {
+        "statusTitle": "Status"
+      }
     },
     "history": {
       "title": "Booking history",

@@ -16,485 +16,44 @@ import {
 import { BookingStepperComponent } from '../../features/bookings/components/booking-stepper/booking-stepper.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 
-type PeriodFilter = 'today' | 'week' | 'month';
-
-interface DayGroup {
-  date: string;
-  label: string;
+interface DayCell {
+  date: string;          // YYYY-MM-DD
+  dayOfMonth: number;
+  isCurrentMonth: boolean;
   isToday: boolean;
-  isTomorrow: boolean;
+  isInWeek: boolean;     // currently visible week
+  hasBookings: boolean;
+  busy: boolean;         // 5+ bookings
+  isClosed: boolean;     // weekly closed (sunday for now)
+}
+
+interface WeekDay {
+  date: string;          // YYYY-MM-DD
+  dayOfMonth: number;
+  dayName: string;       // 'Lun', 'Mar', ...
+  isToday: boolean;
+  isClosed: boolean;
   bookings: CareBookingDetailed[];
 }
+
+/** Hour range shown in the week grid. Matches typical salon opening hours. */
+const GRID_START_HOUR = 8;
+const GRID_END_HOUR = 20; // exclusive
+const HOUR_HEIGHT_PX = 56;
+
+const STATUS_COLORS: Record<string, string> = {
+  CONFIRMED: 'confirmed',
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  NO_SHOW: 'noshow',
+};
 
 @Component({
   selector: 'app-pro-bookings',
   standalone: true,
   imports: [MatIconModule, MatProgressSpinnerModule, TranslocoPipe],
-  template: `
-    <div class="bookings-page">
-      <h1 class="page-title">{{ 'pro.bookings.title' | transloco }}</h1>
-
-      <!-- Add booking button -->
-      <div class="add-booking-row">
-        <button class="btn-add-booking" data-testid="add-booking-btn" (click)="onAddBooking()">
-          <mat-icon>add</mat-icon>
-          {{ 'pro.bookings.addBooking' | transloco }}
-        </button>
-      </div>
-
-      <!-- Period pills -->
-      <div class="period-pills">
-        <button
-          class="period-pill"
-          [class.active]="selectedPeriod() === 'today'"
-          (click)="setPeriod('today')"
-        >
-          {{ 'pro.bookings.today' | transloco }}
-        </button>
-        <button
-          class="period-pill"
-          [class.active]="selectedPeriod() === 'week'"
-          (click)="setPeriod('week')"
-        >
-          {{ 'pro.bookings.thisWeek' | transloco }}
-        </button>
-        <button
-          class="period-pill"
-          [class.active]="selectedPeriod() === 'month'"
-          (click)="setPeriod('month')"
-        >
-          {{ 'pro.bookings.thisMonth' | transloco }}
-        </button>
-      </div>
-
-      <!-- Summary bar -->
-      <div class="summary-bar">
-        <div class="summary-item">
-          <span class="summary-value">{{ totalBookings() }}</span>
-          <span class="summary-label">RDV</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-value">{{ estimatedRevenue() }}</span>
-          <span class="summary-label">{{ 'pro.bookings.estimated' | transloco }}</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-value">{{ occupiedTime() }}</span>
-          <span class="summary-label">{{ 'pro.bookings.occupied' | transloco }}</span>
-        </div>
-      </div>
-
-      <!-- Loading -->
-      @if (isLoading()) {
-        <div class="loading-container">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-      }
-
-      <!-- Content -->
-      @if (!isLoading()) {
-        @if (dayGroups().length === 0) {
-          <div class="empty-state">
-            <mat-icon class="empty-icon">event_busy</mat-icon>
-            <p class="empty-text">{{ 'pro.bookings.empty' | transloco }}</p>
-          </div>
-        } @else {
-          @for (group of dayGroups(); track group.date) {
-            <div class="day-group">
-              <div class="day-header" [class.today]="group.isToday" [class.other]="!group.isToday">
-                <span
-                  class="day-dot"
-                  [class.today]="group.isToday"
-                  [class.other]="!group.isToday"
-                ></span>
-                {{ group.label }}
-              </div>
-
-              <div
-                class="day-timeline"
-                [class.other]="!group.isToday"
-              >
-                @for (booking of group.bookings; track booking.id) {
-                  <div class="booking-row" [id]="'booking-' + booking.id" (click)="openClient(booking.user.id)">
-                    <div class="booking-time">
-                      <div class="booking-time-value">{{ formatTime(booking.appointmentTime) }}</div>
-                      <div class="booking-time-duration">{{ booking.care.duration }}min</div>
-                    </div>
-                    <div
-                      class="booking-card"
-                      [class.status-confirmed]="booking.status === CareBookingStatus.CONFIRMED"
-                      [class.status-pending]="booking.status === CareBookingStatus.PENDING"
-                      [class.status-cancelled]="booking.status === CareBookingStatus.CANCELLED"
-                      [class.status-no_show]="booking.status === CareBookingStatus.NO_SHOW"
-                    >
-                      <div class="card-top">
-                        <span class="care-name">{{ booking.care.name }}</span>
-                        <span
-                          class="status-badge"
-                          [class.status-confirmed]="booking.status === CareBookingStatus.CONFIRMED"
-                          [class.status-pending]="booking.status === CareBookingStatus.PENDING"
-                          [class.status-cancelled]="booking.status === CareBookingStatus.CANCELLED"
-                          [class.status-no_show]="booking.status === CareBookingStatus.NO_SHOW"
-                        >
-                          {{ getStatusLabel(booking.status) }}
-                        </span>
-                      </div>
-                      <div class="card-people">
-                        <span class="client-name">{{ booking.salonClientName || booking.user.name }}</span>
-                        @if (booking.employeeName) {
-                          <span class="people-sep">&middot;</span>
-                          <span class="employee-name">{{ booking.employeeName }}</span>
-                        }
-                      </div>
-                      <div class="card-bottom">
-                        <span class="card-price">{{ formatPrice(booking.care.price) }}</span>
-                        <span class="card-time-range">
-                          {{ formatTime(booking.appointmentTime) }} — {{ formatEndTime(booking.appointmentTime, booking.care.duration) }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        }
-      }
-    </div>
-  `,
-  styles: `
-    .bookings-page {
-      background: var(--pf-paper);
-      padding: 16px;
-      max-width: 1440px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 768px) {
-      .bookings-page {
-        padding: 24px 32px;
-      }
-    }
-
-    @media (min-width: 1280px) {
-      .bookings-page {
-        padding: 24px 48px;
-      }
-    }
-
-    .page-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #333;
-      margin: 0 0 16px;
-    }
-
-    /* Period pills */
-    .period-pills {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .period-pill {
-      padding: 5px 14px;
-      border-radius: 8px;
-      border: none;
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 150ms;
-      background: #fff;
-      color: #888;
-      border: 1px solid #e0e0e0;
-    }
-
-    .period-pill.active {
-      background: var(--pf-rose);
-      color: #fff;
-      border-color: var(--pf-rose);
-    }
-
-    /* Summary bar */
-    .summary-bar {
-      background: #fff;
-      border-radius: 10px;
-      padding: 10px 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      display: flex;
-      justify-content: space-around;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .summary-item {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .summary-value {
-      font-size: 18px;
-      font-weight: 700;
-      color: #333;
-    }
-
-    .summary-label {
-      font-size: 10px;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    /* Loading */
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      padding: 48px 0;
-    }
-
-    /* Empty state */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 48px 0;
-      color: #999;
-    }
-
-    .empty-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-    }
-
-    .empty-text {
-      font-size: 14px;
-      margin: 0;
-    }
-
-    /* Day groups */
-    .day-group {
-      margin-bottom: 16px;
-    }
-
-    .day-header {
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .day-header.today {
-      color: var(--pf-rose);
-    }
-
-    .day-header.other {
-      color: #888;
-    }
-
-    .day-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .day-dot.today {
-      background: var(--pf-rose);
-    }
-
-    .day-dot.other {
-      background: #ccc;
-    }
-
-    /* Timeline */
-    .day-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-left: 12px;
-      border-left: 2px solid #f0e0e8;
-    }
-
-    .day-timeline.other {
-      border-left-color: #e8e8e8;
-    }
-
-    /* Booking row */
-    .booking-row {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-      cursor: pointer;
-    }
-
-    .booking-time {
-      width: 44px;
-      text-align: right;
-      flex-shrink: 0;
-      padding-top: 10px;
-    }
-
-    .booking-time-value {
-      font-size: 16px;
-      font-weight: 700;
-      color: #333;
-      line-height: 1;
-    }
-
-    .booking-time-duration {
-      font-size: 8px;
-      color: #888;
-    }
-
-    /* Booking card */
-    .booking-card {
-      flex: 1;
-      background: #fff;
-      border-radius: 10px;
-      padding: 10px 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      border-left: 3px solid #ccc;
-    }
-
-    .booking-card.status-confirmed {
-      border-left-color: #52b788;
-    }
-
-    .booking-card.status-pending {
-      border-left-color: #fb923c;
-    }
-
-    .booking-card.status-cancelled {
-      border-left-color: #ef5350;
-    }
-
-    .booking-card.status-no_show {
-      border-left-color: #999;
-    }
-
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .care-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .card-people {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 6px;
-    }
-
-    .client-name {
-      color: #555;
-      font-weight: 500;
-    }
-
-    .people-sep {
-      color: #ccc;
-    }
-
-    .employee-name {
-      color: var(--pf-rose);
-      font-weight: 500;
-    }
-
-    .card-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-price {
-      font-size: 13px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .card-time-range {
-      font-size: 10px;
-      color: #aaa;
-    }
-
-    /* Status badge */
-    .status-badge {
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 9px;
-      font-weight: 500;
-    }
-
-    .status-badge.status-confirmed {
-      background: #f0fdf4;
-      color: #166534;
-    }
-
-    .status-badge.status-pending {
-      background: #fff7ed;
-      color: #c2410c;
-    }
-
-    .status-badge.status-cancelled {
-      background: #fef2f2;
-      color: #dc2626;
-    }
-
-    .status-badge.status-no_show {
-      background: #f5f5f5;
-      color: #666;
-    }
-
-    /* Add booking row */
-    .add-booking-row {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .btn-add-booking {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 14px;
-      border-radius: 8px;
-      border: none;
-      background: var(--pf-rose);
-      color: white;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 150ms ease;
-    }
-
-    .btn-add-booking:hover {
-      background: #a05;
-    }
-
-    .btn-add-booking mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    /* Highlight fade animation after navigation from notification */
-    .highlight-fade {
-      background-color: #fdf2f8 !important;
-      transition: background-color 2s ease-out;
-    }
-  `,
+  templateUrl: './pro-bookings.component.html',
+  styleUrl: './pro-bookings.component.scss',
 })
 export class ProBookingsComponent {
   private readonly bookingsService = inject(BookingsService);
@@ -504,69 +63,134 @@ export class ProBookingsComponent {
   private readonly dialog = inject(MatDialog);
 
   protected readonly CareBookingStatus = CareBookingStatus;
+  protected readonly hourLabels = Array.from(
+    { length: GRID_END_HOUR - GRID_START_HOUR },
+    (_, i) => GRID_START_HOUR + i
+  );
+  protected readonly hourHeight = HOUR_HEIGHT_PX;
 
+  // ── State ──────────────────────────────────────────────────────────────
   protected readonly bookings = signal<CareBookingDetailed[]>([]);
   protected readonly isLoading = signal(false);
-  protected readonly selectedPeriod = signal<PeriodFilter>('today');
 
-  /** Computed: group bookings by appointmentDate */
-  protected readonly dayGroups = computed<DayGroup[]>(() => {
-    const all = this.bookings();
-    if (!all.length) return [];
+  /** Monday of the currently visible week. */
+  protected readonly currentWeekStart = signal<Date>(this.startOfWeek(new Date()));
 
-    const grouped = new Map<string, CareBookingDetailed[]>();
-    for (const b of all) {
-      const date = b.appointmentDate;
-      if (!grouped.has(date)) grouped.set(date, []);
-      grouped.get(date)!.push(b);
-    }
+  /** Anchor for the mini calendar (month view); follows currentWeekStart by default. */
+  protected readonly currentMonth = signal<Date>(this.startOfMonth(new Date()));
 
-    // Sort each group by appointmentTime
-    for (const [, list] of grouped) {
-      list.sort((a, b) => a.appointmentTime.localeCompare(b.appointmentTime));
-    }
+  // ── Derived: days of the visible week ──────────────────────────────────
+  protected readonly weekDays = computed<WeekDay[]>(() => {
+    const start = this.currentWeekStart();
+    const todayStr = toYMD(new Date());
+    const lang = this.i18n.getActiveLang();
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    const allBookings = this.bookings();
 
-    // Sort days chronologically
-    const sortedDates = [...grouped.keys()].sort();
-
-    const todayStr = this.toLocalDateString(new Date());
-    const tomorrowDate = new Date();
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const tomorrowStr = this.toLocalDateString(tomorrowDate);
-
-    return sortedDates.map((date) => {
-      const isToday = date === todayStr;
-      const isTomorrow = date === tomorrowStr;
-
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const ymd = toYMD(d);
+      const dayBookings = allBookings.filter((b) => b.appointmentDate === ymd);
+      const isClosed = d.getDay() === 0; // Sunday closed by default
       return {
-        date,
-        label: this.buildDayLabel(date, isToday, isTomorrow),
-        isToday,
-        isTomorrow,
-        bookings: grouped.get(date)!,
+        date: ymd,
+        dayOfMonth: d.getDate(),
+        dayName: d.toLocaleDateString(locale, { weekday: 'short' }),
+        isToday: ymd === todayStr,
+        isClosed,
+        bookings: dayBookings.sort((a, b) =>
+          a.appointmentTime.localeCompare(b.appointmentTime)
+        ),
       };
     });
   });
 
-  /**
-   * Bookings that count toward "active business" — i.e. not cancelled.
-   * NO_SHOW stays in: the slot was held and the practitioner blocked their time.
-   * Used by totalBookings and occupiedTime.
-   */
-  private readonly nonCancelledBookings = computed(() =>
-    this.bookings().filter((b) => b.status !== CareBookingStatus.CANCELLED)
+  protected readonly weekLabel = computed(() => {
+    const start = this.currentWeekStart();
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    const lang = this.i18n.getActiveLang();
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    const startDay = start.getDate();
+    const endDay = end.getDate();
+    const month = end.toLocaleDateString(locale, { month: 'long' });
+    const year = end.getFullYear();
+    if (start.getMonth() === end.getMonth()) {
+      return `${startDay} – ${endDay} ${month} ${year}`;
+    }
+    const startMonth = start.toLocaleDateString(locale, { month: 'short' });
+    return `${startDay} ${startMonth} – ${endDay} ${month} ${year}`;
+  });
+
+  protected readonly weekNumber = computed(() => {
+    const d = new Date(this.currentWeekStart());
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  });
+
+  // ── Mini calendar ──────────────────────────────────────────────────────
+  protected readonly monthLabel = computed(() => {
+    const lang = this.i18n.getActiveLang();
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
+    return this.currentMonth().toLocaleDateString(locale, {
+      month: 'long',
+      year: 'numeric',
+    });
+  });
+
+  protected readonly miniCalDays = computed<DayCell[]>(() => {
+    const month = this.currentMonth();
+    const firstOfMonth = this.startOfMonth(month);
+    const firstDay = (firstOfMonth.getDay() || 7) - 1; // Mon=0, Sun=6
+    const start = new Date(firstOfMonth);
+    start.setDate(start.getDate() - firstDay);
+
+    const todayStr = toYMD(new Date());
+    const weekStart = this.currentWeekStart();
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const weekStartStr = toYMD(weekStart);
+    const weekEndStr = toYMD(weekEnd);
+    const allBookings = this.bookings();
+    const bookingsByDate = new Map<string, number>();
+    for (const b of allBookings) {
+      bookingsByDate.set(b.appointmentDate, (bookingsByDate.get(b.appointmentDate) ?? 0) + 1);
+    }
+
+    return Array.from({ length: 42 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const ymd = toYMD(d);
+      const count = bookingsByDate.get(ymd) ?? 0;
+      return {
+        date: ymd,
+        dayOfMonth: d.getDate(),
+        isCurrentMonth: d.getMonth() === month.getMonth(),
+        isToday: ymd === todayStr,
+        isInWeek: ymd >= weekStartStr && ymd <= weekEndStr,
+        hasBookings: count > 0,
+        busy: count >= 5,
+        isClosed: d.getDay() === 0,
+      };
+    });
+  });
+
+  // ── Stats for the week (KPIs) ──────────────────────────────────────────
+  private readonly weekBookings = computed(() =>
+    this.weekDays().flatMap((d) => d.bookings)
   );
 
-  /** Computed: total bookings count (excludes cancelled) */
+  private readonly nonCancelledBookings = computed(() =>
+    this.weekBookings().filter((b) => b.status !== CareBookingStatus.CANCELLED)
+  );
+
   protected readonly totalBookings = computed(() => this.nonCancelledBookings().length);
 
-  /**
-   * Computed: revenue in cents, then formatted.
-   * Excludes both CANCELLED and NO_SHOW (no payment expected) and multiplies
-   * by quantity, matching the backend AnalyticsService.sumRevenue convention.
-   */
   protected readonly estimatedRevenue = computed(() => {
-    const total = this.bookings()
+    const total = this.weekBookings()
       .filter(
         (b) => b.status !== CareBookingStatus.CANCELLED && b.status !== CareBookingStatus.NO_SHOW
       )
@@ -574,15 +198,65 @@ export class ProBookingsComponent {
     return this.formatPrice(total);
   });
 
-  /** Computed: occupied time formatted as "3h15" or "2h" — excludes cancelled */
   protected readonly occupiedTime = computed(() => {
-    const totalMin = this.nonCancelledBookings().reduce((sum, b) => sum + b.care.duration, 0);
+    const totalMin = this.nonCancelledBookings().reduce(
+      (sum, b) => sum + b.care.duration,
+      0
+    );
     const h = Math.floor(totalMin / 60);
     const m = totalMin % 60;
     if (h === 0) return `${m}min`;
     return m > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${h}h`;
   });
 
+  protected readonly statusCounts = computed(() => {
+    const counts = {
+      CONFIRMED: 0,
+      PENDING: 0,
+      CANCELLED: 0,
+      NO_SHOW: 0,
+    };
+    for (const b of this.weekBookings()) {
+      counts[b.status as keyof typeof counts] = (counts[b.status as keyof typeof counts] ?? 0) + 1;
+    }
+    return counts;
+  });
+
+  protected readonly statusFilters = signal<Record<string, boolean>>({
+    CONFIRMED: true,
+    PENDING: true,
+    CANCELLED: true,
+    NO_SHOW: true,
+  });
+
+  // ── Now line position ─────────────────────────────────────────────────
+  protected readonly nowOffsetPx = computed(() => {
+    const now = new Date();
+    const minutes = (now.getHours() - GRID_START_HOUR) * 60 + now.getMinutes();
+    if (minutes < 0 || minutes > (GRID_END_HOUR - GRID_START_HOUR) * 60) return null;
+    return (minutes / 60) * HOUR_HEIGHT_PX;
+  });
+
+  // ── Booking position helpers ──────────────────────────────────────────
+  protected bookingTopPx(b: CareBookingDetailed): number {
+    const [h, m] = b.appointmentTime.split(':').map(Number);
+    const minutes = (h - GRID_START_HOUR) * 60 + m;
+    return (minutes / 60) * HOUR_HEIGHT_PX;
+  }
+
+  protected bookingHeightPx(b: CareBookingDetailed): number {
+    return Math.max(20, (b.care.duration / 60) * HOUR_HEIGHT_PX);
+  }
+
+  protected isVisible(b: CareBookingDetailed): boolean {
+    return this.statusFilters()[b.status] === true;
+  }
+
+  protected statusClass(status: string): string {
+    return 's-' + (STATUS_COLORS[status] ?? 'confirmed');
+  }
+
+  // ── Loaders ───────────────────────────────────────────────────────────
   private readonly loadBookings = rxMethod<void>(
     pipe(
       tap(() => this.isLoading.set(true)),
@@ -590,7 +264,7 @@ export class ProBookingsComponent {
         const filters = this.buildFilters();
         return this.bookingsService.listDetailed(filters, {
           page: 0,
-          size: 100,
+          size: 200,
           sort: 'appointmentDate,asc',
         });
       }),
@@ -626,11 +300,55 @@ export class ProBookingsComponent {
     });
   }
 
-  protected setPeriod(period: PeriodFilter): void {
-    this.selectedPeriod.set(period);
+  // ── Navigation ────────────────────────────────────────────────────────
+  protected prevWeek(): void {
+    const d = new Date(this.currentWeekStart());
+    d.setDate(d.getDate() - 7);
+    this.currentWeekStart.set(d);
+    this.currentMonth.set(this.startOfMonth(d));
     this.loadBookings();
   }
 
+  protected nextWeek(): void {
+    const d = new Date(this.currentWeekStart());
+    d.setDate(d.getDate() + 7);
+    this.currentWeekStart.set(d);
+    this.currentMonth.set(this.startOfMonth(d));
+    this.loadBookings();
+  }
+
+  protected goToday(): void {
+    const today = new Date();
+    this.currentWeekStart.set(this.startOfWeek(today));
+    this.currentMonth.set(this.startOfMonth(today));
+    this.loadBookings();
+  }
+
+  protected jumpToDate(ymd: string): void {
+    const [y, m, d] = ymd.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    this.currentWeekStart.set(this.startOfWeek(date));
+    this.currentMonth.set(this.startOfMonth(date));
+    this.loadBookings();
+  }
+
+  protected prevMonth(): void {
+    const d = new Date(this.currentMonth());
+    d.setMonth(d.getMonth() - 1);
+    this.currentMonth.set(d);
+  }
+
+  protected nextMonth(): void {
+    const d = new Date(this.currentMonth());
+    d.setMonth(d.getMonth() + 1);
+    this.currentMonth.set(d);
+  }
+
+  protected toggleStatusFilter(status: string): void {
+    this.statusFilters.update((f) => ({ ...f, [status]: !f[status] }));
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────
   protected onAddBooking(): void {
     const dialogRef = this.dialog.open(BookingStepperComponent, bottomSheetConfig({
       maxHeight: '90vh',
@@ -649,6 +367,10 @@ export class ProBookingsComponent {
     this.router.navigate(['/pro/clients', userId]);
   }
 
+  protected openBooking(b: CareBookingDetailed): void {
+    this.openClient(b.user.id);
+  }
+
   protected getStatusLabel(status: CareBookingStatus): string {
     switch (status) {
       case CareBookingStatus.PENDING:
@@ -665,7 +387,6 @@ export class ProBookingsComponent {
   }
 
   protected formatTime(time: string): string {
-    // time is "HH:mm:ss" or "HH:mm"
     const [h, m] = time.split(':');
     return `${h}:${m}`;
   }
@@ -685,63 +406,31 @@ export class ProBookingsComponent {
     }).format(price / 100);
   }
 
+  // ── Internals ─────────────────────────────────────────────────────────
   private buildFilters(): BookingFilters {
-    const today = new Date();
-    const from = this.toLocalDateString(today);
-
-    let to: string;
-    switch (this.selectedPeriod()) {
-      case 'today': {
-        const d = new Date(today);
-        d.setDate(d.getDate() + 1);
-        to = this.toLocalDateString(d);
-        break;
-      }
-      case 'week': {
-        const d = new Date(today);
-        d.setDate(d.getDate() + 7);
-        to = this.toLocalDateString(d);
-        break;
-      }
-      case 'month': {
-        const d = new Date(today);
-        d.setDate(d.getDate() + 30);
-        to = this.toLocalDateString(d);
-        break;
-      }
-    }
-
-    return { from, to };
+    // Load a window around the visible week so the mini cal can show dots
+    // for adjacent weeks too.
+    const start = new Date(this.currentWeekStart());
+    start.setDate(start.getDate() - 14);
+    const end = new Date(this.currentWeekStart());
+    end.setDate(end.getDate() + 35);
+    return {
+      from: toYMD(start),
+      to: toYMD(end),
+    };
   }
 
-  private buildDayLabel(dateStr: string, isToday: boolean, isTomorrow: boolean): string {
-    // Parse as local date (dateStr is YYYY-MM-DD)
-    const [y, m, d] = dateStr.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-
-    const lang = this.i18n.getActiveLang();
-    const locale = lang === 'fr' ? 'fr-FR' : 'en-GB';
-
-    const dayName = date.toLocaleDateString(locale, { weekday: 'long' });
-    const dayNum = date.getDate();
-    const monthName = date.toLocaleDateString(locale, { month: 'long' });
-
-    const formatted =
-      `${dayName.charAt(0).toUpperCase() + dayName.slice(1)} ${dayNum} ${monthName}`;
-
-    if (isToday) {
-      const todayLabel = this.i18n.translate('pro.bookings.today');
-      return `${todayLabel} — ${formatted}`;
-    }
-    if (isTomorrow) {
-      const tomorrowLabel = this.i18n.translate('pro.bookings.tomorrow');
-      return `${tomorrowLabel} — ${formatted}`;
-    }
-    return formatted;
+  /** Monday 00:00 of the week containing `date`. */
+  private startOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay() || 7; // 1..7
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - (day - 1));
+    return d;
   }
 
-  /** Format a Date to YYYY-MM-DD string in local timezone */
-  private toLocalDateString(date: Date): string {
-    return toYMD(date);
+  /** First day 00:00 of the month containing `date`. */
+  private startOfMonth(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), 1);
   }
 }
