@@ -9,7 +9,7 @@
     <!-- Header: Logo + Name + Edit button -->
     <div class="profile-card header-card">
       <div class="header-row">
-        <div class="logo-wrapper" (click)="triggerLogoUpload()">
+        <div class="logo-wrapper" (click)="triggerLogoUpload()" data-tour-step="logo">
           @if (logoImages().length > 0) {
             <img [src]="logoImages()[0].url" alt="Logo" class="logo-img" />
           } @else {
@@ -37,11 +37,11 @@
 
     <!-- Tabs -->
     <form (ngSubmit)="onSave()">
-      <mat-tab-group animationDuration="150ms" class="salon-tabs">
+      <mat-tab-group animationDuration="150ms" class="salon-tabs" data-tour-step="contact">
         <!-- Tab 1: Informations -->
         <mat-tab [label]="'pro.salon.title' | transloco">
           <div class="tab-content">
-            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name">
+            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name" data-tour-step="name">
               <mat-label>{{ 'pro.salon.name' | transloco }}</mat-label>
               <input matInput [ngModel]="name()" (ngModelChange)="name.set($event); markDirty()" required maxlength="100" name="salonName" />
             </mat-form-field>
