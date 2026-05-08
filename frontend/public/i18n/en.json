@@ -139,6 +139,11 @@
     "deleteError": "Error deleting service",
     "autoOpen": {
       "needCategoryFirst": "Create a category first so you can add a service."
+    },
+    "allCategories": "All categories",
+    "kpi": {
+      "activeCares": "Active services",
+      "categories": "Categories"
     }
   },
   "categories": {

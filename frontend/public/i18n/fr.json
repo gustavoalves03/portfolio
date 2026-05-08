@@ -143,6 +143,11 @@
     "deleteError": "Erreur lors de la suppression",
     "autoOpen": {
       "needCategoryFirst": "Crée d'abord une catégorie pour pouvoir ajouter un soin."
+    },
+    "allCategories": "Toutes les catégories",
+    "kpi": {
+      "activeCares": "Soins actifs",
+      "categories": "Catégories"
     }
   },
   "categories": {
