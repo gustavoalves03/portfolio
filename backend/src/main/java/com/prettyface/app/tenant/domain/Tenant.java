@@ -24,7 +24,7 @@ public class Tenant {
     @Column(name = "slug", nullable = false)
     private String slug;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
     @Column(name = "owner_id", nullable = false)
