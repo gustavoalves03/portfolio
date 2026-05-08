@@ -76,7 +76,7 @@ import { CaresStore } from '../../../cares/store/cares.store';
       }
 
       .care-card.selected {
-        border-color: #c06;
+        border-color: var(--pf-rose);
         background: #fff5f7;
       }
 
@@ -95,7 +95,7 @@ import { CaresStore } from '../../../cares/store/cares.store';
 
       .btn-next {
         align-self: stretch;
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         border: none;
         border-radius: 8px;

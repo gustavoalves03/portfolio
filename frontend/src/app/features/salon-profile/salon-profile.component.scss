@@ -1,5 +1,5 @@
 .salon-profile {
-  background: #f5f4f2;
+  background: var(--pf-paper);
   padding: 16px;
   max-width: 800px;
   margin: 0 auto;
@@ -182,7 +182,7 @@
 .hero-label {
   font-size: 11px;
   font-weight: 500;
-  color: #c06;
+  color: var(--pf-rose);
   display: block;
   margin-bottom: 8px;
 }
@@ -240,8 +240,8 @@
   color: #999;
 
   &:hover {
-    border-color: #c06;
-    color: #c06;
+    border-color: var(--pf-rose);
+    color: var(--pf-rose);
     background: #fdf8f8;
   }
 
@@ -256,6 +256,11 @@
   }
 }
 
+.preview-share-block {
+  display: block;
+  margin-top: 24px;
+}
+
 // Save button
 .save-btn {
   width: 100%;
@@ -264,7 +269,7 @@
   border-radius: 24px !important;
   font-size: 14px !important;
   font-weight: 500 !important;
-  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose)) !important;
   color: white !important;
 }
 
@@ -274,7 +279,7 @@
   gap: 8px;
   margin-top: 12px;
   padding: 8px 14px;
-  background: rgba(192, 0, 102, 0.06);
+  background: rgba(198, 96, 117, 0.08);
   border: 1px solid rgba(192, 0, 102, 0.2);
   border-radius: 8px;
   color: #6b1d3f;
@@ -285,6 +290,6 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: #c06;
+    color: var(--pf-rose);
   }
 }

@@ -143,14 +143,14 @@ import { ClosedDaysStore } from '../../../availability/closed-days.store';
       }
 
       .time-btn.selected {
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
-        border-color: #c06;
+        border-color: var(--pf-rose);
       }
 
       .btn-next {
         align-self: stretch;
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         border: none;
         border-radius: 8px;

@@ -166,7 +166,9 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
         </div>
     `,
     styles: [`
-        .settings-page { background: #f5f4f2; padding: 16px; max-width: 800px; margin: 0 auto; }
+        .settings-page { background: var(--pf-paper); padding: 16px; max-width: 1440px; margin: 0 auto; }
+        @media (min-width: 768px) { .settings-page { padding: 24px 32px; } }
+        @media (min-width: 1280px) { .settings-page { padding: 24px 48px; } }
         .page-title { font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px; }
         .settings-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .section-title { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 16px; }
@@ -179,7 +181,7 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
             font-family: Roboto, sans-serif; font-size: 14px; font-weight: 500; color: #333;
             text-align: center; outline: none;
         }
-        .days-field:focus { border-color: #c06; box-shadow: 0 0 0 2px rgba(192,0,102,0.1); }
+        .days-field:focus { border-color: var(--pf-rose); box-shadow: 0 0 0 2px rgba(192,0,102,0.1); }
         .days-unit { font-size: 13px; color: #888; }
         .holidays-drawer-toggle {
             display: flex; align-items: center; gap: 8px; width: 100%;
@@ -189,7 +191,7 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
         }
         .holidays-drawer-toggle:hover { color: #333; }
         .holidays-count {
-            background: #f0e0e8; color: #c06; font-size: 11px; font-weight: 600;
+            background: #f0e0e8; color: var(--pf-rose); font-size: 11px; font-weight: 600;
             padding: 1px 7px; border-radius: 10px;
         }
         .holidays-chevron {

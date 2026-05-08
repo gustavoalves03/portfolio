@@ -31,9 +31,11 @@ describe('Home', () => {
     fixture.detectChanges();
   });
 
-  it('renders hero, salon carousel placeholder, and pro CTA', () => {
+  it('renders hero, search bar, category grid and pro CTA', () => {
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('app-hero-video')).not.toBeNull();
-    expect(root.querySelector('.pro-cta')).not.toBeNull();
+    expect(root.querySelector('.v1-hero')).not.toBeNull();
+    expect(root.querySelector('.v1-search')).not.toBeNull();
+    expect(root.querySelectorAll('.v1-cat').length).toBeGreaterThan(0);
+    expect(root.querySelector('.v1-pro-card')).not.toBeNull();
   });
 });

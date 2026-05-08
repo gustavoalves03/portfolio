@@ -51,7 +51,7 @@
   transition: color 150ms ease;
 
   &:hover {
-    color: #c06;
+    color: var(--pf-rose);
   }
 }
 
@@ -110,12 +110,12 @@
   }
 
   &.today {
-    background: #c06;
+    background: var(--pf-rose);
     color: white;
     font-weight: 600;
 
     &:hover {
-      background: #a8385d;
+      background: var(--pf-rose-deep);
     }
   }
 
@@ -133,7 +133,7 @@
 
   &.holiday {
     background: #f5f0f2;
-    color: #c06;
+    color: var(--pf-rose);
     position: relative;
 
     &::after {
@@ -145,16 +145,16 @@
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: #c06;
+      background: var(--pf-rose);
     }
   }
 
   &.selected {
-    box-shadow: 0 0 0 2px #c06;
+    box-shadow: 0 0 0 2px var(--pf-rose);
   }
 
   &.today.selected {
-    box-shadow: 0 0 0 2px #a8385d;
+    box-shadow: 0 0 0 2px var(--pf-rose-deep);
   }
 }
 
@@ -181,7 +181,7 @@
   border-radius: 50%;
 
   &.today-dot {
-    background: #c06;
+    background: var(--pf-rose);
   }
 
   &.blocked-dot {
@@ -196,7 +196,7 @@
 
   &.holiday-dot {
     background: #f5f0f2;
-    border: 1px solid #c06;
+    border: 1px solid var(--pf-rose);
   }
 }
 
@@ -239,7 +239,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #c06;
+  color: var(--pf-rose);
   font-weight: 500;
   margin-bottom: 12px;
   padding: 8px 12px;
@@ -251,7 +251,7 @@
   font-size: 18px;
   width: 18px;
   height: 18px;
-  color: #c06;
+  color: var(--pf-rose);
 }
 
 // --- Slot rows ---
@@ -322,8 +322,8 @@
   margin-top: 8px;
 
   &:hover {
-    border-color: #c06;
-    color: #c06;
+    border-color: var(--pf-rose);
+    color: var(--pf-rose);
   }
 }
 
@@ -405,7 +405,7 @@
 }
 
 .confirm-btn {
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   color: white;
   border: none;
   padding: 8px 20px;

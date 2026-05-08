@@ -83,7 +83,7 @@
 }
 
 .center .salon-card {
-  box-shadow: 0 12px 36px rgba(192, 0, 102, 0.18);
+  box-shadow: 0 12px 36px rgba(198, 96, 117, 0.20);
   border-radius: 16px;
 }
 
@@ -197,7 +197,7 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   z-index: 10;
-  color: #c06;
+  color: var(--pf-rose);
 
   @media (prefers-reduced-motion: no-preference) {
     transition:
@@ -209,7 +209,7 @@
   }
 
   &.is-flipped {
-    background: #c06;
+    background: var(--pf-rose);
     color: white;
   }
 }

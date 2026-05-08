@@ -109,7 +109,7 @@ export interface RateVisitDialogData {
     }
 
     .submit-btn {
-      background: var(--mat-sys-primary, #a8385d) !important;
+      background: var(--mat-sys-primary, var(--pf-rose-deep)) !important;
       color: #fff !important;
     }
   `,

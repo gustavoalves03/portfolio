@@ -1,5 +1,5 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
@@ -36,8 +36,12 @@ export class SalonProfileService {
     );
   }
 
-  getPublicSalon(slug: string): Observable<PublicSalonResponse> {
-    return this.http.get<PublicSalonResponse>(`${this.baseUrl}/api/salon/${slug}`).pipe(
+  getPublicSalon(slug: string, previewToken?: string | null): Observable<PublicSalonResponse> {
+    let params = new HttpParams();
+    if (previewToken) {
+      params = params.set('preview', previewToken);
+    }
+    return this.http.get<PublicSalonResponse>(`${this.baseUrl}/api/salon/${slug}`, { params }).pipe(
       map(salon => this.transformPublicUrls(salon))
     );
   }

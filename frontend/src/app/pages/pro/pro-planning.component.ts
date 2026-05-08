@@ -28,7 +28,7 @@ import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-para
   `,
   styles: [`
     .planning-page {
-      background: #f5f4f2;
+      background: var(--pf-paper);
       padding: 16px;
       max-width: 800px;
       margin: 0 auto;

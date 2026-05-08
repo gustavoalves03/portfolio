@@ -1,7 +1,7 @@
-$primary: #c06;
-$primary-light: #e8a0b0;
-$primary-lighter: #fef2f8;
-$bg: #f5f4f2;
+$primary: var(--pf-rose);
+$primary-light: var(--pf-shell-2);
+$primary-lighter: var(--pf-shell);
+$bg: var(--pf-paper);
 $green: #52b788;
 $green-dark: #166534;
 $red: #ef5350;
@@ -19,11 +19,17 @@ $radius: 10px;
 }
 
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 16px;
 
   @media (min-width: 768px) {
+    padding: 24px 32px;
+    padding-top: 8px;
+  }
+
+  @media (min-width: 1280px) {
+    padding: 24px 48px;
     padding-top: 8px;
   }
 }
@@ -169,7 +175,7 @@ $radius: 10px;
   &.is-next {
     background: $primary-lighter;
     border-color: $primary-light;
-    box-shadow: 0 2px 12px rgba(192, 0, 102, 0.08);
+    box-shadow: 0 2px 12px rgba(198, 96, 117, 0.10);
 
     .onboarding-step-icon mat-icon {
       color: $primary;
@@ -309,7 +315,7 @@ $radius: 10px;
   &:hover:not(:disabled) {
     border-color: $primary-light;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(192, 0, 102, 0.10);
+    box-shadow: 0 4px 12px rgba(198, 96, 117, 0.12);
   }
 
   &:disabled {
@@ -719,7 +725,7 @@ $radius: 10px;
 
 .ranking-bar {
   height: 100%;
-  background: linear-gradient(90deg, #a8385d, $primary);
+  background: linear-gradient(90deg, var(--pf-rose-deep), $primary);
   border-radius: 4px;
   transition: width 300ms ease;
 }

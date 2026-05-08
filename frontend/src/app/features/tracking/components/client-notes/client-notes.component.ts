@@ -45,7 +45,7 @@ import { AccessLevel } from '../../tracking.model';
     .notes-text { font-size: 13px; color: #4b5563; line-height: 1.5; }
     .notes-textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; font-size: 13px; resize: vertical; font-family: inherit; }
     .notes-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
-    .save-btn { background: #c06 !important; color: white !important; border-radius: 8px; }
+    .save-btn { background: var(--pf-rose) !important; color: white !important; border-radius: 8px; }
     .audit-line { font-size: 10px; color: #9ca3af; margin-top: 8px; }
   `
 })

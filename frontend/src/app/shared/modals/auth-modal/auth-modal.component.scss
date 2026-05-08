@@ -42,7 +42,7 @@
 .submit-btn {
   width: 100%;
   margin-top: 8px;
-  background: linear-gradient(135deg, #a8385d, #c06) !important;
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose)) !important;
   color: white !important;
   border-radius: 24px !important;
   padding: 10px 0 !important;
@@ -98,7 +98,7 @@
   margin-top: 16px;
 
   a {
-    color: #c06;
+    color: var(--pf-rose);
     cursor: pointer;
     font-weight: 500;
 
@@ -118,7 +118,7 @@
   }
 
   ::ng-deep a {
-    color: #c06;
+    color: var(--pf-rose);
   }
 }
 

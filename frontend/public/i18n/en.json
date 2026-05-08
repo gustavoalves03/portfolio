@@ -752,6 +752,192 @@
     "cta": {
       "question": "Are you a beauty professional?",
       "action": "Create your storefront for free"
+    },
+    "v1": {
+      "topnav": {
+        "discover": "Discover",
+        "categories": "Categories",
+        "forPros": "For pros",
+        "help": "Help",
+        "login": "Sign in",
+        "book": "Book"
+      },
+      "hero": {
+        "eyebrow": "Beauty booking",
+        "titleStart": "Find your",
+        "titleAccent": "ritual",
+        "titleEnd": "book in two clicks.",
+        "sub": "Facials, manicures, hair, massage. A curated selection of attentive salons, near you, available today.",
+        "searchService": "Treatment",
+        "searchServicePlaceholder": "Facial",
+        "searchPlace": "Where",
+        "searchPlacePlaceholder": "Paris, 11th",
+        "searchCta": "Search",
+        "metaCurated": "Hand-picked salons",
+        "metaQuick": "Book in under a minute",
+        "metaCancel": "Free cancellation"
+      },
+      "catalog": {
+        "eyebrow": "The catalog",
+        "titleStart": "Every",
+        "titleAccent": "desire",
+        "titleEnd": ", one app.",
+        "viewAll": "View all",
+        "items": {
+          "facial": "Facial",
+          "hair": "Hair",
+          "nails": "Nails",
+          "massage": "Massage",
+          "lashes": "Lashes & brows",
+          "makeup": "Makeup",
+          "waxing": "Waxing",
+          "wellness": "Wellness",
+          "barber": "Barber",
+          "rituals": "Long rituals"
+        }
+      },
+      "selection": {
+        "eyebrow": "On show",
+        "titleStart": "Salons",
+        "titleAccent": "spotted",
+        "titleEnd": " by our team.",
+        "exploreMap": "Explore the map",
+        "availability": {
+          "today": "Today",
+          "tomorrow": "Tomorrow",
+          "thisWeek": "This week"
+        }
+      },
+      "how": {
+        "eyebrow": "How it works",
+        "titleStart": "Three",
+        "titleAccent": "moves",
+        "titleEnd": ", and it's booked.",
+        "step1Title": "Pick your treatment",
+        "step1Body": "Filter by mood, duration, budget. Every salon is hand-curated by our team — no surprises.",
+        "step2Title": "Book in two clicks",
+        "step2Body": "Live availability, instant confirmation. Cancel free up to 24 h before.",
+        "step3Title": "Enjoy the moment",
+        "step3Body": "Your history, preferences and favourite rituals follow you from one salon to the next."
+      },
+      "voices": {
+        "eyebrow": "We're just starting — and saying so",
+        "titleStart": "Real reviews",
+        "titleAccent": "are coming",
+        "titleEnd": " — promise.",
+        "q1": "No client reviews to show yet. We just opened and we'd rather be honest than invent fake quotes.",
+        "q1Author": "The Pretty Face team",
+        "q1Meta": "The project · started in 2026",
+        "q2": "If you try the app, we'd love to hear from you. Even harsh feedback helps us build what you actually want from a salon.",
+        "q2Author": "You, maybe?",
+        "q2Meta": "Client · future testimonial",
+        "q3": "On the pro side too, we're looking for the first estheticians willing to try Pretty Face Pro. If that's you, drop us a line — we'll set it up with you.",
+        "q3Author": "An esthetician",
+        "q3Meta": "Pro · seat reserved"
+      },
+      "proCta": {
+        "eyebrow": "For estheticians",
+        "titleStart": "Your salon deserves more",
+        "titleAccent": "than a paper diary",
+        "titleEnd": ".",
+        "body": "Pretty Face Pro brings together your schedule, your clients, their treatment notes and your storefront spotlight. No commitment.",
+        "primary": "Discover Pretty Face Pro",
+        "secondary": "See pricing"
+      },
+      "cities": {
+        "eyebrow": "Where to find us",
+        "title": "Where to book near you.",
+        "startEmpty": "No salons published yet — let's be the first ones together.",
+        "startWith": "For now, we're in {{cities}} — come and join.",
+        "joinCta": "Are you an esthetician? Pretty Face opens city by city. The more of us there are, the more the map fills in.",
+        "joinButton": "Join Pretty Face Pro"
+      },
+      "footer": {
+        "tag": "A certain idea of beauty — gentle, attentive, on your time.",
+        "ios": "iOS app",
+        "android": "Android app",
+        "discoverTitle": "Discover",
+        "discoverViewAll": "View all",
+        "proTitle": "For pros",
+        "proLink": "Pretty Face Pro",
+        "proPricing": "Pricing",
+        "proJoin": "Join us",
+        "proSpace": "Pro space",
+        "houseTitle": "House",
+        "houseAbout": "About",
+        "houseManifesto": "Manifesto",
+        "houseCareers": "Careers",
+        "housePress": "Press contact",
+        "rights": "© 2026 Pretty Face. All rights reserved.",
+        "legal": "Legal · Privacy · Cookies"
+      },
+      "parallax": {
+        "eyebrow": "Pretty Face Pro",
+        "titleStart": "Your salon,",
+        "titleAccent": "augmented",
+        "titleEnd": ".",
+        "subtitle": "Take bookings, keep clients close, grow your business — all in one place.",
+        "ctaPrimary": "Launch my salon",
+        "ctaSecondary": "See the demo"
+      },
+      "demo": {
+        "eyebrow": "Your dashboard",
+        "titleStart": "One morning,",
+        "titleAccent": "told",
+        "titleEnd": ".",
+        "subtitle": "Your future dashboard, in four moments.",
+        "captions": {
+          "0": "Sarah just booked a 90-minute treatment.",
+          "1": "The slot lands in your schedule.",
+          "2": "Your monthly revenue jumps by €85.",
+          "3": "Two hours later, Sarah leaves 5 stars."
+        },
+        "steps": {
+          "0": "— 09:14",
+          "1": "— 09:15",
+          "2": "— 09:15",
+          "3": "— 11:42"
+        },
+        "widgets": {
+          "notif": "Notifications",
+          "calendar": "Schedule · this week",
+          "revenue": "Revenue · this month",
+          "review": "Latest review"
+        },
+        "empty": "quiet",
+        "notif": {
+          "text": "booked.",
+          "time": "a few seconds ago"
+        },
+        "revenue": {
+          "bump": "Sarah B. booking"
+        },
+        "review": {
+          "quote": "Top service, coming back in 3 weeks!"
+        }
+      },
+      "features": {
+        "eyebrow": "For estheticians",
+        "titleStart": "Everything you",
+        "titleAccent": "need",
+        "titleEnd": ".",
+        "vitrine": {
+          "title": "Online storefront",
+          "bullets": "Custom page · Photos · Direct booking"
+        },
+        "planning": {
+          "title": "Smart scheduling",
+          "bullets": "Availability · Buffer · Auto reminders"
+        },
+        "clients": {
+          "title": "Client follow-up",
+          "bullets": "History · Notes · Before/after photos"
+        },
+        "payments": {
+          "title": "Easy payments",
+          "bullets": "Stripe-ready · Auto invoicing"
+        }
+      }
     }
   },
   "discover": {
@@ -782,6 +968,18 @@
         "publishing": "Publishing…",
         "bookingDisabled": "Booking is disabled in preview mode"
       }
+    },
+    "previewShare": {
+      "title": "Share a preview",
+      "subtitle": "Generate a temporary link to show your storefront to someone before publication.",
+      "generate": "Generate a link",
+      "noLinks": "No active links",
+      "createdAt": "Created on {{date}}",
+      "copy": "Copy",
+      "copied": "Link copied",
+      "revoke": "Revoke",
+      "revoked": "Link revoked",
+      "revokeConfirm": "Revoke this link? The recipient won't be able to access it anymore."
     }
   },
   "posts": {
@@ -1149,6 +1347,13 @@
     "viewAll": "View all bookings"
   },
   "pricing": {
+    "header": {
+      "eyebrow": "Pricing",
+      "titleStart": "One plan,",
+      "titleAccent": "no surprises",
+      "titleEnd": ".",
+      "subtitle": "Pretty Face Pro is free for 30 days. No card required, no commitment."
+    },
     "hero": {
       "title": "Your salon, amplified",
       "subtitle": "Book appointments, keep clients coming back, grow your business — all in one place.",

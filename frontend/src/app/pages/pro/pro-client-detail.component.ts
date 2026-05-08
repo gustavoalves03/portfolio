@@ -66,7 +66,7 @@ import { ClientBookingsComponent } from '../../features/tracking/components/clie
   styles: [`
     :host {
       display: block;
-      background: #f5f4f2;
+      background: var(--pf-paper);
       min-height: 100vh;
       padding: 16px;
     }

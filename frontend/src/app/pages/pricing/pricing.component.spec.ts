@@ -31,22 +31,10 @@ describe('PricingComponent', () => {
     fixture.detectChanges();
   });
 
-  it('renders the parallax hero', () => {
-    const hero = (fixture.nativeElement as HTMLElement).querySelector('app-parallax-hero');
-    expect(hero).not.toBeNull();
-  });
-
-  it('renders the mock browser frame containing the three widgets', () => {
-    const frame = (fixture.nativeElement as HTMLElement).querySelector('app-mock-browser');
-    expect(frame).not.toBeNull();
-    expect(frame?.querySelector('app-revenue-widget')).not.toBeNull();
-    expect(frame?.querySelector('app-calendar-widget')).not.toBeNull();
-    expect(frame?.querySelector('app-reviews-widget')).not.toBeNull();
-  });
-
-  it('renders the four feature cards', () => {
-    const cards = (fixture.nativeElement as HTMLElement).querySelectorAll('[data-testid="feature-card"]');
-    expect(cards.length).toBe(4);
+  it('renders the page header', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.pricing-header')).not.toBeNull();
+    expect(root.querySelector('.pricing-title')).not.toBeNull();
   });
 
   it('renders the plan card', () => {

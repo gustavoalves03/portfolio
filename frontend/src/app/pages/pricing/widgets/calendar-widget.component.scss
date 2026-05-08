@@ -40,11 +40,11 @@
 }
 
 .cal-cell.is-filled.is-active {
-  background: linear-gradient(135deg, #d486a4, #c06);
+  background: linear-gradient(135deg, #d486a4, var(--pf-rose));
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cal-cell.is-filled {
-    background: linear-gradient(135deg, #d486a4, #c06);
+    background: linear-gradient(135deg, #d486a4, var(--pf-rose));
   }
 }

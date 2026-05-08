@@ -1,0 +1,62 @@
+<section class="ps-section">
+  <header class="ps-header">
+    <h3 class="ps-title">{{ 'salon.previewShare.title' | transloco }}</h3>
+    <p class="ps-subtitle">{{ 'salon.previewShare.subtitle' | transloco }}</p>
+  </header>
+
+  <button
+    type="button"
+    mat-stroked-button
+    class="ps-generate"
+    data-testid="generate-btn"
+    [disabled]="creating()"
+    (click)="onGenerate()"
+  >
+    <mat-icon>add_link</mat-icon>
+    {{ 'salon.previewShare.generate' | transloco }}
+  </button>
+
+  @if (activeTokens().length === 0) {
+    <p class="ps-empty" data-testid="no-links">
+      {{ 'salon.previewShare.noLinks' | transloco }}
+    </p>
+  } @else {
+    <ul class="ps-list">
+      @for (token of activeTokens(); track token.id) {
+        <li class="ps-row" data-testid="token-row">
+          <div class="ps-row-info">
+            <code class="ps-row-token">…{{ token.token.slice(-8) }}</code>
+            <span class="ps-row-date">
+              {{
+                'salon.previewShare.createdAt'
+                  | transloco: { date: formattedDate(token.createdAt) }
+              }}
+            </span>
+          </div>
+          <div class="ps-row-actions">
+            <button
+              type="button"
+              mat-stroked-button
+              class="ps-action"
+              [attr.data-testid]="'copy-btn-' + token.id"
+              (click)="onCopy(token)"
+            >
+              <mat-icon>content_copy</mat-icon>
+              {{ 'salon.previewShare.copy' | transloco }}
+            </button>
+            <button
+              type="button"
+              mat-stroked-button
+              class="ps-action ps-action-danger"
+              [attr.data-testid]="'revoke-btn-' + token.id"
+              (click)="onRevoke(token)"
+            >
+              <mat-icon>delete</mat-icon>
+              {{ 'salon.previewShare.revoke' | transloco }}
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>

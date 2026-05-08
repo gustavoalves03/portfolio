@@ -53,7 +53,7 @@ import { SwipeLeftDirective } from './swipe-left.directive';
       width: 34px; height: 34px;
       border-radius: 50%;
       background: #fff0f5;
-      color: #c06;
+      color: var(--pf-rose);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }

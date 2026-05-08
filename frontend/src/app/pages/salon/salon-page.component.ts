@@ -62,11 +62,12 @@ export class SalonPageComponent implements OnDestroy {
   constructor() {
     // Load salon
     const slug = this.route.snapshot.paramMap.get('slug');
+    const previewToken = this.route.snapshot.queryParamMap.get('preview');
     if (!slug) {
       this.notFound.set(true);
       this.loading.set(false);
     } else {
-      this.salonService.getPublicSalon(slug).subscribe({
+      this.salonService.getPublicSalon(slug, previewToken).subscribe({
         next: (salon) => {
           this.salon.set(salon);
           this.loading.set(false);
@@ -125,7 +126,8 @@ export class SalonPageComponent implements OnDestroy {
   protected onPublishedFromBanner(): void {
     const slug = this.salon()?.slug;
     if (!slug) return;
-    this.salonService.getPublicSalon(slug).subscribe({
+    const previewToken = this.route.snapshot.queryParamMap.get('preview');
+    this.salonService.getPublicSalon(slug, previewToken).subscribe({
       next: (salon) => this.salon.set(salon),
     });
   }

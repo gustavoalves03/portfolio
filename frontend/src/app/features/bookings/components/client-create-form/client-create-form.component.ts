@@ -97,7 +97,7 @@ import {
         width: 64px;
         height: 64px;
         border-radius: 50%;
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         font-size: 24px;
         font-weight: 600;
@@ -141,7 +141,7 @@ import {
       }
 
       .btn-create {
-        background: #c06;
+        background: var(--pf-rose);
         color: white;
         border: none;
         border-radius: 8px;

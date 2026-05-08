@@ -69,7 +69,7 @@ export interface PeriodResult {
     .range { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .apply {
       margin-top: 8px; padding: 12px; border: none; border-radius: 10px;
-      background: #c06; color: white; font-weight: 600; font-size: 14px;
+      background: var(--pf-rose); color: white; font-weight: 600; font-size: 14px;
       cursor: pointer;
     }
   `],

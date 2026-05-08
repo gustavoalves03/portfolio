@@ -81,7 +81,7 @@ interface BottomTab {
       align-items: center;
       gap: 2px;
       text-decoration: none;
-      color: #999;
+      color: var(--pf-ink-mute);
       transition: color 150ms;
 
       mat-icon {
@@ -96,10 +96,10 @@ interface BottomTab {
       }
 
       &.active {
-        color: #c06;
+        color: var(--pf-rose);
 
         mat-icon {
-          background: #fef2f8;
+          background: var(--pf-shell);
           border-radius: 12px;
           padding: 2px 12px;
           width: auto;
@@ -122,10 +122,10 @@ interface BottomTab {
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: linear-gradient(135deg, #a8385d, #c06);
+        background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
         color: #fff;
         margin-top: -10px;
-        box-shadow: 0 3px 10px rgba(192, 0, 102, 0.25);
+        box-shadow: 0 3px 10px rgba(168, 62, 88, 0.3);
       }
     }
 

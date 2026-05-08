@@ -35,7 +35,7 @@ interface ManageCard {
   `,
   styles: `
     .manage-page {
-      background: #f5f4f2;
+      background: var(--pf-paper);
       padding: 16px;
       max-width: 800px;
       margin: 0 auto;
@@ -82,7 +82,7 @@ interface ManageCard {
       font-size: 24px;
       width: 24px;
       height: 24px;
-      color: #c06;
+      color: var(--pf-rose);
     }
 
     .card-text {

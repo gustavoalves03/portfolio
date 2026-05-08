@@ -109,8 +109,8 @@
 
   &:hover,
   &.hovered {
-    border-color: #c06;
-    box-shadow: 0 4px 16px rgba(192, 0, 102, 0.12);
+    border-color: var(--pf-rose);
+    box-shadow: 0 4px 16px rgba(198, 96, 117, 0.14);
   }
 }
 
@@ -155,7 +155,7 @@
     font-size: 14px;
     width: 14px;
     height: 14px;
-    color: #c06;
+    color: var(--pf-rose);
   }
 }
 
@@ -232,7 +232,7 @@
   .salon-pin {
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, #a8385d, #c06);
+    background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     border: 2px solid white;
@@ -244,7 +244,7 @@
     width: 30px;
     height: 30px;
     border-width: 3px;
-    box-shadow: 0 2px 8px rgba(192, 0, 102, 0.4);
+    box-shadow: 0 2px 8px rgba(198, 96, 117, 0.40);
   }
 
   .leaflet-popup-content-wrapper {

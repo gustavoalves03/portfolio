@@ -11,8 +11,8 @@
   justify-content: space-between;
   gap: 16px;
   padding: 10px 20px;
-  background: #fdf3f7;
-  border-bottom: 1px solid rgba(192, 0, 102, 0.18);
+  background: var(--pf-shell);
+  border-bottom: 1px solid rgba(198, 96, 117, 0.20);
 }
 
 .banner-text {
@@ -23,7 +23,7 @@
 }
 
 .banner-icon {
-  color: #c06;
+  color: var(--pf-rose);
   font-size: 22px;
   width: 22px;
   height: 22px;
@@ -81,9 +81,9 @@
 }
 
 .banner-action-primary {
-  background: #c06;
+  background: var(--pf-rose);
   color: white;
-  border-color: #c06;
+  border-color: var(--pf-rose);
 }
 
 .banner-action-primary:hover {

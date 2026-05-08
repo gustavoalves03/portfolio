@@ -30,7 +30,7 @@ import { EmployeesStore } from '../../../../features/employees/employees.store';
     mat-radio-group { display: flex; flex-direction: column; gap: 8px; }
     .apply {
       margin-top: 8px; padding: 12px; border: none; border-radius: 10px;
-      background: #c06; color: white; font-weight: 600; font-size: 14px;
+      background: var(--pf-rose); color: white; font-weight: 600; font-size: 14px;
       cursor: pointer;
     }
   `],

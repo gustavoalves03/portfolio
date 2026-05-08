@@ -14,6 +14,7 @@ import { FocusOnQueryParamDirective } from '../../shared/uis/focus-on-query-para
 import { SalonProfileStore } from './store/salon-profile.store';
 import { UpdateTenantRequest } from './models/salon-profile.model';
 import { DashboardStore } from '../dashboard/store/dashboard.store';
+import { PreviewShareComponent } from './preview-share/preview-share.component';
 
 @Component({
   selector: 'app-salon-profile',
@@ -29,6 +30,7 @@ import { DashboardStore } from '../dashboard/store/dashboard.store';
     TranslocoPipe,
     CountryPickerComponent,
     FocusOnQueryParamDirective,
+    PreviewShareComponent,
   ],
   providers: [SalonProfileStore],
   templateUrl: './salon-profile.component.html',

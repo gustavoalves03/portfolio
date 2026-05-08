@@ -1,58 +1,379 @@
-<!-- Hero -->
-<app-hero-video
-  posterUrl="/hero/hero-poster.jpg"
-  videoUrl="/hero/hero-loop.mp4"
->
-  <div class="hero-brand">
-    <span class="hero-brand-pretty">Pretty</span>
-    <span class="hero-brand-face">Face</span>
-  </div>
-  <p class="hero-subtitle">{{ 'home.hero.subtitle' | transloco }}</p>
-  <form class="hero-search" (submit)="onSearch(); $event.preventDefault()">
-    <mat-icon class="hero-search-icon">search</mat-icon>
-    <input
-      type="text"
-      class="hero-search-input"
-      [placeholder]="'home.hero.search' | transloco"
-      [value]="searchQuery()"
-      (input)="searchQuery.set($any($event.target).value)"
-    />
-  </form>
-</app-hero-video>
+<!-- ============ Hero ============ -->
+<section class="v1-hero">
+  <div class="v1-hero-blob" aria-hidden="true"></div>
+  <div class="v1-hero-grid">
+    <p class="v1-eyebrow rose">{{ 'home.v1.hero.eyebrow' | transloco }}</p>
+    <h1 class="v1-hero-title">
+      {{ 'home.v1.hero.titleStart' | transloco }}
+      <em>{{ 'home.v1.hero.titleAccent' | transloco }}</em>,<br />
+      {{ 'home.v1.hero.titleEnd' | transloco }}
+    </h1>
+    <svg
+      class="v1-wave"
+      width="120"
+      height="14"
+      viewBox="0 0 120 14"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M2 7c10-8 20 8 30 0s20-8 30 0 20 8 30 0 20-8 26 0"
+        stroke="#c66075"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        fill="none"
+      />
+    </svg>
+    <p class="v1-hero-sub">{{ 'home.v1.hero.sub' | transloco }}</p>
 
-<!-- Salons (carousel) -->
-<section class="landing-section landing-section-wide">
-  <h2 class="section-title">{{ 'home.nearYou' | transloco }}</h2>
-  @if (salons().length > 0) {
-    <app-salon-carousel [salons]="salons()" />
-  } @else {
-    <p class="empty-hint">{{ 'home.salons.empty' | transloco }}</p>
-  }
-  <div class="discover-all">
-    <button type="button" class="discover-all-btn" (click)="onDiscoverAll()">
-      {{ 'home.salons.discoverAll' | transloco }} &rarr;
-    </button>
+    <form class="v1-search" (submit)="onSearch(); $event.preventDefault()">
+      <label class="v1-sf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="12" cy="9" r="3.5" />
+          <path d="M5 19c0-3.5 3.1-6 7-6s7 2.5 7 6" />
+        </svg>
+        <span class="v1-sf-text">
+          <span class="v1-sf-label">{{ 'home.v1.hero.searchService' | transloco }}</span>
+          <input
+            class="v1-sf-input"
+            type="text"
+            [placeholder]="'home.v1.hero.searchServicePlaceholder' | transloco"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+          />
+        </span>
+      </label>
+      <label class="v1-sf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z" />
+          <circle cx="12" cy="9" r="2.5" />
+        </svg>
+        <span class="v1-sf-text">
+          <span class="v1-sf-label">{{ 'home.v1.hero.searchPlace' | transloco }}</span>
+          <input
+            class="v1-sf-input"
+            type="text"
+            [placeholder]="'home.v1.hero.searchPlacePlaceholder' | transloco"
+            [value]="searchPlace()"
+            (input)="searchPlace.set($any($event.target).value)"
+          />
+        </span>
+      </label>
+      <button type="submit" class="v1-search-cta">
+        {{ 'home.v1.hero.searchCta' | transloco }}
+      </button>
+    </form>
+
+    <div class="v1-hero-meta">
+      <span>{{ 'home.v1.hero.metaCurated' | transloco }}</span>
+      <span class="v1-sep" aria-hidden="true"></span>
+      <span>{{ 'home.v1.hero.metaQuick' | transloco }}</span>
+      <span class="v1-sep" aria-hidden="true"></span>
+      <span>{{ 'home.v1.hero.metaCancel' | transloco }}</span>
+    </div>
   </div>
 </section>
 
-<!-- Recent posts (preserved) -->
-@if (recentPosts().length > 0) {
-  <section class="landing-section">
-    <h2 class="section-title">{{ 'home.recentPosts' | transloco }}</h2>
-    <app-recent-posts-viewer [posts]="recentPosts()" />
-  </section>
-}
-
-<!-- Pro CTA -->
-<section class="pro-cta">
-  <div class="pro-cta-inner">
-    <div class="pro-cta-text">
-      <span class="pro-cta-eyebrow">{{ 'home.proCta.eyebrow' | transloco }}</span>
-      <h3 class="pro-cta-title">{{ 'home.proCta.title' | transloco }}</h3>
-      <p class="pro-cta-body">{{ 'home.proCta.body' | transloco }}</p>
+<!-- ============ Catalog (categories) ============ -->
+<section class="v1-section v1-band-catalog">
+  <div class="v1-section-head">
+    <div>
+      <p class="v1-eyebrow rose">{{ 'home.v1.catalog.eyebrow' | transloco }}</p>
+      <h2 class="v1-section-title">
+        {{ 'home.v1.catalog.titleStart' | transloco }}
+        <em>{{ 'home.v1.catalog.titleAccent' | transloco }}</em
+        >{{ 'home.v1.catalog.titleEnd' | transloco }}
+      </h2>
     </div>
-    <button type="button" class="pro-cta-button" (click)="onProCta()">
-      {{ 'home.proCta.button' | transloco }} &rarr;
-    </button>
+    <a class="v1-section-link" (click)="onDiscoverAll()" tabindex="0" role="button">
+      {{ 'home.v1.catalog.viewAll' | transloco }} →
+    </a>
   </div>
+
+  <div class="v1-cat-grid">
+    @for (cat of categories; track cat.key) {
+      <button type="button" class="v1-cat" (click)="onCategory(cat.key)">
+        <span class="v1-cat-ico" aria-hidden="true">
+          @switch (cat.iconPath) {
+            @case ('rect') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="6" y="4" width="12" height="16" rx="3" />
+                <path d="M9 8h6M9 12h6M9 16h4" />
+              </svg>
+            }
+            @case ('circle') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="12" cy="12" r="7" />
+                <path d="M9 12c1 1.5 5 1.5 6 0" />
+                <circle cx="9.5" cy="10" r="1" fill="currentColor" />
+                <circle cx="14.5" cy="10" r="1" fill="currentColor" />
+              </svg>
+            }
+            @case ('rect-clip') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="4" y="6" width="16" height="14" rx="3" />
+                <path d="M8 6V4M16 6V4M4 11h16" />
+              </svg>
+            }
+            @default {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path [attr.d]="cat.iconPath" />
+              </svg>
+            }
+          }
+        </span>
+        <span class="v1-cat-name">{{ 'home.v1.catalog.items.' + cat.key | transloco }}</span>
+      </button>
+    }
+  </div>
+</section>
+
+<!-- ============ Curated salons ============ -->
+<section class="v1-salons-section">
+  <div class="v1-section">
+    <div class="v1-section-head">
+      <div>
+        <p class="v1-eyebrow rose">{{ 'home.v1.selection.eyebrow' | transloco }}</p>
+        <h2 class="v1-section-title">
+          {{ 'home.v1.selection.titleStart' | transloco }}
+          <em>{{ 'home.v1.selection.titleAccent' | transloco }}</em
+          >{{ 'home.v1.selection.titleEnd' | transloco }}
+        </h2>
+      </div>
+      <a class="v1-section-link" (click)="onDiscoverAll()" tabindex="0" role="button">
+        {{ 'home.v1.selection.exploreMap' | transloco }} →
+      </a>
+    </div>
+
+    @if (featuredSalons().length > 0) {
+      <div class="v1-salons-row">
+        @for (salon of featuredSalons(); track salon.slug; let i = $index) {
+          <button type="button" class="v1-salon" (click)="onSalon(salon.slug)">
+            <span
+              class="v1-salon-cover"
+              [style.background-image]="'url(' + coverFor(salon, i) + ')'"
+            >
+              <span class="v1-salon-fav" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"
+                  />
+                </svg>
+              </span>
+            </span>
+            <span class="v1-salon-body">
+              <span class="v1-salon-name">{{ salon.name }}</span>
+              <span class="v1-salon-addr">{{ salon.fullAddress ?? salon.addressCity }}</span>
+              <span class="v1-salon-foot">
+                <span class="v1-stars" aria-hidden="true">★★★★★</span>
+                <span class="v1-pill">{{
+                  'home.v1.selection.availability.' + availabilityKey(i) | transloco
+                }}</span>
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+    } @else {
+      <p class="v1-empty">{{ 'home.salons.empty' | transloco }}</p>
+    }
+  </div>
+</section>
+
+<!-- ============ How it works ============ -->
+<section class="v1-section v1-band-how">
+  <div class="v1-section-head">
+    <div>
+      <p class="v1-eyebrow rose">{{ 'home.v1.how.eyebrow' | transloco }}</p>
+      <h2 class="v1-section-title">
+        {{ 'home.v1.how.titleStart' | transloco }}
+        <em>{{ 'home.v1.how.titleAccent' | transloco }}</em
+        >{{ 'home.v1.how.titleEnd' | transloco }}
+      </h2>
+    </div>
+  </div>
+  <div class="v1-how-grid">
+    <article class="v1-how-step">
+      <span class="v1-how-num" aria-hidden="true">01</span>
+      <h3 class="v1-how-title">{{ 'home.v1.how.step1Title' | transloco }}</h3>
+      <p class="v1-how-desc">{{ 'home.v1.how.step1Body' | transloco }}</p>
+    </article>
+    <article class="v1-how-step">
+      <span class="v1-how-num" aria-hidden="true">02</span>
+      <h3 class="v1-how-title">{{ 'home.v1.how.step2Title' | transloco }}</h3>
+      <p class="v1-how-desc">{{ 'home.v1.how.step2Body' | transloco }}</p>
+    </article>
+    <article class="v1-how-step">
+      <span class="v1-how-num" aria-hidden="true">03</span>
+      <h3 class="v1-how-title">{{ 'home.v1.how.step3Title' | transloco }}</h3>
+      <p class="v1-how-desc">{{ 'home.v1.how.step3Body' | transloco }}</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============ Testimonials ============ -->
+<section class="v1-band-voices">
+  <div class="v1-section">
+  <div class="v1-section-head">
+    <div>
+      <p class="v1-eyebrow shell">{{ 'home.v1.voices.eyebrow' | transloco }}</p>
+      <h2 class="v1-section-title">
+        {{ 'home.v1.voices.titleStart' | transloco }}
+        <em>{{ 'home.v1.voices.titleAccent' | transloco }}</em
+        >{{ 'home.v1.voices.titleEnd' | transloco }}
+      </h2>
+    </div>
+  </div>
+  <div class="v1-testi-grid">
+    <article class="v1-testi">
+      <span class="v1-testi-mark" aria-hidden="true">“</span>
+      <p class="v1-testi-quote">{{ 'home.v1.voices.q1' | transloco }}</p>
+      <div class="v1-testi-foot">
+        <div class="v1-testi-avatar v1-testi-avatar-1" aria-hidden="true"></div>
+        <div>
+          <p class="v1-testi-name">{{ 'home.v1.voices.q1Author' | transloco }}</p>
+          <p class="v1-testi-meta">{{ 'home.v1.voices.q1Meta' | transloco }}</p>
+        </div>
+      </div>
+    </article>
+    <article class="v1-testi">
+      <span class="v1-testi-mark" aria-hidden="true">“</span>
+      <p class="v1-testi-quote">{{ 'home.v1.voices.q2' | transloco }}</p>
+      <div class="v1-testi-foot">
+        <div class="v1-testi-avatar v1-testi-avatar-2" aria-hidden="true"></div>
+        <div>
+          <p class="v1-testi-name">{{ 'home.v1.voices.q2Author' | transloco }}</p>
+          <p class="v1-testi-meta">{{ 'home.v1.voices.q2Meta' | transloco }}</p>
+        </div>
+      </div>
+    </article>
+    <article class="v1-testi">
+      <span class="v1-testi-mark" aria-hidden="true">“</span>
+      <p class="v1-testi-quote">{{ 'home.v1.voices.q3' | transloco }}</p>
+      <div class="v1-testi-foot">
+        <div class="v1-testi-avatar v1-testi-avatar-3" aria-hidden="true"></div>
+        <div>
+          <p class="v1-testi-name">{{ 'home.v1.voices.q3Author' | transloco }}</p>
+          <p class="v1-testi-meta">{{ 'home.v1.voices.q3Meta' | transloco }}</p>
+        </div>
+      </div>
+    </article>
+  </div>
+  </div>
+</section>
+
+<!-- ============ Pro · Parallax hero ============ -->
+<section class="v1-pro-parallax">
+  <app-parallax-hero imageUrl="/pricing/parallax-hero.jpg">
+    <p class="v1-eyebrow shell">{{ 'home.v1.parallax.eyebrow' | transloco }}</p>
+    <h2 class="v1-parallax-title">
+      {{ 'home.v1.parallax.titleStart' | transloco }}
+      <em>{{ 'home.v1.parallax.titleAccent' | transloco }}</em
+      >{{ 'home.v1.parallax.titleEnd' | transloco }}
+    </h2>
+    <p class="v1-parallax-sub">{{ 'home.v1.parallax.subtitle' | transloco }}</p>
+    <div class="v1-parallax-ctas">
+      <button type="button" class="v1-btn v1-btn-shell" (click)="onLaunchPro()">
+        {{ 'home.v1.parallax.ctaPrimary' | transloco }}
+      </button>
+      <button type="button" class="v1-btn v1-btn-line" (click)="scrollToDemo()">
+        {{ 'home.v1.parallax.ctaSecondary' | transloco }} ↓
+      </button>
+    </div>
+  </app-parallax-hero>
+</section>
+
+<!-- ============ Pro · Animated dashboard demo ============ -->
+<section #demoSentinel class="v1-section v1-pro-demo-section v1-band-demo">
+  <div class="v1-section-head">
+    <div>
+      <p class="v1-eyebrow rose">{{ 'home.v1.demo.eyebrow' | transloco }}</p>
+      <h2 class="v1-section-title">
+        {{ 'home.v1.demo.titleStart' | transloco }}
+        <em>{{ 'home.v1.demo.titleAccent' | transloco }}</em
+        >{{ 'home.v1.demo.titleEnd' | transloco }}
+      </h2>
+      <p class="v1-section-sub">{{ 'home.v1.demo.subtitle' | transloco }}</p>
+    </div>
+  </div>
+  <app-pro-demo-story />
+</section>
+
+<!-- ============ Pro · Features grid ============ -->
+<section class="v1-section v1-pro-features-section v1-band-features">
+  <div class="v1-section-head">
+    <div>
+      <p class="v1-eyebrow rose">{{ 'home.v1.features.eyebrow' | transloco }}</p>
+      <h2 class="v1-section-title">
+        {{ 'home.v1.features.titleStart' | transloco }}
+        <em>{{ 'home.v1.features.titleAccent' | transloco }}</em
+        >{{ 'home.v1.features.titleEnd' | transloco }}
+      </h2>
+    </div>
+  </div>
+  <div class="v1-features-grid">
+    @for (feature of proFeatures; track feature.key) {
+      <article class="v1-feature">
+        <mat-icon class="v1-feature-ico" aria-hidden="true">{{ feature.icon }}</mat-icon>
+        <h3 class="v1-feature-title">
+          {{ 'home.v1.features.' + feature.key + '.title' | transloco }}
+        </h3>
+        <p class="v1-feature-bullets">
+          {{ 'home.v1.features.' + feature.key + '.bullets' | transloco }}
+        </p>
+      </article>
+    }
+  </div>
+</section>
+
+<!-- ============ Pro CTA ============ -->
+<section class="v1-pro-cta">
+  <div class="v1-pro-card">
+    <div class="v1-pro-text">
+      <p class="v1-eyebrow shell">{{ 'home.v1.proCta.eyebrow' | transloco }}</p>
+      <h2 class="v1-pro-title">
+        {{ 'home.v1.proCta.titleStart' | transloco }}
+        <em>{{ 'home.v1.proCta.titleAccent' | transloco }}</em
+        >{{ 'home.v1.proCta.titleEnd' | transloco }}
+      </h2>
+      <p class="v1-pro-desc">{{ 'home.v1.proCta.body' | transloco }}</p>
+      <div class="v1-pro-actions">
+        <button type="button" class="v1-btn v1-btn-shell" (click)="onProCta()">
+          {{ 'home.v1.proCta.primary' | transloco }}
+        </button>
+        <button type="button" class="v1-btn v1-btn-line" (click)="onProCta()">
+          {{ 'home.v1.proCta.secondary' | transloco }}
+        </button>
+      </div>
+    </div>
+    <div class="v1-pro-illu" aria-hidden="true"></div>
+  </div>
+</section>
+
+<!-- ============ Cities ============ -->
+<section class="v1-cities v1-band-cities" [class.v1-cities--humble]="!hasEnoughCities()">
+  <p class="v1-eyebrow rose">{{ 'home.v1.cities.eyebrow' | transloco }}</p>
+
+  @if (hasEnoughCities()) {
+    <h2 class="v1-section-title v1-cities-title">
+      {{ 'home.v1.cities.title' | transloco }}
+    </h2>
+    <div class="v1-cities-list">
+      @for (city of cities(); track city) {
+        <button type="button" class="v1-city-chip" (click)="onCity(city)">{{ city }}</button>
+      }
+    </div>
+  } @else {
+    <h2 class="v1-section-title v1-cities-title v1-cities-title--humble">
+      @if (cities().length === 0) {
+        {{ 'home.v1.cities.startEmpty' | transloco }}
+      } @else {
+        {{ 'home.v1.cities.startWith' | transloco: { cities: cities().join(' · ') } }}
+      }
+    </h2>
+    <p class="v1-cities-invite">{{ 'home.v1.cities.joinCta' | transloco }}</p>
+    <button type="button" class="v1-btn v1-btn-shell v1-cities-cta" (click)="onLaunchPro()">
+      {{ 'home.v1.cities.joinButton' | transloco }}
+    </button>
+  }
 </section>

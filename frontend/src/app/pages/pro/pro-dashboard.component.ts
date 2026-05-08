@@ -167,10 +167,10 @@ export class ProDashboardComponent {
           data: data.revenuePerDay.map((p) => p.value / 100),
           label: this.transloco.translate('pro.dashboard.analytics.kpi.revenue'),
           backgroundColor: 'rgba(192, 0, 102, 0.2)',
-          borderColor: '#c06',
+          borderColor: 'var(--pf-rose)',
           borderWidth: 2,
           borderRadius: 6,
-          pointBackgroundColor: '#c06',
+          pointBackgroundColor: 'var(--pf-rose)',
         },
       ],
     };
@@ -498,7 +498,7 @@ export class ProDashboardComponent {
   }
 
   heatmapCellColor(opacity: number): string {
-    if (opacity === 0) return '#f5f4f2';
+    if (opacity === 0) return 'var(--pf-paper)';
     return `rgba(192, 0, 102, ${0.1 + opacity * 0.8})`;
   }
 

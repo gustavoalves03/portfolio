@@ -251,15 +251,15 @@ interface ImagePreview {
       }
 
       &.active {
-        border-color: #c06;
+        border-color: var(--pf-rose);
         background: #fdf2f6;
 
         mat-icon {
-          color: #c06;
+          color: var(--pf-rose);
         }
 
         span {
-          color: #c06;
+          color: var(--pf-rose);
         }
       }
 
@@ -298,7 +298,7 @@ interface ImagePreview {
       transition: border-color 150ms ease;
 
       &:hover {
-        border-color: #c06;
+        border-color: var(--pf-rose);
       }
 
       mat-icon {
@@ -411,7 +411,7 @@ interface ImagePreview {
         box-sizing: border-box;
 
         &:focus {
-          border-color: #c06;
+          border-color: var(--pf-rose);
         }
       }
     }
@@ -425,7 +425,7 @@ interface ImagePreview {
       padding: 10px 28px;
       border: none;
       border-radius: 20px;
-      background: linear-gradient(135deg, #a8385d, #c06);
+      background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
       color: #fff;
       font-size: 14px;
       font-weight: 500;

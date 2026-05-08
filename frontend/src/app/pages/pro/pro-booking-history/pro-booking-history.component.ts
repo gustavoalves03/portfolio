@@ -122,7 +122,7 @@ import { BackButtonComponent } from '../../../shared/uis/back-button/back-button
       white-space: nowrap;
       cursor: pointer;
     }
-    .chip:hover { border-color: #c06; color: #c06; }
+    .chip:hover { border-color: var(--pf-rose); color: var(--pf-rose); }
     .day-label {
       font-size: 11px; font-weight: 700; color: #666;
       text-transform: uppercase; letter-spacing: 0.5px;

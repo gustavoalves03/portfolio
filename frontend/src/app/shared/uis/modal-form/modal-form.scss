@@ -88,7 +88,7 @@
     // Force the primary action to read as primary even when Material's theme
     // tokens dim the contrast. Without this, QA mistook the button for being
     // disabled.
-    background-color: #c06;
+    background-color: var(--pf-rose);
     color: white;
 
     mat-icon {
@@ -97,7 +97,7 @@
 
     &:hover:not(:disabled) {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      background-color: #a8385d;
+      background-color: var(--pf-rose-deep);
     }
 
     &:disabled {

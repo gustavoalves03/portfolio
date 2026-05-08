@@ -70,7 +70,7 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
       :host {
         display: flex;
         flex-direction: column;
-        background: #f5f4f2;
+        background: var(--pf-paper);
         overflow-y: auto;
         max-height: 80vh;
       }
@@ -119,7 +119,7 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
 
       .progress-fill {
         height: 100%;
-        background: #c06;
+        background: var(--pf-rose);
         transition: width 250ms ease;
       }
 

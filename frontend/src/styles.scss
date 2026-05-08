@@ -20,6 +20,52 @@ html {
   ));
 }
 
+/* ============================================================
+ * Pretty Face — Design tokens
+ * ------------------------------------------------------------
+ * Single source of truth for colors, surfaces and typography.
+ * Inherited by every page and component via :root scope.
+ * The "--pf-" prefix avoids clashes with Material's --mat-sys-*.
+ * ============================================================ */
+:root {
+  /* --- Surfaces --- */
+  --pf-paper:        #faf6f1; /* primary background, warm sand */
+  --pf-paper-2:      #f3ebe2; /* secondary surface, deeper sand */
+  --pf-shell:        #f4d8cf; /* light accent, rosy nacre */
+  --pf-shell-2:      #ecc4b3; /* deeper accent */
+  --pf-surface:      #ffffff;
+
+  /* --- Text --- */
+  --pf-ink:          #2b1f25; /* primary text, deep aubergine-brown */
+  --pf-ink-soft:     rgba(43, 31, 37, 0.7);
+  --pf-ink-mute:     rgba(43, 31, 37, 0.5);
+  --pf-ink-faint:    rgba(43, 31, 37, 0.3);
+
+  /* --- Brand accents --- */
+  --pf-rose:         #c66075; /* primary CTA, soft rose */
+  --pf-rose-deep:    #a83e58; /* hover / pressed */
+  --pf-burgundy:     #6b1e2c; /* secondary accent / italic emphasis */
+  --pf-burgundy-soft: #8b3047; /* lighter burgundy for some backgrounds */
+
+  /* --- Lines & borders --- */
+  --pf-line:         rgba(43, 31, 37, 0.1);
+  --pf-line-soft:    rgba(43, 31, 37, 0.06);
+
+  /* --- Status (kept utilitarian) --- */
+  --pf-success:      #2c8c5a;
+  --pf-warning:      #b9874a;
+  --pf-error:        #c0392b;
+
+  /* --- Typography --- */
+  --pf-font-display: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --pf-font-body:    'DM Sans', system-ui, sans-serif;
+
+  /* --- Override Material 3 surface fallbacks so non-themed
+   *     components and Material auto-fallbacks land on the
+   *     warm Pretty Face paper instead of pure white. --- */
+  --mat-sys-surface: var(--pf-paper);
+}
+
 body {
   // Default the application to a light color theme. This can be changed to
   // `dark` to enable the dark color theme, or to `light dark` to defer to the
@@ -55,7 +101,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   .mdc-notched-outline__leading,
   .mdc-notched-outline__notch,
   .mdc-notched-outline__trailing {
-    border-color: #e0e0e0 !important;
+    border-color: var(--pf-line) !important;
   }
 
   .mdc-notched-outline__notch {
@@ -76,7 +122,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   &.mat-focused .mdc-notched-outline__leading,
   &.mat-focused .mdc-notched-outline__notch,
   &.mat-focused .mdc-notched-outline__trailing {
-    border-color: #c06 !important;
+    border-color: var(--pf-rose) !important;
     border-width: 1.5px !important;
   }
 
@@ -87,7 +133,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
   &.mat-focused {
     .mdc-text-field--outlined {
-      box-shadow: 0 0 0 3px rgba(192, 102, 102, 0.08);
+      box-shadow: 0 0 0 3px rgba(198, 96, 117, 0.12);
       border-radius: 12px;
     }
   }
@@ -95,31 +141,31 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   // Floating label
   .mat-mdc-floating-label {
     font-size: 14px;
-    color: #999;
+    color: var(--pf-ink-mute);
 
     &.mdc-floating-label--float-above {
       font-size: 11px !important;
       font-weight: 500;
-      color: #c06 !important;
+      color: var(--pf-rose) !important;
     }
   }
 
   // Input text
   .mat-mdc-input-element {
     font-size: 14px;
-    color: #333;
+    color: var(--pf-ink);
   }
 
   // Also support filled appearance (fallback) — same rounded look
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background-color: transparent !important;
-    border: 1.5px solid #e0e0e0;
+    border: 1.5px solid var(--pf-line);
     border-radius: 12px;
   }
 
   .mdc-text-field--filled:not(.mdc-text-field--disabled):focus-within {
-    border-color: #c06;
-    box-shadow: 0 0 0 3px rgba(192, 102, 102, 0.08);
+    border-color: var(--pf-rose);
+    box-shadow: 0 0 0 3px rgba(198, 96, 117, 0.12);
   }
 
   .mdc-line-ripple::before,
@@ -130,7 +176,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   // Hint and error text
   .mat-mdc-form-field-hint {
     font-size: 11px;
-    color: #bbb;
+    color: var(--pf-ink-faint);
   }
 
   .mat-mdc-form-field-error {
@@ -141,7 +187,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // Select dropdown
 .mat-mdc-select {
   font-size: 14px;
-  color: #333;
+  color: var(--pf-ink);
 }
 
 // Bottom sheet — mobile only
@@ -203,8 +249,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // inner cell content so it overrides the disabled state without hijacking it.
 .mat-calendar-body-cell.closed-holiday {
   .mat-calendar-body-cell-content {
-    background: #ffe5ec;
-    color: #b04060 !important;
+    background: var(--pf-shell);
+    color: var(--pf-burgundy) !important;
     border-radius: 999px;
   }
 }
@@ -216,14 +262,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 @keyframes focus-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(192, 0, 102, 0); }
-  50%      { box-shadow: 0 0 0 6px rgba(192, 0, 102, 0.18); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 96, 117, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(198, 96, 117, 0.22); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .focus-pulse {
     animation: none;
-    box-shadow: 0 0 0 2px rgba(192, 0, 102, 0.45);
+    box-shadow: 0 0 0 2px rgba(198, 96, 117, 0.45);
   }
 }
 
@@ -236,9 +282,24 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .salon-pin-shape {
   width: 18px;
   height: 18px;
-  background: linear-gradient(135deg, #a8385d, #c06);
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* === Pro page shell === */
+.pro-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px;
+
+  @media (min-width: 768px) {
+    padding: 24px 32px;
+  }
+
+  @media (min-width: 1280px) {
+    padding: 24px 48px;
+  }
 }
