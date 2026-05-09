@@ -62,3 +62,9 @@ Thumbs.db
 ### Logs ###
 *.log
 logs/
+
+### Local tooling (don't pollute git status) ###
+.superpowers/
+.claire/
+.claude/worktrees/
+mockups/
