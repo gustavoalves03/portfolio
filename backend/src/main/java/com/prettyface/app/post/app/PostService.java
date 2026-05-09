@@ -1,5 +1,6 @@
 package com.prettyface.app.post.app;
 
+import com.prettyface.app.common.storage.StorageBackend;
 import com.prettyface.app.post.domain.*;
 import com.prettyface.app.post.repo.*;
 import com.prettyface.app.post.web.dto.PostResponse;
@@ -13,13 +14,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service
 public class PostService {
-
-    private static final String UPLOAD_BASE = "uploads/posts";
 
     private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
             "image/jpeg", "image/png", "image/webp", "image/gif"
@@ -28,11 +27,14 @@ public class PostService {
     private final PostRepository postRepo;
     private final PostImageRepository postImageRepo;
     private final FileStorage fileStorage;
+    private final StorageBackend backend;
 
-    public PostService(PostRepository postRepo, PostImageRepository postImageRepo, FileStorage fileStorage) {
+    public PostService(PostRepository postRepo, PostImageRepository postImageRepo,
+                       FileStorage fileStorage, StorageBackend backend) {
         this.postRepo = postRepo;
         this.postImageRepo = postImageRepo;
         this.fileStorage = fileStorage;
+        this.backend = backend;
     }
 
     @Transactional(readOnly = true)
@@ -150,10 +152,11 @@ public class PostService {
             String orig = file.getOriginalFilename();
             if (orig != null && orig.contains(".")) ext = orig.substring(orig.lastIndexOf('.'));
             String filename = prefix + "-" + UUID.randomUUID() + ext;
-            Path dir = Paths.get(UPLOAD_BASE);
-            Files.createDirectories(dir);
-            Files.copy(file.getInputStream(), dir.resolve(filename));
-            return dir.resolve(filename).toString();
+            String key = "posts/" + filename;
+            backend.save(key, file.getBytes(), contentType);
+            // DB stores the legacy "uploads/posts/<filename>" path; toImageUrl
+            // strips it down to /api/images/posts/<filename>.
+            return "uploads/" + key;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save file", e);
         }

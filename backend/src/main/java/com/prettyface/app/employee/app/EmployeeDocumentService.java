@@ -2,6 +2,7 @@ package com.prettyface.app.employee.app;
 
 
 import com.prettyface.app.common.error.ResourceNotFoundException;
+import com.prettyface.app.common.storage.StorageBackend;
 import com.prettyface.app.employee.domain.DocumentType;
 import com.prettyface.app.employee.domain.Employee;
 import com.prettyface.app.employee.domain.EmployeeDocument;
@@ -13,23 +14,23 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class EmployeeDocumentService {
 
-    private static final String UPLOAD_BASE = "uploads/employees";
-
     private final EmployeeDocumentRepository docRepo;
     private final EmployeeRepository employeeRepo;
+    private final StorageBackend storageBackend;
 
-    public EmployeeDocumentService(EmployeeDocumentRepository docRepo, EmployeeRepository employeeRepo) {
+    public EmployeeDocumentService(EmployeeDocumentRepository docRepo,
+                                   EmployeeRepository employeeRepo,
+                                   StorageBackend storageBackend) {
         this.docRepo = docRepo;
         this.employeeRepo = employeeRepo;
+        this.storageBackend = storageBackend;
     }
 
     @Transactional(readOnly = true)
@@ -50,10 +51,10 @@ public class EmployeeDocumentService {
                 : "";
         String storedFilename = UUID.randomUUID() + ext;
 
-        Path dir = Paths.get(UPLOAD_BASE, String.valueOf(employeeId), "documents");
+        String key = String.format("employees/%d/documents/%s", employeeId, storedFilename);
         try {
-            Files.createDirectories(dir);
-            Files.copy(file.getInputStream(), dir.resolve(storedFilename));
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            storageBackend.save(key, file.getBytes(), contentType);
         } catch (IOException e) {
             throw new RuntimeException("Failed to store document", e);
         }
@@ -63,7 +64,7 @@ public class EmployeeDocumentService {
         doc.setType(type);
         doc.setTitle(title);
         doc.setFilename(originalFilename != null ? originalFilename : storedFilename);
-        doc.setFilePath(dir.resolve(storedFilename).toString());
+        doc.setFilePath("uploads/" + key);
         doc.setUploadedByUserId(uploadedByUserId);
 
         return toResponse(docRepo.save(doc));
@@ -74,17 +75,20 @@ public class EmployeeDocumentService {
         EmployeeDocument doc = docRepo.findById(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + documentId));
         try {
-            Files.deleteIfExists(Paths.get(doc.getFilePath()));
-        } catch (IOException e) {
+            storageBackend.delete(doc.getFilePath());
+        } catch (RuntimeException e) {
             // Log but don't fail — DB record cleanup is more important
         }
         docRepo.deleteById(documentId);
     }
 
-    public Path getFilePath(Long documentId) {
+    /**
+     * Open a stream to the stored document. Caller is responsible for closing it.
+     */
+    public InputStream openFile(Long documentId) {
         EmployeeDocument doc = docRepo.findById(documentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found: " + documentId));
-        return Paths.get(doc.getFilePath());
+        return storageBackend.load(doc.getFilePath());
     }
 
     public String getFilename(Long documentId) {
