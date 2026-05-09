@@ -1092,7 +1092,9 @@
     "deleteConfirm": "Supprimer ce post ?",
     "shareSuccess": "Lien copié !",
     "before": "Avant",
-    "after": "Après"
+    "after": "Après",
+    "prev": "Précédent",
+    "next": "Suivant"
   },
   "clientBookings": {
     "title": "Mes rendez-vous",

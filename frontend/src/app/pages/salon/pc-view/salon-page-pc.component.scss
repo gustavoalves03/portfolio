@@ -170,7 +170,8 @@
 
 /* ===== Section ===== */
 .section {
-  padding: 96px 56px;
+  position: relative;
+  padding: 140px 56px 96px;
   border-top: 1px solid var(--d-rule);
 }
 /* Alternate background for visual separation */
@@ -179,6 +180,23 @@
 }
 .section:nth-of-type(even) {
   background: var(--d-bg);
+}
+/* Editorial floret separator at the top of each section */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  width: 320px;
+  height: 22px;
+  transform: translateX(-50%);
+  background-image:
+    linear-gradient(to right, transparent 0, var(--d-rule) 6%, var(--d-rule) 44%, transparent 47%, transparent 53%, var(--d-rule) 56%, var(--d-rule) 94%, transparent 100%),
+    radial-gradient(circle at center, var(--d-rose) 0 5px, transparent 5.5px);
+  background-repeat: no-repeat;
+  background-position: center center, center center;
+  background-size: 100% 1px, 100% 100%;
+  pointer-events: none;
 }
 .section-inner {
   max-width: 1760px;

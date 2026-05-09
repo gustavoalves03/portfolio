@@ -128,7 +128,12 @@
           <p class="section-eyebrow">{{ 'salon.pc.postsEyebrow' | transloco }}</p>
           <h2 class="section-title serif">{{ 'salon.pc.postsTitle' | transloco }}</h2>
         </div>
-        <app-salon-posts-viewer [slug]="slug()" (bookCare)="onBookFromPost($event)"/>
+        <app-salon-posts-viewer
+          [slug]="slug()"
+          layout="horizontal"
+          (bookCare)="onBookFromPost($event)"
+        />
+
       </div>
     </section>
 

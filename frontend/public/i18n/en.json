@@ -1088,7 +1088,9 @@
     "deleteConfirm": "Delete this post?",
     "shareSuccess": "Link copied!",
     "before": "Before",
-    "after": "After"
+    "after": "After",
+    "prev": "Previous",
+    "next": "Next"
   },
   "clientBookings": {
     "title": "My Appointments",

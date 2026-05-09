@@ -46,7 +46,30 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
           <p>{{ 'posts.empty' | transloco }}</p>
         </div>
       } @else {
-        <div class="snap-viewport">
+        <div
+          class="snap-viewport"
+          [class.is-horizontal]="layout() === 'horizontal'"
+        >
+          @if (layout() === 'horizontal') {
+            <button
+              type="button"
+              class="h-arrow h-arrow-left"
+              [disabled]="currentIndex() === 0"
+              (click)="hPrev()"
+              [attr.aria-label]="'posts.prev' | transloco"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button
+              type="button"
+              class="h-arrow h-arrow-right"
+              [disabled]="currentIndex() >= posts().length - 1"
+              (click)="hNext()"
+              [attr.aria-label]="'posts.next' | transloco"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
           <div class="snap-scroll" #snapScroll (scroll)="onScroll()">
             @for (post of posts(); track post.id; let i = $index) {
               <div class="snap-item">
@@ -613,6 +636,135 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
         transform: scale(1.3);
       }
     }
+
+    /* ===== Horizontal layout (PC carousel, 3 cards 1:1) ===== */
+    .snap-viewport.is-horizontal {
+      aspect-ratio: auto;
+      max-height: none;
+      max-width: none;
+      width: 100%;
+      border-radius: 0;
+      overflow: visible;
+      background: transparent;
+      box-shadow: none;
+      padding: 0 56px;
+    }
+
+    .snap-viewport.is-horizontal .snap-scroll {
+      display: flex;
+      gap: 16px;
+      height: auto;
+      overflow-x: auto;
+      overflow-y: visible;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      /* Let vertical wheel events propagate to the page so the user can
+         keep scrolling when the cursor hovers the carousel. */
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: auto;
+      touch-action: pan-x pan-y;
+      padding: 4px 0 4px;
+    }
+
+    .snap-viewport.is-horizontal .snap-item {
+      scroll-snap-align: start;
+      flex: 0 0 calc((100% - 32px) / 3);
+      height: auto;
+      width: auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+
+    .snap-viewport.is-horizontal .snap-info {
+      bottom: 12px;
+      left: 12px;
+      right: 56px;
+      gap: 4px;
+    }
+
+    .snap-viewport.is-horizontal .post-caption {
+      font-size: 12px;
+      -webkit-line-clamp: 2;
+    }
+
+    .snap-viewport.is-horizontal .snap-actions {
+      right: 8px;
+      bottom: 12px;
+      gap: 10px;
+    }
+
+    .snap-viewport.is-horizontal .sa-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .snap-viewport.is-horizontal .sa-btn span {
+      display: none;
+    }
+
+    /* Progress dots become a horizontal row at the bottom */
+    .snap-viewport.is-horizontal .snap-progress {
+      position: static;
+      transform: none;
+      flex-direction: row;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    /* Prev / Next arrows */
+    .h-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 7;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #fff;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: opacity 150ms ease, transform 150ms ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-50%) scale(1.05);
+      }
+
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .h-arrow-left {
+      left: 8px;
+    }
+
+    .h-arrow-right {
+      right: 8px;
+    }
+
+    /* Mobile: hide horizontal arrows if ever rendered on small screens */
+    @media (max-width: 1023px) {
+      .h-arrow {
+        display: none;
+      }
+    }
   `,
 })
 export class SalonPostsViewerComponent {
@@ -624,6 +776,7 @@ export class SalonPostsViewerComponent {
   private readonly translocoService = inject(TranslocoService);
 
   readonly slug = input.required<string>();
+  readonly layout = input<'vertical' | 'horizontal'>('vertical');
   readonly bookCare = output<number>();
 
   readonly posts = signal<PostResponse[]>([]);
@@ -692,13 +845,38 @@ export class SalonPostsViewerComponent {
   onScroll(): void {
     const el = this.snapScroll()?.nativeElement;
     if (!el) return;
-    const idx = Math.round(el.scrollTop / el.clientHeight);
+    let idx: number;
+    if (this.layout() === 'horizontal') {
+      const firstItem = el.firstElementChild as HTMLElement | null;
+      const itemWidth = firstItem?.clientWidth ?? el.clientWidth;
+      const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+      idx = Math.round(el.scrollLeft / (itemWidth + gap));
+    } else {
+      idx = Math.round(el.scrollTop / el.clientHeight);
+    }
     this.currentIndex.set(idx);
     // Trigger next-page when user is within 3 items of the end
     const total = this.posts().length;
     if (total > 0 && idx >= total - 3 && this.hasMore() && !this.loading()) {
       this.loadMore();
     }
+  }
+
+  hPrev(): void {
+    this.scrollHorizontalBy(-1);
+  }
+
+  hNext(): void {
+    this.scrollHorizontalBy(1);
+  }
+
+  private scrollHorizontalBy(direction: 1 | -1): void {
+    const el = this.snapScroll()?.nativeElement;
+    if (!el) return;
+    const firstItem = el.firstElementChild as HTMLElement | null;
+    const itemWidth = firstItem?.clientWidth ?? el.clientWidth;
+    const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+    el.scrollBy({ left: direction * (itemWidth + gap), behavior: 'smooth' });
   }
 
   // Before/After slider

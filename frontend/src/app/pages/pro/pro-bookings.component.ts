@@ -209,15 +209,15 @@ export class ProBookingsComponent {
     return m > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${h}h`;
   });
 
-  protected readonly statusCounts = computed(() => {
-    const counts = {
+  protected readonly statusCounts = computed<Record<string, number>>(() => {
+    const counts: Record<string, number> = {
       CONFIRMED: 0,
       PENDING: 0,
       CANCELLED: 0,
       NO_SHOW: 0,
     };
     for (const b of this.weekBookings()) {
-      counts[b.status as keyof typeof counts] = (counts[b.status as keyof typeof counts] ?? 0) + 1;
+      counts[b.status] = (counts[b.status] ?? 0) + 1;
     }
     return counts;
   });

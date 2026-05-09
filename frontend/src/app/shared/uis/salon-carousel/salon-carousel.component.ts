@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input, signal, ElementRef, PLATFORM_ID, viewChildren } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonCard } from '../../../features/discovery/discovery.model';
@@ -25,7 +25,7 @@ interface DisplayCard {
 @Component({
   selector: 'app-salon-carousel',
   standalone: true,
-  imports: [RouterLink, MatIconModule, TranslocoPipe],
+  imports: [MatIconModule, TranslocoPipe],
   templateUrl: './salon-carousel.component.html',
   styleUrl: './salon-carousel.component.scss',
 })

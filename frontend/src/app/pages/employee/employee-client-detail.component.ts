@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BackButtonComponent } from '../../shared/uis/back-button/back-button.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslocoPipe } from '@jsverse/transloco';
 import { TrackingService } from '../../features/tracking/tracking.service';
 import { ClientHistoryResponse, AccessLevel, PermissionsMap } from '../../features/tracking/tracking.model';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
@@ -17,7 +16,7 @@ import { forkJoin } from 'rxjs';
   selector: 'app-employee-client-detail',
   standalone: true,
   imports: [
-    BackButtonComponent, MatProgressSpinnerModule, TranslocoPipe,
+    BackButtonComponent, MatProgressSpinnerModule,
     ClientHeaderComponent, ClientVisitsComponent, ClientNotesComponent, ClientInfoComponent,
   ],
   template: `
