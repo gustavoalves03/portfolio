@@ -57,6 +57,14 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiredRole: 'PRO'
   },
   {
+    label: 'nav.pro.bookings',
+    path: '/pro/bookings',
+    icon: 'event',
+    requiresAuth: true,
+    requiredRole: 'PRO',
+    lockedUntilPublished: true,
+  },
+  {
     label: 'nav.pro.posts',
     path: '/pro/posts',
     icon: 'photo_library',
