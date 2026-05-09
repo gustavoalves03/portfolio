@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+.popover {
+  background: #fff;
+  border: 1.5px solid var(--mat-sys-primary, #c00066);
+  border-radius: 12px;
+  padding: 18px;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 10px 30px -10px rgba(192, 0, 102, 0.3);
+}
+
+.popover-title {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c1c20;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.label {
+  width: 50px;
+  font-size: 11px;
+  color: #6b5560;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #ead7df;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c1c20;
+  background: #fbf3f5;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: var(--mat-sys-primary, #c00066);
+  }
+}
+
+.error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #b3261e;
+}
+
+.copy-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #f0dee5;
+  font-size: 12px;
+  color: #6b5560;
+}
+
+.copy-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.copy-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.copy-day,
+.copy-all {
+  background: #fff;
+  border: 1px dashed var(--mat-sys-primary, #c00066);
+  color: var(--mat-sys-primary, #c00066);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+
+  &.active {
+    background: var(--mat-sys-primary, #c00066);
+    color: #fff;
+  }
+}
+
+.copy-all {
+  border-style: solid;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #f0dee5;
+}
+
+.actions-right {
+  display: flex;
+  gap: 8px;
+}
+
+.delete-link {
+  background: none;
+  border: 0;
+  color: #8a727a;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    color: #b3261e;
+  }
+}
+
+.cancel {
+  background: #fbf3f5;
+  border: 1px solid #ead7df;
+  color: #6b5560;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.confirm {
+  background: var(--mat-sys-primary, #c00066);
+  color: #fff;
+  border: 0;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
