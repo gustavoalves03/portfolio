@@ -227,15 +227,24 @@ export class SalonProfileComponent {
       }
     }
 
+    // Default to FR when address fields are filled but country wasn't picked,
+    // otherwise hasContact stays false on the publish checklist.
+    const street = this.addressStreet().trim();
+    const postal = this.addressPostalCode().trim();
+    const city = this.addressCity().trim();
+    const country = this.addressCountry();
+    const hasAnyAddressField = !!(street || postal || city);
+    const finalCountry = country || (hasAnyAddressField ? 'FR' : null);
+
     const request: UpdateTenantRequest = {
       name: this.name().trim(),
       description: this.description() || null,
       logo,
       heroImage,
-      addressStreet: this.addressStreet() || null,
-      addressPostalCode: this.addressPostalCode() || null,
-      addressCity: this.addressCity() || null,
-      addressCountry: this.addressCountry(),
+      addressStreet: street || null,
+      addressPostalCode: postal || null,
+      addressCity: city || null,
+      addressCountry: finalCountry,
       phone: this.phone() || null,
       contactEmail: this.contactEmail() || null,
       siret: this.siret() || null,

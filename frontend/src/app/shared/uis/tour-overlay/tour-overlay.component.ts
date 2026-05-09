@@ -1,4 +1,5 @@
-import { Component, OnDestroy, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, PLATFORM_ID, effect, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TourService } from '../../../features/onboarding/tour/tour.service';
 import { TourBubbleComponent } from './tour-bubble.component';
 
@@ -15,6 +16,7 @@ const MAX_RETRIES = 3;
 export class TourOverlayComponent implements OnDestroy {
   protected readonly tour = inject(TourService);
   protected readonly targetRect = signal<DOMRect | null>(null);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private resizeObs: ResizeObserver | null = null;
   private currentEl: HTMLElement | null = null;
@@ -37,6 +39,7 @@ export class TourOverlayComponent implements OnDestroy {
   }
 
   private bindToTarget(tourStep: string, attempt = 0): void {
+    if (!this.isBrowser) return;
     const el = document.querySelector<HTMLElement>(`[data-tour-step="${tourStep}"]`);
     if (!el) {
       if (attempt < MAX_RETRIES) {
@@ -67,7 +70,9 @@ export class TourOverlayComponent implements OnDestroy {
   private cleanup(): void {
     this.resizeObs?.disconnect();
     this.resizeObs = null;
-    window.removeEventListener('scroll', this.scrollHandler);
+    if (this.isBrowser) {
+      window.removeEventListener('scroll', this.scrollHandler);
+    }
     this.currentEl = null;
     this.targetRect.set(null);
   }

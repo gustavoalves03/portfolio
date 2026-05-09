@@ -108,8 +108,11 @@
       </div>
     </section>
 
+    <!-- Wrap address + contact so the tour highlights both: hasContact requires full address + phone/email. -->
+    <div data-tour-step="contact">
+
     <!-- ============ Row 2 : adresse 8 + country 4 ============ -->
-    <section class="grid" data-tour-step="contact">
+    <section class="grid">
       <div class="panel col-8">
         <div class="panel-head">
           <h3 class="panel-title">{{ 'pro.salon.addressSection' | transloco }}</h3>
@@ -189,23 +192,27 @@
         </div>
       </div>
 
-      <div class="panel col-6">
-        <div class="panel-head">
-          <h3 class="panel-title">{{ 'pro.salon.siret' | transloco }}</h3>
-        </div>
-        <div class="panel-body">
-          <div class="field">
-            <label class="field-label">{{ 'pro.salon.siret' | transloco }}</label>
-            <mat-form-field appearance="outline" class="full-width">
-              <input matInput
-                [ngModel]="siret()"
-                (ngModelChange)="siret.set($event); markDirty()"
-                maxlength="14" name="siret"/>
-            </mat-form-field>
+      @if (addressCountry() === 'FR') {
+        <div class="panel col-6">
+          <div class="panel-head">
+            <h3 class="panel-title">{{ 'pro.salon.siret' | transloco }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <label class="field-label">{{ 'pro.salon.siret' | transloco }}</label>
+              <mat-form-field appearance="outline" class="full-width">
+                <input matInput
+                  [ngModel]="siret()"
+                  (ngModelChange)="siret.set($event); markDirty()"
+                  maxlength="14" name="siret"/>
+              </mat-form-field>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </section>
+
+    </div><!-- /data-tour-step="contact" -->
 
     <!-- ============ Preview share block ============ -->
     <app-preview-share class="preview-share-block"/>
