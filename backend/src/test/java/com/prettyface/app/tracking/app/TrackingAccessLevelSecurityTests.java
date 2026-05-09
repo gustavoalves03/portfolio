@@ -1,6 +1,7 @@
 package com.prettyface.app.tracking.app;
 
 import com.prettyface.app.auth.UserPrincipal;
+import com.prettyface.app.common.storage.StorageBackend;
 import com.prettyface.app.employee.app.EmployeePermissionService;
 import com.prettyface.app.employee.domain.AccessLevel;
 import com.prettyface.app.employee.domain.Employee;
@@ -72,13 +73,14 @@ class TrackingAccessLevelSecurityTests {
     @Mock private UserRepository userRepository;
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
     @Mock private EmployeePermissionService mockPermissionService;
+    @Mock private StorageBackend storageBackend;
 
     private TrackingService trackingService() {
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
         return new TrackingService(profileRepo, visitRepo, photoRepo, reminderRepo,
                 userRepository, applicationSchemaExecutor,
-                mockPermissionService, employeeRepo);
+                mockPermissionService, employeeRepo, storageBackend);
     }
 
     private static UserPrincipal principal(Long id) {

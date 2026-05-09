@@ -1,5 +1,6 @@
 package com.prettyface.app.post.app;
 
+import com.prettyface.app.common.storage.StorageBackend;
 import com.prettyface.app.post.domain.Post;
 import com.prettyface.app.post.domain.PostImage;
 import com.prettyface.app.post.domain.PostType;
@@ -42,6 +43,7 @@ class PostServiceCrudTests {
     @Mock PostRepository postRepo;
     @Mock PostImageRepository postImageRepo;
     @Mock FileStorage fileStorage;
+    @Mock StorageBackend backend;
     @InjectMocks PostService service;
 
     private static MockMultipartFile jpeg(String field, String filename) {
