@@ -57,16 +57,19 @@ export class SlotPopoverService {
     ref.setInput('data', data);
 
     const result$ = new Subject<SlotPopoverResult>();
-    const sub = ref.instance.confirm.subscribe((r) => {
+
+    const closeWith = (r: SlotPopoverResult) => {
+      if (result$.closed) return;
       result$.next(r);
       result$.complete();
       overlayRef.dispose();
-    });
-    overlayRef.backdropClick().subscribe(() => {
-      result$.next({ action: 'cancel' });
-      result$.complete();
-      overlayRef.dispose();
-      sub.unsubscribe();
+    };
+
+    ref.instance.confirm.subscribe((r) => closeWith(r));
+    overlayRef.backdropClick().subscribe(() => closeWith({ action: 'cancel' }));
+    // If the overlay is disposed for any other reason, complete result$ silently.
+    overlayRef.detachments().subscribe(() => {
+      if (!result$.closed) result$.complete();
     });
 
     return result$.asObservable().pipe(take(1));
