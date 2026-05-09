@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,7 +34,6 @@ const DEFAULT_SLOT: TimeSlot = { openTime: '09:00', closeTime: '18:00' };
   selector: 'app-availability',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslocoPipe,
     MatSnackBarModule,
@@ -69,6 +67,9 @@ export class AvailabilityComponent {
     });
     effect(() => {
       if (this.store.saveSuccess()) {
+        this.snackBar.open(this.i18n.translate('pro.availability.saveSuccess'), 'OK', {
+          duration: 3000,
+        });
         this.dashboardStore.loadReadiness();
         this.store.clearSaveSuccess();
       }
@@ -244,9 +245,6 @@ export class AvailabilityComponent {
       }
     }
     this.store.saveHours(requests);
-    this.snackBar.open(this.i18n.translate('pro.availability.saveSuccess'), 'OK', {
-      duration: 3000,
-    });
   }
 
   // ============ Sync from store ============
