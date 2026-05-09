@@ -1,6 +1,7 @@
 package com.prettyface.app.tracking.app;
 
 import com.prettyface.app.auth.UserPrincipal;
+import com.prettyface.app.common.storage.StorageBackend;
 import com.prettyface.app.employee.app.EmployeePermissionService;
 import com.prettyface.app.employee.domain.AccessLevel;
 import com.prettyface.app.employee.domain.PermissionDomain;
@@ -19,8 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,8 +27,6 @@ import java.util.UUID;
 
 @Service
 public class TrackingService {
-
-    private static final String UPLOAD_BASE = "uploads/visits";
 
     private final ClientProfileRepository profileRepo;
     private final VisitRecordRepository visitRepo;
@@ -39,6 +36,7 @@ public class TrackingService {
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
     private final EmployeePermissionService permissionService;
     private final EmployeeRepository employeeRepository;
+    private final StorageBackend storageBackend;
 
     public TrackingService(ClientProfileRepository profileRepo,
                            VisitRecordRepository visitRepo,
@@ -47,7 +45,8 @@ public class TrackingService {
                            UserRepository userRepository,
                            ApplicationSchemaExecutor applicationSchemaExecutor,
                            EmployeePermissionService permissionService,
-                           EmployeeRepository employeeRepository) {
+                           EmployeeRepository employeeRepository,
+                           StorageBackend storageBackend) {
         this.profileRepo = profileRepo;
         this.visitRepo = visitRepo;
         this.photoRepo = photoRepo;
@@ -56,6 +55,7 @@ public class TrackingService {
         this.applicationSchemaExecutor = applicationSchemaExecutor;
         this.permissionService = permissionService;
         this.employeeRepository = employeeRepository;
+        this.storageBackend = storageBackend;
     }
 
     // ── Authorization helpers ──
@@ -303,10 +303,10 @@ public class TrackingService {
                 ext = orig.substring(orig.lastIndexOf('.'));
             }
             String filename = prefix + "-" + UUID.randomUUID() + ext;
-            Path dir = Paths.get(UPLOAD_BASE, visitRecordId.toString());
-            Files.createDirectories(dir);
-            Files.copy(file.getInputStream(), dir.resolve(filename));
-            return dir.resolve(filename).toString();
+            String key = String.format("visits/%d/%s", visitRecordId, filename);
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            storageBackend.save(key, file.getBytes(), contentType);
+            return "uploads/" + key;
         } catch (IOException e) {
             throw new RuntimeException("Failed to save visit photo", e);
         }
@@ -314,12 +314,9 @@ public class TrackingService {
 
     private void deleteFileFromDisk(String filePath) {
         try {
-            Path path = Paths.get(filePath);
-            if (Files.exists(path)) {
-                Files.delete(path);
-            }
-        } catch (IOException e) {
-            // Log but don't fail — best effort deletion
+            storageBackend.delete(filePath);
+        } catch (RuntimeException e) {
+            // best effort: log silently and continue
         }
     }
 

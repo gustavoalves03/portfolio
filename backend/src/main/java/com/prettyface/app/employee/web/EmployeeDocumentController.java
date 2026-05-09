@@ -1,11 +1,12 @@
 package com.prettyface.app.employee.web;
 
 import com.prettyface.app.auth.UserPrincipal;
+import com.prettyface.app.common.storage.StorageNotFoundException;
 import com.prettyface.app.employee.app.EmployeeDocumentService;
 import com.prettyface.app.employee.domain.DocumentType;
 import com.prettyface.app.employee.web.dto.DocumentResponse;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
-import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -46,13 +45,12 @@ public class EmployeeDocumentController {
     public ResponseEntity<Resource> download(@PathVariable Long employeeId,
                                              @PathVariable Long docId) {
         try {
-            Path filePath = service.getFilePath(docId);
-            Resource resource = new UrlResource(filePath.toUri());
+            Resource resource = new InputStreamResource(service.openFile(docId));
             String filename = service.getFilename(docId);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .body(resource);
-        } catch (MalformedURLException e) {
+        } catch (StorageNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

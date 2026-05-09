@@ -1,5 +1,6 @@
 package com.prettyface.app.common.storage;
 
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,16 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.file.Paths;
-
 @RestController
 @RequestMapping("/api/images")
 public class FileController {
 
-    private final FileStorageService fileStorageService;
+    private final StorageBackend backend;
 
-    public FileController(FileStorageService fileStorageService) {
-        this.fileStorageService = fileStorageService;
+    public FileController(StorageBackend backend) {
+        this.backend = backend;
     }
 
     @GetMapping("/cares/{careId}/{filename}")
@@ -26,40 +25,12 @@ public class FileController {
             @PathVariable Long careId,
             @PathVariable String filename
     ) {
-        try {
-            // Build file path
-            String filePath = String.format("uploads/cares/%d/%s", careId, filename);
-
-            // Load file
-            Resource resource = fileStorageService.loadFile(filePath);
-
-            // Determine content type
-            String contentType = determineContentType(filename);
-
-            // Return file with appropriate headers
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000") // Cache for 1 year
-                    .body(resource);
-
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return serve(String.format("cares/%d/%s", careId, filename), filename);
     }
 
     @GetMapping("/posts/{filename}")
     public ResponseEntity<Resource> servePostImage(@PathVariable String filename) {
-        try {
-            String filePath = String.format("uploads/posts/%s", filename);
-            Resource resource = fileStorageService.loadFile(filePath);
-            String contentType = determineContentType(filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000")
-                    .body(resource);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return serve("posts/" + filename, filename);
     }
 
     @GetMapping("/visits/{visitId}/{filename}")
@@ -67,17 +38,7 @@ public class FileController {
             @PathVariable Long visitId,
             @PathVariable String filename
     ) {
-        try {
-            String filePath = String.format("uploads/visits/%d/%s", visitId, filename);
-            Resource resource = fileStorageService.loadFile(filePath);
-            String contentType = determineContentType(filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000")
-                    .body(resource);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return serve(String.format("visits/%d/%s", visitId, filename), filename);
     }
 
     @GetMapping("/tenant/{tenantId}/{filename}")
@@ -85,31 +46,30 @@ public class FileController {
             @PathVariable Long tenantId,
             @PathVariable String filename
     ) {
-        try {
-            String filePath = String.format("uploads/tenant/%d/%s", tenantId, filename);
-            Resource resource = fileStorageService.loadFile(filePath);
-            String contentType = determineContentType(filename);
+        return serve(String.format("tenant/%d/%s", tenantId, filename), filename);
+    }
 
+    private ResponseEntity<Resource> serve(String key, String filename) {
+        try {
+            Resource resource = new InputStreamResource(backend.load(key));
             return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000")
+                    .contentType(MediaType.parseMediaType(determineContentType(filename)))
+                    .header(HttpHeaders.CACHE_CONTROL, "max-age=31536000") // 1 year
                     .body(resource);
+        } catch (StorageNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     private String determineContentType(String filename) {
-        String extension = getFileExtension(filename);
+        int lastDot = filename.lastIndexOf('.');
+        String extension = lastDot > 0 ? filename.substring(lastDot + 1) : "";
         return switch (extension.toLowerCase()) {
             case "png" -> "image/png";
             case "jpg", "jpeg" -> "image/jpeg";
             default -> "application/octet-stream";
         };
-    }
-
-    private String getFileExtension(String filename) {
-        int lastDot = filename.lastIndexOf('.');
-        return lastDot > 0 ? filename.substring(lastDot + 1) : "";
     }
 }

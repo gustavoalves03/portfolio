@@ -1,147 +1,88 @@
 package com.prettyface.app.common.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.Comparator;
 import java.util.UUID;
-import java.util.stream.Stream;
 
+/**
+ * Validates and stores Base64-encoded images on behalf of {@code CareService}
+ * and {@code TenantService}. Validation (MIME, size) lives here; persistence
+ * is delegated to the configured {@link StorageBackend}.
+ *
+ * <p>Returned paths look like {@code "uploads/cares/12/abc.png"} for backward
+ * compatibility with existing rows in DB. The {@code uploads/} prefix is a
+ * legacy convention — the backend strips it transparently — but we keep it
+ * in the returned string so we don't need a data migration.
+ */
 @Service
 public class FileStorageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
-
-    @Value("${app.upload.dir:uploads}")
-    private String uploadDir;
-
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+    private final StorageBackend backend;
+
+    public FileStorageService(StorageBackend backend) {
+        this.backend = backend;
+    }
+
     /**
-     * Save Base64 image data to disk under the "cares" domain folder.
-     * Delegates to {@link #saveBase64Image(String, String, Long)} for backward compatibility.
-     * @param base64Data Base64 string with data URL prefix (data:image/png;base64,...)
-     * @param careId Care ID for folder organization
-     * @return Relative file path
+     * Save Base64 image data under the "cares" domain folder.
      */
     public String saveBase64Image(String base64Data, Long careId) {
         return saveBase64Image(base64Data, "cares", careId);
     }
 
     /**
-     * Save Base64 image data to disk under a specific domain folder.
-     * @param base64Data Base64 string with data URL prefix (data:image/png;base64,...)
-     * @param domain Storage domain folder (e.g., "cares", "tenant")
-     * @param entityId Entity ID for folder organization
-     * @return Relative file path
+     * Save Base64 image data under a specific domain folder.
+     *
+     * @param base64Data data URL with prefix (data:image/png;base64,...)
+     * @param domain     folder root (e.g. "cares", "tenant")
+     * @param entityId   sub-folder
+     * @return logical path stored in DB (e.g. "uploads/cares/12/abc.png")
      */
     public String saveBase64Image(String base64Data, String domain, Long entityId) {
-        try {
-            String[] parts = base64Data.split(",");
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Invalid Base64 data format");
-            }
-
-            String mimeType = extractMimeType(parts[0]);
-            String extension = getExtensionFromMimeType(mimeType);
-
-            if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("jpeg")) {
-                throw new IllegalArgumentException("Only PNG and JPG images are allowed");
-            }
-
-            byte[] imageBytes = Base64.getDecoder().decode(parts[1]);
-
-            if (imageBytes.length > MAX_FILE_SIZE) {
-                throw new IllegalArgumentException("File size exceeds 5MB limit");
-            }
-
-            String filename = UUID.randomUUID().toString() + "." + extension;
-            Path dir = Paths.get(uploadDir, domain, entityId.toString());
-            Files.createDirectories(dir);
-
-            Path filePath = dir.resolve(filename);
-            Files.write(filePath, imageBytes);
-
-            return String.format("uploads/%s/%d/%s", domain, entityId, filename);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save image: " + e.getMessage(), e);
+        String[] parts = base64Data.split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid Base64 data format");
         }
+
+        String mimeType = extractMimeType(parts[0]);
+        String extension = getExtensionFromMimeType(mimeType);
+
+        if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("jpeg")) {
+            throw new IllegalArgumentException("Only PNG and JPG images are allowed");
+        }
+
+        byte[] imageBytes = Base64.getDecoder().decode(parts[1]);
+        if (imageBytes.length > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("File size exceeds 5MB limit");
+        }
+
+        String filename = UUID.randomUUID() + "." + extension;
+        String key = String.format("%s/%d/%s", domain, entityId, filename);
+
+        backend.save(key, imageBytes, mimeType);
+
+        return "uploads/" + key;
     }
 
     /**
-     * Delete a single file
-     * @param filePath Relative file path
+     * Delete a single object by its stored path (e.g. "uploads/cares/12/abc.png").
      */
     public void deleteFile(String filePath) {
-        try {
-            Path path = Paths.get(filePath);
-            if (Files.exists(path)) {
-                Files.delete(path);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + e.getMessage(), e);
-        }
+        backend.delete(filePath);
     }
 
     /**
-     * Delete all images for a care
-     * @param careId Care ID
+     * Delete all images for a care.
      */
     public void deleteCareImages(Long careId) {
-        try {
-            Path careDir = Paths.get(uploadDir, "cares", careId.toString());
-            if (Files.exists(careDir)) {
-                // Delete all files in directory recursively
-                try (Stream<Path> paths = Files.walk(careDir)) {
-                    paths.sorted(Comparator.reverseOrder())
-                         .forEach(path -> {
-                             try {
-                                 Files.delete(path);
-                             } catch (IOException e) {
-                                 // Log but don't fail
-                             }
-                         });
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete care images: " + e.getMessage(), e);
-        }
+        backend.deleteFolder("cares/" + careId);
     }
 
     /**
-     * Load file as Resource for serving
-     * @param filePath Relative file path
-     * @return Resource
-     */
-    public Resource loadFile(String filePath) {
-        try {
-            Path path = Paths.get(filePath);
-            Resource resource = new UrlResource(path.toUri());
-
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("File not found or not readable: " + filePath);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load file: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Extract MIME type from data URL prefix
-     * @param prefix Data URL prefix (e.g., "data:image/png;base64")
-     * @return MIME type (e.g., "image/png")
+     * Extract MIME type from data URL prefix.
      */
     private String extractMimeType(String prefix) {
         // Format: data:image/png;base64
@@ -155,9 +96,7 @@ public class FileStorageService {
     }
 
     /**
-     * Get file extension from MIME type
-     * @param mimeType MIME type (e.g., "image/png")
-     * @return Extension without dot (e.g., "png")
+     * Get file extension from MIME type.
      */
     private String getExtensionFromMimeType(String mimeType) {
         return switch (mimeType) {
