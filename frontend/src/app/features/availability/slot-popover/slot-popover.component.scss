@@ -154,3 +154,53 @@ select {
     cursor: not-allowed;
   }
 }
+
+// Mobile bottom-sheet: drop the popover frame, take full width, larger taps
+@media (max-width: 767px) {
+  .popover {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 0;
+    max-width: 100%;
+    padding: 16px 20px 24px;
+    background: transparent;
+  }
+
+  .popover-title {
+    font-size: 16px;
+    margin-bottom: 18px;
+  }
+
+  .row {
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .label {
+    width: 56px;
+    font-size: 12px;
+  }
+
+  select {
+    padding: 12px 14px;
+    font-size: 16px; // prevent iOS zoom
+  }
+
+  .copy-day,
+  .copy-all {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .actions {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  .cancel,
+  .confirm {
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+}

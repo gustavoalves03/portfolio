@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { DayOfWeek, TimeSlot } from '../availability.model';
 import { HHMM_OPTIONS, hhmmToMinutes, slotsOverlap, snapTo30 } from '../time-utils';
+import { SheetHandleComponent } from '../../../shared/uis/sheet-handle/sheet-handle.component';
 
 export interface SlotPopoverData {
   mode: 'create' | 'edit';
@@ -24,7 +25,7 @@ export type SlotPopoverResult =
 @Component({
   selector: 'app-slot-popover',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslocoPipe],
+  imports: [CommonModule, FormsModule, TranslocoPipe, SheetHandleComponent],
   templateUrl: './slot-popover.component.html',
   styleUrl: './slot-popover.component.scss',
 })
