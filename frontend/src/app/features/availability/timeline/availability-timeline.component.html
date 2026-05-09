@@ -1,0 +1,56 @@
+<div class="timeline-card">
+  <div class="hours-axis">
+    <span class="axis-spacer"></span>
+    <div class="hours-axis-track">
+      @for (h of hours; track h) {
+        <span>{{ h }}</span>
+      }
+    </div>
+  </div>
+
+  @for (day of daysWithDerived(); track day.dayOfWeek) {
+    <div class="timeline-row" [class.is-closed]="day.isClosed">
+      <div class="day-label">
+        <span class="day-label-name">{{ ('pro.availability.days.' + day.dayOfWeek) | transloco }}</span>
+        <button
+          type="button"
+          class="switch"
+          [class.off]="day.isClosed"
+          [attr.aria-pressed]="!day.isClosed"
+          (click)="onSwitchClick($any(day.dayOfWeek))"
+        ></button>
+      </div>
+
+      <div class="timeline-track">
+        @if (day.isClosed) {
+          <div class="closed-block">{{ 'pro.availability.closed' | transloco }}</div>
+        } @else {
+          <div class="hour-grid">
+            @for (h of hours; track h) {
+              <div></div>
+            }
+          </div>
+          @for (b of day.blocks; track $index) {
+            <button
+              type="button"
+              class="slot-block"
+              [style.left.%]="b.leftPct"
+              [style.width.%]="b.widthPct"
+              (click)="onSlotClick($event, $any(day.dayOfWeek), $index)"
+            >
+              {{ b.slot.openTime }} — {{ b.slot.closeTime }}
+            </button>
+          }
+        }
+      </div>
+
+      <button
+        type="button"
+        class="add-slot-btn"
+        [disabled]="day.isClosed"
+        [attr.aria-label]="'pro.availability.timeline.addSlot' | transloco"
+        (click)="onAddSlotClick($event, $any(day.dayOfWeek))"
+      >+</button>
+    </div>
+  }
+</div>
