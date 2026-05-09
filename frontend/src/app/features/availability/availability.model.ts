@@ -20,3 +20,9 @@ export interface OpeningHourResponse {
   openTime: string;
   closeTime: string;
 }
+
+/** Day of week, 1 = Monday → 7 = Sunday. */
+export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+/** Whole-week opening slots — array of 7 entries, ordered by dayOfWeek 1→7. */
+export type WeekSlots = DaySlots[];

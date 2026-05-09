@@ -1,0 +1,55 @@
+<div class="day-list">
+  @for (day of week(); track day.dayOfWeek) {
+    <div class="day-card" [class.is-closed]="isClosed(day)">
+      <div class="day-header">
+        <span class="day-name">{{ ('pro.availability.days.' + day.dayOfWeek) | transloco }}</span>
+        <span class="day-summary" [class.closed]="isClosed(day)">
+          @if (isClosed(day)) {
+            {{ 'pro.availability.closed' | transloco }}
+          } @else {
+            @for (s of day.slots; track $index; let last = $last) {
+              <span>{{ s.openTime }} → {{ s.closeTime }}</span>
+              @if (!last) { <span> · </span> }
+            }
+          }
+        </span>
+        <button
+          type="button"
+          class="switch"
+          [class.off]="isClosed(day)"
+          [attr.aria-pressed]="!isClosed(day)"
+          (click)="onSwitchClick($any(day.dayOfWeek))"
+        ></button>
+      </div>
+
+      @if (!isClosed(day)) {
+        @for (slot of day.slots; track $index) {
+          <div class="slot-row">
+            <button
+              type="button"
+              class="time-box"
+              (click)="onSlotClick($event, $any(day.dayOfWeek), $index)"
+            >
+              {{ slot.openTime }}
+            </button>
+            <span class="arrow">→</span>
+            <button
+              type="button"
+              class="time-box"
+              (click)="onSlotClick($event, $any(day.dayOfWeek), $index)"
+            >
+              {{ slot.closeTime }}
+            </button>
+          </div>
+        }
+        <button
+          type="button"
+          class="add-pause"
+          (click)="onAddSlotClick($event, $any(day.dayOfWeek))"
+        >
+          + {{ 'pro.availability.daylist.addPause' | transloco }}
+        </button>
+      }
+    </div>
+  }
+</div>

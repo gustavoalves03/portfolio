@@ -653,6 +653,35 @@
         "openDays": "Open days",
         "weeklyHours": "Weekly hours",
         "totalSlots": "Total slots"
+      },
+      "timeline": {
+        "addSlot": "Add slot"
+      },
+      "daylist": {
+        "addPause": "Add pause"
+      },
+      "popover": {
+        "title": {
+          "create": "New slot · {{day}}",
+          "edit": "Edit · {{day}}"
+        },
+        "startLabel": "Start",
+        "endLabel": "End",
+        "copyTo": "Copy to:",
+        "copyAll": "All week",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "confirm": "Confirm"
+      },
+      "preset": {
+        "fullWeek": "Full week 9—18",
+        "midDayBreak": "With lunch break",
+        "closeAll": "Close all",
+        "confirmCloseAll": "This will close every day of the week. Continue?"
+      },
+      "invalidOverlap": "This slot overlaps another",
+      "toolbar": {
+        "summary": "{{open}} open / week"
       }
     },
     "manage": {
@@ -1251,6 +1280,7 @@
       "dashboard": "Dashboard",
       "cares": "Services",
       "planning": "Schedule",
+      "bookings": "Bookings",
       "posts": "Posts",
       "salon": "My salon",
       "employees": "Team",

@@ -1,0 +1,71 @@
+<app-sheet-handle />
+<div class="popover">
+  <h4 class="popover-title">
+    @if (data().mode === 'create') {
+      {{ 'pro.availability.popover.title.create' | transloco: { day: ('pro.availability.days.' + data().dayOfWeek) | transloco } }}
+    } @else {
+      {{ 'pro.availability.popover.title.edit' | transloco: { day: ('pro.availability.days.' + data().dayOfWeek) | transloco } }}
+    }
+  </h4>
+
+  <div class="row">
+    <span class="label">{{ 'pro.availability.popover.startLabel' | transloco }}</span>
+    <select [ngModel]="start()" (ngModelChange)="start.set($event)">
+      @for (opt of options; track opt) {
+        <option [value]="opt">{{ opt }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="row">
+    <span class="label">{{ 'pro.availability.popover.endLabel' | transloco }}</span>
+    <select [ngModel]="end()" (ngModelChange)="end.set($event)">
+      @for (opt of options; track opt) {
+        <option [value]="opt">{{ opt }}</option>
+      }
+    </select>
+  </div>
+
+  @if (hasOverlap()) {
+    <p class="error">{{ 'pro.availability.invalidOverlap' | transloco }}</p>
+  }
+
+  @if (data().otherDays.length > 0) {
+    <div class="copy-row">
+      <span class="copy-label">{{ 'pro.availability.popover.copyTo' | transloco }}</span>
+      <div class="copy-days">
+        @for (day of data().otherDays; track day) {
+          <button
+            type="button"
+            class="copy-day"
+            [class.active]="copyToDays().includes(day)"
+            (click)="toggleCopyDay(day)"
+          >
+            {{ ('pro.availability.days.' + day) | transloco | slice: 0:3 }}
+          </button>
+        }
+        <button type="button" class="copy-all" (click)="toggleAllDays()">
+          {{ 'pro.availability.popover.copyAll' | transloco }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="actions">
+    @if (data().mode === 'edit') {
+      <button type="button" class="delete-link" (click)="onDelete()">
+        🗑 {{ 'pro.availability.popover.delete' | transloco }}
+      </button>
+    } @else {
+      <span></span>
+    }
+    <div class="actions-right">
+      <button type="button" class="cancel" (click)="onCancel()">
+        {{ 'pro.availability.popover.cancel' | transloco }}
+      </button>
+      <button type="button" class="confirm" [disabled]="!canConfirm()" (click)="onConfirm()">
+        {{ 'pro.availability.popover.confirm' | transloco }}
+      </button>
+    </div>
+  </div>
+</div>
