@@ -57,61 +57,64 @@ Le package `invoice/pdf/` est **transverse**, pas une feature. Il porte uniqueme
 
 ### Tables
 
-#### `pro_invoice` (cache des factures Stripe Tax)
+> **Convention DB** : Oracle, IDs `NUMBER(19) GENERATED ALWAYS AS IDENTITY` (mappés `Long` en Java), tables qualifiées `"${tenantSchema}".XXX` dans les migrations, pas de FK cross-schema vers `USERS`/`TENANTS` (synonymes + pas de constraint). Pattern aligné sur les tables existantes (`CARE_BOOKINGS`, etc.).
 
-| Colonne | Type | Note |
+#### `PRO_INVOICES` (cache des factures Stripe Tax)
+
+| Colonne | Type Oracle | Note |
 |---|---|---|
-| `id` | UUID | PK |
-| `tenant_id` | UUID | FK Tenant |
-| `stripe_invoice_id` | varchar | unique, nullable tant que Stripe non branché |
-| `number` | varchar | numéro humain (placeholder dev : `PRO-2026-0042`) |
-| `issued_at` | timestamp | |
-| `period_start` / `period_end` | date | mois facturé |
-| `amount_subtotal` / `amount_tax` / `amount_total` | numeric(12,2) | |
-| `currency` | char(3) | `EUR` |
-| `tax_rate` | numeric(5,2) | snapshot taux (ex `17.00`) |
-| `status` | enum | `DRAFT`, `OPEN`, `PAID`, `UNCOLLECTIBLE`, `VOID` (alignés Stripe) |
-| `hosted_invoice_url` | text | URL Stripe (nullable en dev) |
-| `pdf_url` | text | URL PDF Stripe (nullable en dev) |
-| `customer_snapshot` | jsonb | snapshot salon (nom, adresse, TVA) au moment d'émission |
-| `created_at` / `updated_at` | timestamp | |
+| `ID` | NUMBER(19) IDENTITY | PK |
+| `STRIPE_INVOICE_ID` | VARCHAR2(255 CHAR) | unique partiel (not null), null tant que Stripe non branché |
+| `NUMBER_LABEL` | VARCHAR2(64 CHAR) | numéro humain (placeholder dev : `PRO-2026-0042`). `NUMBER` réservé Oracle → on nomme la colonne `NUMBER_LABEL`. |
+| `ISSUED_AT` | TIMESTAMP NOT NULL | |
+| `PERIOD_START` | DATE | mois facturé |
+| `PERIOD_END` | DATE | |
+| `AMOUNT_SUBTOTAL` / `AMOUNT_TAX` / `AMOUNT_TOTAL` | NUMBER(12,2) NOT NULL | |
+| `CURRENCY` | CHAR(3 CHAR) NOT NULL | `EUR` |
+| `TAX_RATE` | NUMBER(5,2) NOT NULL | snapshot (ex `17.00`) |
+| `STATUS` | VARCHAR2(32 CHAR) NOT NULL | enum string : `DRAFT`, `OPEN`, `PAID`, `UNCOLLECTIBLE`, `VOID` (alignés Stripe) |
+| `HOSTED_INVOICE_URL` | VARCHAR2(1024 CHAR) | URL Stripe |
+| `PDF_URL` | VARCHAR2(1024 CHAR) | URL PDF Stripe |
+| `CUSTOMER_SNAPSHOT` | CLOB | JSON sérialisé (snapshot salon) |
+| `CREATED_AT` / `UPDATED_AT` | TIMESTAMP NOT NULL | |
 
-Index : `tenant_id`, `stripe_invoice_id` (unique partiel sur not null), `issued_at desc`.
+Index : `IDX_PRO_INVOICES_ISSUED_AT (ISSUED_AT DESC)`, `UK_PRO_INVOICES_STRIPE_ID` unique sur `STRIPE_INVOICE_ID` (filtré WHERE NOT NULL côté code applicatif — Oracle UNIQUE accepte NULLs multiples par défaut, donc l'unique simple suffit).
 
-#### `client_invoice`
+`TENANT_ID` n'est PAS stocké : la table vit dans le schéma tenant, l'isolation est physique. Cohérent avec `CARE_BOOKINGS` et autres tables tenant existantes.
 
-| Colonne | Type | Note |
+#### `CLIENT_INVOICES`
+
+| Colonne | Type Oracle | Note |
 |---|---|---|
-| `id` | UUID | PK |
-| `tenant_id` | UUID | FK Tenant (salon émetteur) |
-| `booking_id` | UUID | FK nullable vers Booking (lien no-show) |
-| `client_user_id` | UUID | FK nullable vers User (client) |
-| `stripe_payment_intent_id` | varchar | nullable tant que non branché |
-| `stripe_invoice_id` | varchar | nullable (Stripe Connect peut générer ou non) |
-| `number` | varchar | séquence par tenant : `{TENANT_SLUG}-{YEAR}-{4digit}` |
-| `issued_at` | timestamp | |
-| `kind` | enum | `NO_SHOW_FEE`, `CARE_PAYMENT` (extensible) |
-| `amount_subtotal` / `amount_tax` / `amount_total` | numeric(12,2) | |
-| `currency` | char(3) | |
-| `tax_rate` | numeric(5,2) | |
-| `status` | enum | `PAID`, `REFUNDED`, `FAILED`, `PENDING` |
-| `emitter_snapshot` | jsonb | snapshot salon (nom, adresse, TVA, RCS) |
-| `client_snapshot` | jsonb | snapshot client (nom, adresse) |
-| `created_at` / `updated_at` | timestamp | |
+| `ID` | NUMBER(19) IDENTITY | PK |
+| `BOOKING_ID` | NUMBER(19) | FK nullable vers CARE_BOOKINGS |
+| `CLIENT_USER_ID` | NUMBER(19) | référence vers USERS (synonyme cross-schema, pas de FK) |
+| `STRIPE_PAYMENT_INTENT_ID` | VARCHAR2(255 CHAR) | nullable |
+| `STRIPE_INVOICE_ID` | VARCHAR2(255 CHAR) | nullable |
+| `NUMBER_LABEL` | VARCHAR2(64 CHAR) NOT NULL | séquence : `{TENANT_SLUG}-{YEAR}-{4digit}` |
+| `ISSUED_AT` | TIMESTAMP NOT NULL | |
+| `KIND` | VARCHAR2(32 CHAR) NOT NULL | enum : `NO_SHOW_FEE`, `CARE_PAYMENT` |
+| `AMOUNT_SUBTOTAL` / `AMOUNT_TAX` / `AMOUNT_TOTAL` | NUMBER(12,2) NOT NULL | |
+| `CURRENCY` | CHAR(3 CHAR) NOT NULL | |
+| `TAX_RATE` | NUMBER(5,2) NOT NULL | |
+| `STATUS` | VARCHAR2(32 CHAR) NOT NULL | enum : `PAID`, `REFUNDED`, `FAILED`, `PENDING` |
+| `EMITTER_SNAPSHOT` | CLOB | JSON (salon) |
+| `CLIENT_SNAPSHOT` | CLOB | JSON (client) |
+| `CREATED_AT` / `UPDATED_AT` | TIMESTAMP NOT NULL | |
 
-Index : `tenant_id`, `client_user_id`, `booking_id`, `stripe_payment_intent_id` (unique partiel), `issued_at desc`.
+Index : `IDX_CLIENT_INVOICES_CLIENT_USER (CLIENT_USER_ID)`, `IDX_CLIENT_INVOICES_BOOKING (BOOKING_ID)`, `IDX_CLIENT_INVOICES_ISSUED_AT (ISSUED_AT DESC)`. FK contraint `FK_CLIENT_INVOICE_BOOKING` vers `CARE_BOOKINGS(ID)`.
 
-#### `client_invoice_line`
+#### `CLIENT_INVOICE_LINES`
 
-| Colonne | Type |
+| Colonne | Type Oracle |
 |---|---|
-| `id` | UUID PK |
-| `client_invoice_id` | UUID FK |
-| `description` | text |
-| `quantity` | numeric(10,2) |
-| `unit_price_ht` | numeric(12,2) |
-| `total_ht` | numeric(12,2) |
-| `position` | int (ordre) |
+| `ID` | NUMBER(19) IDENTITY PK |
+| `INVOICE_ID` | NUMBER(19) NOT NULL FK → CLIENT_INVOICES(ID) |
+| `DESCRIPTION` | VARCHAR2(1024 CHAR) NOT NULL |
+| `QUANTITY` | NUMBER(10,2) NOT NULL |
+| `UNIT_PRICE_HT` | NUMBER(12,2) NOT NULL |
+| `TOTAL_HT` | NUMBER(12,2) NOT NULL |
+| `POSITION` | NUMBER(10) NOT NULL |
 
 ### Endpoints
 
@@ -222,13 +225,11 @@ Idempotence : chaque seeder vérifie l'existence de factures pour le tenant avan
 
 ## Migration Flyway
 
-`V{n}__create_invoice_tables.sql` dans le schéma tenant template :
-- `pro_invoice` + index
-- `client_invoice` + index
-- `client_invoice_line` + index FK
-- Énums : `pro_invoice_status`, `client_invoice_status`, `client_invoice_kind`
+**Schéma tenant** : `db/migration/tenant/V2__create_invoice_tables.sql` (V1 = baseline). Crée `PRO_INVOICES`, `CLIENT_INVOICES`, `CLIENT_INVOICE_LINES` qualifiées `"${tenantSchema}".XXX`, avec index et FK locales. Enums implémentés comme VARCHAR2 + CHECK constraint sur les valeurs autorisées (pattern Oracle existant).
 
-Tenants existants : la migration s'applique automatiquement via le flow multi-tenant en place.
+**Synchronisation `TenantSchemaManager.TENANT_TABLES`** (Java) : ajouter `"PRO_INVOICES"`, `"CLIENT_INVOICES"`, `"CLIENT_INVOICE_LINES"` à la liste pour que le provisioning et les opérations cross-schema connaissent ces tables.
+
+Tenants existants : la migration s'applique automatiquement via le flow multi-tenant en place (`TenantFlywayService`).
 
 > ⚠️ Memo `project_pending_flyway.md` : les tenants legacy doivent être baselined avant `ddl-auto=validate`. Pas un blocker pour ce chantier mais à garder en tête lors du déploiement.
 
