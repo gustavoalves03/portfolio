@@ -16,6 +16,18 @@ import {
   CareBookingStatus,
 } from '../../features/bookings/models/bookings.model';
 
+/**
+ * KPI computations derive from `weekBookings`, which filters `bookings()`
+ * to the days inside the current week. The previous hardcoded
+ * 2026-05-04 worked when the suite was written but stops matching as
+ * "this week" shifts. Anchor every fixture on today's YYYY-MM-DD so the
+ * tests stay valid regardless of when CI runs.
+ */
+const TODAY_YMD = (() => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+})();
+
 function booking(
   id: number,
   status: CareBookingStatus,
@@ -35,7 +47,7 @@ function booking(
       images: [],
     } as any,
     quantity,
-    appointmentDate: '2026-05-04',
+    appointmentDate: TODAY_YMD,
     appointmentTime: '10:00:00',
     status,
     createdAt: '2026-05-01T12:00:00Z',

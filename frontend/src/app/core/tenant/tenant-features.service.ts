@@ -104,6 +104,11 @@ export class TenantFeaturesService {
           this.employeesEnabled.set(enabled);
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 
@@ -118,6 +123,11 @@ export class TenantFeaturesService {
           this.annualLeaveDays.set(days);
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 
@@ -135,6 +145,11 @@ export class TenantFeaturesService {
           this.closedDaysStore.invalidate();
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 
@@ -152,6 +167,11 @@ export class TenantFeaturesService {
           this.minAdvanceMinutes.set(minutes);
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 
@@ -168,6 +188,11 @@ export class TenantFeaturesService {
           this.maxAdvanceDays.set(days);
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 
@@ -185,6 +210,11 @@ export class TenantFeaturesService {
           this.maxClientHoursPerDay.set(hours);
           this.notifyAutoSaveSuccess();
         },
+        // Swallow HTTP errors silently — the contract is "no commit, no
+        // snackbar" on failure (the user retries by clicking again). Without
+        // this handler the error propagates as an uncaught exception and
+        // crashes the test runner.
+        error: () => { /* silent skip */ },
       });
   }
 }
