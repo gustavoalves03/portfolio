@@ -7,12 +7,15 @@ import com.luxpretty.app.users.domain.AuthProvider;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
 import com.luxpretty.app.users.repo.UserRepository;
+import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -20,6 +23,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.Instant;
 import java.util.Map;
@@ -120,11 +125,65 @@ class CustomOAuth2UserServiceTests {
         service = new StubCustomOAuth2UserService(userRepository, tenantProvisioningService, tenantRepository);
     }
 
-    // B4.1: New Google user → creates user with PRO role and provisions tenant schema
+    @AfterEach
+    void tearDown() {
+        // The pro-hint test sets a RequestContextHolder; clear it so other tests
+        // (and other test classes) don't see leftover request attributes.
+        RequestContextHolder.resetRequestAttributes();
+    }
+
+    /**
+     * Bind a MockHttpServletRequest to the current thread with the given role hint
+     * cookie value (or no cookie if {@code roleHint} is null). Required because
+     * {@link CustomOAuth2UserService#processOAuth2User} reads the cookie via
+     * {@link RequestContextHolder}.
+     */
+    private void bindRequestWithRoleHint(String roleHint) {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        if (roleHint != null) {
+            request.setCookies(new Cookie(OAuth2RoleHintFilter.ROLE_HINT_COOKIE, roleHint));
+        }
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    }
+
+    // B4.1a: New Google user without a "pro" role-hint cookie → defaults to USER (client),
+    // does NOT provision a tenant. Models the "Sign in with Google" flow from the login
+    // modal or /login page where end users expect a plain client account.
     @Test
-    void loadUser_newGoogleUser_createsUserWithProRoleAndProvisionsTenant() {
+    void loadUser_newGoogleUser_withoutProHint_defaultsToUserAndSkipsTenantProvisioning() {
         OAuth2UserRequest request = buildGoogleUserRequest();
         service.setStubbedUser(mockGoogleUser("sub-123", "Sophie Martin", "sophie@salon.fr"));
+        // No request bound → readRoleHint() returns null → role stays USER.
+
+        when(userRepository.findByProviderAndProviderId(AuthProvider.GOOGLE, "sub-123"))
+            .thenReturn(Optional.empty());
+        when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.empty());
+
+        User savedUser = User.builder().id(1L).name("Sophie Martin").email("sophie@salon.fr")
+            .provider(AuthProvider.GOOGLE).providerId("sub-123").role(Role.USER).emailVerified(true).build();
+        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+        CustomOAuth2User result = (CustomOAuth2User) service.loadUser(request);
+
+        assertThat(result.getUserId()).isEqualTo(1L);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getRole()).isEqualTo(Role.USER);
+        assertThat(captor.getValue().getEmailVerified()).isTrue();
+        assertThat(captor.getValue().getProvider()).isEqualTo(AuthProvider.GOOGLE);
+
+        verify(tenantProvisioningService, never()).provision(any(User.class));
+        verify(tenantRepository, never()).findByOwnerId(any());
+    }
+
+    // B4.1b: New Google user WITH "pro" role-hint cookie → creates user with PRO role
+    // and provisions a tenant schema. Models the dedicated /register/pro flow.
+    @Test
+    void loadUser_newGoogleUser_withProHint_createsProAndProvisionsTenant() {
+        OAuth2UserRequest request = buildGoogleUserRequest();
+        service.setStubbedUser(mockGoogleUser("sub-123", "Sophie Martin", "sophie@salon.fr"));
+        bindRequestWithRoleHint("pro");
 
         when(userRepository.findByProviderAndProviderId(AuthProvider.GOOGLE, "sub-123"))
             .thenReturn(Optional.empty());
