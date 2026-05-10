@@ -54,7 +54,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(fromAddress, fromName);
             helper.setTo(user.getEmail());
-            helper.setSubject("Welcome to Pretty Face / Bienvenue sur Pretty Face !");
+            helper.setSubject("Welcome to LuxPretty / Bienvenue sur LuxPretty !");
             helper.setText(htmlContent, true);
 
             mailSender.send(message);

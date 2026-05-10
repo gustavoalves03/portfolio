@@ -60,11 +60,11 @@ public class DataInitializer {
 
             // ── Admin ──
             User admin = createUser(userRepository, passwordEncoder,
-                    "Pretty Face Admin", "admin@prettyface.com", "Admin2026!", Role.ADMIN);
+                    "LuxPretty Admin", "admin@luxpretty.com", "Admin2026!", Role.ADMIN);
 
             // ── Pro 1: Sophie's salon ──
             User sophie = createUser(userRepository, passwordEncoder,
-                    "Sophie Martin", "sophie@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Sophie Martin", "sophie@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
             Tenant salonSophie = createTenant(tenantRepository, sophie);
             salonSophie.setName("L'Atelier de Sophie");
             salonSophie.setDescription("Institut de beauté spécialisé dans les soins du visage et le bien-être. " +
@@ -76,7 +76,7 @@ public class DataInitializer {
             salonSophie.setAddressCity("Paris");
             salonSophie.setAddressCountry("FR");
             salonSophie.setPhone("+33 1 43 72 15 80");
-            salonSophie.setContactEmail("sophie@prettyface.com");
+            salonSophie.setContactEmail("sophie@luxpretty.com");
             tenantRepository.save(salonSophie);
             tenantSchemaManager.provisionSchema(salonSophie.getSlug());
             seedSalonSophie(salonSophie.getSlug(), categoryRepository, careRepository, openingHourRepository);
@@ -84,7 +84,7 @@ public class DataInitializer {
 
             // ── Pro 2: Camille's salon ──
             User camille = createUser(userRepository, passwordEncoder,
-                    "Camille Dubois", "camille@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Camille Dubois", "camille@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
             Tenant salonCamille = createTenant(tenantRepository, camille);
             salonCamille.setName("Beauté by Camille");
             salonCamille.setDescription("Espace dédié à la beauté des ongles et au maquillage professionnel. " +
@@ -96,7 +96,7 @@ public class DataInitializer {
             salonCamille.setAddressCity("Lyon");
             salonCamille.setAddressCountry("FR");
             salonCamille.setPhone("+33 4 78 60 22 45");
-            salonCamille.setContactEmail("camille@prettyface.com");
+            salonCamille.setContactEmail("camille@luxpretty.com");
             tenantRepository.save(salonCamille);
             tenantSchemaManager.provisionSchema(salonCamille.getSlug());
             seedSalonCamille(salonCamille.getSlug(), categoryRepository, careRepository, openingHourRepository);
@@ -104,7 +104,7 @@ public class DataInitializer {
 
             // ── Pro 3: Isabelle's salon (Bordeaux) ──
             User isabelle = createUser(userRepository, passwordEncoder,
-                    "Isabelle Dupont", "isabelle@prettyface.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Isabelle Dupont", "isabelle@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
             Tenant salonIsabelle = createTenant(tenantRepository, isabelle);
             salonIsabelle.setName("Éclat Naturel");
             salonIsabelle.setDescription("Soins bio et naturels pour le visage et le corps. " +
@@ -116,7 +116,7 @@ public class DataInitializer {
             salonIsabelle.setAddressCity("Bordeaux");
             salonIsabelle.setAddressCountry("FR");
             salonIsabelle.setPhone("+33 5 56 48 30 12");
-            salonIsabelle.setContactEmail("isabelle@prettyface.com");
+            salonIsabelle.setContactEmail("isabelle@luxpretty.com");
             tenantRepository.save(salonIsabelle);
             tenantSchemaManager.provisionSchema(salonIsabelle.getSlug());
             seedSalonIsabelle(salonIsabelle.getSlug(), categoryRepository, careRepository, openingHourRepository);
@@ -135,9 +135,9 @@ public class DataInitializer {
             logger.info("✅ Posts de démonstration créés");
 
             logger.info("=== Seeding complete ===");
-            logger.info("Comptes pro:    sophie@prettyface.com / {}  |  camille@prettyface.com / {}", DEFAULT_PASSWORD, DEFAULT_PASSWORD);
+            logger.info("Comptes pro:    sophie@luxpretty.com / {}  |  camille@luxpretty.com / {}", DEFAULT_PASSWORD, DEFAULT_PASSWORD);
             logger.info("Comptes client: marie@test.com / {}  |  julie@test.com / {}  |  clara@test.com / {}", DEFAULT_PASSWORD, DEFAULT_PASSWORD, DEFAULT_PASSWORD);
-            logger.info("Admin:          admin@prettyface.com / Admin2026!");
+            logger.info("Admin:          admin@luxpretty.com / Admin2026!");
         };
     }
 
