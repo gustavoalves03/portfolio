@@ -1,0 +1,70 @@
+-- ── PRO_INVOICES : cache des factures d'abonnement (LuxPretty → salon) ──
+-- Source future : webhook Stripe (invoice.paid, etc). Aucune logique métier
+-- de TVA chez nous : Stripe Tax émet, on stocke.
+CREATE TABLE "${tenantSchema}".PRO_INVOICES (
+    ID                  NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- Nullable until the Stripe webhook is wired (see project_pending_payments.md).
+    -- Oracle UNIQUE treats NULLs as not equal, so multiple unfilled rows coexist safely.
+    STRIPE_INVOICE_ID   VARCHAR2(255 CHAR),
+    NUMBER_LABEL        VARCHAR2(64 CHAR) NOT NULL,
+    ISSUED_AT           TIMESTAMP NOT NULL,
+    PERIOD_START        DATE,
+    PERIOD_END          DATE,
+    AMOUNT_SUBTOTAL     NUMBER(12,2) NOT NULL,
+    AMOUNT_TAX          NUMBER(12,2) NOT NULL,
+    AMOUNT_TOTAL        NUMBER(12,2) NOT NULL,
+    CURRENCY            CHAR(3 CHAR) DEFAULT 'EUR' NOT NULL,
+    TAX_RATE            NUMBER(5,2) NOT NULL,
+    STATUS              VARCHAR2(32 CHAR) NOT NULL,
+    HOSTED_INVOICE_URL  VARCHAR2(1024 CHAR),
+    PDF_URL             VARCHAR2(1024 CHAR),
+    CUSTOMER_SNAPSHOT   CLOB,
+    CREATED_AT          TIMESTAMP NOT NULL,
+    UPDATED_AT          TIMESTAMP NOT NULL,
+    CONSTRAINT UK_PRO_INVOICES_STRIPE_ID UNIQUE (STRIPE_INVOICE_ID),
+    CONSTRAINT CK_PRO_INVOICES_STATUS CHECK (STATUS IN ('DRAFT','OPEN','PAID','UNCOLLECTIBLE','VOID'))
+);
+CREATE INDEX "${tenantSchema}".IX_PRO_INVOICES_ISSUED ON "${tenantSchema}".PRO_INVOICES (ISSUED_AT DESC);
+
+-- ── CLIENT_INVOICES : factures émises par le salon à ses clients ──
+-- Source future : Stripe Connect (payment_intent.succeeded sur no-show).
+CREATE TABLE "${tenantSchema}".CLIENT_INVOICES (
+    ID                       NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    BOOKING_ID               NUMBER(19),
+    -- ref USERS via synonym (app schema), no FK constraint — same pattern as CARE_BOOKINGS.USER_ID.
+    CLIENT_USER_ID           NUMBER(19),
+    STRIPE_PAYMENT_INTENT_ID VARCHAR2(255 CHAR),
+    STRIPE_INVOICE_ID        VARCHAR2(255 CHAR),
+    NUMBER_LABEL             VARCHAR2(64 CHAR) NOT NULL,
+    ISSUED_AT                TIMESTAMP NOT NULL,
+    KIND                     VARCHAR2(32 CHAR) NOT NULL,
+    AMOUNT_SUBTOTAL          NUMBER(12,2) NOT NULL,
+    AMOUNT_TAX               NUMBER(12,2) NOT NULL,
+    AMOUNT_TOTAL             NUMBER(12,2) NOT NULL,
+    CURRENCY                 CHAR(3 CHAR) DEFAULT 'EUR' NOT NULL,
+    TAX_RATE                 NUMBER(5,2) NOT NULL,
+    STATUS                   VARCHAR2(32 CHAR) NOT NULL,
+    EMITTER_SNAPSHOT         CLOB,
+    CLIENT_SNAPSHOT          CLOB,
+    CREATED_AT               TIMESTAMP NOT NULL,
+    UPDATED_AT               TIMESTAMP NOT NULL,
+    CONSTRAINT FK_CLIENT_INVOICE_BOOKING FOREIGN KEY (BOOKING_ID) REFERENCES "${tenantSchema}".CARE_BOOKINGS(ID),
+    CONSTRAINT CK_CLIENT_INVOICES_KIND CHECK (KIND IN ('NO_SHOW_FEE','CARE_PAYMENT')),
+    CONSTRAINT CK_CLIENT_INVOICES_STATUS CHECK (STATUS IN ('PAID','REFUNDED','FAILED','PENDING'))
+);
+CREATE INDEX "${tenantSchema}".IX_CLIENT_INVOICES_USER    ON "${tenantSchema}".CLIENT_INVOICES (CLIENT_USER_ID);
+CREATE INDEX "${tenantSchema}".IX_CLIENT_INVOICES_BOOKING ON "${tenantSchema}".CLIENT_INVOICES (BOOKING_ID);
+CREATE INDEX "${tenantSchema}".IX_CLIENT_INVOICES_ISSUED  ON "${tenantSchema}".CLIENT_INVOICES (ISSUED_AT DESC);
+
+-- ── CLIENT_INVOICE_LINES : lignes de détail des factures client ──
+CREATE TABLE "${tenantSchema}".CLIENT_INVOICE_LINES (
+    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    INVOICE_ID    NUMBER(19) NOT NULL,
+    DESCRIPTION   VARCHAR2(1024 CHAR) NOT NULL,
+    QUANTITY      NUMBER(10,2) NOT NULL,
+    UNIT_PRICE_HT NUMBER(12,2) NOT NULL,
+    TOTAL_HT      NUMBER(12,2) NOT NULL,
+    POSITION      NUMBER(10) NOT NULL,
+    CONSTRAINT FK_CLIENT_INVOICE_LINE_INV FOREIGN KEY (INVOICE_ID) REFERENCES "${tenantSchema}".CLIENT_INVOICES(ID) ON DELETE CASCADE
+);
+CREATE INDEX "${tenantSchema}".IX_CLIENT_INVOICE_LINES_INV ON "${tenantSchema}".CLIENT_INVOICE_LINES (INVOICE_ID);
