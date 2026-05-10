@@ -18,7 +18,7 @@
 }
 
 /* SVG image — full variant (default + with-tagline). Height 32px on mobile, 40px on desktop. */
-.lp-logo__img--full {
+.lp-logo__svg--full {
   height: 32px;
   width: auto;
   display: block;
@@ -29,7 +29,7 @@
 }
 
 /* SVG image — mono variant (small, used in salon/pro header). Tighter footprint. */
-.lp-logo__img--mono {
+.lp-logo__svg--mono {
   height: 32px;
   width: 32px;
   display: block;
