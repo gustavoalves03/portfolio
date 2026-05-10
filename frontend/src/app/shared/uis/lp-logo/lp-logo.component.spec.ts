@@ -15,21 +15,22 @@ describe('LpLogoComponent', () => {
     fixture = TestBed.createComponent(LpLogoComponent);
   });
 
-  it('renders the full SVG by default with LuxPretty alt text', () => {
+  it('renders the full inline SVG by default', () => {
     fixture.detectChanges();
-    const img = fixture.debugElement.query(By.css('img.lp-logo__img--full'));
-    expect(img).withContext('expected full SVG image').not.toBeNull();
-    expect(img.nativeElement.getAttribute('src')).toBe('/logos/luxpretty-full.svg');
-    expect(img.nativeElement.getAttribute('alt')).toBe('LuxPretty');
+    const svg = fixture.debugElement.query(By.css('svg.lp-logo__svg--full'));
+    expect(svg).withContext('expected full inline SVG').not.toBeNull();
+    expect(svg.nativeElement.getAttribute('aria-label')).toBe('LuxPretty');
+    expect(svg.nativeElement.textContent).toContain('LuxPretty');
+    expect(svg.nativeElement.textContent).toContain('LXP');
   });
 
-  it('renders the mono SVG when variant="small"', () => {
+  it('renders only the mono inline SVG when variant="small"', () => {
     fixture.componentRef.setInput('variant', 'small');
     fixture.detectChanges();
-    const img = fixture.debugElement.query(By.css('img.lp-logo__img--mono'));
-    expect(img).withContext('expected mono SVG image').not.toBeNull();
-    expect(img.nativeElement.getAttribute('src')).toBe('/logos/luxpretty-mono.svg');
-    expect(fixture.debugElement.query(By.css('img.lp-logo__img--full'))).toBeNull();
+    const mono = fixture.debugElement.query(By.css('svg.lp-logo__svg--mono'));
+    expect(mono).withContext('expected mono inline SVG').not.toBeNull();
+    expect(mono.nativeElement.textContent).toContain('LXP');
+    expect(fixture.debugElement.query(By.css('svg.lp-logo__svg--full'))).toBeNull();
   });
 
   it('applies the small variant class when variant="small"', () => {
@@ -45,8 +46,7 @@ describe('LpLogoComponent', () => {
     const tagline = fixture.debugElement.query(By.css('.lp-logo__tagline'));
     expect(tagline).withContext('expected tagline element').not.toBeNull();
     expect(tagline.nativeElement.textContent).toContain('Beauté');
-    // Full variant SVG is still shown alongside the tagline
-    expect(fixture.debugElement.query(By.css('img.lp-logo__img--full'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.css('svg.lp-logo__svg--full'))).not.toBeNull();
   });
 
   it('does not show the tagline by default', () => {
