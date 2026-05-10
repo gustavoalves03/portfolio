@@ -78,4 +78,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", "A record with this value already exists"));
     }
+
+    @ExceptionHandler(BookingLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> bookingLimitExceeded(BookingLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "code", ex.getCode(),
+                        "message", ex.getMessage(),
+                        "limit", ex.getLimit(),
+                        "currentCount", ex.getCurrentCount()
+                ));
+    }
 }
