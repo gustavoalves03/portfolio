@@ -1,17 +1,74 @@
-<footer class="mt-12 border-t py-8 text-sm text-gray-600">
-  <div class="container mx-auto px-4 flex flex-col gap-2 items-center">
-    @if (isPro()) {
-      <p>
-        Propulsé par <a routerLink="/" class="text-neutral-900 hover:underline underline-offset-4" style="letter-spacing:0.15em;text-transform:uppercase;font-weight:400;font-size:11px;"><span style="color:var(--pf-rose);font-weight:600;font-size:9px;letter-spacing:0.3em;">PRETTY</span> FACE</a>
-        · <a routerLink="/" class="text-neutral-500 hover:underline underline-offset-4">Abonnements</a>
-      </p>
-    } @else {
-      <p>&copy; {{ year }} <span style="letter-spacing:0.15em;text-transform:uppercase;font-weight:400;font-size:11px;"><span style="color:var(--pf-rose);font-weight:600;font-size:9px;letter-spacing:0.3em;">PRETTY</span> FACE</span></p>
-      @if (!isLoggedIn()) {
-        <p>
-          <a routerLink="/pricing" class="text-neutral-500 hover:text-neutral-900 hover:underline underline-offset-4">Vous êtes professionnel ? Créez votre vitrine</a>
-        </p>
-      }
-    }
-  </div>
-</footer>
+@if (isPro()) {
+  <!-- Pro footer: minimal, in-app context — pros don't need the full marketing footer -->
+  <footer class="lp-footer-pro">
+    <div class="lp-footer-pro__inner">
+      <span class="lp-footer-pro__by">Propulsé par</span>
+      <a routerLink="/" class="lp-footer-pro__logo" aria-label="LuxPretty">
+        <app-lp-logo variant="small" />
+      </a>
+      <span class="lp-footer-pro__sep">·</span>
+      <a routerLink="/pricing" class="lp-footer-pro__link">{{ 'home.v1.footer.proPricing' | transloco }}</a>
+    </div>
+  </footer>
+} @else {
+  <!-- Full footer: visitor or logged-in client. Dark elegant (F2). -->
+  <footer class="lp-footer">
+    <div class="lp-footer__inner">
+      <div class="lp-footer__grid">
+
+        <!-- Brand column -->
+        <div class="lp-footer__brand">
+          <a routerLink="/" class="lp-footer__logo" aria-label="LuxPretty">
+            <app-lp-logo />
+          </a>
+          <p class="lp-footer__tag">{{ 'home.v1.footer.tag' | transloco }}</p>
+          <div class="lp-footer__apps">
+            <span class="lp-footer__app" aria-disabled="true" title="Bientôt disponible">{{ 'home.v1.footer.ios' | transloco }}</span>
+            <span class="lp-footer__app" aria-disabled="true" title="Bientôt disponible">{{ 'home.v1.footer.android' | transloco }}</span>
+          </div>
+        </div>
+
+        <!-- Discover column -->
+        <div class="lp-footer__col">
+          <h4 class="lp-footer__heading">{{ 'home.v1.footer.discoverTitle' | transloco }}</h4>
+          <ul class="lp-footer__list">
+            <li><a routerLink="/discover" class="lp-footer__link">{{ 'home.v1.footer.discoverViewAll' | transloco }}</a></li>
+            <li><a routerLink="/about" class="lp-footer__link">{{ 'home.v1.footer.houseAbout' | transloco }}</a></li>
+          </ul>
+        </div>
+
+        <!-- For pros column -->
+        <div class="lp-footer__col">
+          <h4 class="lp-footer__heading">{{ 'home.v1.footer.proTitle' | transloco }}</h4>
+          <ul class="lp-footer__list">
+            @if (isClient()) {
+              <li><a routerLink="/pricing" class="lp-footer__link">{{ 'home.v1.footer.proLink' | transloco }}</a></li>
+            } @else {
+              <li><a routerLink="/pricing" class="lp-footer__link">{{ 'home.v1.footer.proLink' | transloco }}</a></li>
+              <li><a routerLink="/pricing" class="lp-footer__link">{{ 'home.v1.footer.proPricing' | transloco }}</a></li>
+              <li><a routerLink="/register/pro" class="lp-footer__link">{{ 'home.v1.footer.proJoin' | transloco }}</a></li>
+            }
+          </ul>
+        </div>
+
+        <!-- House column -->
+        <div class="lp-footer__col">
+          <h4 class="lp-footer__heading">{{ 'home.v1.footer.houseTitle' | transloco }}</h4>
+          <ul class="lp-footer__list">
+            <li><a routerLink="/about" class="lp-footer__link">{{ 'home.v1.footer.houseAbout' | transloco }}</a></li>
+            <li><a routerLink="/about" class="lp-footer__link">{{ 'home.v1.footer.houseManifesto' | transloco }}</a></li>
+            <li><a routerLink="/about" class="lp-footer__link">{{ 'home.v1.footer.houseCareers' | transloco }}</a></li>
+            <li><a routerLink="/about" class="lp-footer__link">{{ 'home.v1.footer.housePress' | transloco }}</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom bar: rights + legal -->
+      <div class="lp-footer__bottom">
+        <span class="lp-footer__rights">{{ 'home.v1.footer.rights' | transloco }}</span>
+        <span class="lp-footer__legal">{{ 'home.v1.footer.legal' | transloco }}</span>
+      </div>
+    </div>
+  </footer>
+}
