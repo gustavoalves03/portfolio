@@ -3,8 +3,23 @@
   [class.lp-logo--small]="variant() === 'small'"
   [class.lp-logo--with-tagline]="variant() === 'with-tagline'"
 >
-  <span class="lp-logo__lux">LUX</span>
-  <span class="lp-logo__pretty">Pretty</span>
+  @if (variant() === 'small') {
+    <img
+      class="lp-logo__img lp-logo__img--mono"
+      src="/logos/luxpretty-mono.svg"
+      alt="LuxPretty"
+      width="56"
+      height="56"
+    />
+  } @else {
+    <img
+      class="lp-logo__img lp-logo__img--full"
+      src="/logos/luxpretty-full.svg"
+      alt="LuxPretty"
+      width="210"
+      height="56"
+    />
+  }
   @if (showTagline()) {
     <span class="lp-logo__tagline">Beauté · Luxembourg</span>
   }

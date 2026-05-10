@@ -4,7 +4,7 @@
 
 .lp-logo {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   text-decoration: none;
   line-height: 1;
@@ -17,61 +17,27 @@
   gap: 4px;
 }
 
-.lp-logo__lux {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 22px;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--pf-ink);
-  transition: color 200ms ease;
+/* SVG image — full variant (default + with-tagline). Height 32px on mobile, 40px on desktop. */
+.lp-logo__img--full {
+  height: 32px;
+  width: auto;
+  display: block;
 
   @media (min-width: 768px) {
-    font-size: 26px;
+    height: 40px;
   }
 }
 
-.lp-logo__pretty {
-  font-family: 'Italiana', 'Cormorant Garamond', Georgia, serif;
-  font-size: 22px;
-  font-weight: 400;
-  font-style: italic;
-  color: var(--pf-rose);
-  position: relative;
+/* SVG image — mono variant (small, used in salon/pro header). Tighter footprint. */
+.lp-logo__img--mono {
+  height: 32px;
+  width: 32px;
+  display: block;
 
   @media (min-width: 768px) {
-    font-size: 26px;
+    height: 36px;
+    width: 36px;
   }
-}
-
-/* Decorative gold underline under "Pretty" — default variant only */
-.lp-logo:not(.lp-logo--small):not(.lp-logo--with-tagline) .lp-logo__pretty::after {
-  content: '';
-  position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: -3px;
-  height: 1px;
-  background: var(--lp-accent-gold);
-  opacity: 0.4;
-}
-
-/* Hover: LUX glows gold for 200ms */
-.lp-logo:hover .lp-logo__lux {
-  color: var(--lp-accent-gold);
-}
-
-/* Small variant — used in header left column on salon/pro pages */
-.lp-logo--small .lp-logo__lux,
-.lp-logo--small .lp-logo__pretty {
-  font-size: 15px;
-
-  @media (min-width: 768px) {
-    font-size: 17px;
-  }
-}
-.lp-logo--small {
-  gap: 6px;
 }
 
 /* Tagline */
