@@ -940,7 +940,7 @@ export class SalonPostsViewerComponent {
 
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({ title: post.caption ?? 'Pretty Face', url }).catch(() => {});
+      navigator.share({ title: post.caption ?? 'LuxPretty', url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(url).then(() => {
         // Could show a toast - for now silent copy

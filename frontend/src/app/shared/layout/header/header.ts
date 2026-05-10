@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { LpLogoComponent } from '../../uis/lp-logo/lp-logo.component';
 import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
@@ -19,7 +20,7 @@ import { NotificationsStore } from '../../../features/notifications/store/notifi
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe],
+  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe, LpLogoComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
@@ -67,7 +68,7 @@ export class Header {
     // Load PRO salon info. We only fetch once per (pro, authenticated) state
     // change and we never blank the cached name on a transient flicker — the
     // computed user signal can momentarily flip to null between route guards,
-    // which used to make the brand fall back to "Pretty Face".
+    // which used to make the brand fall back to "LuxPretty".
     let lastFetchedFor: string | null = null;
     effect(() => {
       const user = this.authService.user();

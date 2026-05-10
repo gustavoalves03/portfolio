@@ -1,0 +1,26 @@
+package com.luxpretty.app.tenant.web.dto;
+
+import java.time.LocalDateTime;
+
+public record TenantResponse(
+        Long id,
+        String name,
+        String slug,
+        String description,
+        String logoUrl,
+        String heroImageUrl,
+        String addressStreet,
+        String addressPostalCode,
+        String addressCity,
+        String addressCountry,
+        String phone,
+        String contactEmail,
+        String siret,
+        LocalDateTime updatedAt,
+        Boolean employeesEnabled,
+        Integer annualLeaveDays,
+        Boolean closedOnHolidays,
+        Integer minAdvanceMinutes,
+        Integer maxAdvanceDays,
+        Integer maxClientHoursPerDay
+) {}

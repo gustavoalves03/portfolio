@@ -1,0 +1,11 @@
+<div
+  class="lp-logo"
+  [class.lp-logo--small]="variant() === 'small'"
+  [class.lp-logo--with-tagline]="variant() === 'with-tagline'"
+>
+  <span class="lp-logo__lux">LUX</span>
+  <span class="lp-logo__pretty">Pretty</span>
+  @if (showTagline()) {
+    <span class="lp-logo__tagline">Beauté · Luxembourg</span>
+  }
+</div>

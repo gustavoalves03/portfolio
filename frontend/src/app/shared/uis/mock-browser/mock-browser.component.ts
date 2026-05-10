@@ -12,5 +12,5 @@ import { Component, input } from '@angular/core';
   styleUrl: './mock-browser.component.scss',
 })
 export class MockBrowserComponent {
-  readonly url = input<string>('prettyface.app');
+  readonly url = input<string>('luxpretty.app');
 }

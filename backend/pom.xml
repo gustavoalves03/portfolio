@@ -8,10 +8,10 @@
 		<version>3.5.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.prettyface</groupId>
-	<artifactId>pretty-face-backend</artifactId>
+	<groupId>com.luxpretty</groupId>
+	<artifactId>lux-pretty-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Pretty Face</name>
+	<name>LuxPretty</name>
 	<description>Mon portfolio</description>
 	<url/>
 	<licenses>

@@ -21,7 +21,7 @@ html {
 }
 
 /* ============================================================
- * Pretty Face — Design tokens
+ * LuxPretty — Design tokens
  * ------------------------------------------------------------
  * Single source of truth for colors, surfaces and typography.
  * Inherited by every page and component via :root scope.
@@ -47,6 +47,9 @@ html {
   --pf-burgundy:     #6b1e2c; /* secondary accent / italic emphasis */
   --pf-burgundy-soft: #8b3047; /* lighter burgundy for some backgrounds */
 
+  /* --- LuxPretty accent (decorative only) --- */
+  --lp-accent-gold:  #C9A961;
+
   /* --- Lines & borders --- */
   --pf-line:         rgba(43, 31, 37, 0.1);
   --pf-line-soft:    rgba(43, 31, 37, 0.06);
@@ -62,7 +65,7 @@ html {
 
   /* --- Override Material 3 surface fallbacks so non-themed
    *     components and Material auto-fallbacks land on the
-   *     warm Pretty Face paper instead of pure white. --- */
+   *     warm LuxPretty paper instead of pure white. --- */
   --mat-sys-surface: var(--pf-paper);
 }
 
@@ -92,7 +95,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   color: var(--mat-sys-on-error);
 }
 
-// ===== Pretty Face — Floating label input style =====
+// ===== LuxPretty — Floating label input style =====
 // Rounded 12px border, label floats small+rose when filled/focused,
 // subtle rose focus ring. Works with appearance="outline".
 

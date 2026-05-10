@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection } from '@angular/core';
@@ -74,7 +74,7 @@ describe('Header', () => {
 
 /**
  * Pinned behavior: when navigating between protected pro pages, the header
- * used to flicker back to "Pretty Face" because each effect re-fetched the
+ * used to flicker back to "LuxPretty" because each effect re-fetched the
  * profile and reset salonName before the new value arrived. The fix dedupes
  * the fetch by user id and refuses to overwrite a populated name with ''.
  */
@@ -163,7 +163,7 @@ describe('Header — salon name stability', () => {
 
     // Now simulate an in-flight error while the user is still logged in.
     // Bug #8 used to blank salonName to '' which made headerBrand fall back
-    // to "Pretty Face". With the fix, an error keeps the cached name.
+    // to "LuxPretty". With the fix, an error keeps the cached name.
     user$.set({ id: 2, role: 'PRO' } as any); // new user → triggers refetch
     const errorProfile$ = new Subject<any>();
     salonService.getProfile.and.returnValue(errorProfile$.asObservable());
@@ -192,5 +192,53 @@ describe('Header — salon name stability', () => {
     fixture.detectChanges();
 
     expect(cmp.salonName()).toBe('');
+  });
+});
+
+describe('Header — small LuxPretty logo on salon pages', () => {
+  let salonService: jasmine.SpyObj<SalonProfileService>;
+
+  beforeEach(async () => {
+    salonService = jasmine.createSpyObj('SalonProfileService', ['getProfile', 'getPublicSalon']);
+    salonService.getPublicSalon.and.returnValue(of({ name: 'Le Salon Rose', slug: 'le-salon-rose' } as any));
+
+    const authService = jasmine.createSpyObj('AuthService', ['logout'], {
+      isAuthenticated: signal(false),
+      user: signal(null),
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [
+        Header,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { defaultLang: 'en' },
+        }),
+      ],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([{ path: 'salon/:slug', component: Header }]),
+        provideNoopAnimations(),
+        provideHttpClient(),
+        provideTranslocoLocale({ defaultLocale: 'en-US', langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' } }),
+        { provide: AuthService, useValue: authService },
+        { provide: SalonProfileService, useValue: salonService },
+        NotificationsStore,
+      ],
+    }).compileComponents();
+  });
+
+  it('renders a small logo navigating to / when visiting a salon', async () => {
+    const fixture = TestBed.createComponent(Header);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/salon/le-salon-rose');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const smallLogoLink: HTMLAnchorElement | null =
+      fixture.nativeElement.querySelector('a[data-testid="header-home-link"]');
+    expect(smallLogoLink).withContext('expected small logo link').not.toBeNull();
+    expect(smallLogoLink!.getAttribute('href')).toBe('/');
   });
 });

@@ -1,0 +1,60 @@
+package com.luxpretty.app.bookings.domain;
+
+import com.luxpretty.app.care.domain.Care;
+import com.luxpretty.app.users.domain.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "CARE_BOOKINGS", uniqueConstraints = {
+        @UniqueConstraint(
+                name = "UK_BOOKING_SLOT",
+                columnNames = {"appointment_date", "appointment_time", "care_id"}
+        )
+})
+public class CareBooking {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false,
+                foreignKey = @ForeignKey(name = "FK_BOOKING_USER"))
+    private User user;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "care_id", nullable = false,
+                foreignKey = @ForeignKey(name = "FK_BOOKING_CARE"))
+    private Care care;
+
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
+    @Column(name = "appointment_date", nullable = false)
+    private LocalDate appointmentDate;
+
+    @Column(name = "appointment_time", nullable = false)
+    private LocalTime appointmentTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private CareBookingStatus status = CareBookingStatus.PENDING;
+
+    @Column(name = "employee_id")
+    private Long employeeId; // null = unassigned
+
+    @Column(name = "salon_client_id")
+    private Long salonClientId;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+}
+
