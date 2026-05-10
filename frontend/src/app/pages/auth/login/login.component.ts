@@ -86,6 +86,8 @@ export class LoginComponent {
   }
 
   loginWithGoogle(): void {
-    this.authService.loginWithGoogle();
+    // Generic login page — the user logs in (or first-time signs up) as a
+    // client. Pro sign-up uses /register/pro with its own form.
+    this.authService.loginWithGoogle('client');
   }
 }

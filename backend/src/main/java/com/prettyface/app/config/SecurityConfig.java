@@ -1,6 +1,7 @@
 package com.prettyface.app.config;
 
 import com.prettyface.app.auth.CustomOAuth2UserService;
+import com.prettyface.app.auth.CustomOidcUserService;
 import com.prettyface.app.auth.JwtAuthenticationFilter;
 import com.prettyface.app.auth.OAuth2AuthenticationFailureHandler;
 import com.prettyface.app.auth.OAuth2AuthenticationSuccessHandler;
@@ -45,6 +46,7 @@ public class SecurityConfig {
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final CsrfLoggingFilter csrfLoggingFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOidcUserService customOidcUserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final TokenService tokenService;
@@ -56,6 +58,7 @@ public class SecurityConfig {
                           RestAuthenticationEntryPoint authenticationEntryPoint,
                           CsrfLoggingFilter csrfLoggingFilter,
                           CustomOAuth2UserService customOAuth2UserService,
+                          CustomOidcUserService customOidcUserService,
                           OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
                           OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler,
                           TokenService tokenService,
@@ -66,6 +69,7 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.customOidcUserService = customOidcUserService;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.oAuth2AuthenticationFailureHandler = oAuth2AuthenticationFailureHandler;
         this.tokenService = tokenService;
@@ -172,6 +176,7 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService)
                         )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler)

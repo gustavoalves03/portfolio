@@ -99,13 +99,15 @@ export class AuthService {
   }
 
   /**
-   * Initiate Google OAuth2 login
-   * @param roleHint optional role hint ('client' or 'pro') for new account creation
+   * Initiate Google OAuth2 login. The role hint controls what kind of account
+   * gets created on first login: 'client' (default — no tenant) or 'pro'
+   * (provisions a salon tenant). Generic login surfaces (header modal, /login
+   * page) MUST pass 'client' or rely on the default; only the dedicated pro
+   * sign-up flow should pass 'pro'.
    */
-  loginWithGoogle(roleHint?: 'client' | 'pro'): void {
+  loginWithGoogle(roleHint: 'client' | 'pro' = 'client'): void {
     if (isPlatformBrowser(this.platformId)) {
-      const hint = roleHint ?? 'pro';
-      window.location.href = `${this.apiBaseUrl}/oauth2/authorization/google?role_hint=${hint}`;
+      window.location.href = `${this.apiBaseUrl}/oauth2/authorization/google?role_hint=${roleHint}`;
     }
   }
 

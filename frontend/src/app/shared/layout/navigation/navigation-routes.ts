@@ -108,6 +108,12 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
     path: '/my-evolution',
     icon: 'auto_awesome',
     requiresAuth: true
+  },
+  {
+    label: 'nav.client.becomePro',
+    path: '/register/pro',
+    icon: 'storefront',
+    requiresAuth: true
   }
 ];
 

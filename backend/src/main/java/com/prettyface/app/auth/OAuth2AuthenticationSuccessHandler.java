@@ -51,10 +51,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
-        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof OAuth2UserWithId withId)) {
+            throw new OAuth2AuthenticationException(
+                    "Unexpected OAuth2 principal type: " + principal.getClass());
+        }
 
         // B2.2 — Load full user to get email + role for JWT claims (TenantFilter requires them)
-        User user = userRepository.findById(oAuth2User.getUserId())
+        User user = userRepository.findById(withId.getUserId())
             .orElseThrow(() -> new OAuth2AuthenticationException("User not found"));
 
         String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole().name());

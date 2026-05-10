@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "SALON_PREVIEW_TOKENS", uniqueConstraints = {
         @UniqueConstraint(name = "UK_PREVIEW_TOKEN_TOKEN", columnNames = "token")
+}, indexes = {
+        @Index(name = "IX_PREVIEW_TOKEN_TENANT", columnList = "tenant_id")
 })
 public class SalonPreviewToken {
 
@@ -22,6 +24,16 @@ public class SalonPreviewToken {
 
     @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "tenant_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "FK_PREVIEW_TOKEN_TENANT")
+    )
+    private Tenant tenant;
 
     @Column(name = "token", nullable = false, length = 64)
     private String token;

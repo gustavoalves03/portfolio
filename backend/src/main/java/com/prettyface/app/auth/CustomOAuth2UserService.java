@@ -78,7 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Transactional
-    protected User processOAuth2User(String registrationId, OAuth2UserInfo oAuth2UserInfo) {
+    public User processOAuth2User(String registrationId, OAuth2UserInfo oAuth2UserInfo) {
         AuthProvider provider = AuthProvider.valueOf(registrationId.toUpperCase());
 
         // Check if a user already exists with this specific provider + providerId (returning OAuth2 user)

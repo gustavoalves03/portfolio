@@ -1288,7 +1288,8 @@
     },
     "client": {
       "bookings": "My bookings",
-      "evolution": "My Evolution"
+      "evolution": "My Evolution",
+      "becomePro": "Become a pro"
     },
     "employee": {
       "dashboard": "Dashboard",
