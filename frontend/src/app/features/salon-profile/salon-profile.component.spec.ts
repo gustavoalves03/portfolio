@@ -44,6 +44,9 @@ function createMockStore(initialTenant: TenantResponse | null = makeTenant()) {
   const isPending = signal(false);
   const error = signal<string | null>(null);
   const saveSuccess = signal(false);
+  // saveError mirrors the boolean flag in the real SalonProfileStore state.
+  // The component's snackbar effect reads `this.store.saveError()`.
+  const saveError = signal(false);
 
   return {
     tenant: tenantSig,
@@ -51,16 +54,19 @@ function createMockStore(initialTenant: TenantResponse | null = makeTenant()) {
     error,
     isFulfilled: computed(() => !isPending() && !error()),
     saveSuccess,
+    saveError,
     loadProfile: jasmine.createSpy('loadProfile'),
     updateProfile: jasmine.createSpy('updateProfile'),
     clearStatus: jasmine.createSpy('clearStatus').and.callFake(() => {
       saveSuccess.set(false);
+      saveError.set(false);
     }),
     // Escape hatches to drive the component in tests
     _setTenant: (t: TenantResponse | null) => tenantSig.set(t),
     _setPending: (v: boolean) => isPending.set(v),
     _setError: (v: string | null) => error.set(v),
     _setSaveSuccess: (v: boolean) => saveSuccess.set(v),
+    _setSaveError: (v: boolean) => saveError.set(v),
   };
 }
 
@@ -226,7 +232,7 @@ describe('SalonProfileComponent', () => {
     await configure();
     mockSnackBar.open.calls.reset();
 
-    mockStore._setError('Erreur de sauvegarde');
+    mockStore._setSaveError(true);
     TestBed.tick();
     fixture.detectChanges();
 
@@ -340,11 +346,15 @@ describe('SalonProfileStore (HTTP)', () => {
     expect(store.tenant()?.name).toBe('From API');
   });
 
-  it('loadProfile sets error on HTTP failure', () => {
+  it('loadProfile stays silent on HTTP failure (no error surfaced, no tenant set)', () => {
+    // The store intentionally swallows load failures (catchError → setFulfilled).
+    // The page can render an empty state; only save failures surface a snackbar.
     mockService.getProfile.and.returnValue(throwError(() => new Error('boom')));
     const store = TestBed.inject(SalonProfileStore);
     store.loadProfile();
-    expect(store.error()).toBe('Erreur de chargement du profil');
+    expect(store.error()).toBeNull();
+    expect(store.tenant()).toBeNull();
+    expect(store.isPending()).toBeFalse();
   });
 
   it('updateProfile on success updates tenant and sets saveSuccess', () => {

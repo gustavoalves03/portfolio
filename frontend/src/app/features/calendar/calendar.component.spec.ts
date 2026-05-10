@@ -31,6 +31,27 @@ describe('CalendarComponent', () => {
   let component: CalendarComponent;
   let fixture: ComponentFixture<CalendarComponent>;
 
+  /**
+   * confirmBlock() rejects past dates with a snackbar and returns early —
+   * so block-creation tests need to pick a day that's both in the current
+   * month and strictly in the future. The naive `.find(d => d.isCurrentMonth)`
+   * picks the first day, which is in the past for any day-of-month > 1.
+   */
+  function pickFutureCurrentMonthDay(): CalendarDay {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureDay = component.calendarDays().find(
+      (d) => d.isCurrentMonth && d.date.getTime() > today.getTime(),
+    );
+    if (!futureDay) {
+      throw new Error(
+        'No future day found in current month — likely running on the last day of the month. ' +
+        'Navigate to the next month first.',
+      );
+    }
+    return futureDay;
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -210,7 +231,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should create a time-range block request', () => {
-    const day = component.calendarDays().find((d) => d.isCurrentMonth)!;
+    const day = pickFutureCurrentMonthDay();
     component.selectDay(day);
     component.openBlockForm();
     component.blockStartTime.set('10:00');
@@ -229,7 +250,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should create a full-day block request without times', () => {
-    const day = component.calendarDays().find((d) => d.isCurrentMonth)!;
+    const day = pickFutureCurrentMonthDay();
     component.selectDay(day);
     component.openBlockForm();
     component.blockFullDay.set(true);
@@ -244,7 +265,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should close block form after confirming', () => {
-    const day = component.calendarDays().find((d) => d.isCurrentMonth)!;
+    const day = pickFutureCurrentMonthDay();
     component.selectDay(day);
     component.openBlockForm();
     spyOn(component.store, 'createBlock');
@@ -253,7 +274,7 @@ describe('CalendarComponent', () => {
   });
 
   it('should omit reason when empty', () => {
-    const day = component.calendarDays().find((d) => d.isCurrentMonth)!;
+    const day = pickFutureCurrentMonthDay();
     component.selectDay(day);
     component.openBlockForm();
     component.blockReason.set('');
