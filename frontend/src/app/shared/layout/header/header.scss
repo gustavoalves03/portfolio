@@ -1,36 +1,5 @@
 /* Raffinement global inspiré luxe: grandes marges, tracking, finesse */
 
-// Brand logo — stacked "Pretty" + "Face"
-.brand-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  line-height: 1;
-}
-
-.brand-pretty {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  color: var(--pf-rose);
-}
-
-.brand-face {
-  font-family: var(--pf-font-display);
-  font-size: 22px;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--pf-ink);
-
-  @media (min-width: 768px) {
-    font-size: 26px;
-  }
-}
-
 .container {
   max-width: 1440px;
 }

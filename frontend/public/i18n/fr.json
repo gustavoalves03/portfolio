@@ -1279,6 +1279,7 @@
     "home": "Accueil",
     "discover": "Découvrir",
     "about": "À propos",
+    "backToHome": "Retour à l'accueil LuxPretty",
     "lockedUntilPublished": "Disponible après publication",
     "pro": {
       "dashboard": "Dashboard",

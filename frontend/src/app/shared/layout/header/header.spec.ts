@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideZonelessChangeDetection } from '@angular/core';
@@ -192,5 +192,53 @@ describe('Header — salon name stability', () => {
     fixture.detectChanges();
 
     expect(cmp.salonName()).toBe('');
+  });
+});
+
+describe('Header — small LuxPretty logo on salon pages', () => {
+  let salonService: jasmine.SpyObj<SalonProfileService>;
+
+  beforeEach(async () => {
+    salonService = jasmine.createSpyObj('SalonProfileService', ['getProfile', 'getPublicSalon']);
+    salonService.getPublicSalon.and.returnValue(of({ name: 'Le Salon Rose', slug: 'le-salon-rose' } as any));
+
+    const authService = jasmine.createSpyObj('AuthService', ['logout'], {
+      isAuthenticated: signal(false),
+      user: signal(null),
+    });
+
+    await TestBed.configureTestingModule({
+      imports: [
+        Header,
+        TranslocoTestingModule.forRoot({
+          langs: { en: {} },
+          translocoConfig: { defaultLang: 'en' },
+        }),
+      ],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideRouter([{ path: 'salon/:slug', component: Header }]),
+        provideNoopAnimations(),
+        provideHttpClient(),
+        provideTranslocoLocale({ defaultLocale: 'en-US', langToLocaleMapping: { en: 'en-US', fr: 'fr-FR' } }),
+        { provide: AuthService, useValue: authService },
+        { provide: SalonProfileService, useValue: salonService },
+        NotificationsStore,
+      ],
+    }).compileComponents();
+  });
+
+  it('renders a small logo navigating to / when visiting a salon', async () => {
+    const fixture = TestBed.createComponent(Header);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/salon/le-salon-rose');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const smallLogoLink: HTMLAnchorElement | null =
+      fixture.nativeElement.querySelector('a[data-testid="header-home-link"]');
+    expect(smallLogoLink).withContext('expected small logo link').not.toBeNull();
+    expect(smallLogoLink!.getAttribute('href')).toBe('/');
   });
 });

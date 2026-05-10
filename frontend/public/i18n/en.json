@@ -1275,6 +1275,7 @@
     "home": "Home",
     "discover": "Discover",
     "about": "About",
+    "backToHome": "Back to LuxPretty home",
     "lockedUntilPublished": "Available after publication",
     "pro": {
       "dashboard": "Dashboard",

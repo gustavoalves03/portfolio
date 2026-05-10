@@ -4,7 +4,7 @@
 <header class="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b">
   <div class="mx-auto max-w-[1440px] px-6">
     <div class="h-20 grid grid-cols-3 items-center">
-      <!-- Left: back arrow (mobile manage pages) OR burger (desktop) -->
+      <!-- Left: back arrow (mobile manage pages) OR burger (desktop) + optional small logo -->
       <div class="flex items-center gap-4">
         @if (isManagePage()) {
           <!-- Mobile: back arrow on manage/settings pages -->
@@ -30,22 +30,31 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
           </svg>
         </button>
-        @if (!isPro()) {
+        @if (headerBrand()) {
+          <!-- Salon/pro context: small logo on the left so users can return home -->
+          <a
+            routerLink="/"
+            data-testid="header-home-link"
+            [attr.aria-label]="'nav.backToHome' | transloco"
+            class="hide-on-mobile"
+          >
+            <app-lp-logo variant="small" />
+          </a>
+        } @else if (!isPro()) {
           <a routerLink="/discover" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">{{ 'nav.discover' | transloco }}</a>
           <a routerLink="/about" class="hidden md:inline text-[12px] tracking-widest uppercase text-neutral-700 hover:underline underline-offset-4">{{ 'nav.about' | transloco }}</a>
         }
       </div>
 
-      <!-- Center: salon name (PRO) or Pretty Face (public) -->
+      <!-- Center: salon name (PRO/salon visit) or LuxPretty logo (public) -->
       <div class="justify-self-center">
         @if (headerBrand(); as brand) {
-          <a [routerLink]="brand.isPro ? ['/salon', brand.slug] : ['/salon', brand.slug]" class="salon-brand">
+          <a [routerLink]="['/salon', brand.slug]" class="salon-brand">
             {{ brand.name }}
           </a>
         } @else {
-          <a routerLink="/" class="brand-logo select-none">
-            <span class="brand-pretty">Pretty</span>
-            <span class="brand-face">Face</span>
+          <a routerLink="/" class="select-none" data-testid="header-home-link">
+            <app-lp-logo />
           </a>
         }
       </div>
