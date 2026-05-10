@@ -1,0 +1,214 @@
+package com.luxpretty.app.employee.app;
+
+
+import com.luxpretty.app.common.error.ResourceNotFoundException;
+import com.luxpretty.app.employee.domain.Employee;
+import com.luxpretty.app.employee.domain.LeaveRequest;
+import com.luxpretty.app.employee.domain.LeaveStatus;
+import com.luxpretty.app.employee.domain.LeaveType;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
+import com.luxpretty.app.employee.repo.LeaveRequestRepository;
+import com.luxpretty.app.employee.web.dto.LeaveRequestDto;
+import com.luxpretty.app.employee.web.dto.LeaveResponse;
+import com.luxpretty.app.employee.web.dto.LeaveReviewDto;
+import com.luxpretty.app.multitenancy.ApplicationSchemaExecutor;
+import com.luxpretty.app.multitenancy.TenantContext;
+import com.luxpretty.app.users.domain.Role;
+import com.luxpretty.app.users.domain.User;
+import com.luxpretty.app.users.repo.UserRepository;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class LeaveRequestService {
+
+    private final EmployeeRepository employeeRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
+    private final UserRepository userRepository;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
+
+    public LeaveRequestService(EmployeeRepository employeeRepository,
+                               LeaveRequestRepository leaveRequestRepository,
+                               UserRepository userRepository,
+                               ApplicationSchemaExecutor applicationSchemaExecutor) {
+        this.employeeRepository = employeeRepository;
+        this.leaveRequestRepository = leaveRequestRepository;
+        this.userRepository = userRepository;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
+    }
+
+    @Transactional
+    public LeaveResponse createLeave(Long employeeId, LeaveRequestDto dto) {
+        TenantContext.requireActive();
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found: " + employeeId));
+
+        if (dto.endDate().isBefore(dto.startDate())) {
+            throw new IllegalArgumentException("End date must be after start date or the same day");
+        }
+
+        LeaveRequest leave = new LeaveRequest();
+        leave.setEmployee(employee);
+        leave.setType(dto.type());
+        leave.setStartDate(dto.startDate());
+        leave.setEndDate(dto.endDate());
+        leave.setReason(dto.reason());
+        leave.setStatus(LeaveStatus.PENDING);
+
+        LeaveRequest saved = leaveRequestRepository.save(leave);
+        return toResponse(saved);
+    }
+
+    @Transactional
+    public LeaveResponse reviewLeave(Long leaveId, LeaveReviewDto dto, Long callerUserId) {
+        LeaveRequest leave = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found: " + leaveId));
+
+        // Caller must be a PRO/ADMIN tenant owner, and must not be the leave's owner
+        // (no self-approval).
+        requireReviewer(callerUserId, leave);
+
+        if (leave.getStatus() != LeaveStatus.PENDING) {
+            throw new IllegalStateException("Leave request has already been reviewed");
+        }
+
+        leave.setStatus(dto.status());
+        leave.setReviewerNote(dto.reviewerNote());
+        leave.setReviewedAt(LocalDateTime.now());
+
+        LeaveRequest saved;
+        try {
+            saved = leaveRequestRepository.save(leave);
+        } catch (OptimisticLockingFailureException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "This leave was already reviewed by another pro. Please refresh.");
+        }
+        return toResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveResponse> listPending() {
+        return leaveRequestRepository.findByStatusOrderByCreatedAtAsc(LeaveStatus.PENDING)
+                .stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveResponse> listReviewed(LeaveType typeFilter) {
+        List<LeaveStatus> reviewedStatuses = List.of(LeaveStatus.APPROVED, LeaveStatus.REJECTED);
+        List<LeaveRequest> results;
+        if (typeFilter != null) {
+            results = leaveRequestRepository.findByStatusInAndTypeOrderByReviewedAtDesc(reviewedStatuses, typeFilter);
+        } else {
+            results = leaveRequestRepository.findByStatusInOrderByReviewedAtDesc(reviewedStatuses);
+        }
+        return results.stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<LeaveResponse> listByEmployee(Long employeeId, Long callerUserId) {
+        requireOwnLeavesOrManager(callerUserId, employeeId);
+        return leaveRequestRepository.findByEmployeeIdOrderByStartDateDesc(employeeId)
+                .stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isOnLeave(Long employeeId, LocalDate date) {
+        return !leaveRequestRepository
+                .findByEmployeeIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        employeeId, LeaveStatus.APPROVED, date, date)
+                .isEmpty();
+    }
+
+    @Transactional
+    public LeaveResponse attachDocument(Long leaveId, String documentPath) {
+        TenantContext.requireActive();
+        LeaveRequest leave = leaveRequestRepository.findById(leaveId)
+                .orElseThrow(() -> new ResourceNotFoundException("Leave request not found: " + leaveId));
+
+        leave.setDocumentPath(documentPath);
+        LeaveRequest saved = leaveRequestRepository.save(leave);
+        return toResponse(saved);
+    }
+
+    // -----------------------------------------------------------------------
+    // Authorization helpers
+    // -----------------------------------------------------------------------
+
+    private Role resolveCallerRole(Long callerUserId) {
+        if (callerUserId == null) return null;
+        return applicationSchemaExecutor.call(() -> userRepository.findById(callerUserId)
+                .map(User::getRole)
+                .orElse(null));
+    }
+
+    /**
+     * A leave reviewer must be a tenant owner (PRO or ADMIN) AND must NOT be the
+     * leave's owner employee (no self-approval).
+     */
+    private void requireReviewer(Long callerUserId, LeaveRequest leave) {
+        if (callerUserId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        Role role = resolveCallerRole(callerUserId);
+        if (role != Role.PRO && role != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Only tenant owners may review leave requests");
+        }
+        Employee owner = leave.getEmployee();
+        if (owner != null && callerUserId.equals(owner.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Cannot review your own leave request");
+        }
+    }
+
+    /**
+     * Reading an employee's leaves is allowed if the caller IS that employee,
+     * or if the caller is a tenant owner (PRO/ADMIN).
+     */
+    private void requireOwnLeavesOrManager(Long callerUserId, Long targetEmployeeId) {
+        if (callerUserId == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
+        }
+        // Tenant owners always allowed.
+        Role role = resolveCallerRole(callerUserId);
+        if (role == Role.PRO || role == Role.ADMIN) {
+            return;
+        }
+        // Caller is reading their own leaves?
+        Employee target = employeeRepository.findById(targetEmployeeId).orElse(null);
+        if (target != null && callerUserId.equals(target.getUserId())) {
+            return;
+        }
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Cannot read another employee's leaves");
+    }
+
+    // -----------------------------------------------------------------------
+    // Mapping
+    // -----------------------------------------------------------------------
+
+    private LeaveResponse toResponse(LeaveRequest leave) {
+        Employee emp = leave.getEmployee();
+        return new LeaveResponse(
+                leave.getId(),
+                emp.getId(),
+                emp.getName(),
+                leave.getType(),
+                leave.getStatus(),
+                leave.getStartDate(),
+                leave.getEndDate(),
+                leave.getReason(),
+                leave.getDocumentPath() != null,
+                leave.getReviewerNote(),
+                leave.getCreatedAt(),
+                leave.getReviewedAt()
+        );
+    }
+}

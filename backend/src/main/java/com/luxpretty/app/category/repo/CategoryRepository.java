@@ -1,0 +1,16 @@
+package com.luxpretty.app.category.repo;
+
+import com.luxpretty.app.category.domain.Category;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+
+    @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.cares WHERE c.cares IS NOT EMPTY")
+    List<Category> findAllWithCares();
+
+    @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.cares care LEFT JOIN FETCH care.images WHERE c.cares IS NOT EMPTY")
+    List<Category> findAllWithCaresFull();
+}

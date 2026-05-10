@@ -1,0 +1,15 @@
+package com.luxpretty.app.users.repo;
+
+import com.luxpretty.app.users.domain.AuthProvider;
+import com.luxpretty.app.users.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
+    Boolean existsByEmail(String email);
+    Optional<User> findByPasswordResetToken(String passwordResetToken);
+}
+

@@ -1,0 +1,18 @@
+package com.luxpretty.app.employee.repo;
+
+import com.luxpretty.app.employee.domain.LeaveRequest;
+import com.luxpretty.app.employee.domain.LeaveStatus;
+import com.luxpretty.app.employee.domain.LeaveType;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long> {
+    List<LeaveRequest> findByEmployeeIdOrderByStartDateDesc(Long employeeId);
+    List<LeaveRequest> findByStatusOrderByCreatedAtAsc(LeaveStatus status);
+    List<LeaveRequest> findByEmployeeIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            Long employeeId, LeaveStatus status, LocalDate endDate, LocalDate startDate);
+    List<LeaveRequest> findByStatusInOrderByReviewedAtDesc(List<LeaveStatus> statuses);
+    List<LeaveRequest> findByStatusInAndTypeOrderByReviewedAtDesc(List<LeaveStatus> statuses, LeaveType type);
+}
