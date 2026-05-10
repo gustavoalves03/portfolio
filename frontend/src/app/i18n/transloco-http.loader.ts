@@ -23,7 +23,7 @@ export class TranslocoHttpLoader {
     // Embedded translations for SSR - synchronized with public/i18n/*.json
     const translations: Record<string, Record<string, any>> = {
       fr: {
-        app: { title: 'Pretty Face' },
+        app: { title: 'LuxPretty' },
         table: {
           search: { placeholder: 'Recherche...' },
           empty: 'Aucun élément à afficher'
@@ -75,7 +75,7 @@ export class TranslocoHttpLoader {
         }
       },
       en: {
-        app: { title: 'Pretty Face' },
+        app: { title: 'LuxPretty' },
         table: {
           search: { placeholder: 'Search...' },
           empty: 'No items to display'

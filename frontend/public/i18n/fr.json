@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Pretty Face"
+    "title": "LuxPretty"
   },
   "table": {
     "search": {
@@ -66,7 +66,7 @@
     },
     "register": {
       "title": "Créer votre espace professionnel",
-      "subtitle": "Rejoignez Pretty Face et développez votre activité",
+      "subtitle": "Rejoignez LuxPretty et développez votre activité",
       "name": "Nom complet",
       "email": "Adresse e-mail",
       "password": "Mot de passe",
@@ -75,7 +75,7 @@
       "consentRequired": "Vous devez accepter les conditions pour continuer",
       "submit": "Créer mon compte",
       "loginLink": "Déjà inscrit ? Se connecter",
-      "success": "Compte créé avec succès ! Bienvenue sur Pretty Face."
+      "success": "Compte créé avec succès ! Bienvenue sur LuxPretty."
     },
     "forgotPassword": {
       "title": "Réinitialiser votre mot de passe",
@@ -189,7 +189,7 @@
       "active": "En ligne",
       "checklist": {
         "title": "Configurez votre salon",
-        "welcome": "Bienvenue sur Pretty Face",
+        "welcome": "Bienvenue sur LuxPretty",
         "welcomeSub": "Quelques étapes pour mettre votre salon en ligne.",
         "progress": "{{ done }} sur {{ total }} étapes",
         "name": "Nom",
@@ -826,7 +826,7 @@
   },
   "home": {
     "hero": {
-      "title": "Pretty Face",
+      "title": "LuxPretty",
       "subtitle": "Trouve ton prochain soin beauté",
       "search": "Rechercher un soin, un salon..."
     },
@@ -846,10 +846,10 @@
       "next": "Salon suivant"
     },
     "proCta": {
-      "eyebrow": "Pretty Face Pro",
+      "eyebrow": "LuxPretty Pro",
       "title": "Vous êtes esthéticien·ne ?",
       "body": "Une vitrine élégante, un planning intelligent, des outils pensés pour vous.",
-      "button": "Découvrir Pretty Face Pro"
+      "button": "Découvrir LuxPretty Pro"
     },
     "cta": {
       "question": "Tu es pro de la beauté ?",
@@ -928,12 +928,12 @@
         "titleAccent": "viendront",
         "titleEnd": " — promis.",
         "q1": "Pour l'instant, pas encore d'avis client à afficher. On vient juste d'ouvrir et on préfère vous dire la vérité plutôt que d'inventer des citations.",
-        "q1Author": "L'équipe Pretty Face",
+        "q1Author": "L'équipe LuxPretty",
         "q1Meta": "Le projet · démarré en 2026",
         "q2": "Si vous testez l'app, on adorerait vous lire. Vos retours, même critiques, nous aident à construire ce que vous attendez vraiment d'un salon.",
         "q2Author": "Vous, peut-être ?",
         "q2Meta": "Cliente · futur témoignage",
-        "q3": "Côté pro, on cherche aussi les premières esthéticiennes qui veulent essayer Pretty Face Pro. Si c'est vous, écrivez-nous — on personnalise tout pour démarrer ensemble.",
+        "q3": "Côté pro, on cherche aussi les premières esthéticiennes qui veulent essayer LuxPretty Pro. Si c'est vous, écrivez-nous — on personnalise tout pour démarrer ensemble.",
         "q3Author": "Une esthéticienne",
         "q3Meta": "Pro · place réservée"
       },
@@ -942,8 +942,8 @@
         "titleStart": "Votre salon mérite mieux",
         "titleAccent": "qu'un cahier",
         "titleEnd": ".",
-        "body": "Pretty Face Pro réunit votre planning, vos clientes, leurs notes de soin et la mise en avant de votre vitrine. Sans engagement.",
-        "primary": "Découvrir Pretty Face Pro",
+        "body": "LuxPretty Pro réunit votre planning, vos clientes, leurs notes de soin et la mise en avant de votre vitrine. Sans engagement.",
+        "primary": "Découvrir LuxPretty Pro",
         "secondary": "Voir les tarifs"
       },
       "cities": {
@@ -951,8 +951,8 @@
         "title": "Où réserver près de chez vous.",
         "startEmpty": "Pour l'instant, aucun salon publié — soyons les premiers ensemble.",
         "startWith": "Pour l'instant, nous sommes à {{cities}} — rejoignez-nous.",
-        "joinCta": "Vous êtes esthéticienne ? Pretty Face s'ouvre ville par ville. Plus on est, plus la carte se remplit.",
-        "joinButton": "Rejoindre Pretty Face Pro"
+        "joinCta": "Vous êtes esthéticienne ? LuxPretty s'ouvre ville par ville. Plus on est, plus la carte se remplit.",
+        "joinButton": "Rejoindre LuxPretty Pro"
       },
       "footer": {
         "tag": "Une certaine idée de la beauté — douce, attentive, à votre rythme.",
@@ -961,7 +961,7 @@
         "discoverTitle": "Découvrir",
         "discoverViewAll": "Voir tout",
         "proTitle": "Pour les pros",
-        "proLink": "Pretty Face Pro",
+        "proLink": "LuxPretty Pro",
         "proPricing": "Tarifs",
         "proJoin": "Nous rejoindre",
         "proSpace": "Espace pro",
@@ -970,11 +970,11 @@
         "houseManifesto": "Manifeste",
         "houseCareers": "Carrières",
         "housePress": "Contact presse",
-        "rights": "© 2026 Pretty Face. Tous droits réservés.",
+        "rights": "© 2026 LuxPretty. Tous droits réservés.",
         "legal": "Mentions légales · Confidentialité · Cookies"
       },
       "parallax": {
-        "eyebrow": "Pretty Face Pro",
+        "eyebrow": "LuxPretty Pro",
         "titleStart": "Votre salon,",
         "titleAccent": "augmenté",
         "titleEnd": ".",
@@ -1475,7 +1475,7 @@
       "titleStart": "Une offre,",
       "titleAccent": "sans surprise",
       "titleEnd": ".",
-      "subtitle": "Pretty Face Pro est gratuit pendant 30 jours. Aucune carte demandée, aucun engagement."
+      "subtitle": "LuxPretty Pro est gratuit pendant 30 jours. Aucune carte demandée, aucun engagement."
     },
     "hero": {
       "title": "Votre salon, augmenté",
