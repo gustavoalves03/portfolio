@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+.booking-policy {
+  max-width: 560px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    color: #6b5560;
+    font-size: 13px;
+    margin: 0;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c1c20;
+  }
+
+  input[type='number'] {
+    width: 96px;
+    padding: 8px 10px;
+    border: 1px solid #ead7df;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  .help {
+    color: #8a727a;
+    font-size: 12px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.save-btn {
+  min-width: 120px;
+}
