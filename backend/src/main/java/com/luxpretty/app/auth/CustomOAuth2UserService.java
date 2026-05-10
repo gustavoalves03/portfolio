@@ -40,21 +40,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         this.tenantRepository = tenantRepository;
     }
 
-    private boolean isClientRoleHint() {
+    /**
+     * Read the {@code oauth2_role_hint} cookie set by {@link OAuth2RoleHintFilter}.
+     * Returns "client", "pro", or {@code null} if no cookie was sent (or the
+     * request scope is unavailable). The caller decides what an absent value
+     * means; today, only an explicit "pro" hint provisions a salon tenant.
+     */
+    private String readRoleHint() {
         try {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (attrs == null) return false;
+            if (attrs == null) return null;
             HttpServletRequest request = attrs.getRequest();
-            if (request.getCookies() == null) return false;
+            if (request.getCookies() == null) return null;
             for (Cookie cookie : request.getCookies()) {
                 if (OAuth2RoleHintFilter.ROLE_HINT_COOKIE.equals(cookie.getName())) {
-                    return "client".equalsIgnoreCase(cookie.getValue());
+                    return cookie.getValue();
                 }
             }
         } catch (Exception e) {
             logger.warn("Could not read role hint cookie", e);
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -107,13 +113,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return userRepository.save(existing);
         }
 
-        // New user — create account; role depends on context (client vs pro)
-        boolean isClient = isClientRoleHint();
-        User newUser = createNewUser(provider, oAuth2UserInfo, isClient ? Role.USER : Role.PRO);
+        // New user — default to client. Provisioning a salon tenant requires
+        // an *explicit* "pro" hint, set when the user clicked Google from the
+        // dedicated /register/pro flow. Any other path (header login modal,
+        // /login page, missing cookie, unexpected value) creates a plain
+        // client, matching what end users expect from "Sign in with Google".
+        String roleHint = readRoleHint();
+        boolean isPro = "pro".equalsIgnoreCase(roleHint);
+        Role role = isPro ? Role.PRO : Role.USER;
+        logger.info("Creating new {} OAuth2 user for {} (role hint: {})",
+                role, oAuth2UserInfo.getEmail(), roleHint);
+        User newUser = createNewUser(provider, oAuth2UserInfo, role);
         User savedUser = userRepository.save(newUser);
 
-        // Only provision tenant for PRO users
-        if (!isClient) {
+        // Only provision a tenant when the user explicitly signed up as a pro.
+        if (isPro) {
             boolean tenantExists = tenantRepository.findByOwnerId(savedUser.getId()).isPresent();
             if (!tenantExists) {
                 logger.info("Provisioning tenant for new OAuth2 user: {}", savedUser.getEmail());
