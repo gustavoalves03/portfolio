@@ -87,7 +87,11 @@ describe('BookingDialogComponent', () => {
 
   it('dateFilter accepts a future date that is not in the closed list', () => {
     const cmp = setup([{ date: '2026-05-01', reason: 'HOLIDAY' }]);
-    expect(cmp.dateFilter(new Date(2026, 4, 2))).toBeTrue();
+    // Use a date relative to "today" so the test doesn't decay as 2026-05-02
+    // passes into history.
+    const future = new Date();
+    future.setDate(future.getDate() + 30);
+    expect(cmp.dateFilter(future)).toBeTrue();
   });
 
   it('dateClass returns "closed-holiday" for HOLIDAY dates', () => {
