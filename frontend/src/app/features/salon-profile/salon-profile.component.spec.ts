@@ -19,7 +19,7 @@ import { DashboardStore } from '../dashboard/store/dashboard.store';
 function makeTenant(overrides: Partial<TenantResponse> = {}): TenantResponse {
   return {
     id: 1,
-    name: 'Pretty Face Atelier',
+    name: 'LuxPretty Atelier',
     slug: 'pretty-face-atelier',
     status: 'ACTIVE',
     description: 'Salon test',
@@ -135,7 +135,7 @@ describe('SalonProfileComponent', () => {
     await configure();
     expect(component).toBeTruthy();
     // Form signals are populated from the initial tenant
-    expect((component as any).name()).toBe('Pretty Face Atelier');
+    expect((component as any).name()).toBe('LuxPretty Atelier');
     expect((component as any).description()).toBe('Salon test');
     expect((component as any).addressCity()).toBe('Paris');
     expect((component as any).logoImages().length).toBe(1);

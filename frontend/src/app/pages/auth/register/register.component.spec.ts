@@ -11,7 +11,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 const mockTranslations = {
   'auth.register.title': 'Create your professional space',
-  'auth.register.subtitle': 'Join Pretty Face',
+  'auth.register.subtitle': 'Join LuxPretty',
   'auth.register.name': 'Full name',
   'auth.register.email': 'Email address',
   'auth.register.password': 'Password',

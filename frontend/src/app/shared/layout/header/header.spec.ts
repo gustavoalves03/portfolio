@@ -74,7 +74,7 @@ describe('Header', () => {
 
 /**
  * Pinned behavior: when navigating between protected pro pages, the header
- * used to flicker back to "Pretty Face" because each effect re-fetched the
+ * used to flicker back to "LuxPretty" because each effect re-fetched the
  * profile and reset salonName before the new value arrived. The fix dedupes
  * the fetch by user id and refuses to overwrite a populated name with ''.
  */
@@ -163,7 +163,7 @@ describe('Header — salon name stability', () => {
 
     // Now simulate an in-flight error while the user is still logged in.
     // Bug #8 used to blank salonName to '' which made headerBrand fall back
-    // to "Pretty Face". With the fix, an error keeps the cached name.
+    // to "LuxPretty". With the fix, an error keeps the cached name.
     user$.set({ id: 2, role: 'PRO' } as any); // new user → triggers refetch
     const errorProfile$ = new Subject<any>();
     salonService.getProfile.and.returnValue(errorProfile$.asObservable());

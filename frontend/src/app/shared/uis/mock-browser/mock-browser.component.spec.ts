@@ -6,7 +6,7 @@ import { MockBrowserComponent } from './mock-browser.component';
   standalone: true,
   imports: [MockBrowserComponent],
   template: `
-    <app-mock-browser url="prettyface.app/dashboard">
+    <app-mock-browser url="luxpretty.app/dashboard">
       <div class="inside">payload</div>
     </app-mock-browser>
   `,
@@ -27,7 +27,7 @@ describe('MockBrowserComponent', () => {
 
   it('renders the URL in the address bar', () => {
     const url = (fixture.nativeElement as HTMLElement).querySelector('.mb-url');
-    expect(url?.textContent?.trim()).toBe('prettyface.app/dashboard');
+    expect(url?.textContent?.trim()).toBe('luxpretty.app/dashboard');
   });
 
   it('projects ng-content as the body', () => {
