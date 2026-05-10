@@ -10,6 +10,7 @@ import com.luxpretty.app.common.error.RestAuthenticationEntryPoint;
 import com.luxpretty.app.auth.TokenService;
 import com.luxpretty.app.users.repo.UserRepository;
 import com.luxpretty.app.auth.CustomOAuth2UserService;
+import com.luxpretty.app.auth.CustomOidcUserService;
 import com.luxpretty.app.auth.OAuth2AuthenticationSuccessHandler;
 import com.luxpretty.app.auth.OAuth2AuthenticationFailureHandler;
 import com.luxpretty.app.multitenancy.TenantFilter;
@@ -50,6 +51,7 @@ class ProCategoryControllerTests {
     @MockBean private TokenService tokenService;
     @MockBean private UserRepository userRepository;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;
+    @MockBean private CustomOidcUserService customOidcUserService;
     @MockBean private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     @MockBean private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     @MockBean private TenantService tenantService;
