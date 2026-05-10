@@ -76,7 +76,7 @@ class LeaveRequestServiceTests {
         User proUser = User.builder()
                 .id(PRO_USER_ID)
                 .name("Owner")
-                .email("owner@prettyface.com")
+                .email("owner@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
                 .role(Role.PRO)
                 .build();
@@ -85,7 +85,7 @@ class LeaveRequestServiceTests {
         User employeeUser = User.builder()
                 .id(EMPLOYEE_USER_ID)
                 .name("Sophie Martin")
-                .email("sophie@prettyface.com")
+                .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
                 .role(Role.EMPLOYEE)
                 .build();
@@ -95,7 +95,7 @@ class LeaveRequestServiceTests {
         employee.setId(1L);
         employee.setUserId(EMPLOYEE_USER_ID);
         employee.setName("Sophie Martin");
-        employee.setEmail("sophie@prettyface.com");
+        employee.setEmail("sophie@luxpretty.com");
 
         pendingLeave = new LeaveRequest();
         pendingLeave.setId(1L);
@@ -391,7 +391,7 @@ class LeaveRequestServiceTests {
         User selfPro = User.builder()
                 .id(selfCallerUserId)
                 .name("Sophie Martin")
-                .email("sophie@prettyface.com")
+                .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
                 .role(Role.PRO) // even if somehow PRO
                 .build();
@@ -448,7 +448,7 @@ class LeaveRequestServiceTests {
         User otherPro = User.builder()
                 .id(otherProUserId)
                 .name("Owner B")
-                .email("owner-b@prettyface.com")
+                .email("owner-b@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
                 .role(Role.PRO)
                 .build();
@@ -501,7 +501,7 @@ class LeaveRequestServiceTests {
         colleague.setId(colleagueEmployeeId);
         colleague.setUserId(20L); // different userId from the caller
         colleague.setName("Claire Durand");
-        colleague.setEmail("claire@prettyface.com");
+        colleague.setEmail("claire@luxpretty.com");
         when(employeeRepository.findById(colleagueEmployeeId)).thenReturn(Optional.of(colleague));
 
         // Caller is EMPLOYEE_USER_ID (Role.EMPLOYEE), NOT the colleague and NOT a PRO

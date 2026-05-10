@@ -186,7 +186,7 @@ class TrackingServiceTests {
         User employeeUser = User.builder()
                 .id(employeeUserId)
                 .name("Sophie")
-                .email("sophie@prettyface.com")
+                .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
                 .role(Role.EMPLOYEE)
                 .build();

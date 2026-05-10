@@ -20,7 +20,7 @@ function makeTenant(overrides: Partial<TenantResponse> = {}): TenantResponse {
   return {
     id: 1,
     name: 'LuxPretty Atelier',
-    slug: 'pretty-face-atelier',
+    slug: 'luxpretty-atelier',
     status: 'ACTIVE',
     description: 'Salon test',
     logoUrl: '/uploads/logo.png',

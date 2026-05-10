@@ -241,7 +241,7 @@ class PostServiceCrudTests {
     @Test
     @DisplayName("Lot8 #8: cross-tenant create is schema-scoped, not service-testable")
     void crossTenantCreate_outOfScope() {
-        // Multi-tenancy in PrettyFace is enforced at the Hibernate schema layer
+        // Multi-tenancy in LuxPretty is enforced at the Hibernate schema layer
         // via TenantContext + TenantFilter, not inside PostService. PostService
         // has no tenantId parameter or authorization guard — any authenticated
         // PRO call routes to the tenant schema set by the filter. A unit test
