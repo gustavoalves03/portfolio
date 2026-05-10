@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LuxPretty — Logo full horizontal (Option B, monogramme central + wordmark sobre)
+  Usage : header public desktop, footer
+  Composition : monogramme LXP carré arrondi rose (gauche) + "LuxPretty" en wordmark sobre (droite)
+  Le wordmark est à la même hauteur visuelle que les lettres LXP du monogramme (~22px).
+  Couleurs :
+    - carré : dégradé #C66075 → #A83E58
+    - LXP : blanc
+    - "LuxPretty" : #2B1F25 (var(--pf-ink))
+  Police : Cormorant Garamond
+  Hauteur 56px, largeur ~210px.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 56" width="210" height="56" role="img" aria-label="LuxPretty">
+  <title>LuxPretty</title>
+  <defs>
+    <linearGradient id="luxpretty-rose-full" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C66075"/>
+      <stop offset="100%" stop-color="#A83E58"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Monogramme carré rose -->
+  <rect x="0" y="0" width="56" height="56" rx="12" fill="url(#luxpretty-rose-full)"/>
+  <text
+    x="28"
+    y="36"
+    text-anchor="middle"
+    font-family="'Cormorant Garamond', Georgia, serif"
+    font-size="22"
+    font-weight="500"
+    letter-spacing="1.8"
+    fill="#FFFFFF"
+  >LXP</text>
+
+  <!-- Wordmark "LuxPretty" sobre, hauteur visuelle alignée sur LXP -->
+  <text
+    x="72"
+    y="35"
+    font-family="'Cormorant Garamond', Georgia, serif"
+    font-size="22"
+    font-weight="500"
+    letter-spacing="1"
+    fill="#2B1F25"
+  >LuxPretty</text>
+</svg>

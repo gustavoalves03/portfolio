@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LuxPretty — Monogramme LXP (Option B : carré arrondi style app icon)
+  Usage : header pages pro, future app icon mobile, favicon
+  Composition : carré rose dégradé + LXP blanc en serif fin
+  Couleurs :
+    - dégradé : #C66075 → #A83E58 (var(--pf-rose) → var(--pf-rose-deep))
+    - lettres : #FFFFFF
+  Police : Cormorant Garamond fallback Georgia/serif
+  ViewBox carré 56×56 — scalable à n'importe quelle taille.
+  Border-radius 12/56 ≈ 21%, équivalent iOS app icon.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56" role="img" aria-label="LuxPretty">
+  <title>LuxPretty</title>
+  <defs>
+    <linearGradient id="luxpretty-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C66075"/>
+      <stop offset="100%" stop-color="#A83E58"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="56" height="56" rx="12" fill="url(#luxpretty-rose)"/>
+  <text
+    x="28"
+    y="36"
+    text-anchor="middle"
+    font-family="'Cormorant Garamond', Georgia, serif"
+    font-size="22"
+    font-weight="500"
+    letter-spacing="1.8"
+    fill="#FFFFFF"
+  >LXP</text>
+</svg>
