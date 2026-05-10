@@ -54,6 +54,7 @@ public class CareBookingService {
     private final com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository;
     private final com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher;
     private final SalonClientService salonClientService;
+    private final BookingPolicyService bookingPolicyService;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
@@ -62,7 +63,8 @@ public class CareBookingService {
                                ApplicationSchemaExecutor applicationSchemaExecutor,
                                com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository,
                                com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher,
-                               SalonClientService salonClientService) {
+                               SalonClientService salonClientService,
+                               BookingPolicyService bookingPolicyService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -74,6 +76,7 @@ public class CareBookingService {
         this.employeeRepository = employeeRepository;
         this.notificationDispatcher = notificationDispatcher;
         this.salonClientService = salonClientService;
+        this.bookingPolicyService = bookingPolicyService;
     }
 
     @Transactional(readOnly = true)
@@ -308,6 +311,11 @@ public class CareBookingService {
         if (req.appointmentDate().isBefore(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot book in the past");
         }
+
+        // Per-tenant booking-policy guard (max bookings/day per client + max
+        // bookings/week for first-time clients). Throws BookingLimitExceededException
+        // → mapped to HTTP 409 with a typed error code by GlobalExceptionHandler.
+        bookingPolicyService.validateClientLimits(client.getId(), req.appointmentDate());
 
         // Check minimum advance time
         if (tenant != null && tenant.getMinAdvanceMinutes() != null && tenant.getMinAdvanceMinutes() > 0) {
