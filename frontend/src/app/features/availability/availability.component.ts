@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AvailabilityStore } from './availability.store';
 import {
@@ -27,6 +28,8 @@ import { SlotPopoverService } from './slot-popover/slot-popover.service';
 import { SlotPopoverData } from './slot-popover/slot-popover.component';
 import { WEEK_PRESETS, WeekPresetKey, applyPreset } from './presets/week-presets';
 import { hhmmToMinutes } from './time-utils';
+import { BookingPolicyComponent } from './booking-policy/booking-policy.component';
+import { BookingPolicyStore } from './booking-policy/booking-policy.store';
 
 const DEFAULT_SLOT: TimeSlot = { openTime: '09:00', closeTime: '18:00' };
 
@@ -39,12 +42,14 @@ const DEFAULT_SLOT: TimeSlot = { openTime: '09:00', closeTime: '18:00' };
     MatSnackBarModule,
     MatIconModule,
     MatButtonModule,
+    MatTabsModule,
     AvailabilityTimelineComponent,
     AvailabilityDayListComponent,
+    BookingPolicyComponent,
   ],
   templateUrl: './availability.component.html',
   styleUrl: './availability.component.scss',
-  providers: [AvailabilityStore],
+  providers: [AvailabilityStore, BookingPolicyStore],
 })
 export class AvailabilityComponent {
   readonly store = inject(AvailabilityStore);
