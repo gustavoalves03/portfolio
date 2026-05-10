@@ -1,4 +1,191 @@
-.container {
-  max-width: 1120px;
+/* ==========================================================================
+   Footer — F2 sombre élégant (visitor / client)
+   ========================================================================== */
+.lp-footer {
+  background: var(--pf-ink);
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 64px;
 }
 
+.lp-footer__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 32px 28px;
+
+  @media (min-width: 768px) {
+    padding: 56px 48px 28px;
+  }
+}
+
+.lp-footer__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 48px;
+  }
+}
+
+/* Brand column */
+.lp-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lp-footer__logo {
+  display: inline-flex;
+  width: fit-content;
+  text-decoration: none;
+}
+
+/* On the dark footer background, the wordmark text inside the inline SVG
+   needs to be white instead of --pf-ink. Override via deep selector. */
+.lp-footer__logo ::ng-deep svg.lp-logo__svg--full text:last-of-type {
+  fill: #ffffff;
+}
+
+.lp-footer__tag {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.55;
+  max-width: 260px;
+}
+
+.lp-footer__apps {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.lp-footer__app {
+  padding: 6px 12px;
+  border: 1px solid rgba(201, 169, 97, 0.4);
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--lp-accent-gold);
+  cursor: not-allowed;
+  user-select: none;
+}
+
+/* Link columns */
+.lp-footer__col {
+  display: flex;
+  flex-direction: column;
+}
+
+.lp-footer__heading {
+  margin: 0 0 18px 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--lp-accent-gold);
+}
+
+.lp-footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.lp-footer__link {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.lp-footer__link:hover,
+.lp-footer__link:focus-visible {
+  color: #ffffff;
+}
+
+/* Bottom bar */
+.lp-footer__bottom {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(201, 169, 97, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (min-width: 640px) {
+  .lp-footer__bottom {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+}
+
+.lp-footer__rights,
+.lp-footer__legal {
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Pro footer — minimal in-app
+   ========================================================================== */
+.lp-footer-pro {
+  margin-top: 48px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--pf-line);
+  background: var(--pf-paper);
+}
+
+.lp-footer-pro__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--pf-ink-soft);
+}
+
+.lp-footer-pro__by {
+  letter-spacing: 0.02em;
+}
+
+.lp-footer-pro__logo {
+  display: inline-flex;
+  text-decoration: none;
+  align-items: center;
+}
+
+.lp-footer-pro__sep {
+  color: var(--pf-ink-faint);
+}
+
+.lp-footer-pro__link {
+  color: var(--pf-ink-soft);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.lp-footer-pro__link:hover,
+.lp-footer-pro__link:focus-visible {
+  color: var(--pf-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
