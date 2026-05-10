@@ -9,7 +9,9 @@ module.exports = function (config) {
       require('karma-coverage'),
     ],
     client: {
-      jasmine: {},
+      jasmine: {
+        random: false, // deterministic order for crash bisection
+      },
       clearContext: false,
     },
     coverageReporter: {

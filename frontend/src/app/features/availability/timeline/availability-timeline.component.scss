@@ -11,7 +11,7 @@
 
 .hours-axis {
   display: grid;
-  grid-template-columns: 90px 1fr 36px;
+  grid-template-columns: 140px 1fr 36px;
   align-items: center;
   padding-bottom: 14px;
   border-bottom: 1px solid #f0dee5;
@@ -35,7 +35,7 @@
 
 .timeline-row {
   display: grid;
-  grid-template-columns: 90px 1fr 36px;
+  grid-template-columns: 140px 1fr 36px;
   align-items: center;
   padding: 11px 0;
   border-top: 1px solid #f5e7eb;
@@ -46,15 +46,18 @@
 }
 
 .day-label {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 26px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  padding-right: 12px;
 }
 
 .day-label-name {
   font-weight: 600;
   font-size: 14px;
   color: #2c1c20;
+  white-space: nowrap;
 }
 
 .switch {

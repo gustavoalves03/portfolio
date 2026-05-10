@@ -16,22 +16,26 @@
 }
 
 .day-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 96px 1fr 26px;
   align-items: center;
   gap: 10px;
 }
 
 .day-name {
   font-weight: 600;
-  min-width: 70px;
   color: #2c1c20;
   font-size: 14px;
+  min-width: 0;
 }
 
 .day-summary {
   color: #6b5560;
   font-size: 12px;
-  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &.closed {
     color: #b88;
@@ -76,7 +80,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  padding-left: 70px;
+  padding-left: 96px;
 }
 
 .time-box {
@@ -110,5 +114,5 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  margin-left: 70px;
+  margin-left: 96px;
 }
