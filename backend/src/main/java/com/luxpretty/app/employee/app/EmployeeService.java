@@ -52,6 +52,33 @@ public class EmployeeService {
     }
 
     // -----------------------------------------------------------------------
+    // Self-employee provisioning (pro signup)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Create the "pro-self" employee linked to the tenant owner (User).
+     * Idempotent: if an employee with userId == owner.id already exists in
+     * the current tenant schema, returns that one unchanged.
+     *
+     * Requires an active TenantContext.
+     */
+    @Transactional
+    public Employee createSelfEmployee(User owner) {
+        TenantContext.requireActive();
+
+        return employeeRepository.findByUserId(owner.getId())
+                .orElseGet(() -> {
+                    Employee e = new Employee();
+                    e.setUserId(owner.getId());
+                    e.setName(owner.getName());
+                    e.setEmail(owner.getEmail());
+                    e.setPhone(null);
+                    e.setActive(true);
+                    return employeeRepository.save(e);
+                });
+    }
+
+    // -----------------------------------------------------------------------
     // Queries
     // -----------------------------------------------------------------------
 

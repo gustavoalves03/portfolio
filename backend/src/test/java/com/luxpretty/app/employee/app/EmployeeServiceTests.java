@@ -461,4 +461,72 @@ class EmployeeServiceTests {
         assertThat(captor.getAllValues()).allSatisfy(p ->
                 assertThat(p.getEmployeeId()).isEqualTo(targetEmployeeId));
     }
+
+    // -----------------------------------------------------------------------
+    // createSelfEmployee — pro-self provisioning at signup
+    // -----------------------------------------------------------------------
+
+    @Test
+    void createSelfEmployee_createsEmployee_whenAbsent() {
+        TenantContext.setCurrentTenant("test-tenant");
+        User owner = User.builder()
+                .id(42L)
+                .name("Sophie Martin")
+                .email("sophie@martin.test")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+
+        when(employeeRepository.findByUserId(42L)).thenReturn(Optional.empty());
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Employee created = employeeService.createSelfEmployee(owner);
+
+        assertThat(created.getUserId()).isEqualTo(42L);
+        assertThat(created.getName()).isEqualTo("Sophie Martin");
+        assertThat(created.getEmail()).isEqualTo("sophie@martin.test");
+        assertThat(created.getPhone()).isNull();
+        assertThat(created.isActive()).isTrue();
+        verify(employeeRepository).save(any(Employee.class));
+    }
+
+    @Test
+    void createSelfEmployee_isIdempotent_returnsExisting() {
+        TenantContext.setCurrentTenant("test-tenant");
+        User owner = User.builder()
+                .id(42L)
+                .name("Sophie Martin")
+                .email("sophie@martin.test")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+
+        Employee existing = new Employee();
+        existing.setId(99L);
+        existing.setUserId(42L);
+        existing.setName("Sophie Martin");
+        existing.setEmail("sophie@martin.test");
+        existing.setActive(true);
+        when(employeeRepository.findByUserId(42L)).thenReturn(Optional.of(existing));
+
+        Employee result = employeeService.createSelfEmployee(owner);
+
+        assertThat(result).isSameAs(existing);
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void createSelfEmployee_failsWithoutTenantContext() {
+        TenantContext.clear();
+        User owner = User.builder()
+                .id(42L)
+                .name("Sophie Martin")
+                .email("sophie@martin.test")
+                .provider(AuthProvider.LOCAL)
+                .role(Role.PRO)
+                .build();
+
+        assertThatThrownBy(() -> employeeService.createSelfEmployee(owner))
+                .isInstanceOf(ResponseStatusException.class);
+    }
 }
