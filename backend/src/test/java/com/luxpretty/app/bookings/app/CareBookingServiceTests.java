@@ -614,7 +614,7 @@ class CareBookingServiceTests {
                         1L, 10L, 1,
                         LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
-                        CareBookingStatus.CANCELLED, null);
+                        CareBookingStatus.CANCELLED, null, null);
 
         assertThatThrownBy(() -> service.update(100L, cancelReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -641,7 +641,7 @@ class CareBookingServiceTests {
                         1L, 10L, 1,
                         LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
-                        CareBookingStatus.NO_SHOW, null);
+                        CareBookingStatus.NO_SHOW, null, null);
 
         var result = service.update(100L, noShowReq);
         assertThat(result.status()).isEqualTo(CareBookingStatus.NO_SHOW);
@@ -666,7 +666,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         assertThatThrownBy(() -> service.update(100L, moveReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -695,7 +695,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(3, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         assertThatThrownBy(() -> service.update(101L, moveReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -723,7 +723,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(14, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         var result = service.update(101L, moveReq);
         assertThat(result.appointmentTime()).isEqualTo(LocalTime.of(14, 0));
@@ -751,7 +751,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 20L, 1, futureDate,
                         LocalTime.of(17, 30),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         assertThatThrownBy(() -> service.update(102L, changeReq))
                 .isInstanceOf(ResponseStatusException.class)
@@ -778,7 +778,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         var result = service.update(103L, confirmReq);
         assertThat(result.status()).isEqualTo(CareBookingStatus.CONFIRMED);
@@ -929,7 +929,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         assertThatThrownBy(() -> service.create(req))
                 .isInstanceOf(ResponseStatusException.class)
@@ -1046,7 +1046,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, futureDate,
                         LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED, null);
+                        CareBookingStatus.CONFIRMED, null, null);
 
         assertThatThrownBy(() -> service.update(500L, req))
                 .isInstanceOf(ResponseStatusException.class)
@@ -1167,7 +1167,7 @@ class CareBookingServiceTests {
                 new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
                         1L, 10L, 1, LocalDate.now().minusDays(1),
                         LocalTime.of(10, 0),
-                        CareBookingStatus.NO_SHOW, null);
+                        CareBookingStatus.NO_SHOW, null, null);
 
         UserPrincipal caller = new UserPrincipal(callerUserId, "louise@salon.fr", "Louise", null);
 
