@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,8 +7,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideFrenchDateAdapter } from '../../../shared/providers/french-date-adapter';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { PublicClosedDaysStore } from '../../../features/availability/public-closed-days.store';
 import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
@@ -32,6 +34,7 @@ export interface BookingDialogData {
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSnackBarModule,
     TranslocoPipe,
     SheetHandleComponent,
   ],
@@ -46,6 +49,8 @@ export class BookingDialogComponent {
   private readonly closedDaysStore = inject(PublicClosedDaysStore);
   private readonly authService = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly transloco = inject(TranslocoService);
 
   readonly care = this.data.care;
   readonly slug = this.data.slug;
@@ -212,19 +217,41 @@ private loadSlots(date: Date): void {
       },
       error: (err) => {
         this.submitting.set(false);
-        const serverMsg = err?.error?.error;
-        if (err.status === 409) {
-          // Keep the grid in sync: a real slot collision invalidates our cache.
-          this.loadSlots(this.selectedDate()!);
-          this.selectedSlot.set(null);
-        }
-        if (typeof serverMsg === 'string' && serverMsg.length > 0) {
-          this.bookingError.set(serverMsg);
-        } else {
-          this.bookingError.set('booking.errors.generic');
-        }
+        this.handleBookingError(err);
       },
     });
+  }
+
+  private handleBookingError(err: unknown): void {
+    if (err instanceof HttpErrorResponse && err.status === 409) {
+      const code = err.error?.code as string | undefined;
+      if (code === 'BOOKING_LIMIT_DAILY_EXCEEDED') {
+        this.snackBar.open(
+          this.transloco.translate('errors.booking.limitDaily'),
+          undefined,
+          { duration: 5000 },
+        );
+        return;
+      }
+      if (code === 'BOOKING_LIMIT_NEW_CLIENT_WEEKLY_EXCEEDED') {
+        this.snackBar.open(
+          this.transloco.translate('errors.booking.limitNewClientWeekly'),
+          undefined,
+          { duration: 5000 },
+        );
+        return;
+      }
+      // Slot-collision 409 (no typed code): reload the grid so the UI stays in sync.
+      this.loadSlots(this.selectedDate()!);
+      this.selectedSlot.set(null);
+    }
+    // Fallback: show the generic inline error message.
+    const serverMsg = (err as any)?.error?.error;
+    if (typeof serverMsg === 'string' && serverMsg.length > 0) {
+      this.bookingError.set(serverMsg);
+    } else {
+      this.bookingError.set('booking.errors.generic');
+    }
   }
 
   private formatDate(d: Date): string {
