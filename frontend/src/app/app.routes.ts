@@ -115,6 +115,20 @@ export const routes: Routes = [
             (m) => m.ProClientDetailComponent
           ),
       },
+      {
+        path: 'factures',
+        loadComponent: () =>
+          import('./features/pro-invoices/pages/pro-invoices-list.component').then(
+            (m) => m.ProInvoicesListComponent
+          ),
+      },
+      {
+        path: 'facturation-clients',
+        loadComponent: () =>
+          import('./features/client-invoices-pro/pages/client-invoices-list.component').then(
+            (m) => m.ClientInvoicesListComponent
+          ),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },
@@ -168,6 +182,14 @@ export const routes: Routes = [
     path: 'notifications',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+  },
+  {
+    path: 'my-invoices',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/client-invoices-me/pages/my-invoices-list.component').then(
+        (m) => m.MyInvoicesListComponent
+      ),
   },
   {
     path: 'users',

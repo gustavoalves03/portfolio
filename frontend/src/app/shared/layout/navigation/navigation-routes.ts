@@ -94,6 +94,20 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiresAuth: true,
     requiredRole: 'PRO',
   },
+  {
+    label: 'invoices.pro.navLink',
+    path: '/pro/factures',
+    icon: 'receipt_long',
+    requiresAuth: true,
+    requiredRole: 'PRO',
+  },
+  {
+    label: 'invoices.clientEmitted.navLink',
+    path: '/pro/facturation-clients',
+    icon: 'request_quote',
+    requiresAuth: true,
+    requiredRole: 'PRO',
+  },
 ];
 
 export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
@@ -113,6 +127,12 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
     label: 'nav.client.becomePro',
     path: '/register/pro',
     icon: 'storefront',
+    requiresAuth: true
+  },
+  {
+    label: 'invoices.clientReceived.navLink',
+    path: '/my-invoices',
+    icon: 'receipt',
     requiresAuth: true
   }
 ];
