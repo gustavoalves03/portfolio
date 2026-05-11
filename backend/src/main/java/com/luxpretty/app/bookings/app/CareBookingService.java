@@ -21,12 +21,16 @@ import com.luxpretty.app.care.domain.CareStatus;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.multitenancy.ApplicationSchemaExecutor;
 import com.luxpretty.app.multitenancy.TenantContext;
-import com.luxpretty.app.notification.app.EmailService;
+import com.luxpretty.app.mail.app.MailOutboxService;
+import com.luxpretty.app.mail.domain.MailTemplate;
+import com.luxpretty.app.mail.vars.BookingConfirmedVars;
+import com.luxpretty.app.mail.vars.BookingReceivedProVars;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
 import com.luxpretty.app.users.repo.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +39,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -47,8 +54,11 @@ public class CareBookingService {
     private final UserRepository userRepository;
     private final CareRepository careRepository;
     private final SlotAvailabilityService slotAvailabilityService;
-    private final EmailService emailService;
+    private final MailOutboxService mailOutbox;
     private final TenantRepository tenantRepository;
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
     private final ClientBookingHistoryRepository clientBookingHistoryRepository;
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
     private final com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository;
@@ -58,7 +68,7 @@ public class CareBookingService {
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
-                               EmailService emailService, TenantRepository tenantRepository,
+                               MailOutboxService mailOutbox, TenantRepository tenantRepository,
                                ClientBookingHistoryRepository clientBookingHistoryRepository,
                                ApplicationSchemaExecutor applicationSchemaExecutor,
                                com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository,
@@ -69,7 +79,7 @@ public class CareBookingService {
         this.userRepository = userRepository;
         this.careRepository = careRepository;
         this.slotAvailabilityService = slotAvailabilityService;
-        this.emailService = emailService;
+        this.mailOutbox = mailOutbox;
         this.tenantRepository = tenantRepository;
         this.clientBookingHistoryRepository = clientBookingHistoryRepository;
         this.applicationSchemaExecutor = applicationSchemaExecutor;
@@ -404,9 +414,33 @@ public class CareBookingService {
         booking.setSalonClientId(salonClient.getId());
         repo.save(booking);
 
-        // Async emails (fire-and-forget)
-        emailService.sendBookingConfirmationEmail(client, booking, care, salonName);
-        emailService.sendNewBookingNotificationEmail(owner, booking, care, client.getName());
+        // Queue transactional emails via outbox (delivered after commit)
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+        String dateStr = booking.getAppointmentDate().format(dateFmt);
+        String timeStr = booking.getAppointmentTime().format(timeFmt);
+        String durationStr = formatDuration(care.getDuration());
+        String tenantSlug = TenantContext.getCurrentTenant();
+
+        mailOutbox.queue(
+                MailTemplate.BOOKING_CONFIRMED,
+                new BookingConfirmedVars(
+                        client.getName(), salonName, care.getName(),
+                        BigDecimal.valueOf(care.getPrice()),
+                        durationStr, dateStr, timeStr,
+                        booking.getId(), frontendBaseUrl + "/bookings"),
+                client.getEmail(),
+                tenantSlug);
+
+        mailOutbox.queue(
+                MailTemplate.BOOKING_RECEIVED_PRO,
+                new BookingReceivedProVars(
+                        owner.getName(), client.getName(), care.getName(),
+                        BigDecimal.valueOf(care.getPrice()),
+                        durationStr, dateStr, timeStr,
+                        booking.getId(), frontendBaseUrl + "/pro/bookings"),
+                owner.getEmail(),
+                tenantSlug);
 
         // Real-time notification to PRO + assigned employee
         java.util.List<Long> recipients = new java.util.ArrayList<>();
@@ -539,5 +573,21 @@ public class CareBookingService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Cannot modify a booking assigned to another employee");
         }
+    }
+
+    // -----------------------------------------------------------------------
+    // Formatting helpers
+    // -----------------------------------------------------------------------
+
+    private static String formatDuration(int minutes) {
+        if (minutes < 60) {
+            return minutes + " min";
+        }
+        int hours = minutes / 60;
+        int remaining = minutes % 60;
+        if (remaining == 0) {
+            return hours + "h";
+        }
+        return hours + "h" + String.format("%02d", remaining);
     }
 }
