@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -7,6 +7,7 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { provideTranslocoLocale } from '@jsverse/transloco-locale';
 import { AvailabilityComponent } from './availability.component';
 import { DashboardStore } from '../dashboard/store/dashboard.store';
+import { BookingPolicyStore } from './booking-policy/booking-policy.store';
 
 const mockTranslations = {
   'pro.availability.title': 'My availability',
@@ -31,6 +32,16 @@ const mockTranslations = {
   'pro.availability.days.5': 'Fri',
   'pro.availability.days.6': 'Sat',
   'pro.availability.days.7': 'Sun',
+  'pro.bookingPolicy.tab': 'Booking rules',
+  'pro.bookingPolicy.title': 'Client booking limits',
+  'pro.bookingPolicy.subtitle': 'Prevents a single client from monopolizing your slots.',
+  'pro.bookingPolicy.maxPerDay.label': 'Max bookings per day',
+  'pro.bookingPolicy.maxPerDay.help': 'Prevents multiple bookings per day.',
+  'pro.bookingPolicy.maxPerWeekNew.label': 'Max bookings per week (new client)',
+  'pro.bookingPolicy.maxPerWeekNew.help': 'Limits new client bookings.',
+  'pro.bookingPolicy.save': 'Save',
+  'pro.bookingPolicy.saved': 'Rules updated',
+  'pro.bookingPolicy.error': 'Save failed',
 };
 
 describe('AvailabilityComponent', () => {
@@ -54,6 +65,17 @@ describe('AvailabilityComponent', () => {
         {
           provide: DashboardStore,
           useValue: { loadReadiness: () => {} },
+        },
+        {
+          provide: BookingPolicyStore,
+          useValue: {
+            policy: signal(null),
+            isPending: signal(false),
+            isFulfilled: signal(false),
+            error: signal(null),
+            load: () => {},
+            update: () => {},
+          },
         },
       ],
     }).compileComponents();
@@ -80,5 +102,11 @@ describe('AvailabilityComponent', () => {
   it('renders the savebar with save button', () => {
     const btn = fixture.nativeElement.querySelector('[data-testid="availability-save"]');
     expect(btn).toBeTruthy();
+  });
+
+  it('renders two tabs: hours and booking rules', () => {
+    fixture.detectChanges();
+    const tabLabels = fixture.nativeElement.querySelectorAll('.mat-mdc-tab, [role="tab"]');
+    expect(tabLabels.length).toBeGreaterThanOrEqual(2);
   });
 });

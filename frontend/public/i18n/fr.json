@@ -632,6 +632,22 @@
       "inOneDay": "dans 1 jour",
       "inDays": "dans {{n}} jours"
     },
+    "bookingPolicy": {
+      "tab": "Règles de réservation",
+      "title": "Limites de réservation client",
+      "subtitle": "Empêche un même client de monopoliser vos créneaux.",
+      "maxPerDay": {
+        "label": "Rendez-vous max par jour pour un même client",
+        "help": "Empêche un client de prendre plusieurs rendez-vous le même jour."
+      },
+      "maxPerWeekNew": {
+        "label": "Rendez-vous max par semaine pour un nouveau client",
+        "help": "Limite les nouveaux clients (jamais venus) à ce nombre de rdv par semaine."
+      },
+      "save": "Enregistrer",
+      "saved": "Règles mises à jour",
+      "error": "Erreur lors de la sauvegarde"
+    },
     "availability": {
       "title": "Mes disponibilités",
       "closed": "Fermé",
@@ -1310,6 +1326,10 @@
       "cancelBookingsAction": "Annuler les RDV",
       "bookingsCancelled": "rendez-vous annulé(s)",
       "cancelFailed": "Erreur lors de l'annulation des rendez-vous"
+    },
+    "booking": {
+      "limitDaily": "Vous avez déjà un rendez-vous ce jour-là chez ce salon.",
+      "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine."
     }
   },
   "evolution": {

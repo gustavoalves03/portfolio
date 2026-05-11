@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface CareBookingRepository extends JpaRepository<CareBooking, Long> {
@@ -146,6 +147,37 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
     List<CareBooking> findByAppointmentDateGreaterThanEqualAndStatus(
         @Param("date") LocalDate date,
         @Param("status") CareBookingStatus status
+    );
+
+    /**
+     * Count "live" bookings (PENDING/CONFIRMED) for a user on a given day.
+     * Used by the daily-limit check in BookingPolicyService.
+     */
+    long countByUserIdAndAppointmentDateAndStatusIn(
+        Long userId,
+        LocalDate date,
+        Collection<CareBookingStatus> statuses
+    );
+
+    /**
+     * Count "live" bookings (PENDING/CONFIRMED) for a user inside a date range.
+     * Used by the new-client weekly-limit check.
+     */
+    long countByUserIdAndAppointmentDateBetweenAndStatusIn(
+        Long userId,
+        LocalDate from,
+        LocalDate to,
+        Collection<CareBookingStatus> statuses
+    );
+
+    /**
+     * True if the user has at least one CONFIRMED booking strictly in the past.
+     * Used to identify whether a client is "new" to this salon (false → new).
+     */
+    boolean existsByUserIdAndStatusAndAppointmentDateBefore(
+        Long userId,
+        CareBookingStatus status,
+        LocalDate today
     );
 }
 

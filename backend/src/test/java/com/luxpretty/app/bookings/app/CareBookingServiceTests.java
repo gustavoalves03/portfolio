@@ -59,6 +59,7 @@ class CareBookingServiceTests {
     @Mock private com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository;
     @Mock private com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher;
     @Mock private com.luxpretty.app.tracking.app.SalonClientService salonClientService;
+    @Mock private BookingPolicyService bookingPolicyService;
 
     @InjectMocks
     private CareBookingService service;

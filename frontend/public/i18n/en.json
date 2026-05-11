@@ -628,6 +628,22 @@
       "inOneDay": "in 1 day",
       "inDays": "in {{n}} days"
     },
+    "bookingPolicy": {
+      "tab": "Booking rules",
+      "title": "Client booking limits",
+      "subtitle": "Prevents a single client from monopolizing your slots.",
+      "maxPerDay": {
+        "label": "Max bookings per day per client",
+        "help": "Prevents a client from taking multiple appointments on the same day."
+      },
+      "maxPerWeekNew": {
+        "label": "Max bookings per week for a new client",
+        "help": "Limits brand-new clients (never seen before) to this many bookings per week."
+      },
+      "save": "Save",
+      "saved": "Rules updated",
+      "error": "Save failed"
+    },
     "availability": {
       "title": "My availability",
       "closed": "Closed",
@@ -1306,6 +1322,10 @@
       "cancelBookingsAction": "Cancel bookings",
       "bookingsCancelled": "booking(s) cancelled",
       "cancelFailed": "Error cancelling bookings"
+    },
+    "booking": {
+      "limitDaily": "You already have a booking that day at this salon.",
+      "limitNewClientWeekly": "First visits are limited to one booking per week."
     }
   },
   "evolution": {

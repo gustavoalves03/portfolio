@@ -21,48 +21,56 @@
     </section>
   </div>
 
-  <div class="toolbar">
-    <div class="toolbar-left">
-      {{ 'pro.availability.toolbar.summary' | transloco: { open: formatDuration(weeklyTotalMinutes()) } }}
-    </div>
-    <div class="quick-actions">
-      @for (preset of presets; track preset.key) {
-        <button type="button" class="quick-btn" (click)="applyPreset(preset.key)">
-          {{ preset.labelKey | transloco }}
-        </button>
-      }
-    </div>
-  </div>
-
-  @if (isDesktop()) {
-    <app-availability-timeline
-      [week]="week()"
-      (slotClick)="onSlotClick($event)"
-      (addSlotClick)="onAddSlot($event)"
-      (dayToggle)="onDayToggle($event)"
-    />
-  } @else {
-    <app-availability-day-list
-      [week]="week()"
-      (slotClick)="onSlotClick($event)"
-      (addSlotClick)="onAddSlot($event)"
-      (dayToggle)="onDayToggle($event)"
-    />
-  }
-
-  <div class="savebar">
-    <div class="savebar-inner">
-      <div class="savebar-status"></div>
-      <div class="savebar-actions">
-        <button
-          type="button"
-          class="save-btn"
-          data-testid="availability-save"
-          (click)="onSave()"
-        >
-          {{ 'pro.availability.save' | transloco }}
-        </button>
+  <mat-tab-group>
+    <mat-tab [label]="'pro.availability.title' | transloco">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          {{ 'pro.availability.toolbar.summary' | transloco: { open: formatDuration(weeklyTotalMinutes()) } }}
+        </div>
+        <div class="quick-actions">
+          @for (preset of presets; track preset.key) {
+            <button type="button" class="quick-btn" (click)="applyPreset(preset.key)">
+              {{ preset.labelKey | transloco }}
+            </button>
+          }
+        </div>
       </div>
-    </div>
-  </div>
+
+      @if (isDesktop()) {
+        <app-availability-timeline
+          [week]="week()"
+          (slotClick)="onSlotClick($event)"
+          (addSlotClick)="onAddSlot($event)"
+          (dayToggle)="onDayToggle($event)"
+        />
+      } @else {
+        <app-availability-day-list
+          [week]="week()"
+          (slotClick)="onSlotClick($event)"
+          (addSlotClick)="onAddSlot($event)"
+          (dayToggle)="onDayToggle($event)"
+        />
+      }
+
+      <div class="savebar">
+        <div class="savebar-inner">
+          <div class="savebar-status"></div>
+          <div class="savebar-actions">
+            <button
+              type="button"
+              class="save-btn"
+              data-testid="availability-save"
+              (click)="onSave()"
+            >
+              {{ 'pro.availability.save' | transloco }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="'pro.bookingPolicy.tab' | transloco">
+      <app-booking-policy></app-booking-policy>
+    </mat-tab>
+  </mat-tab-group>
 </div>

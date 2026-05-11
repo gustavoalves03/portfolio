@@ -1,0 +1,47 @@
+<section class="booking-policy">
+  <header>
+    <h2>{{ 'pro.bookingPolicy.title' | transloco }}</h2>
+    <p class="subtitle">{{ 'pro.bookingPolicy.subtitle' | transloco }}</p>
+  </header>
+
+  <div class="field">
+    <label for="bp-day">{{ 'pro.bookingPolicy.maxPerDay.label' | transloco }}</label>
+    <input
+      id="bp-day"
+      type="number"
+      min="1"
+      max="10"
+      [value]="perDay()"
+      (input)="perDay.set(+$any($event).target.value)"
+    />
+    <small class="help">{{ 'pro.bookingPolicy.maxPerDay.help' | transloco }}</small>
+  </div>
+
+  <div class="field">
+    <label for="bp-week">{{ 'pro.bookingPolicy.maxPerWeekNew.label' | transloco }}</label>
+    <input
+      id="bp-week"
+      type="number"
+      min="1"
+      max="10"
+      [value]="perWeekNew()"
+      (input)="perWeekNew.set(+$any($event).target.value)"
+    />
+    <small class="help">{{ 'pro.bookingPolicy.maxPerWeekNew.help' | transloco }}</small>
+  </div>
+
+  <div class="actions">
+    <button
+      type="button"
+      class="save-btn"
+      [disabled]="!canSave()"
+      (click)="onSave()"
+    >
+      @if (store.isPending()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        {{ 'pro.bookingPolicy.save' | transloco }}
+      }
+    </button>
+  </div>
+</section>

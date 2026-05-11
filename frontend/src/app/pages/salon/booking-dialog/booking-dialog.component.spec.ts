@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoTestingModule } from '@jsverse/transloco';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog.component';
 import { ClosedDay, ClosedDaysService } from '../../../features/availability/closed-days.service';
@@ -109,5 +111,146 @@ describe('BookingDialogComponent', () => {
     expect(closedDaysService.loadPublicClosedDays).toHaveBeenCalledTimes(6);
     const firstCall = closedDaysService.loadPublicClosedDays.calls.first().args;
     expect(firstCall[0]).toBe('sophie-martin');
+  });
+
+  describe('409 typed booking-policy errors', () => {
+    let component: BookingDialogComponent;
+    let salonSpy: jasmine.SpyObj<SalonProfileService>;
+    let snackOpen: jasmine.Spy;
+    const selectedSlot = { startTime: '10:00', endTime: '11:00' };
+
+    beforeEach(() => {
+      const closedDaysSvc = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
+        'loadPublicClosedDays',
+        'loadClosedDays',
+      ]);
+      closedDaysSvc.loadPublicClosedDays.and.returnValue(of([]));
+
+      salonSpy = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
+        'getEmployeesForCare',
+        'getAvailableSlots',
+        'createBooking',
+      ]);
+      salonSpy.getEmployeesForCare.and.returnValue(of([]));
+      salonSpy.getAvailableSlots.and.returnValue(of([selectedSlot]));
+
+      const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isAuthenticated']);
+      auth.isAuthenticated.and.returnValue(true);
+
+      const data: BookingDialogData = { slug: 'test-salon', care };
+
+      TestBed.configureTestingModule({
+        imports: [
+          BookingDialogComponent,
+          TranslocoTestingModule.forRoot({
+            langs: { fr: {} },
+            translocoConfig: { defaultLang: 'fr' },
+          }),
+        ],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideNoopAnimations(),
+          { provide: MatDialogRef, useValue: { close: () => undefined } },
+          { provide: MAT_DIALOG_DATA, useValue: data },
+          { provide: MatDialog, useValue: { open: () => ({ afterClosed: () => of(null) }) } },
+          { provide: ClosedDaysService, useValue: closedDaysSvc },
+          { provide: SalonProfileService, useValue: salonSpy },
+          { provide: AuthService, useValue: auth },
+        ],
+      });
+
+      const fixture = TestBed.createComponent(BookingDialogComponent);
+      fixture.detectChanges();
+      component = fixture.componentInstance;
+
+      // The component injects MatSnackBar from its own environment injector (standalone
+      // component with MatSnackBarModule in imports). Spy on the actual private instance.
+      snackOpen = spyOn((component as any).snackBar, 'open');
+
+      // Set up component state so confirm() can proceed to submitBooking()
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 1);
+      component.selectedDate.set(futureDate);
+      component.selectedSlot.set(selectedSlot);
+    });
+
+    it('shows daily-limit snackbar on 409 BOOKING_LIMIT_DAILY_EXCEEDED', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { code: 'BOOKING_LIMIT_DAILY_EXCEEDED', message: 'daily limit', limit: 1, currentCount: 1 },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        // TranslocoTestingModule with empty langs returns the key (possibly lang-prefixed).
+        jasmine.stringMatching(/errors\.booking\.limitDaily/),
+        undefined,
+        jasmine.objectContaining({ duration: 5000 }),
+      );
+    });
+
+    it('shows new-client weekly-limit snackbar on 409 BOOKING_LIMIT_NEW_CLIENT_WEEKLY_EXCEEDED', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { code: 'BOOKING_LIMIT_NEW_CLIENT_WEEKLY_EXCEEDED', message: 'weekly limit', limit: 1, currentCount: 1 },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        // TranslocoTestingModule with empty langs returns the key (possibly lang-prefixed).
+        jasmine.stringMatching(/errors\.booking\.limitNewClientWeekly/),
+        undefined,
+        jasmine.objectContaining({ duration: 5000 }),
+      );
+    });
+
+    it('preserves selectedSlot after a policy-limit 409', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { code: 'BOOKING_LIMIT_DAILY_EXCEEDED', message: 'daily limit', limit: 1, currentCount: 1 },
+        })),
+      );
+
+      component.confirm();
+
+      expect(component.selectedSlot()).toEqual(selectedSlot);
+    });
+
+    it('falls back to inline bookingError for 409 with unknown code', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { code: 'SLOT_ALREADY_TAKEN' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).not.toHaveBeenCalled();
+      expect(component.bookingError()).toBe('booking.errors.generic');
+    });
+
+    it('falls back to inline bookingError for 5xx errors', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 500,
+          error: { error: 'Internal Server Error' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).not.toHaveBeenCalled();
+      expect(component.bookingError()).toBe('Internal Server Error');
+    });
   });
 });
