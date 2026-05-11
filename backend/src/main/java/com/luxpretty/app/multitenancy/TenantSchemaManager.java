@@ -52,7 +52,10 @@ public class TenantSchemaManager {
             "VISIT_PHOTOS",
             "CLIENT_REMINDERS",
             "EMPLOYEE_PERMISSIONS",
-            "BOOKING_POLICY"
+            "BOOKING_POLICY",
+            "PRO_INVOICES",
+            "CLIENT_INVOICES",
+            "CLIENT_INVOICE_LINES"
     );
 
     private final DataSource dataSource;

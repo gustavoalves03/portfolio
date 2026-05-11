@@ -1551,5 +1551,57 @@
       "title": "Prêt à lancer votre salon ?",
       "button": "Créer mon compte pro"
     }
+  },
+  "invoices": {
+    "common": {
+      "number": "N°",
+      "date": "Date",
+      "period": "Période",
+      "amountTotal": "Montant TTC",
+      "amountSubtotal": "Sous-total HT",
+      "amountTax": "TVA",
+      "taxRate": "Taux",
+      "status": "Statut",
+      "actions": "Actions",
+      "view": "Voir",
+      "downloadPdf": "Télécharger PDF",
+      "searchPlaceholder": "Rechercher par N°…",
+      "filterStatus": "Statut",
+      "filterYear": "Année",
+      "filterAll": "Tous",
+      "empty": "Aucune facture pour le moment.",
+      "loadError": "Erreur lors du chargement des factures.",
+      "pdfError": "Impossible de télécharger le PDF.",
+      "apply": "Appliquer"
+    },
+    "status": {
+      "DRAFT": "Brouillon",
+      "OPEN": "En attente",
+      "PAID": "Payée",
+      "UNCOLLECTIBLE": "Irrécouvrable",
+      "VOID": "Annulée",
+      "REFUNDED": "Remboursée",
+      "FAILED": "Échec",
+      "PENDING": "En attente"
+    },
+    "kind": {
+      "NO_SHOW_FEE": "Frais de non-présentation",
+      "CARE_PAYMENT": "Paiement soin"
+    },
+    "pro": {
+      "title": "Mes factures d'abonnement",
+      "subtitle": "Historique des paiements LuxPretty Pro",
+      "navLink": "Factures abonnement"
+    },
+    "clientEmitted": {
+      "title": "Factures clients",
+      "subtitle": "Factures émises à mes clients",
+      "navLink": "Facturation clients"
+    },
+    "clientReceived": {
+      "title": "Mes factures",
+      "subtitle": "Vos paiements en salon",
+      "navLink": "Mes factures"
+    }
   }
 }

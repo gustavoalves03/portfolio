@@ -1547,5 +1547,57 @@
       "title": "Ready to launch your salon?",
       "button": "Create my pro account"
     }
+  },
+  "invoices": {
+    "common": {
+      "number": "No.",
+      "date": "Date",
+      "period": "Period",
+      "amountTotal": "Total (incl. tax)",
+      "amountSubtotal": "Subtotal (excl. tax)",
+      "amountTax": "Tax",
+      "taxRate": "Rate",
+      "status": "Status",
+      "actions": "Actions",
+      "view": "View",
+      "downloadPdf": "Download PDF",
+      "searchPlaceholder": "Search by No…",
+      "filterStatus": "Status",
+      "filterYear": "Year",
+      "filterAll": "All",
+      "empty": "No invoices yet.",
+      "loadError": "Failed to load invoices.",
+      "pdfError": "Failed to download PDF.",
+      "apply": "Apply"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "OPEN": "Open",
+      "PAID": "Paid",
+      "UNCOLLECTIBLE": "Uncollectible",
+      "VOID": "Void",
+      "REFUNDED": "Refunded",
+      "FAILED": "Failed",
+      "PENDING": "Pending"
+    },
+    "kind": {
+      "NO_SHOW_FEE": "No-show fee",
+      "CARE_PAYMENT": "Care payment"
+    },
+    "pro": {
+      "title": "Subscription invoices",
+      "subtitle": "LuxPretty Pro payment history",
+      "navLink": "Subscription invoices"
+    },
+    "clientEmitted": {
+      "title": "Client invoices",
+      "subtitle": "Invoices issued to my clients",
+      "navLink": "Client billing"
+    },
+    "clientReceived": {
+      "title": "My invoices",
+      "subtitle": "Your salon payments",
+      "navLink": "My invoices"
+    }
   }
 }
