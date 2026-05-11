@@ -108,6 +108,18 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+		<!-- Postmark transactional mail provider (prod) -->
+		<dependency>
+			<groupId>com.postmarkapp</groupId>
+			<artifactId>postmark</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+		<!-- Jsoup: HTML manipulation, used to inline CSS in mail templates -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.17.2</version>
+		</dependency>
 		<!-- HTML → PDF for invoices (OpenPDF backend, Apache 2.0 / LGPL — safe for commercial use) -->
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
