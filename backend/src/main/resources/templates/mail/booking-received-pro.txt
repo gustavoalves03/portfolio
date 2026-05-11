@@ -1,0 +1,11 @@
+Bonjour [(${proName})],
+
+Nouvelle réservation reçue de [(${clientName})].
+
+  Soin    : [(${careName})] ([(${careDuration})])
+  Date    : [(${appointmentDate})] à [(${appointmentTime})]
+  Tarif   : [(${carePrice})] €
+
+Voir mes rendez-vous : [(${dashboardUrl})]
+
+— LuxPretty

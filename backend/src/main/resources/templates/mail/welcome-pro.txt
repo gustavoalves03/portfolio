@@ -1,0 +1,10 @@
+Bonjour [(${userName})],
+
+Votre compte LuxPretty ([(${userEmail})]) est créé.
+
+Vous pouvez dès maintenant configurer votre salon, ajouter vos soins,
+et commencer à recevoir des réservations.
+
+Accéder à mon espace : [(${dashboardUrl})]
+
+— LuxPretty

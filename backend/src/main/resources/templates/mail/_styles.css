@@ -1,0 +1,11 @@
+body { font-family: Georgia, 'Cormorant Garamond', serif; color: #2B1F25; line-height: 1.5; background: #FBF6F4; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 0 auto; background: #FFFFFF; }
+.header { background-color: #A83E58; color: #FFFFFF; padding: 24px; text-align: center; }
+.header .monogram { display: inline-block; width: 40px; height: 40px; line-height: 40px; background: rgba(255,255,255,0.18); color: #FFFFFF; font-size: 14px; letter-spacing: 1.5px; }
+.header .brand { font-size: 20px; letter-spacing: 1px; margin-left: 10px; vertical-align: middle; }
+.body { padding: 32px 24px; }
+.body h1 { font-size: 22px; color: #A83E58; margin: 0 0 16px; }
+.body p { font-size: 14px; margin: 0 0 14px; }
+.cta { display: inline-block; background-color: #A83E58; color: #FFFFFF; text-decoration: none; padding: 12px 24px; font-weight: bold; font-size: 14px; margin: 16px 0; }
+.foot { padding: 18px 24px; font-size: 11px; color: #806771; text-align: center; border-top: 1px solid #F4ECE8; }
+.foot a { color: #A83E58; }

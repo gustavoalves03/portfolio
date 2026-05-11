@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Nouveau rendez-vous')}">
+<body>
+<div th:fragment="content">
+    <h1>Nouveau rendez-vous</h1>
+    <p>Bonjour <span th:text="${proName}">…</span>,</p>
+    <p>Vous avez reçu une nouvelle réservation de la part de <strong th:text="${clientName}">…</strong>.</p>
+    <p>
+        <strong>Soin :</strong> <span th:text="${careName}">…</span> (<span th:text="${careDuration}">…</span>)<br/>
+        <strong>Date :</strong> <span th:text="${appointmentDate}">…</span> à <span th:text="${appointmentTime}">…</span><br/>
+        <strong>Tarif :</strong> <span th:text="${carePrice}">…</span> €
+    </p>
+    <p><a th:href="${dashboardUrl}" class="cta">Voir mes rendez-vous</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Rendez-vous confirmé')}">
+<body>
+<div th:fragment="content">
+    <h1>Votre rendez-vous est confirmé</h1>
+    <p>Bonjour <span th:text="${clientName}">…</span>,</p>
+    <p>Votre rendez-vous chez <strong th:text="${salonName}">…</strong> est bien confirmé.</p>
+    <p>
+        <strong>Soin :</strong> <span th:text="${careName}">…</span> (<span th:text="${careDuration}">…</span>)<br/>
+        <strong>Date :</strong> <span th:text="${appointmentDate}">…</span> à <span th:text="${appointmentTime}">…</span><br/>
+        <strong>Tarif :</strong> <span th:text="${carePrice}">…</span> €
+    </p>
+    <p><a th:href="${dashboardUrl}" class="cta">Voir mes rendez-vous</a></p>
+    <p>À très bientôt !</p>
+</div>
+</body>
+</html>

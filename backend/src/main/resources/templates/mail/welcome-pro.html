@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Bienvenue sur LuxPretty')}">
+<body>
+<div th:fragment="content">
+    <h1>Bienvenue sur LuxPretty</h1>
+    <p>Bonjour <span th:text="${userName}">…</span>,</p>
+    <p>Votre compte LuxPretty (<span th:text="${userEmail}">…</span>) est créé.</p>
+    <p>Vous pouvez dès maintenant configurer votre salon, ajouter vos soins, et commencer à recevoir des réservations.</p>
+    <p><a th:href="${dashboardUrl}" class="cta">Accéder à mon espace</a></p>
+    <p>Si vous avez la moindre question, répondez simplement à cet email.</p>
+</div>
+</body>
+</html>
