@@ -20,7 +20,9 @@ import com.luxpretty.app.care.web.dto.CareResponse;
 import com.luxpretty.app.care.web.mapper.CareMapper;
 import com.luxpretty.app.category.repo.CategoryRepository;
 import com.luxpretty.app.common.storage.FileStorageService;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
 import com.luxpretty.app.multitenancy.TenantContext;
+import com.luxpretty.app.tenant.repo.TenantRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,13 +37,18 @@ public class CareService {
     private final CategoryRepository categoryRepository;
     private final FileStorageService fileStorageService;
     private final CareBookingRepository careBookingRepository;
+    private final EmployeeRepository employeeRepository;
+    private final TenantRepository tenantRepository;
 
     public CareService(CareRepository repo, CategoryRepository categoryRepository,
-                       FileStorageService fileStorageService, CareBookingRepository careBookingRepository) {
+                       FileStorageService fileStorageService, CareBookingRepository careBookingRepository,
+                       EmployeeRepository employeeRepository, TenantRepository tenantRepository) {
         this.repo = repo;
         this.categoryRepository = categoryRepository;
         this.fileStorageService = fileStorageService;
         this.careBookingRepository = careBookingRepository;
+        this.employeeRepository = employeeRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     @Transactional(readOnly = true)
@@ -109,6 +116,19 @@ public class CareService {
         } else {
             logger.info("No images to process");
         }
+
+        // Fallback: if no employees are linked to this care yet, attach the
+        // "pro-self" employee (= tenant owner) so the booking stepper has at
+        // least one candidate. The M:N relation is owned by Employee, so we
+        // mutate proSelf.assignedCares and save the Employee.
+        String tenantSlug = TenantContext.requireActive();
+        final Care finalSaved = saved;
+        tenantRepository.findBySlug(tenantSlug)
+                .flatMap(t -> employeeRepository.findByUserId(t.getOwnerId()))
+                .ifPresent(proSelf -> {
+                    proSelf.getAssignedCares().add(finalSaved);
+                    employeeRepository.save(proSelf);
+                });
 
         logger.info("====== CREATE CARE END ======");
         return CareMapper.toResponse(saved);
