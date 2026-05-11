@@ -50,9 +50,12 @@ public class TenantFlywayService {
      * The schema (and its Oracle user) must already exist — call
      * {@link TenantSchemaManager#provisionSchema(String)} first.
      */
-    public MigrateResult migrate(String tenantSchema) {
+    public MigrateResult migrate(String tenantSchema, String tenantSlug) {
         if (!StringUtils.hasText(tenantSchema)) {
             throw new IllegalArgumentException("Tenant schema must not be blank");
+        }
+        if (!StringUtils.hasText(tenantSlug)) {
+            throw new IllegalArgumentException("Tenant slug must not be blank");
         }
         if (!StringUtils.hasText(provisioningUsername) || !StringUtils.hasText(provisioningPassword)) {
             throw new IllegalStateException(
@@ -60,7 +63,7 @@ public class TenantFlywayService {
             );
         }
 
-        logger.info("Running tenant Flyway migrations for schema {}", tenantSchema);
+        logger.info("Running tenant Flyway migrations for schema {} (slug {})", tenantSchema, tenantSlug);
 
         Flyway flyway = Flyway.configure()
                 .dataSource(provisioningJdbcUrl, provisioningUsername, provisioningPassword)
@@ -71,6 +74,7 @@ public class TenantFlywayService {
                 .baselineVersion("0")
                 .placeholders(Map.of(
                         "tenantSchema", tenantSchema,
+                        "tenantSlug", tenantSlug,
                         "appSchema", applicationSchemaName
                 ))
                 .load();
