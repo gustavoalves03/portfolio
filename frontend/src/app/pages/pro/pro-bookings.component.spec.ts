@@ -309,3 +309,63 @@ describe('ProBookingsComponent — KPI computations', () => {
     });
   });
 });
+
+describe('ProBookingsComponent — add-booking dialog injector wiring', () => {
+  // Regression guard for B1 (2026-05-11): the add-booking dialog opens
+  // BookingStepperComponent, whose step-care injects CaresStore. CaresStore
+  // depends on DashboardStore (commit fa91e30 added that link to refresh the
+  // guided-tour readiness). DashboardStore is provided only by ProShellComponent,
+  // so a dialog opened without viewContainerRef is portaled to the root
+  // injector and the injection fails — step-care silently renders nothing
+  // and only the dialog header is visible.
+  let component: any;
+  let dialogOpen: jasmine.Spy;
+
+  beforeEach(async () => {
+    const bookingsService = jasmine.createSpyObj<BookingsService>('BookingsService', ['listDetailed']);
+    bookingsService.listDetailed.and.returnValue(
+      of({ content: [], totalElements: 0, totalPages: 0, size: 0, number: 0 } as any)
+    );
+
+    dialogOpen = jasmine.createSpy('open').and.returnValue({ afterClosed: () => of(null) });
+
+    await TestBed.configureTestingModule({
+      imports: [
+        ProBookingsComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { fr: {} },
+          translocoConfig: { defaultLang: 'fr' },
+        }),
+      ],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideNoopAnimations(),
+        provideRouter([]),
+        provideTranslocoLocale({
+          defaultLocale: 'fr-FR',
+          langToLocaleMapping: { fr: 'fr-FR' },
+        }),
+        { provide: BookingsService, useValue: bookingsService },
+        { provide: MatDialog, useValue: { open: dialogOpen } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ProBookingsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('passes viewContainerRef so the dialog inherits DashboardStore from ProShellComponent', () => {
+    component.onAddBooking();
+
+    expect(dialogOpen).toHaveBeenCalledTimes(1);
+    const config = dialogOpen.calls.mostRecent().args[1];
+    expect(config.viewContainerRef)
+      .withContext(
+        'pro-bookings must pass viewContainerRef so step-care can resolve CaresStore → DashboardStore'
+      )
+      .toBeTruthy();
+  });
+});

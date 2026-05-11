@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ViewContainerRef, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -61,6 +61,9 @@ export class ProBookingsComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  // Required so dialogs inherit this component's injector chain (notably
+  // DashboardStore from ProShellComponent, which CaresStore depends on).
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
   protected readonly CareBookingStatus = CareBookingStatus;
   protected readonly hourLabels = Array.from(
@@ -351,6 +354,7 @@ export class ProBookingsComponent {
   // ── Actions ───────────────────────────────────────────────────────────
   protected onAddBooking(): void {
     const dialogRef = this.dialog.open(BookingStepperComponent, bottomSheetConfig({
+      viewContainerRef: this.viewContainerRef,
       maxHeight: '90vh',
       disableClose: false,
       autoFocus: true,
