@@ -105,7 +105,7 @@ public class TenantSchemaManager {
         // Existing schemas (legacy tenants provisioned before this change) keep going through
         // TenantSchemaMigrator at startup until they can be baselined on a staging DB.
         createSchemaUser(schemaName);
-        tenantFlywayService.migrate(schemaName);
+        tenantFlywayService.migrate(schemaName, slug);
 
         logger.info("Schema {} fully provisioned with tables", schemaName);
     }

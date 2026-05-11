@@ -1,5 +1,7 @@
 package com.luxpretty.app.tenant.app;
 
+import com.luxpretty.app.employee.app.EmployeeService;
+import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
@@ -17,10 +19,15 @@ public class TenantProvisioningService {
 
     private final TenantRepository tenantRepository;
     private final TenantSchemaManager tenantSchemaManager;
+    private final EmployeeService employeeService;
 
-    public TenantProvisioningService(TenantRepository tenantRepository, TenantSchemaManager tenantSchemaManager) {
+    public TenantProvisioningService(
+            TenantRepository tenantRepository,
+            TenantSchemaManager tenantSchemaManager,
+            EmployeeService employeeService) {
         this.tenantRepository = tenantRepository;
         this.tenantSchemaManager = tenantSchemaManager;
+        this.employeeService = employeeService;
     }
 
     @Transactional
@@ -42,6 +49,17 @@ public class TenantProvisioningService {
                 .build();
 
         Tenant saved = tenantRepository.save(tenant);
+
+        // Seed the "pro-self" employee inside the new tenant's schema so the
+        // owner can immediately appear as a bookable practitioner. The context
+        // is cleared in a finally block to guarantee callers never see leak.
+        TenantContext.setCurrentTenant(slug);
+        try {
+            employeeService.createSelfEmployee(owner);
+        } finally {
+            TenantContext.clear();
+        }
+
         logger.info("Tenant {} provisioned successfully (id={})", slug, saved.getId());
         return saved;
     }

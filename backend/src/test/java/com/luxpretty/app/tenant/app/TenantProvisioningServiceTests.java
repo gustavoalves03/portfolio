@@ -1,5 +1,6 @@
 package com.luxpretty.app.tenant.app;
 
+import com.luxpretty.app.employee.app.EmployeeService;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,12 +24,13 @@ class TenantProvisioningServiceTests {
 
     @Mock private TenantRepository tenantRepository;
     @Mock private TenantSchemaManager schemaManager;
+    @Mock private EmployeeService employeeService;
 
     private TenantProvisioningService service;
 
     @BeforeEach
     void setUp() {
-        service = new TenantProvisioningService(tenantRepository, schemaManager);
+        service = new TenantProvisioningService(tenantRepository, schemaManager, employeeService);
         when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
@@ -88,5 +91,18 @@ class TenantProvisioningServiceTests {
         ArgumentCaptor<Tenant> captor = ArgumentCaptor.forClass(Tenant.class);
         org.mockito.Mockito.verify(tenantRepository).save(captor.capture());
         assertThat(captor.getValue().getName()).isNull();
+    }
+
+    @Test
+    void provision_createsSelfEmployee_forNewTenant() {
+        when(tenantRepository.existsBySlug(anyString())).thenReturn(false);
+
+        User owner = user(7L, "Alice");
+        Tenant result = service.provision(owner);
+
+        assertThat(result.getOwnerId()).isEqualTo(7L);
+        ArgumentCaptor<User> ownerCaptor = ArgumentCaptor.forClass(User.class);
+        verify(employeeService).createSelfEmployee(ownerCaptor.capture());
+        assertThat(ownerCaptor.getValue().getId()).isEqualTo(7L);
     }
 }
