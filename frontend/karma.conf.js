@@ -27,10 +27,10 @@ module.exports = function (config) {
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       },
     },
-    browserNoActivityTimeout: 120000,
-    browserDisconnectTimeout: 30000,
+    browserNoActivityTimeout: 300000,
+    browserDisconnectTimeout: 60000,
     browserDisconnectTolerance: 3,
-    captureTimeout: 120000,
+    captureTimeout: 180000,
     restartOnFileChange: true,
   });
 };

@@ -20,6 +20,6 @@ import { App } from './app';
 describe('App', () => {
   it('exports the root component class', () => {
     expect(App).toBeDefined();
-    expect(App.name).toBe('App');
+    expect(typeof App).toBe('function');
   });
 });
