@@ -52,6 +52,7 @@ export interface CreateCareBookingRequest {
   appointmentTime: string; // ISO time string (HH:mm:ss)
   status: CareBookingStatus;
   salonClientId?: number;
+  employeeId?: number | null; // null = unassigned ("Premier dispo")
 }
 
 export type UpdateCareBookingRequest = CreateCareBookingRequest;

@@ -64,6 +64,7 @@ public class CareBookingMapper {
         b.setAppointmentDate(req.appointmentDate());
         b.setAppointmentTime(req.appointmentTime());
         b.setStatus(req.status());
+        b.setEmployeeId(req.employeeId());
     }
 }
 

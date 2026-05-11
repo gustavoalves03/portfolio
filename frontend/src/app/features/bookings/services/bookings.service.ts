@@ -9,6 +9,7 @@ import {
 } from '../models/bookings.model';
 import { BaseCrudService } from '../../../core/data/base-crud.service';
 import { Page } from '../../../shared/models/page.model';
+import { EmployeeSlim } from '../../salon-profile/models/salon-profile.model';
 
 export interface AvailableSlot {
   startTime: string;
@@ -53,6 +54,13 @@ export class BookingsService extends BaseCrudService<
     return this.http.get<AvailableSlot[]>(
       `${this.apiBaseUrl}/api/pro/opening-hours/available-slots`,
       { params: { careId: careId.toString(), date } }
+    );
+  }
+
+  getEmployeesForCare(careId: number): Observable<EmployeeSlim[]> {
+    return this.http.get<EmployeeSlim[]>(
+      `${this.apiBaseUrl}/api/pro/employees`,
+      { params: { careId: careId.toString() } }
     );
   }
 }

@@ -24,17 +24,15 @@ Claude Code lira ce doc, comprendra où on en est, et démarrera le brainstorm/s
 
 ## 🥇 NIVEAU 1 — À FAIRE EN PREMIER (cette semaine)
 
-### 1. Bug B1 — Réservation depuis un post quand le client est logué 🔴
+### 1. Bug B1 — Modale "Ajouter une réservation" (PRO) ne montre que le header ✅ FIXÉ 2026-05-11
 
-**Symptôme :** logué en tant qu'utilisateur, le bouton "réserver" sur un post (de la page salon ou de la home) ne déclenche plus la modale de booking. Quand on est déconnecté ça marche.
+**Symptôme observé** (corrigé du symptôme initialement décrit dans ce doc — celui-ci parlait à tort des posts → modale de booking) : en mode PRO, sur `/pro/bookings`, clic sur "Ajouter une réservation" → la modale s'ouvre mais **seul le header est visible**, le contenu de l'étape 1 (sélection de soin) reste blanc.
 
-**Pourquoi P0 :** un post est l'**entrée principale** d'acquisition booking (vitrine Instagram-like de chaque salon). Si la conversion `post → booking` est cassée pour les users logués, on perd la conversion des clients fidèles qui voient un nouveau post de leur salon préféré.
+**Cause racine** : `MatDialog.open` sans `viewContainerRef` porte le contenu de la modale dans l'overlay CDK avec l'injecteur root. Le `CaresStore` (provided par `BookingStepperComponent`) dépend de `DashboardStore` (lien ajouté commit `fa91e30` pour rafraîchir le guided tour). `DashboardStore` est provided uniquement par `ProShellComponent`, donc hors de la chaîne d'injecteurs root → `NullInjectorError` silencieux à l'instantiation de `<app-step-care>`, le `@switch` ne rend rien, seul le header (hors `@switch`) reste à l'écran.
 
-**Hypothèse de cause** (à confirmer en investigation) : le flow `salon-posts-viewer.component.ts` → `bookCare.emit(careId)` ne propage plus l'event vers la page parent quand l'auth est active. Peut-être un `if (!isAuthenticated)` mal placé qui court-circuite, ou la modale de booking qui ne s'ouvre pas si l'utilisateur a déjà un token.
+**Fix appliqué** : ajouter `viewContainerRef: this.viewContainerRef` à `dialog.open(...)` dans `pro-bookings.component.ts`, plus test de régression dans `pro-bookings.component.spec.ts` (asserte que `viewContainerRef` est passé).
 
-**Effort estimé :** 1-2h de debug + fix + spec.
-
-**Approche suggérée :** demande à Claude de lancer `superpowers:systematic-debugging` directement (pas besoin de brainstorming pour un bug isolé).
+**Audit complémentaire à faire** (post-fix) : `grep -rn "dialog.open" frontend/src/app | grep -v viewContainerRef` pour repérer les autres modales à risque, notamment celles ouvertes depuis le pro et qui utilisent `CaresStore` ou `CategoriesStore`.
 
 ---
 

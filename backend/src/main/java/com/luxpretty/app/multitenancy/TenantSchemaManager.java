@@ -105,7 +105,7 @@ public class TenantSchemaManager {
         // Existing schemas (legacy tenants provisioned before this change) keep going through
         // TenantSchemaMigrator at startup until they can be baselined on a staging DB.
         createSchemaUser(schemaName);
-        tenantFlywayService.migrate(schemaName);
+        tenantFlywayService.migrate(schemaName, slug);
 
         logger.info("Schema {} fully provisioned with tables", schemaName);
     }
@@ -310,6 +310,65 @@ public class TenantSchemaManager {
                     MAX_BOOKINGS_PER_DAY_PER_CLIENT      NUMBER(2) NOT NULL,
                     MAX_BOOKINGS_PER_WEEK_FOR_NEW_CLIENT NUMBER(2) NOT NULL,
                     UPDATED_AT                           TIMESTAMP NOT NULL
+                )""",
+                // Mirrors db/migration/tenant/V3__create_invoice_tables.sql for legacy tenants
+                // (Flyway V3 only runs on Flyway-baselined tenants; legacy tenants come through here).
+                """
+                CREATE TABLE PRO_INVOICES (
+                    ID                  NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    STRIPE_INVOICE_ID   VARCHAR2(255 CHAR),
+                    NUMBER_LABEL        VARCHAR2(64 CHAR) NOT NULL,
+                    ISSUED_AT           TIMESTAMP NOT NULL,
+                    PERIOD_START        DATE,
+                    PERIOD_END          DATE,
+                    AMOUNT_SUBTOTAL     NUMBER(12,2) NOT NULL,
+                    AMOUNT_TAX          NUMBER(12,2) NOT NULL,
+                    AMOUNT_TOTAL        NUMBER(12,2) NOT NULL,
+                    CURRENCY            CHAR(3 CHAR) DEFAULT 'EUR' NOT NULL,
+                    TAX_RATE            NUMBER(5,2) NOT NULL,
+                    STATUS              VARCHAR2(32 CHAR) NOT NULL,
+                    HOSTED_INVOICE_URL  VARCHAR2(1024 CHAR),
+                    PDF_URL             VARCHAR2(1024 CHAR),
+                    CUSTOMER_SNAPSHOT   CLOB,
+                    CREATED_AT          TIMESTAMP NOT NULL,
+                    UPDATED_AT          TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_PRO_INVOICES_STRIPE_ID UNIQUE (STRIPE_INVOICE_ID),
+                    CONSTRAINT CK_PRO_INVOICES_STATUS CHECK (STATUS IN ('DRAFT','OPEN','PAID','UNCOLLECTIBLE','VOID'))
+                )""",
+                """
+                CREATE TABLE CLIENT_INVOICES (
+                    ID                       NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    BOOKING_ID               NUMBER(19),
+                    CLIENT_USER_ID           NUMBER(19),
+                    STRIPE_PAYMENT_INTENT_ID VARCHAR2(255 CHAR),
+                    STRIPE_INVOICE_ID        VARCHAR2(255 CHAR),
+                    NUMBER_LABEL             VARCHAR2(64 CHAR) NOT NULL,
+                    ISSUED_AT                TIMESTAMP NOT NULL,
+                    KIND                     VARCHAR2(32 CHAR) NOT NULL,
+                    AMOUNT_SUBTOTAL          NUMBER(12,2) NOT NULL,
+                    AMOUNT_TAX               NUMBER(12,2) NOT NULL,
+                    AMOUNT_TOTAL             NUMBER(12,2) NOT NULL,
+                    CURRENCY                 CHAR(3 CHAR) DEFAULT 'EUR' NOT NULL,
+                    TAX_RATE                 NUMBER(5,2) NOT NULL,
+                    STATUS                   VARCHAR2(32 CHAR) NOT NULL,
+                    EMITTER_SNAPSHOT         CLOB,
+                    CLIENT_SNAPSHOT          CLOB,
+                    CREATED_AT               TIMESTAMP NOT NULL,
+                    UPDATED_AT               TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_CLIENT_INVOICE_BOOKING FOREIGN KEY (BOOKING_ID) REFERENCES CARE_BOOKINGS(ID),
+                    CONSTRAINT CK_CLIENT_INVOICES_KIND CHECK (KIND IN ('NO_SHOW_FEE','CARE_PAYMENT')),
+                    CONSTRAINT CK_CLIENT_INVOICES_STATUS CHECK (STATUS IN ('PAID','REFUNDED','FAILED','PENDING'))
+                )""",
+                """
+                CREATE TABLE CLIENT_INVOICE_LINES (
+                    ID            NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    INVOICE_ID    NUMBER(19) NOT NULL,
+                    DESCRIPTION   VARCHAR2(1024 CHAR) NOT NULL,
+                    QUANTITY      NUMBER(10,2) NOT NULL,
+                    UNIT_PRICE_HT NUMBER(12,2) NOT NULL,
+                    TOTAL_HT      NUMBER(12,2) NOT NULL,
+                    POSITION      NUMBER(10) NOT NULL,
+                    CONSTRAINT FK_CLIENT_INVOICE_LINE_INV FOREIGN KEY (INVOICE_ID) REFERENCES CLIENT_INVOICES(ID) ON DELETE CASCADE
                 )"""
         };
 
@@ -550,6 +609,60 @@ public class TenantSchemaManager {
                     MAX_BOOKINGS_PER_DAY_PER_CLIENT INTEGER NOT NULL,
                     MAX_BOOKINGS_PER_WEEK_FOR_NEW_CLIENT INTEGER NOT NULL,
                     UPDATED_AT TIMESTAMP NOT NULL
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS PRO_INVOICES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    STRIPE_INVOICE_ID VARCHAR(255),
+                    NUMBER_LABEL VARCHAR(64) NOT NULL,
+                    ISSUED_AT TIMESTAMP NOT NULL,
+                    PERIOD_START DATE,
+                    PERIOD_END DATE,
+                    AMOUNT_SUBTOTAL DECIMAL(12,2) NOT NULL,
+                    AMOUNT_TAX DECIMAL(12,2) NOT NULL,
+                    AMOUNT_TOTAL DECIMAL(12,2) NOT NULL,
+                    CURRENCY CHAR(3) DEFAULT 'EUR' NOT NULL,
+                    TAX_RATE DECIMAL(5,2) NOT NULL,
+                    STATUS VARCHAR(32) NOT NULL,
+                    HOSTED_INVOICE_URL VARCHAR(1024),
+                    PDF_URL VARCHAR(1024),
+                    CUSTOMER_SNAPSHOT CLOB,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT UK_PRO_INVOICES_STRIPE_ID UNIQUE (STRIPE_INVOICE_ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS CLIENT_INVOICES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    BOOKING_ID BIGINT,
+                    CLIENT_USER_ID BIGINT,
+                    STRIPE_PAYMENT_INTENT_ID VARCHAR(255),
+                    STRIPE_INVOICE_ID VARCHAR(255),
+                    NUMBER_LABEL VARCHAR(64) NOT NULL,
+                    ISSUED_AT TIMESTAMP NOT NULL,
+                    KIND VARCHAR(32) NOT NULL,
+                    AMOUNT_SUBTOTAL DECIMAL(12,2) NOT NULL,
+                    AMOUNT_TAX DECIMAL(12,2) NOT NULL,
+                    AMOUNT_TOTAL DECIMAL(12,2) NOT NULL,
+                    CURRENCY CHAR(3) DEFAULT 'EUR' NOT NULL,
+                    TAX_RATE DECIMAL(5,2) NOT NULL,
+                    STATUS VARCHAR(32) NOT NULL,
+                    EMITTER_SNAPSHOT CLOB,
+                    CLIENT_SNAPSHOT CLOB,
+                    CREATED_AT TIMESTAMP NOT NULL,
+                    UPDATED_AT TIMESTAMP NOT NULL,
+                    CONSTRAINT FK_CLIENT_INVOICE_BOOKING FOREIGN KEY (BOOKING_ID) REFERENCES CARE_BOOKINGS(ID)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS CLIENT_INVOICE_LINES (
+                    ID BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    INVOICE_ID BIGINT NOT NULL,
+                    DESCRIPTION VARCHAR(1024) NOT NULL,
+                    QUANTITY DECIMAL(10,2) NOT NULL,
+                    UNIT_PRICE_HT DECIMAL(12,2) NOT NULL,
+                    TOTAL_HT DECIMAL(12,2) NOT NULL,
+                    POSITION INTEGER NOT NULL,
+                    CONSTRAINT FK_CLIENT_INVOICE_LINE_INV FOREIGN KEY (INVOICE_ID) REFERENCES CLIENT_INVOICES(ID) ON DELETE CASCADE
                 )"""
         };
 

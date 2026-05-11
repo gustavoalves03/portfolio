@@ -137,7 +137,7 @@ class CareBookingControllerValidationTests {
                 1L, 999999L, 1,
                 LocalDate.now().plusDays(7),
                 LocalTime.of(10, 0),
-                CareBookingStatus.CONFIRMED, null);
+                CareBookingStatus.CONFIRMED, null, null);
 
         mvc.perform(post("/api/bookings")
                         .with(authentication(authToken))
@@ -156,7 +156,7 @@ class CareBookingControllerValidationTests {
                 1L, 10L, 1,
                 LocalDate.now().minusDays(5),
                 LocalTime.of(10, 0),
-                CareBookingStatus.CONFIRMED, null);
+                CareBookingStatus.CONFIRMED, null, null);
 
         mvc.perform(post("/api/bookings")
                         .with(authentication(authToken))
@@ -180,7 +180,7 @@ class CareBookingControllerValidationTests {
                 1L, 10L, 1,
                 LocalDate.now().plusDays(7),
                 LocalTime.of(3, 0), // 03:00 — well outside any realistic opening hours
-                CareBookingStatus.CONFIRMED, null);
+                CareBookingStatus.CONFIRMED, null, null);
 
         mvc.perform(post("/api/bookings")
                         .with(authentication(authToken))

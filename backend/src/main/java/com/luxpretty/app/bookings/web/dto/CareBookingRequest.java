@@ -15,6 +15,7 @@ public record CareBookingRequest(
         @FutureOrPresent @NotNull LocalDate appointmentDate,
         @NotNull LocalTime appointmentTime,
         @NotNull CareBookingStatus status,
-        Long salonClientId
+        Long salonClientId,
+        Long employeeId  // null = unassigned (let the service / scheduling pick)
 ) {}
 

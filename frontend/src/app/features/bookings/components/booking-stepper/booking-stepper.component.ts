@@ -29,7 +29,12 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
     <app-sheet-handle />
     <!-- Header -->
     <div class="stepper-header">
-      <button class="btn-close" data-testid="stepper-close" (click)="dialogRef.close()">
+      @if (currentStep() > 1) {
+        <button class="btn-header-back" data-testid="stepper-back-header" (click)="goBack()" type="button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      }
+      <button class="btn-close" data-testid="stepper-close" (click)="dialogRef.close()" type="button">
         <mat-icon>close</mat-icon>
       </button>
       <span class="stepper-title">{{ 'booking.stepper.confirm' | transloco }}</span>
@@ -56,13 +61,6 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
       }
     </div>
 
-    <!-- Back button -->
-    @if (currentStep() > 1) {
-      <button class="btn-back" data-testid="step-back-btn" (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-        {{ 'booking.stepper.back' | transloco }}
-      </button>
-    }
     </div>
   `,
   styles: [
@@ -75,6 +73,20 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
         max-height: 80vh;
       }
 
+      @media (min-width: 768px) {
+        :host {
+          width: 480px;
+          min-height: 560px;
+          max-height: 85vh;
+          overflow: hidden;
+        }
+        .step-content {
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow-y: auto;
+        }
+      }
+
       .stepper-header {
         display: flex;
         align-items: center;
@@ -82,6 +94,21 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
         background: white;
         border-bottom: 1px solid #eee;
         gap: 8px;
+      }
+
+      .btn-header-back {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        color: #666;
+      }
+
+      .btn-header-back mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
 
       .btn-close {
@@ -129,29 +156,6 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
         overflow-y: auto;
       }
 
-      .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 10px 16px;
-        background: white;
-        border: none;
-        border-top: 1px solid #eee;
-        cursor: pointer;
-        font-size: 13px;
-        color: #666;
-        font-weight: 500;
-      }
-
-      .btn-back:hover {
-        background: #f5f5f5;
-      }
-
-      .btn-back mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
     `,
   ],
 })
@@ -170,7 +174,7 @@ export class BookingStepperComponent {
 
   readonly progressPercent = computed(() => (this.currentStep() / 3) * 100);
 
-  onCareSelected(event: { careId: number; employeeId: number }): void {
+  onCareSelected(event: { careId: number; employeeId: number | null }): void {
     this.selectedCareId.set(event.careId);
     this.selectedEmployeeId.set(event.employeeId);
     this.currentStep.set(2);
@@ -215,6 +219,7 @@ export class BookingStepperComponent {
       appointmentTime: appointmentTime + ':00',
       status: CareBookingStatus.PENDING,
       salonClientId: this.selectedSalonClientId() ?? undefined,
+      employeeId: this.selectedEmployeeId(),
     }).subscribe({
       next: () => this.dialogRef.close(true),
       error: () => {
