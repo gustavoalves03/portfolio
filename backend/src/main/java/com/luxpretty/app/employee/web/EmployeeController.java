@@ -19,7 +19,10 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public List<EmployeeResponse> list() {
+    public Object list(@RequestParam(required = false) Long careId) {
+        if (careId != null) {
+            return service.listForCare(careId);
+        }
         return service.listAll();
     }
 
