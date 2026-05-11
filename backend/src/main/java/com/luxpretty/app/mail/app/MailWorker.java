@@ -3,6 +3,7 @@ package com.luxpretty.app.mail.app;
 import com.luxpretty.app.mail.domain.MailOutbox;
 import com.luxpretty.app.mail.domain.MailStatus;
 import com.luxpretty.app.mail.repo.MailOutboxRepository;
+import com.luxpretty.app.users.repo.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,15 +30,18 @@ public class MailWorker {
     private final MailSender sender;
     private final MailRenderer renderer;
     private final MailRetryPolicy retryPolicy;
+    private final UserRepository userRepo;
 
     public MailWorker(MailOutboxRepository repo,
                       MailSender sender,
                       MailRenderer renderer,
-                      MailRetryPolicy retryPolicy) {
+                      MailRetryPolicy retryPolicy,
+                      UserRepository userRepo) {
         this.repo = repo;
         this.sender = sender;
         this.renderer = renderer;
         this.retryPolicy = retryPolicy;
+        this.userRepo = userRepo;
     }
 
     @Scheduled(fixedDelayString = "${app.mail.worker.poll-interval-ms:30000}",
@@ -54,6 +58,14 @@ public class MailWorker {
     }
 
     private void processOne(MailOutbox row) {
+        boolean blocked = userRepo.findEmailBlockedByEmail(row.getRecipientEmail()).orElse(false);
+        if (blocked) {
+            row.setStatus(MailStatus.PERMANENTLY_FAILED);
+            row.setLastError("recipient email blocked");
+            log.info("Mail skipped (recipient blocked): id={} recipient={}",
+                    row.getId(), row.getRecipientEmail());
+            return;
+        }
         try {
             MailRenderer.Rendered envelope = renderer.render(row);
             String providerMessageId = sender.send(

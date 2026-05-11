@@ -4,17 +4,21 @@ import com.luxpretty.app.mail.domain.MailOutbox;
 import com.luxpretty.app.mail.domain.MailStatus;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.repo.MailOutboxRepository;
+import com.luxpretty.app.users.repo.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +29,7 @@ class MailWorkerTests {
     private MailSender sender;
     private MailRenderer renderer;
     private MailRetryPolicy retryPolicy;
+    private UserRepository userRepo;
     private MailWorker worker;
 
     @BeforeEach
@@ -33,10 +38,12 @@ class MailWorkerTests {
         sender = mock(MailSender.class);
         renderer = mock(MailRenderer.class);
         retryPolicy = new MailRetryPolicy();
-        worker = new MailWorker(repo, sender, renderer, retryPolicy);
+        userRepo = mock(UserRepository.class);
+        worker = new MailWorker(repo, sender, renderer, retryPolicy, userRepo);
 
         when(renderer.render(any())).thenReturn(
                 new MailRenderer.Rendered("subj", "<p>html</p>", "txt"));
+        when(userRepo.findEmailBlockedByEmail(anyString())).thenReturn(Optional.of(false));
     }
 
     @Test
@@ -100,6 +107,19 @@ class MailWorkerTests {
     void batch_size_is_10() {
         worker.pollAndSend();
         verify(repo, times(1)).lockBatchForSending(any(), eq(10));
+    }
+
+    @Test
+    void blocked_recipient_marks_permanently_failed_without_sending() {
+        MailOutbox row = pending();
+        when(repo.lockBatchForSending(any(), anyInt())).thenReturn(List.of(row));
+        when(userRepo.findEmailBlockedByEmail("user@example.com")).thenReturn(Optional.of(true));
+
+        worker.pollAndSend();
+
+        assertThat(row.getStatus()).isEqualTo(MailStatus.PERMANENTLY_FAILED);
+        assertThat(row.getLastError()).contains("blocked");
+        verify(sender, never()).send(any(), any(), any(), any());
     }
 
     private MailOutbox pending() {
