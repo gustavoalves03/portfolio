@@ -41,6 +41,15 @@ services:
     ports:
       - "4300:4200"
 
+  # Mailpit: dev SMTP catcher with HTTP UI (replaces the need for a real SMTP server in dev)
+  mailpit:
+    profiles: ["dev"]
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "8025:8025"   # web UI: http://localhost:8025
+      - "1025:1025"   # SMTP
+
 volumes:
   oradata:
   maven-cache:
