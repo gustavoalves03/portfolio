@@ -104,6 +104,7 @@ export class TenantFeaturesService {
           this.employeesEnabled.set(enabled);
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 
@@ -118,6 +119,7 @@ export class TenantFeaturesService {
           this.annualLeaveDays.set(days);
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 
@@ -135,6 +137,7 @@ export class TenantFeaturesService {
           this.closedDaysStore.invalidate();
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 
@@ -152,6 +155,7 @@ export class TenantFeaturesService {
           this.minAdvanceMinutes.set(minutes);
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 
@@ -168,6 +172,7 @@ export class TenantFeaturesService {
           this.maxAdvanceDays.set(days);
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 
@@ -185,6 +190,7 @@ export class TenantFeaturesService {
           this.maxClientHoursPerDay.set(hours);
           this.notifyAutoSaveSuccess();
         },
+        error: () => {},
       });
   }
 }

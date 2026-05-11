@@ -16,6 +16,23 @@ import {
   CareBookingStatus,
 } from '../../features/bookings/models/bookings.model';
 
+// Wednesday of the current ISO week — keeps the booking inside the
+// `weekDays()` window the KPI computeds rely on, regardless of when the
+// suite runs. A hardcoded date drifted out of "this week" and silently
+// zeroed every KPI assertion.
+function thisWeekWednesdayIso(): string {
+  const today = new Date();
+  const dayOfWeek = today.getDay() === 0 ? 7 : today.getDay(); // Sun=7
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek - 1));
+  const wednesday = new Date(monday);
+  wednesday.setDate(monday.getDate() + 2);
+  const yyyy = wednesday.getFullYear();
+  const mm = String(wednesday.getMonth() + 1).padStart(2, '0');
+  const dd = String(wednesday.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 function booking(
   id: number,
   status: CareBookingStatus,
@@ -35,7 +52,7 @@ function booking(
       images: [],
     } as any,
     quantity,
-    appointmentDate: '2026-05-04',
+    appointmentDate: thisWeekWednesdayIso(),
     appointmentTime: '10:00:00',
     status,
     createdAt: '2026-05-01T12:00:00Z',
