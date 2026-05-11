@@ -15,7 +15,7 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, Lo
     @Query("""
         SELECT i FROM ClientInvoice i
         WHERE (:status IS NULL OR i.status = :status)
-          AND (:year IS NULL OR FUNCTION('EXTRACT', YEAR FROM i.issuedAt) = :year)
+          AND (:year IS NULL OR YEAR(i.issuedAt) = :year)
           AND (:q IS NULL OR LOWER(i.numberLabel) LIKE LOWER(CONCAT('%', :q, '%')))
         ORDER BY i.issuedAt DESC
         """)
@@ -28,7 +28,7 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, Lo
         SELECT i FROM ClientInvoice i
         WHERE i.clientUserId = :userId
           AND (:status IS NULL OR i.status = :status)
-          AND (:year IS NULL OR FUNCTION('EXTRACT', YEAR FROM i.issuedAt) = :year)
+          AND (:year IS NULL OR YEAR(i.issuedAt) = :year)
         ORDER BY i.issuedAt DESC
         """)
     Page<ClientInvoice> searchForClient(@Param("userId") Long userId,

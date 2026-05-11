@@ -15,7 +15,7 @@ public interface ProInvoiceRepository extends JpaRepository<ProInvoice, Long> {
     @Query("""
         SELECT i FROM ProInvoice i
         WHERE (:status IS NULL OR i.status = :status)
-          AND (:year IS NULL OR FUNCTION('EXTRACT', YEAR FROM i.issuedAt) = :year)
+          AND (:year IS NULL OR YEAR(i.issuedAt) = :year)
           AND (:q IS NULL OR LOWER(i.numberLabel) LIKE LOWER(CONCAT('%', :q, '%')))
         ORDER BY i.issuedAt DESC
         """)
