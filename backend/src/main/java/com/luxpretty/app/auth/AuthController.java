@@ -7,7 +7,10 @@ import com.luxpretty.app.auth.dto.ProRegisterRequest;
 import com.luxpretty.app.auth.dto.RegisterRequest;
 import com.luxpretty.app.auth.dto.ResetPasswordRequest;
 import com.luxpretty.app.auth.dto.UserDto;
-import com.luxpretty.app.notification.app.EmailService;
+import com.luxpretty.app.mail.app.MailOutboxService;
+import com.luxpretty.app.mail.domain.MailTemplate;
+import com.luxpretty.app.mail.vars.ResetPasswordVars;
+import com.luxpretty.app.mail.vars.WelcomeProVars;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.AuthProvider;
@@ -17,6 +20,7 @@ import com.luxpretty.app.users.repo.UserRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -44,17 +48,20 @@ public class AuthController {
     private final TokenService tokenService;
     private final TenantProvisioningService tenantProvisioningService;
     private final TenantRepository tenantRepository;
-    private final EmailService emailService;
+    private final MailOutboxService mailOutbox;
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService,
                           TenantProvisioningService tenantProvisioningService, TenantRepository tenantRepository,
-                          EmailService emailService) {
+                          MailOutboxService mailOutbox) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.tenantProvisioningService = tenantProvisioningService;
         this.tenantRepository = tenantRepository;
-        this.emailService = emailService;
+        this.mailOutbox = mailOutbox;
     }
 
     @PostMapping("/register")
@@ -95,7 +102,14 @@ public class AuthController {
         if (provisionTenant) {
             tenantProvisioningService.provision(savedUser);
         }
-        emailService.sendWelcomeEmail(savedUser);
+        mailOutbox.queue(
+                MailTemplate.WELCOME_PRO,
+                new WelcomeProVars(
+                        savedUser.getName(),
+                        savedUser.getEmail(),
+                        frontendBaseUrl + "/pro/dashboard"),
+                savedUser.getEmail(),
+                null);
 
         String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());
 
@@ -138,9 +152,16 @@ public class AuthController {
         tenantRepository.save(tenant);
 
         try {
-            emailService.sendWelcomeEmail(savedUser);
+            mailOutbox.queue(
+                    MailTemplate.WELCOME_PRO,
+                    new WelcomeProVars(
+                            savedUser.getName(),
+                            savedUser.getEmail(),
+                            frontendBaseUrl + "/pro/dashboard"),
+                    savedUser.getEmail(),
+                    null);
         } catch (Exception e) {
-            logger.warn("Failed to send welcome email to {}: {}", savedUser.getEmail(), e.getMessage());
+            logger.warn("Failed to queue welcome email for {}: {}", savedUser.getEmail(), e.getMessage());
         }
 
         String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());
@@ -245,7 +266,13 @@ public class AuthController {
             user.setPasswordResetTokenExpiresAt(Instant.now().plusSeconds(3600));
             userRepository.save(user);
 
-            emailService.sendPasswordResetEmail(user, token);
+            mailOutbox.queue(
+                    MailTemplate.RESET_PASSWORD,
+                    new ResetPasswordVars(
+                            user.getName(),
+                            frontendBaseUrl + "/reset-password?token=" + token),
+                    user.getEmail(),
+                    null);
         });
 
         return ResponseEntity.ok(Map.of("message", message));

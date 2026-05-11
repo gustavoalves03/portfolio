@@ -1,0 +1,12 @@
+Bonjour [(${clientName})],
+
+Votre rendez-vous chez [(${salonName})] est bien confirmé.
+
+  Soin    : [(${careName})] ([(${careDuration})])
+  Date    : [(${appointmentDate})] à [(${appointmentTime})]
+  Tarif   : [(${carePrice})] €
+
+Voir mes rendez-vous : [(${dashboardUrl})]
+
+À très bientôt !
+— LuxPretty

@@ -770,7 +770,11 @@ public class TenantSchemaManager {
         }
     }
     private void dropTenantTablesH2(Statement stmt) throws SQLException {
+        // Drop child tables (FK holders) BEFORE parents.
+        // CLIENT_INVOICE_LINES → CLIENT_INVOICES → CARE_BOOKINGS chain.
+        // PRO_INVOICES also references CARE_BOOKINGS.
         List<String> reverseTables = List.of(
+                "CLIENT_INVOICE_LINES", "CLIENT_INVOICES", "PRO_INVOICES",
                 "BOOKING_POLICY",
                 "EMPLOYEE_PERMISSIONS", "CLIENT_REMINDERS", "VISIT_PHOTOS", "VISIT_RECORDS",
                 "SALON_CLIENTS", "CLIENT_PROFILES",

@@ -116,7 +116,7 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(requestHandler)
                         // /api/test/** is only mapped when the `smoke-test` profile is active
                         // (see SmokeTestSeedController). Exemption is inert otherwise.
-                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**", "/api/test/**")
+                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**", "/api/test/**", "/api/webhooks/postmark")
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     var c = new CorsConfiguration();
@@ -133,7 +133,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/ping").permitAll()
+                        .requestMatchers("/actuator/health", "/ping", "/api/webhooks/postmark").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()

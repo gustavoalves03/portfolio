@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${pageTitle}">LuxPretty</title>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <span class="monogram">LXP</span>
+        <span class="brand">LuxPretty</span>
+    </div>
+    <div class="body" th:insert="~{this :: content}">
+        <!-- replaced by each template's content fragment -->
+    </div>
+    <div class="foot">
+        LuxPretty — <a href="https://luxpretty.lu">luxpretty.lu</a><br/>
+        Vous recevez cet email parce que vous avez un compte LuxPretty.
+    </div>
+</div>
+</body>
+</html>

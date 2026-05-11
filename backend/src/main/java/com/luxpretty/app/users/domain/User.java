@@ -38,6 +38,10 @@ public class User {
     @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified = false;
 
+    @Builder.Default
+    @Column(name = "email_blocked", nullable = false)
+    private Boolean emailBlocked = false;
+
     @Column(name = "password")
     private String password; // Nullable for OAuth2 users
 

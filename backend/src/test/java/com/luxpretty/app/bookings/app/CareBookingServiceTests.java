@@ -14,7 +14,8 @@ import com.luxpretty.app.care.domain.CareStatus;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.multitenancy.ApplicationSchemaExecutor;
 import com.luxpretty.app.multitenancy.TenantContext;
-import com.luxpretty.app.notification.app.EmailService;
+import com.luxpretty.app.mail.app.MailOutboxService;
+import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.Role;
@@ -52,7 +53,7 @@ class CareBookingServiceTests {
     @Mock private UserRepository userRepository;
     @Mock private CareRepository careRepository;
     @Mock private SlotAvailabilityService slotAvailabilityService;
-    @Mock private EmailService emailService;
+    @Mock private MailOutboxService mailOutbox;
     @Mock private TenantRepository tenantRepository;
     @Mock private ClientBookingHistoryRepository clientBookingHistoryRepository;
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
@@ -290,8 +291,8 @@ class CareBookingServiceTests {
         ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
         service.createClientBooking(client, owner, "Salon", req);
 
-        verify(emailService).sendBookingConfirmationEmail(eq(client), any(CareBooking.class), eq(care30min), eq("Salon"));
-        verify(emailService).sendNewBookingNotificationEmail(eq(owner), any(CareBooking.class), eq(care30min), eq("Marie"));
+        verify(mailOutbox).queue(eq(MailTemplate.BOOKING_CONFIRMED), any(), eq("marie@test.com"), eq("test-tenant"));
+        verify(mailOutbox).queue(eq(MailTemplate.BOOKING_RECEIVED_PRO), any(), eq("sophie@test.com"), eq("test-tenant"));
     }
 
     // ══════════════════════════════════════════════════════════════
