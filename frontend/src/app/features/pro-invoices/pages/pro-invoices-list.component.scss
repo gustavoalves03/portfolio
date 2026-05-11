@@ -1,0 +1,26 @@
+.invoices-page {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.page-head h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  margin: 0;
+}
+.subtitle { color: var(--mat-sys-on-surface-variant); margin: 4px 0 16px; }
+.filters { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-search { flex: 1 1 220px; }
+.invoices-table { width: 100%; background: var(--mat-sys-surface); border-radius: 8px; }
+.empty { text-align: center; color: var(--mat-sys-on-surface-variant); padding: 32px; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-PAID { background: #E6F4EA; color: #1F7A3B; }
+.badge-OPEN, .badge-PENDING { background: #FFF3E0; color: #B45309; }
+.badge-DRAFT, .badge-VOID, .badge-UNCOLLECTIBLE, .badge-REFUNDED, .badge-FAILED {
+  background: #F4ECE8; color: #806771;
+}
