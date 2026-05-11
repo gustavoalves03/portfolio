@@ -75,6 +75,20 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
         max-height: 80vh;
       }
 
+      @media (min-width: 768px) {
+        :host {
+          width: 480px;
+          min-height: 560px;
+          max-height: 85vh;
+          overflow: hidden;
+        }
+        .step-content {
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow-y: auto;
+        }
+      }
+
       .stepper-header {
         display: flex;
         align-items: center;
@@ -170,7 +184,7 @@ export class BookingStepperComponent {
 
   readonly progressPercent = computed(() => (this.currentStep() / 3) * 100);
 
-  onCareSelected(event: { careId: number; employeeId: number }): void {
+  onCareSelected(event: { careId: number; employeeId: number | null }): void {
     this.selectedCareId.set(event.careId);
     this.selectedEmployeeId.set(event.employeeId);
     this.currentStep.set(2);
@@ -215,6 +229,7 @@ export class BookingStepperComponent {
       appointmentTime: appointmentTime + ':00',
       status: CareBookingStatus.PENDING,
       salonClientId: this.selectedSalonClientId() ?? undefined,
+      employeeId: this.selectedEmployeeId(),
     }).subscribe({
       next: () => this.dialogRef.close(true),
       error: () => {
