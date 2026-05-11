@@ -18,8 +18,16 @@ public class EmployeeController {
         this.service = service;
     }
 
+    /**
+     * List employees. Returns different response shapes based on careId presence:
+     * - Without careId: List<EmployeeResponse> (full employee details)
+     * - With careId: List<EmployeeSlimResponse> (id, name, null avatar)
+     */
     @GetMapping
-    public List<EmployeeResponse> list() {
+    public Object list(@RequestParam(required = false) Long careId) {
+        if (careId != null) {
+            return service.listForCare(careId);
+        }
         return service.listAll();
     }
 
