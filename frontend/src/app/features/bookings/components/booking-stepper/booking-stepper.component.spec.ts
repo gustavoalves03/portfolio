@@ -106,4 +106,57 @@ describe('BookingStepperComponent', () => {
     const payload = bookingsService.create.calls.mostRecent().args[0];
     expect(payload.employeeId).toBeNull();
   });
+
+  it('does not render the header back arrow on step 1', async () => {
+    await setup();
+    const fixture = TestBed.createComponent(BookingStepperComponent);
+    fixture.detectChanges();
+    const arrow = fixture.nativeElement.querySelector('[data-testid="stepper-back-header"]');
+    expect(arrow).toBeNull();
+  });
+
+  it('renders the header back arrow on step 2 and step 3', async () => {
+    await setup();
+    const fixture = TestBed.createComponent(BookingStepperComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    component.currentStep.set(2);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="stepper-back-header"]')).not.toBeNull();
+
+    component.currentStep.set(3);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="stepper-back-header"]')).not.toBeNull();
+  });
+
+  it('clicking the header back arrow decrements currentStep', async () => {
+    await setup();
+    const fixture = TestBed.createComponent(BookingStepperComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+    component.currentStep.set(2);
+    fixture.detectChanges();
+
+    const arrow = fixture.nativeElement.querySelector('[data-testid="stepper-back-header"]') as HTMLElement;
+    arrow.click();
+    fixture.detectChanges();
+
+    expect(component.currentStep()).toBe(1);
+  });
+
+  it('does not render the bottom Retour button on any step', async () => {
+    await setup();
+    const fixture = TestBed.createComponent(BookingStepperComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    component.currentStep.set(2);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="step-back-btn"]')).toBeNull();
+
+    component.currentStep.set(3);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="step-back-btn"]')).toBeNull();
+  });
 });
