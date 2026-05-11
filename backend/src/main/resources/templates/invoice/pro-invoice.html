@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Facture ' + ${invoice.numberLabel}">Facture</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        body {
+            font-family: Helvetica, sans-serif;
+            color: #2B1F25;
+            font-size: 10pt;
+            line-height: 1.45;
+            margin: 0;
+            padding: 28pt 24pt;
+            background: #FBF6F4;
+        }
+        .invoice-header {
+            background-color: #A83E58;
+            color: #FFFFFF;
+            padding: 18pt 22pt;
+            margin: -28pt -24pt 18pt -24pt;
+            width: 100%;
+        }
+        .invoice-header table { width: 100%; border-collapse: collapse; }
+        .invoice-header td { vertical-align: middle; color: #FFFFFF; }
+        .monogram {
+            display: inline-block;
+            width: 30pt;
+            height: 30pt;
+            background-color: rgba(255,255,255,0.18);
+            color: #FFFFFF;
+            text-align: center;
+            line-height: 30pt;
+            font-size: 11pt;
+            margin-right: 8pt;
+        }
+        .brand-name { font-size: 16pt; }
+        .doc-label {
+            font-size: 7pt;
+            letter-spacing: 1.5pt;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            opacity: 0.85;
+        }
+        .doc-num { font-size: 14pt; color: #FFFFFF; }
+        .meta {
+            width: 100%;
+            background: #FFFFFF;
+            padding: 12pt 14pt;
+            margin-bottom: 14pt;
+        }
+        .meta table { width: 100%; border-collapse: collapse; }
+        .meta td { vertical-align: top; width: 50%; padding: 0; }
+        .label {
+            font-size: 7pt;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+            color: #A83E58;
+            margin-bottom: 3pt;
+        }
+        table.lines {
+            width: 100%;
+            border-collapse: collapse;
+            background: #FFFFFF;
+            margin-bottom: 12pt;
+        }
+        table.lines th {
+            text-align: left;
+            background: #F8EDEA;
+            color: #A83E58;
+            font-size: 7pt;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+            padding: 7pt 10pt;
+            font-weight: bold;
+        }
+        table.lines td {
+            padding: 9pt 10pt;
+            border-bottom: 1px solid #F8EDEA;
+        }
+        .totals {
+            margin-left: auto;
+            width: 55%;
+            background: #FFFFFF;
+            padding: 9pt 12pt;
+        }
+        .totals table { width: 100%; border-collapse: collapse; }
+        .totals td { padding: 2pt 0; font-size: 9pt; }
+        .totals td.label-col { text-align: left; }
+        .totals td.value-col { text-align: right; }
+        .totals tr.grand td {
+            border-top: 1px dashed #C66075;
+            padding-top: 6pt;
+            font-size: 13pt;
+            color: #A83E58;
+        }
+        .foot {
+            margin-top: 18pt;
+            font-size: 7pt;
+            color: #806771;
+            text-align: center;
+            line-height: 1.6;
+            padding: 10pt;
+            background: #FFFFFF;
+        }
+        .right { text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="invoice-header">
+    <table>
+        <tr>
+            <td>
+                <span class="monogram">LXP</span>
+                <span class="brand-name">LuxPretty</span>
+            </td>
+            <td class="right">
+                <div class="doc-label">Facture abonnement</div>
+                <div class="doc-num" th:text="${invoice.numberLabel}">PRO-2026-0042</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="meta">
+    <table>
+        <tr>
+            <td>
+                <div class="label">Émetteur</div>
+                <div><strong>LuxPretty SARL</strong></div>
+                <div>14 rue de la Beauté</div>
+                <div>L-1930 Luxembourg</div>
+                <div>TVA : LU99999999</div>
+            </td>
+            <td>
+                <div class="label">Client</div>
+                <div><strong th:text="${customer.name}">Salon client</strong></div>
+                <div th:text="${customer.addressLine1}">Adresse</div>
+                <div th:text="${customer.addressLine2}">Ville</div>
+                <div style="margin-top:6pt">
+                    <span class="label">Période</span>
+                    <span th:text="${invoice.periodStart != null ? #temporals.format(invoice.periodStart, 'MM/yyyy') : '—'}">Période</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table class="lines">
+    <thead>
+    <tr>
+        <th>Désignation</th>
+        <th class="right">PU HT</th>
+        <th class="right">Total HT</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Abonnement LuxPretty Pro</td>
+        <td class="right" th:text="${#numbers.formatDecimal(invoice.amountSubtotal, 1, 'COMMA', 2, 'POINT')} + ' €'">0,00 €</td>
+        <td class="right" th:text="${#numbers.formatDecimal(invoice.amountSubtotal, 1, 'COMMA', 2, 'POINT')} + ' €'">0,00 €</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="totals">
+    <table>
+        <tr>
+            <td class="label-col">Sous-total HT</td>
+            <td class="value-col" th:text="${#numbers.formatDecimal(invoice.amountSubtotal, 1, 'COMMA', 2, 'POINT')} + ' €'">0,00 €</td>
+        </tr>
+        <tr>
+            <td class="label-col" th:text="'TVA ' + ${invoice.taxRate} + ' %'">TVA</td>
+            <td class="value-col" th:text="${#numbers.formatDecimal(invoice.amountTax, 1, 'COMMA', 2, 'POINT')} + ' €'">0,00 €</td>
+        </tr>
+        <tr class="grand">
+            <td class="label-col">Total TTC</td>
+            <td class="value-col" th:text="${#numbers.formatDecimal(invoice.amountTotal, 1, 'COMMA', 2, 'POINT')} + ' €'">0,00 €</td>
+        </tr>
+    </table>
+</div>
+
+<div class="foot">
+    <span>Statut : <span th:text="${invoice.status}">Statut</span></span><br/>
+    LuxPretty SARL — RCS LU B99999 — TVA LU99999999<br/>
+    Facture émise automatiquement via Stripe Tax (en attente de configuration).
+</div>
+
+</body>
+</html>

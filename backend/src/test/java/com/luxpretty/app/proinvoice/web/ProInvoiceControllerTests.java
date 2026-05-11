@@ -10,6 +10,7 @@ import com.luxpretty.app.common.error.RestAuthenticationEntryPoint;
 import com.luxpretty.app.config.CsrfLoggingFilter;
 import com.luxpretty.app.config.SecurityConfig;
 import com.luxpretty.app.multitenancy.TenantFilter;
+import com.luxpretty.app.proinvoice.app.ProInvoicePdfRenderer;
 import com.luxpretty.app.proinvoice.app.ProInvoiceService;
 import com.luxpretty.app.proinvoice.domain.ProInvoice;
 import com.luxpretty.app.proinvoice.domain.ProInvoiceStatus;
@@ -45,6 +46,9 @@ class ProInvoiceControllerTests {
 
     @MockBean
     private ProInvoiceService service;
+
+    @MockBean
+    private ProInvoicePdfRenderer pdfRenderer;
 
     @MockBean private TokenService tokenService;
     @MockBean private UserRepository userRepository;
