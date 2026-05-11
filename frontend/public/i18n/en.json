@@ -1195,12 +1195,17 @@
     "noPreference": "No preference",
     "stepper": {
       "step1": "Service",
+      "step1Employee": "With whom?",
       "step2": "Date & time",
       "step3": "Client",
       "next": "Next",
       "back": "Back",
       "confirm": "Confirm appointment",
       "selectDate": "Select a date"
+    },
+    "employees": {
+      "anyAvailable": "First available employee",
+      "empty": "No employee available for this care"
     },
     "client": {
       "existing": "Existing client",
