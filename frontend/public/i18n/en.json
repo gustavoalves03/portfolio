@@ -1205,7 +1205,8 @@
     },
     "employees": {
       "anyAvailable": "First available employee",
-      "empty": "No employee available for this care"
+      "empty": "No employee available for this care",
+      "loadError": "Failed to load employees"
     },
     "client": {
       "existing": "Existing client",

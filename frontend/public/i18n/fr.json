@@ -1209,7 +1209,8 @@
     },
     "employees": {
       "anyAvailable": "Premier employé disponible",
-      "empty": "Aucun employé disponible pour ce soin"
+      "empty": "Aucun employé disponible pour ce soin",
+      "loadError": "Erreur de chargement des collaborateurs"
     },
     "client": {
       "existing": "Client existant",
