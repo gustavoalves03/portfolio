@@ -2,7 +2,8 @@ package com.luxpretty.app.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luxpretty.app.auth.dto.RegisterRequest;
-import com.luxpretty.app.notification.app.EmailService;
+import com.luxpretty.app.mail.app.MailOutboxService;
+import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
 import com.luxpretty.app.tenant.app.TenantService;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -27,6 +28,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -54,7 +57,7 @@ class AuthControllerTests {
     private TenantProvisioningService tenantProvisioningService;
 
     @MockBean
-    private EmailService emailService;
+    private MailOutboxService mailOutbox;
 
     @MockBean
     private TenantService tenantService;
@@ -92,7 +95,7 @@ class AuthControllerTests {
                 .andExpect(jsonPath("$.user.role").value("PRO"));
 
         verify(tenantProvisioningService, times(1)).provision(any(User.class));
-        verify(emailService, times(1)).sendWelcomeEmail(any(User.class));
+        verify(mailOutbox, times(1)).queue(eq(MailTemplate.WELCOME_PRO), any(), anyString(), isNull());
     }
 
     // T1.2: Duplicate email → 409 Conflict
@@ -174,7 +177,7 @@ class AuthControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
 
-        verify(emailService).sendPasswordResetEmail(any(User.class), anyString());
+        verify(mailOutbox).queue(eq(MailTemplate.RESET_PASSWORD), any(), anyString(), isNull());
     }
 
     @Test
@@ -187,7 +190,7 @@ class AuthControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").exists());
 
-        verify(emailService, never()).sendPasswordResetEmail(any(), anyString());
+        verify(mailOutbox, never()).queue(any(), any(), any(), any());
     }
 
     @Test
@@ -204,7 +207,7 @@ class AuthControllerTests {
                         .content("{\"email\":\"sophie@salon.fr\"}"))
                 .andExpect(status().isOk());
 
-        verify(emailService, never()).sendPasswordResetEmail(any(), anyString());
+        verify(mailOutbox, never()).queue(any(), any(), any(), any());
         verify(userRepository, never()).save(any());
     }
 
@@ -286,10 +289,8 @@ class AuthControllerTests {
         long secondsAhead = java.time.Duration.between(Instant.now(), expires).getSeconds();
         assertThat(secondsAhead).isBetween(3500L, 3700L);
 
-        // Email service is called with the same token
-        ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
-        verify(emailService).sendPasswordResetEmail(any(User.class), tokenCaptor.capture());
-        assertThat(tokenCaptor.getValue()).isEqualTo(saved.getPasswordResetToken());
+        // Mail outbox is called with RESET_PASSWORD template once
+        verify(mailOutbox).queue(eq(MailTemplate.RESET_PASSWORD), any(), anyString(), isNull());
     }
 
     // Lot6: reset-password with a token whose expiration was never persisted → 400 (defensive path)
