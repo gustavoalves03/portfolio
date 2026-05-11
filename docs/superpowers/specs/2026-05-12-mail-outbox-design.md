@@ -26,7 +26,7 @@ Remplacer le `EmailService` actuel (synchrone `@Async`, pas de garantie transact
 | Dev local | **Mailpit** Docker (UI :8025, SMTP :1025) — pas Postmark sandbox |
 | Branding | **LuxPretty** dès la PR1 (palette rose nacré `#A83E58`, monogramme LXP, Cormorant Garamond + Inter) |
 | Schéma DB | **App schema** (shared), pas tenant. Colonne `tenant_slug` pour contexte. |
-| Templates initiaux | **3** : `RESET_PASSWORD`, `BOOKING_CONFIRMED`, `ACCOUNT_VERIFICATION` |
+| Templates initiaux | **4** (couvre tous les callsites EmailService existants) : `RESET_PASSWORD`, `BOOKING_CONFIRMED` (client), `BOOKING_RECEIVED_PRO` (pro), `WELCOME_PRO` |
 | Catalogue mails | **Typed** : `MailTemplate` enum + `MailVars` sealed interface + records |
 | Migration EmailService | **Rewrite** : tous les callsites passent à `MailOutboxService.queue()`, `EmailService.java` supprimé |
 | Flyway | V8 (`MAIL_OUTBOX`) + V9 (colonne `USERS.EMAIL_BLOCKED`) |
@@ -51,7 +51,8 @@ backend/src/main/java/com/luxpretty/app/mail/
 │   ├── MailVars.java                (sealed interface)
 │   ├── ResetPasswordVars.java
 │   ├── BookingConfirmedVars.java
-│   └── AccountVerificationVars.java
+│   ├── BookingReceivedProVars.java
+│   └── WelcomeProVars.java
 ├── repo/
 │   └── MailOutboxRepository.java
 ├── app/
@@ -166,10 +167,12 @@ backend/src/main/resources/templates/mail/
 ├── _styles.css               CSS source, chargé une fois par MailRenderer
 ├── reset-password.html       extends _layout via th:replace
 ├── reset-password.txt        plain text (deliverability)
-├── booking-confirmed.html
+├── booking-confirmed.html    (client → confirmation rdv)
 ├── booking-confirmed.txt
-├── account-verification.html
-└── account-verification.txt
+├── booking-received-pro.html (pro → nouvelle réservation reçue)
+├── booking-received-pro.txt
+├── welcome-pro.html          (pro → bienvenue après signup)
+└── welcome-pro.txt
 ```
 
 **Charte** (cohérente avec PDFs factures et logo `luxpretty-full.svg`) :
@@ -191,12 +194,21 @@ backend/src/main/resources/templates/mail/
 
 ```java
 public sealed interface MailVars
-    permits ResetPasswordVars, BookingConfirmedVars, AccountVerificationVars {}
+    permits ResetPasswordVars, BookingConfirmedVars, BookingReceivedProVars, WelcomeProVars {}
 
-public record ResetPasswordVars(String userName, String resetUrl, Duration expiresIn) implements MailVars {}
-public record BookingConfirmedVars(String userName, String salonName, LocalDateTime when, String careName) implements MailVars {}
-public record AccountVerificationVars(String userName, String verificationUrl) implements MailVars {}
+public record ResetPasswordVars(String userName, String resetUrl) implements MailVars {}
+public record BookingConfirmedVars(String clientName, String salonName, String careName,
+    BigDecimal carePrice, String careDuration,
+    String appointmentDate, String appointmentTime,
+    Long bookingId, String dashboardUrl) implements MailVars {}
+public record BookingReceivedProVars(String proName, String clientName, String careName,
+    BigDecimal carePrice, String careDuration,
+    String appointmentDate, String appointmentTime,
+    Long bookingId, String dashboardUrl) implements MailVars {}
+public record WelcomeProVars(String userName, String userEmail, String dashboardUrl) implements MailVars {}
 ```
+
+> Les dates sont pré-formatées dans les vars (au lieu de passer `LocalDate`/`LocalTime`) pour éviter la sérialisation JSON de types temporal complexes et garder le rendu déterministe. Format `EEEE d MMMM yyyy` (FR) pour la date, `HH:mm` pour l'heure — aligné avec l'EmailService actuel.
 
 Force le run-time check : le worker connaît le `MailTemplate` du row et désérialise le JSON vers la classe `MailVars` concrète attendue par ce template.
 
@@ -261,35 +273,44 @@ C'est un compromis vs un typage compile-time strict (qui demanderait soit une fa
 
 ## Configuration
 
-### Dev
+### Dev (local)
 
-`docker-compose.yml` (profile `dev`) :
+`docker-compose.yml` — service ajouté au profile `dev` :
 ```yaml
 mailpit:
+  profiles: ["dev"]
   image: axllent/mailpit:latest
+  container_name: mailpit
   ports:
     - "8025:8025"
     - "1025:1025"
-  profiles: ["dev"]
 ```
 
-`application-dev.properties` :
+`application.properties` — par défaut switch sur SMTP (Mailpit) en local :
 ```properties
+# Mail
 spring.mail.host=localhost
 spring.mail.port=1025
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.mail.smtp.starttls.enable=false
 app.mail.provider=smtp
 app.mail.from=noreply@luxpretty.local
+app.mail.from-name=LuxPretty
 ```
 
-### Prod
+### Prod / Docker
 
-`application-prod.properties` (set quand domaine acheté) :
+`application-docker.properties` — override pour activer Postmark quand env vars set :
 ```properties
-app.mail.provider=postmark
-app.mail.postmark.api-token=${POSTMARK_API_TOKEN}
-app.mail.postmark.webhook-secret=${POSTMARK_WEBHOOK_SECRET}
-app.mail.from=noreply@luxpretty.lu
+app.mail.provider=${APP_MAIL_PROVIDER:smtp}
+app.mail.postmark.api-token=${POSTMARK_API_TOKEN:}
+app.mail.postmark.webhook-secret=${POSTMARK_WEBHOOK_SECRET:}
+app.mail.from=${APP_MAIL_FROM:noreply@luxpretty.local}
 ```
+
+Le `app.mail.provider` switch sélectionne le bean `MailSender` actif :
+- `smtp` → `SmtpMailSender` (Mailpit en dev, JavaMailSender Spring Boot)
+- `postmark` → `PostmarkMailSender` (prod avec API token)
 
 ### Dépendances Maven à ajouter
 
@@ -310,14 +331,17 @@ app.mail.from=noreply@luxpretty.lu
 
 ## Migration EmailService → MailOutboxService
 
-Callsites identifiés du `EmailService` actuel :
-- `AuthController.java` (reset password + account verification)
-- `CareBookingService.java` (booking confirmed)
+Callsites identifiés du `EmailService` actuel (5 appels) :
+- `AuthController.java:98` — `sendWelcomeEmail(savedUser)` (signup classique)
+- `AuthController.java:141` — `sendWelcomeEmail(savedUser)` (signup OAuth)
+- `AuthController.java:248` — `sendPasswordResetEmail(user, token)`
+- `CareBookingService.java:408` — `sendBookingConfirmationEmail(client, booking, care, salonName)`
+- `CareBookingService.java:409` — `sendNewBookingNotificationEmail(owner, booking, care, clientName)`
 
 Étapes en PR2 :
 1. Remplacer chaque appel `emailService.sendXxx()` par `mailOutboxService.queue(MailTemplate.XXX, vars, recipient, tenantSlug)`.
 2. Supprimer `backend/src/main/java/com/luxpretty/app/notification/app/EmailService.java`.
-3. Supprimer les anciens templates Thymeleaf (`welcome-pro.html`, etc.) ; les nouveaux templates vivent sous `templates/mail/`.
+3. Supprimer les anciens templates Thymeleaf à la racine (`welcome-pro.html`, `password-reset.html`, `booking-confirmation.html`, `booking-notification-pro.html`) ; les nouveaux vivent sous `templates/mail/`.
 4. Grep CI : aucun import `EmailService` ne doit subsister.
 
 ## Error handling
