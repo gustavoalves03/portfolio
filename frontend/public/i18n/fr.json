@@ -1199,12 +1199,18 @@
     "noPreference": "Pas de préférence",
     "stepper": {
       "step1": "Prestation",
+      "step1Employee": "Avec qui ?",
       "step2": "Date & heure",
       "step3": "Client",
       "next": "Suivant",
       "back": "Retour",
       "confirm": "Confirmer le rendez-vous",
       "selectDate": "Choisir une date"
+    },
+    "employees": {
+      "anyAvailable": "Premier employé disponible",
+      "empty": "Aucun employé disponible pour ce soin",
+      "loadError": "Erreur de chargement des collaborateurs"
     },
     "client": {
       "existing": "Client existant",
