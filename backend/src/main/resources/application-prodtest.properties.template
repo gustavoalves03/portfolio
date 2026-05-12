@@ -1,0 +1,40 @@
+# LuxPretty — Local prod-like test profile (template)
+#
+# This file is the TEMPLATE. Copy it to application-prodtest.properties (no
+# .template suffix) and fill in the Hostinger password. The copy is gitignored
+# automatically by the application-*.properties rule in .gitignore.
+#
+# Activate this profile to send real emails through Hostinger SMTP from your
+# local machine, without touching application.properties:
+#
+#   cd backend
+#   SPRING_PROFILES_ACTIVE=prodtest mvn spring-boot:run
+#
+# This is useful to validate the SMTP credentials BEFORE deploying to prod.
+# Only the mail block is overridden; everything else (DB, OAuth, etc.) keeps
+# the dev defaults.
+
+# Switch to real SMTP (not Mailpit)
+app.mail.provider=smtp
+
+# Hostinger SMTP — SSL on port 465
+# Auth uses the real mailbox (gustavo.alves@luxpretty.lu). Hostinger allows
+# the From header to be any address on the same domain, so the user sees
+# mails coming from noreply@luxpretty.lu.
+spring.mail.host=smtp.hostinger.com
+spring.mail.port=465
+spring.mail.username=gustavo.alves@luxpretty.lu
+# Replace <PASSWORD> below with the actual Hostinger mailbox password.
+spring.mail.password=<PASSWORD>
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.ssl.enable=true
+spring.mail.properties.mail.smtp.starttls.enable=false
+
+# From header on outgoing transactional mails (alias, not the auth mailbox)
+app.mail.from=noreply@luxpretty.lu
+app.mail.from-name=LuxPretty
+
+# Worker enabled so the test mail is actually picked up and sent
+app.mail.worker.enabled=true
+app.mail.worker.poll-interval-ms=5000
+app.mail.worker.initial-delay-ms=2000
