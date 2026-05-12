@@ -1,0 +1,84 @@
+# LuxPretty — Production Environment Variables (template)
+#
+# Copy this file to your prod server, fill in the secrets, and load via
+# Docker env-file, systemd EnvironmentFile, or your hosting platform's
+# secret manager. DO NOT commit the filled version to git.
+#
+# Required env vars are documented here. Defaults from application.properties
+# either fail-fast (for ship-critical values) or fall back to dev values
+# (which would be wrong in prod).
+
+# ============================================================
+# Database (Oracle in prod)
+# ============================================================
+SPRING_DATASOURCE_URL=jdbc:oracle:thin:@//your-oracle-host:1521/your-service
+SPRING_DATASOURCE_USERNAME=APPUSER
+SPRING_DATASOURCE_PASSWORD=<strong-password>
+
+# Multi-tenant provisioning credentials (DBA-grade, separate from app user)
+APP_MULTITENANCY_PROVISIONING_JDBC_URL=jdbc:oracle:thin:@//your-oracle-host:1521/your-service
+APP_MULTITENANCY_PROVISIONING_USERNAME=PROVISIONER
+APP_MULTITENANCY_PROVISIONING_PASSWORD=<strong-password>
+
+# ============================================================
+# JWT
+# ============================================================
+# Generate a fresh secret per environment:
+#   openssl rand -base64 64
+JWT_SECRET=<base64-encoded-secret-at-least-32-bytes>
+
+# ============================================================
+# Mail — Hostinger SMTP (prod via paid mailbox)
+# ============================================================
+# Switch the provider (smtp or postmark)
+APP_MAIL_PROVIDER=smtp
+
+# Hostinger SMTP credentials — get these from Hostinger panel:
+#   Emails -> your domain -> Configure email client
+# Hostinger usually offers two ports:
+#   - 465 with SSL (recommended)  -> SMTP_SSL=true,   SMTP_STARTTLS=false
+#   - 587 with STARTTLS           -> SMTP_SSL=false,  SMTP_STARTTLS=true
+SPRING_MAIL_HOST=smtp.hostinger.com
+SPRING_MAIL_PORT=465
+SMTP_USERNAME=noreply@luxpretty.lu
+SMTP_PASSWORD=<the-mailbox-password>
+SMTP_AUTH=true
+SMTP_SSL=true
+SMTP_STARTTLS=false
+
+# From header on outgoing transactional mails
+APP_MAIL_FROM=noreply@luxpretty.lu
+APP_MAIL_FROM_NAME=LuxPretty
+
+# Mail worker (set to true in prod, false in test/staging if needed)
+APP_MAIL_WORKER_ENABLED=true
+
+# ============================================================
+# Mail — Postmark (unused with smtp provider, leave blank or fill if you switch later)
+# ============================================================
+POSTMARK_API_TOKEN=
+POSTMARK_WEBHOOK_SECRET=
+
+# ============================================================
+# OAuth2 (Google login)
+# ============================================================
+GOOGLE_OAUTH2_CLIENT_ID=<your-google-client-id>
+GOOGLE_OAUTH2_CLIENT_SECRET=<your-google-client-secret>
+OAUTH2_REDIRECT_URI=https://api.luxpretty.lu/oauth2/callback
+FRONTEND_BASE_URL=https://luxpretty.lu
+
+# ============================================================
+# CORS (frontend origins allowed to hit the API)
+# ============================================================
+CORS_ALLOWED_ORIGINS=https://luxpretty.lu,https://www.luxpretty.lu
+
+# ============================================================
+# File storage (uploads)
+# ============================================================
+APP_UPLOAD_DIR=/var/luxpretty/uploads
+
+# ============================================================
+# Stripe (filled later, leave blank until ready)
+# ============================================================
+STRIPE_API_KEY=
+STRIPE_WEBHOOK_SECRET=
