@@ -1,0 +1,60 @@
+<div class="page-wrapper">
+  <div class="card">
+    <!-- Loading skeleton -->
+    @if (loading()) {
+      <div class="skeleton">
+        <div class="skeleton-eyebrow animate-pulse"></div>
+        <div class="skeleton-title animate-pulse"></div>
+        <div class="skeleton-subtitle animate-pulse"></div>
+        <div class="skeleton-recap animate-pulse"></div>
+        <div class="skeleton-card animate-pulse"></div>
+        <div class="skeleton-button animate-pulse"></div>
+      </div>
+    }
+
+    <!-- Main content -->
+    @if (!loading()) {
+      <p class="eyebrow">{{ 'paymentOnboarding.eyebrow' | transloco }}</p>
+
+      <h1 class="title">{{ 'paymentOnboarding.title' | transloco }}</h1>
+
+      <p class="subtitle">{{ 'paymentOnboarding.subtitle' | transloco }}</p>
+
+      <div class="recap-pill">
+        {{ recapLabel() }}
+      </div>
+
+      <div class="card-field-wrapper">
+        <p class="card-label">{{ 'paymentOnboarding.cardLabel' | transloco }}</p>
+        <div #cardElement class="card-element"></div>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner" role="alert">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="7" stroke="#C0485A" stroke-width="1.5"/>
+            <path d="M8 5v3.5M8 10.5v.5" stroke="#C0485A" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <button
+        class="submit-btn"
+        type="button"
+        [disabled]="loading() || submitting()"
+        (click)="submit()"
+      >
+        @if (submitting()) {
+          {{ 'paymentOnboarding.submitting' | transloco }}
+        } @else {
+          {{ 'paymentOnboarding.submit' | transloco }}
+        }
+      </button>
+
+      <p class="trust-note">
+        <em>{{ 'paymentOnboarding.trust' | transloco }}</em>
+      </p>
+    }
+  </div>
+</div>

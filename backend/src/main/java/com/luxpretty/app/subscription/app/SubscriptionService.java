@@ -6,6 +6,7 @@ import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.User;
+import com.stripe.model.SetupIntent;
 import com.stripe.model.Subscription;
 import com.stripe.model.billingportal.Session;
 import lombok.RequiredArgsConstructor;
@@ -126,6 +127,28 @@ public class SubscriptionService {
         }
 
         tenantRepository.save(tenant);
+    }
+
+    /**
+     * Creates a Stripe SetupIntent for payment method collection (Stripe Elements).
+     * Resolves the tenant's Stripe Customer ID and delegates to StripeService.
+     *
+     * @param tenantId the tenant's ID
+     * @return the Stripe SetupIntent with client_secret for Elements
+     * @throws IllegalArgumentException if tenant not found or stripeCustomerId is null
+     * @throws Exception if Stripe API call fails
+     */
+    @Transactional(readOnly = true)
+    public SetupIntent createSetupIntent(Long tenantId) throws Exception {
+        Tenant tenant = tenantRepository.findById(tenantId)
+            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
+
+        if (tenant.getStripeCustomerId() == null || tenant.getStripeCustomerId().isBlank()) {
+            throw new IllegalArgumentException(
+                "Stripe customer not yet initialized for tenant: " + tenantId);
+        }
+
+        return stripeService.createSetupIntent(tenant.getStripeCustomerId());
     }
 
     /**

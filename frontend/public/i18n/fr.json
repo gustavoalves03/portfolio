@@ -1498,66 +1498,88 @@
     "viewAll": "Voir tous les rendez-vous"
   },
   "pricing": {
-    "header": {
-      "eyebrow": "Tarifs",
-      "titleStart": "Une offre,",
-      "titleAccent": "sans surprise",
-      "titleEnd": ".",
-      "subtitle": "LuxPretty Pro est gratuit pendant 30 jours. Aucune carte demandée, aucun engagement."
-    },
     "hero": {
-      "title": "Votre salon, augmenté",
-      "subtitle": "Prenez les rendez-vous, fidélisez vos clients, et faites grandir votre activité — en un seul endroit.",
-      "ctaPrimary": "Lancer mon salon",
-      "ctaSecondary": "Voir la démo"
+      "eyebrow": "Tarifs",
+      "title": "Choisissez le rythme qui vous ressemble",
+      "subtitle": "Essai gratuit 7 jours. Sans carte demandée."
     },
-    "demo": {
-      "title": "Vos chiffres prennent vie",
-      "subtitle": "Un aperçu de votre futur tableau de bord."
+    "toggle": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "discount": "−15%"
     },
-    "widgets": {
-      "revenue": {
-        "label": "Chiffre d'affaires",
-        "trendVsLastMonth": "vs mois dernier"
-      },
-      "calendar": {
-        "label": "Réservations cette semaine"
-      },
-      "reviews": {
-        "label": "Note moyenne",
-        "ratingsCount": "{{count}} avis",
-        "quote1": "Service impeccable, je reviens !",
-        "quote2": "Une vraie parenthèse de douceur.",
-        "quote3": "Soin parfait, accueil chaleureux."
+    "featured": {
+      "tagline": "Tout ce qu'il faut pour gérer un salon serein.",
+      "cta": "Démarrer 7 jours gratuits",
+      "noCard": "Aucune carte requise.",
+      "pills": {
+        "booking": "Réservation en ligne",
+        "agenda": "Agenda multi-praticien",
+        "clients": "Fiches clients",
+        "stats": "Statistiques",
+        "sms": "Rappels SMS",
+        "support": "Support email"
       }
     },
-    "features": {
-      "title": "Tout ce dont vous avez besoin",
+    "divider": "Comparer toutes les offres",
+    "table": {
+      "feature": "Fonctionnalité",
+      "groups": {
+        "presence": "Présence",
+        "booking": "Réservation",
+        "clients": "Clients",
+        "sales": "Vente",
+        "team": "Équipe"
+      },
+      "features": {
+        "publicPage": "Fiche salon publique",
+        "photos": "Photos illimitées",
+        "discoveryVisibility": "Visibilité Discovery",
+        "onlineBooking": "Réservation en ligne",
+        "multiPractitioner": "Agenda multi-praticien",
+        "smsReminders": "Rappels SMS clients",
+        "absences": "Gestion des absences",
+        "clientFiles": "Fiches clients",
+        "history": "Historique & notes",
+        "loyalty": "Programme fidélité",
+        "gdpr": "Suivi RGPD",
+        "onlinePayment": "Paiement en ligne",
+        "shop": "Boutique produits",
+        "autoInvoices": "Factures auto",
+        "multiPractitionerSeats": "Multi-praticien·nes",
+        "multiLocations": "Multi-localisations"
+      },
+      "values": {
+        "yes": "Oui",
+        "no": "Non",
+        "unlimited": "illimité",
+        "priority": "prioritaire"
+      }
+    },
+    "tiers": {
       "vitrine": {
-        "title": "Vitrine en ligne",
-        "bullets": "Page personnalisée · Photos · Réservation directe"
+        "name": "Vitrine",
+        "free": "0 €/mois",
+        "cta": "Choisir Vitrine"
       },
-      "planning": {
-        "title": "Planning intelligent",
-        "bullets": "Disponibilités · Buffer · Rappels auto"
+      "gestion": {
+        "name": "Gestion",
+        "cta": "Démarrer 7j gratuits",
+        "annualNote": "facturé annuellement"
       },
-      "clients": {
-        "title": "Clients suivis",
-        "bullets": "Historique · Notes · Photos avant/après"
-      },
-      "payments": {
-        "title": "Paiements simples",
-        "bullets": "Stripe intégré · Factures auto"
+      "premium": {
+        "name": "Premium",
+        "cta": "Démarrer 7j gratuits",
+        "annualNote": "facturé annuellement"
       }
     },
-    "plan": {
-      "title": "30 jours gratuits",
-      "subtitle": "Sans engagement, sans carte bancaire",
-      "cta": "Démarrer maintenant"
-    },
-    "finalCta": {
-      "title": "Prêt à lancer votre salon ?",
-      "button": "Créer mon compte pro"
+    "reassurance": {
+      "title1": "Annulable en 1 clic",
+      "body1": "Depuis votre espace, sans appel.",
+      "title2": "Données françaises & RGPD",
+      "body2": "Hébergement en France, conformité totale.",
+      "title3": "Support en français",
+      "body3": "Réponse sous 24h ouvrées."
     }
   },
   "invoices": {
@@ -1610,6 +1632,27 @@
       "title": "Mes factures",
       "subtitle": "Vos paiements en salon",
       "navLink": "Mes factures"
+    }
+  },
+  "paymentOnboarding": {
+    "eyebrow": "PAIEMENT",
+    "title": "Votre essai gratuit commence.",
+    "subtitle": "Aucun prélèvement avant 7 jours. Annulable à tout moment.",
+    "recap": {
+      "gestionMonthly": "Gestion · 49,99 €/mois",
+      "gestionYearly": "Gestion · 42,49 €/mois facturé à l'année",
+      "premiumMonthly": "Premium · 67,99 €/mois",
+      "premiumYearly": "Premium · 57,79 €/mois facturé à l'année"
+    },
+    "cardLabel": "Informations de paiement",
+    "submit": "Confirmer mon essai",
+    "submitting": "Confirmation...",
+    "trust": "Stripe gère le paiement de manière sécurisée.",
+    "errors": {
+      "init": "Impossible d'initialiser le paiement. Réessayez.",
+      "stripe": "Carte refusée ou invalide.",
+      "subscription": "L'abonnement n'a pas pu être créé. Réessayez.",
+      "generic": "Une erreur est survenue."
     }
   }
 }

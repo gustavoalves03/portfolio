@@ -21,11 +21,22 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
     path: 'pricing',
-    loadComponent: () => import('./pages/pricing/pricing.component').then(m => m.PricingComponent),
+    loadComponent: () =>
+      import('./features/subscription/pricing/pricing-page.component').then(
+        (m) => m.PricingPageComponent,
+      ),
   },
   {
     path: 'register/pro',
     loadComponent: () => import('./pages/auth/register-pro/register-pro.component').then(m => m.RegisterProComponent),
+  },
+  {
+    path: 'pro/onboarding/payment',
+    loadComponent: () =>
+      import('./features/subscription/payment-onboarding/payment-onboarding.component').then(
+        (m) => m.PaymentOnboardingComponent,
+      ),
+    canActivate: [authGuard, roleGuard(Role.PRO)],
   },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
