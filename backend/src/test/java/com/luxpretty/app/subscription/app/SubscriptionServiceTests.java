@@ -8,6 +8,7 @@ import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.User;
 import com.stripe.model.Customer;
 import com.stripe.model.Price;
+import com.stripe.model.SetupIntent;
 import com.stripe.model.Subscription;
 import com.stripe.model.SubscriptionItem;
 import com.stripe.model.SubscriptionItemCollection;
@@ -214,6 +215,49 @@ class SubscriptionServiceTests {
         assertThat(tenant.getSubscriptionTier()).isEqualTo(SubscriptionTier.PREMIUM);
         assertThat(tenant.getSubscriptionBilling()).isEqualTo(SubscriptionBilling.MONTHLY);
         verify(tenantRepository).save(tenant);
+    }
+
+    @Test
+    void createSetupIntent_returnsSetupIntent_withClientSecret() throws Exception {
+        // Given
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .build();
+
+        SetupIntent setupIntent = new SetupIntent();
+        setupIntent.setClientSecret("seti_secret_abc123");
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+        when(stripeService.createSetupIntent("cus_123")).thenReturn(setupIntent);
+
+        // When
+        SetupIntent result = subscriptionService.createSetupIntent(1L);
+
+        // Then
+        assertThat(result.getClientSecret()).isEqualTo("seti_secret_abc123");
+        verify(stripeService).createSetupIntent("cus_123");
+    }
+
+    @Test
+    void createSetupIntent_failsIfCustomerIdIsNull() throws Exception {
+        // Given
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId(null)
+            .build();
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+
+        // When & Then
+        assertThatThrownBy(() ->
+            subscriptionService.createSetupIntent(1L)
+        ).isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Stripe customer not yet initialized");
+
+        verify(stripeService, never()).createSetupIntent(any());
     }
 
     @Test
