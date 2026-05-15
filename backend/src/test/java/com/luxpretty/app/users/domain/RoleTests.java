@@ -3,7 +3,6 @@ package com.luxpretty.app.users.domain;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RoleTests {
 
@@ -28,8 +27,8 @@ class RoleTests {
     }
 
     @Test
-    void deprecatedUser_throwsOnExpectedScopeType() {
-        assertThatThrownBy(() -> Role.USER.expectedScopeType())
-            .isInstanceOf(IllegalStateException.class);
+    void values_containsExactlyTheFourRoles() {
+        assertThat(Role.values())
+                .containsExactlyInAnyOrder(Role.PRO, Role.EMPLOYEE, Role.COMMERCIAL, Role.ADMIN);
     }
 }

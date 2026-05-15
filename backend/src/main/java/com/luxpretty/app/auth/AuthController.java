@@ -72,7 +72,7 @@ public class AuthController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return registerWithRole(request, Role.PRO, true);
+        return registerWithRole(request, true);
     }
 
     @PostMapping("/register/pro")
@@ -84,10 +84,10 @@ public class AuthController {
     @PostMapping("/register/client")
     @Transactional
     public ResponseEntity<AuthResponse> registerClient(@Valid @RequestBody RegisterRequest request) {
-        return registerWithRole(request, Role.USER, false);
+        return registerWithRole(request, false);
     }
 
-    private ResponseEntity<AuthResponse> registerWithRole(RegisterRequest request, Role role, boolean provisionTenant) {
+    private ResponseEntity<AuthResponse> registerWithRole(RegisterRequest request, boolean provisionTenant) {
         if (userRepository.existsByEmail(request.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
