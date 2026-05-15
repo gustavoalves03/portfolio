@@ -1492,66 +1492,88 @@
     "viewAll": "View all bookings"
   },
   "pricing": {
-    "header": {
-      "eyebrow": "Pricing",
-      "titleStart": "One plan,",
-      "titleAccent": "no surprises",
-      "titleEnd": ".",
-      "subtitle": "LuxPretty Pro is free for 30 days. No card required, no commitment."
-    },
     "hero": {
-      "title": "Your salon, amplified",
-      "subtitle": "Book appointments, keep clients coming back, grow your business — all in one place.",
-      "ctaPrimary": "Launch my salon",
-      "ctaSecondary": "See the demo"
+      "eyebrow": "Pricing",
+      "title": "Pick the rhythm that fits",
+      "subtitle": "Free 7-day trial. No card required."
     },
-    "demo": {
-      "title": "Your numbers come to life",
-      "subtitle": "A glimpse of your future dashboard."
+    "toggle": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "discount": "−15%"
     },
-    "widgets": {
-      "revenue": {
-        "label": "Revenue",
-        "trendVsLastMonth": "vs last month"
-      },
-      "calendar": {
-        "label": "Bookings this week"
-      },
-      "reviews": {
-        "label": "Average rating",
-        "ratingsCount": "{{count}} reviews",
-        "quote1": "Flawless service, I'll be back!",
-        "quote2": "A true bubble of softness.",
-        "quote3": "Perfect treatment, warm welcome."
+    "featured": {
+      "tagline": "Everything you need to run a calm salon.",
+      "cta": "Start 7 days free",
+      "noCard": "No card needed.",
+      "pills": {
+        "booking": "Online booking",
+        "agenda": "Multi-practitioner calendar",
+        "clients": "Client files",
+        "stats": "Statistics",
+        "sms": "SMS reminders",
+        "support": "Email support"
       }
     },
-    "features": {
-      "title": "Everything you need",
+    "divider": "Compare all plans",
+    "table": {
+      "feature": "Feature",
+      "groups": {
+        "presence": "Presence",
+        "booking": "Booking",
+        "clients": "Clients",
+        "sales": "Sales",
+        "team": "Team"
+      },
+      "features": {
+        "publicPage": "Public salon page",
+        "photos": "Unlimited photos",
+        "discoveryVisibility": "Discovery visibility",
+        "onlineBooking": "Online booking",
+        "multiPractitioner": "Multi-practitioner calendar",
+        "smsReminders": "SMS reminders",
+        "absences": "Absence management",
+        "clientFiles": "Client files",
+        "history": "History & notes",
+        "loyalty": "Loyalty programme",
+        "gdpr": "GDPR tracking",
+        "onlinePayment": "Online payment",
+        "shop": "Product shop",
+        "autoInvoices": "Automatic invoices",
+        "multiPractitionerSeats": "Multi-practitioners",
+        "multiLocations": "Multi-locations"
+      },
+      "values": {
+        "yes": "Yes",
+        "no": "No",
+        "unlimited": "unlimited",
+        "priority": "priority"
+      }
+    },
+    "tiers": {
       "vitrine": {
-        "title": "Online storefront",
-        "bullets": "Personal page · Photos · Direct booking"
+        "name": "Vitrine",
+        "free": "0 €/month",
+        "cta": "Choose Vitrine"
       },
-      "planning": {
-        "title": "Smart scheduling",
-        "bullets": "Availability · Buffer · Auto reminders"
+      "gestion": {
+        "name": "Gestion",
+        "cta": "Start 7 days free",
+        "annualNote": "billed annually"
       },
-      "clients": {
-        "title": "Client tracking",
-        "bullets": "History · Notes · Before/after photos"
-      },
-      "payments": {
-        "title": "Simple payments",
-        "bullets": "Stripe built-in · Automatic invoices"
+      "premium": {
+        "name": "Premium",
+        "cta": "Start 7 days free",
+        "annualNote": "billed annually"
       }
     },
-    "plan": {
-      "title": "30 free days",
-      "subtitle": "No commitment, no credit card",
-      "cta": "Start now"
-    },
-    "finalCta": {
-      "title": "Ready to launch your salon?",
-      "button": "Create my pro account"
+    "reassurance": {
+      "title1": "Cancel in 1 click",
+      "body1": "From your account, no call needed.",
+      "title2": "French hosting & GDPR",
+      "body2": "Hosted in France, fully compliant.",
+      "title3": "French support",
+      "body3": "Reply within 24 business hours."
     }
   },
   "invoices": {

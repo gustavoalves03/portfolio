@@ -1,0 +1,394 @@
+<!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
+<section class="pricing-hero">
+  <p class="pricing-eyebrow">{{ 'pricing.hero.eyebrow' | transloco }}</p>
+  <h1 class="pricing-title">{{ 'pricing.hero.title' | transloco }}</h1>
+  <p class="pricing-subtitle">{{ 'pricing.hero.subtitle' | transloco }}</p>
+
+  <!-- Billing toggle -->
+  <div class="toggle-wrapper">
+    <div class="toggle-track">
+      <button
+        class="toggle-btn"
+        [class.active]="billing() === 'MONTHLY'"
+        (click)="billing.set('MONTHLY')"
+        type="button"
+      >
+        {{ 'pricing.toggle.monthly' | transloco }}
+      </button>
+      <button
+        class="toggle-btn"
+        [class.active]="billing() === 'YEARLY'"
+        (click)="billing.set('YEARLY')"
+        type="button"
+      >
+        {{ 'pricing.toggle.yearly' | transloco }}
+      </button>
+    </div>
+    <span class="discount-badge">{{ 'pricing.toggle.discount' | transloco }}</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ FEATURED GESTION CARD ══════════════════════════════════ -->
+<section class="featured-section">
+  <div class="featured-card">
+    <div class="featured-grid">
+
+      <!-- Left: pricing info -->
+      <div>
+        <p class="featured-plan-name">{{ 'pricing.tiers.gestion.name' | transloco }}</p>
+        <p class="featured-tagline">{{ 'pricing.featured.tagline' | transloco }}</p>
+
+        <!-- Price -->
+        <div class="featured-price-row">
+          <span class="featured-price-amount">{{ formatPrice(gestionPrice()) }}</span>
+          <span class="featured-price-unit">/mois</span>
+        </div>
+
+        @if (billing() === 'YEARLY') {
+          <p class="featured-price-sub">
+            facturé {{ gestionAnnualTotal() }} € par an · {{ formatPrice(gestionMonthlyRef()) }} en mensuel
+          </p>
+        } @else {
+          <p class="featured-price-sub">
+            Basculez en annuel pour économiser 15%
+          </p>
+        }
+
+        <a
+          routerLink="/register/pro"
+          [queryParams]="{ tier: 'GESTION', billing: billing() }"
+          class="btn-solid btn-full"
+        >
+          {{ 'pricing.featured.cta' | transloco }}
+        </a>
+        <p class="featured-no-card">{{ 'pricing.featured.noCard' | transloco }}</p>
+      </div>
+
+      <!-- Right: feature pills -->
+      <div class="featured-pills">
+        <span class="pill">{{ 'pricing.featured.pills.booking' | transloco }}</span>
+        <span class="pill">{{ 'pricing.featured.pills.agenda' | transloco }}</span>
+        <span class="pill">{{ 'pricing.featured.pills.clients' | transloco }}</span>
+        <span class="pill">{{ 'pricing.featured.pills.stats' | transloco }}</span>
+        <span class="pill">{{ 'pricing.featured.pills.sms' | transloco }}</span>
+        <span class="pill">{{ 'pricing.featured.pills.support' | transloco }}</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════ DIVIDER ══════════════════════════════════ -->
+<div class="compare-divider">
+  <p class="compare-label">↓ {{ 'pricing.divider' | transloco }}</p>
+</div>
+
+<!-- ══════════════════════════════════ TABLE + ACCORDION SECTION ══════════════════════════════════ -->
+<section class="table-section">
+
+  <!-- ── Desktop table ── -->
+  <div class="desktop-table">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="th-feature">
+              <span class="th-feature-label">{{ 'pricing.table.feature' | transloco }}</span>
+            </th>
+            <!-- Vitrine -->
+            <th class="th-tier">
+              <div class="th-tier-name">{{ 'pricing.tiers.vitrine.name' | transloco }}</div>
+              <div class="th-tier-price">{{ 'pricing.tiers.vitrine.free' | transloco }}</div>
+            </th>
+            <!-- Gestion (highlighted) -->
+            <th class="th-tier th-gestion">
+              <div class="th-accent-bar"></div>
+              <div class="th-tier-name">{{ 'pricing.tiers.gestion.name' | transloco }}</div>
+              <div class="th-gestion-price">{{ formatPrice(gestionPrice()) }}/mois</div>
+              @if (billing() === 'YEARLY') {
+                <div class="th-tier-label">{{ 'pricing.tiers.gestion.annualNote' | transloco }}</div>
+              }
+            </th>
+            <!-- Premium -->
+            <th class="th-tier">
+              <div class="th-tier-name">{{ 'pricing.tiers.premium.name' | transloco }}</div>
+              <div class="th-tier-price">{{ formatPrice(premiumPrice()) }}/mois</div>
+              @if (billing() === 'YEARLY') {
+                <div class="th-tier-label">{{ 'pricing.tiers.premium.annualNote' | transloco }}</div>
+              }
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+
+          @for (group of featureGroups; track group.key) {
+            <!-- Group header row -->
+            <tr class="group-row">
+              <td colspan="4">
+                <span class="group-label">
+                  <span [innerHTML]="group.icon"></span>
+                  {{ 'pricing.table.groups.' + group.key | transloco }}
+                </span>
+              </td>
+            </tr>
+
+            @for (feature of group.features; track feature.key) {
+              <tr class="feat-row">
+                <td class="feat-name">{{ 'pricing.table.features.' + feature.key | transloco }}</td>
+
+                <!-- Vitrine -->
+                <td class="feat-cell">
+                  @if (feature.vitrine.yes) {
+                    <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  } @else if (feature.vitrine.unlimited) {
+                    <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                  } @else {
+                    <span class="value-no">—</span>
+                  }
+                </td>
+
+                <!-- Gestion -->
+                <td class="feat-cell col-gestion">
+                  @if (feature.gestion.yes) {
+                    <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  } @else if (feature.gestion.unlimited) {
+                    <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                  } @else {
+                    <span class="value-no">—</span>
+                  }
+                </td>
+
+                <!-- Premium -->
+                <td class="feat-cell">
+                  @if (feature.premium.yes) {
+                    <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  } @else if (feature.premium.priority) {
+                    <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="badge-priority">{{ 'pricing.table.values.priority' | transloco }}</span>
+                  } @else if (feature.premium.unlimited) {
+                    <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                  } @else {
+                    <span class="value-no">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+
+          <!-- Footer row with CTAs -->
+          <tr class="footer-row">
+            <td></td>
+            <!-- Vitrine footer -->
+            <td class="footer-cell">
+              <p class="footer-cell-text">{{ 'pricing.tiers.vitrine.free' | transloco }}</p>
+              <a routerLink="/register" class="btn-outline">
+                {{ 'pricing.tiers.vitrine.cta' | transloco }}
+              </a>
+            </td>
+            <!-- Gestion footer -->
+            <td class="footer-cell footer-cell-gestion">
+              <a
+                routerLink="/register/pro"
+                [queryParams]="{ tier: 'GESTION', billing: billing() }"
+                class="btn-solid"
+              >
+                {{ 'pricing.tiers.gestion.cta' | transloco }}
+              </a>
+            </td>
+            <!-- Premium footer -->
+            <td class="footer-cell">
+              <a
+                routerLink="/register/pro"
+                [queryParams]="{ tier: 'PREMIUM', billing: billing() }"
+                class="btn-outline"
+              >
+                {{ 'pricing.tiers.premium.cta' | transloco }}
+              </a>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════ MOBILE ACCORDION ══════════════════════════════════ -->
+  <div class="mobile-accordion">
+
+    <!-- Vitrine accordion -->
+    <div class="accordion-item">
+      <div class="accordion-header" (click)="toggleAccordion('vitrine')">
+        <div>
+          <div class="accordion-tier-name">{{ 'pricing.tiers.vitrine.name' | transloco }}</div>
+          <div class="accordion-tier-price">{{ 'pricing.tiers.vitrine.free' | transloco }} · Gratuit pour toujours</div>
+        </div>
+        <svg class="chevron" [class.open]="isAccordionOpen('vitrine')" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <polyline points="4.5,7 9,11.5 13.5,7" stroke="#6B655F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      @if (isAccordionOpen('vitrine')) {
+        <div class="accordion-body">
+          @for (group of featureGroups; track group.key) {
+            <div class="accordion-group-label">{{ 'pricing.table.groups.' + group.key | transloco }}</div>
+            @for (feature of group.features; track feature.key) {
+              <div class="accordion-feat-row">
+                <span class="accordion-feat-name">{{ 'pricing.table.features.' + feature.key | transloco }}</span>
+                @if (feature.vitrine.yes) {
+                  <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                } @else if (feature.vitrine.unlimited) {
+                  <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                } @else {
+                  <span class="value-no" style="font-size:16px;">—</span>
+                }
+              </div>
+            }
+          }
+          <div class="accordion-cta-wrapper">
+            <a routerLink="/register" class="btn-outline btn-full">
+              {{ 'pricing.tiers.vitrine.cta' | transloco }}
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Gestion accordion -->
+    <div class="accordion-item accordion-item-gestion">
+      <div class="accordion-header accordion-header-gestion" (click)="toggleAccordion('gestion')">
+        <div>
+          <div class="accordion-tier-name">{{ 'pricing.tiers.gestion.name' | transloco }}</div>
+          <div class="accordion-tier-price accordion-tier-price-gestion">{{ formatPrice(gestionPrice()) }}{{ billing() === 'YEARLY' ? '/mois · annuel' : '/mois' }}</div>
+        </div>
+        <svg class="chevron" [class.open]="isAccordionOpen('gestion')" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <polyline points="4.5,7 9,11.5 13.5,7" stroke="#C97B84" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      @if (isAccordionOpen('gestion')) {
+        <div class="accordion-body">
+          @for (group of featureGroups; track group.key) {
+            <div class="accordion-group-label">{{ 'pricing.table.groups.' + group.key | transloco }}</div>
+            @for (feature of group.features; track feature.key) {
+              <div class="accordion-feat-row">
+                <span class="accordion-feat-name">{{ 'pricing.table.features.' + feature.key | transloco }}</span>
+                @if (feature.gestion.yes) {
+                  <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                } @else if (feature.gestion.unlimited) {
+                  <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                } @else {
+                  <span class="value-no" style="font-size:16px;">—</span>
+                }
+              </div>
+            }
+          }
+          <div class="accordion-cta-wrapper">
+            <a
+              routerLink="/register/pro"
+              [queryParams]="{ tier: 'GESTION', billing: billing() }"
+              class="btn-solid btn-full"
+            >
+              {{ 'pricing.tiers.gestion.cta' | transloco }}
+            </a>
+            <p class="accordion-no-card">{{ 'pricing.featured.noCard' | transloco }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Premium accordion -->
+    <div class="accordion-item">
+      <div class="accordion-header" (click)="toggleAccordion('premium')">
+        <div>
+          <div class="accordion-tier-name">{{ 'pricing.tiers.premium.name' | transloco }}</div>
+          <div class="accordion-tier-price">{{ formatPrice(premiumPrice()) }}{{ billing() === 'YEARLY' ? '/mois · annuel' : '/mois' }}</div>
+        </div>
+        <svg class="chevron" [class.open]="isAccordionOpen('premium')" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <polyline points="4.5,7 9,11.5 13.5,7" stroke="#6B655F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      @if (isAccordionOpen('premium')) {
+        <div class="accordion-body">
+          @for (group of featureGroups; track group.key) {
+            <div class="accordion-group-label">{{ 'pricing.table.groups.' + group.key | transloco }}</div>
+            @for (feature of group.features; track feature.key) {
+              <div class="accordion-feat-row">
+                <span class="accordion-feat-name">{{ 'pricing.table.features.' + feature.key | transloco }}</span>
+                @if (feature.premium.yes) {
+                  <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                } @else if (feature.premium.priority) {
+                  <span class="check-circle"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2.5,6 5,8.5 9.5,3.5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span class="badge-priority">{{ 'pricing.table.values.priority' | transloco }}</span>
+                } @else if (feature.premium.unlimited) {
+                  <span class="value-unlimited">{{ 'pricing.table.values.unlimited' | transloco }}</span>
+                } @else {
+                  <span class="value-no" style="font-size:16px;">—</span>
+                }
+              </div>
+            }
+          }
+          <div class="accordion-cta-wrapper">
+            <a
+              routerLink="/register/pro"
+              [queryParams]="{ tier: 'PREMIUM', billing: billing() }"
+              class="btn-outline btn-full"
+            >
+              {{ 'pricing.tiers.premium.cta' | transloco }}
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+  <!-- /mobile-accordion -->
+
+</section>
+
+<!-- ══════════════════════════════════ REASSURANCE BAND ══════════════════════════════════ -->
+<section class="trust-section">
+  <div class="trust-grid">
+
+    <!-- Trust 1 -->
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#C97B84" stroke-width="1.2" stroke-opacity="0.4"/>
+          <path d="M9 14l3.5 3.5L19 10" stroke="#C97B84" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <p class="trust-title">{{ 'pricing.reassurance.title1' | transloco }}</p>
+        <p class="trust-body">{{ 'pricing.reassurance.body1' | transloco }}</p>
+      </div>
+    </div>
+
+    <!-- Trust 2 -->
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#C97B84" stroke-width="1.2" stroke-opacity="0.4"/>
+          <rect x="9" y="10" width="10" height="9" rx="1.5" stroke="#C97B84" stroke-width="1.3"/>
+          <path d="M11 10V8.5a3 3 0 016 0V10" stroke="#C97B84" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="14" cy="14.5" r="1.2" fill="#C97B84"/>
+        </svg>
+      </div>
+      <div>
+        <p class="trust-title">{{ 'pricing.reassurance.title2' | transloco }}</p>
+        <p class="trust-body">{{ 'pricing.reassurance.body2' | transloco }}</p>
+      </div>
+    </div>
+
+    <!-- Trust 3 -->
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="13" stroke="#C97B84" stroke-width="1.2" stroke-opacity="0.4"/>
+          <path d="M9 11h10M9 14h7M9 17h5" stroke="#C97B84" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <p class="trust-title">{{ 'pricing.reassurance.title3' | transloco }}</p>
+        <p class="trust-body">{{ 'pricing.reassurance.body3' | transloco }}</p>
+      </div>
+    </div>
+
+  </div>
+</section>
