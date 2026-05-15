@@ -802,8 +802,7 @@ export class SalonPostsViewerComponent {
       }
     });
 
-    const user = this.authService.user();
-    this.isPro.set(user?.role === Role.PRO || user?.role === Role.ADMIN);
+    this.isPro.set(this.authService.hasRole(Role.PRO, Role.ADMIN));
   }
 
   private loadInitial(slug: string): void {
