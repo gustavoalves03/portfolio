@@ -12,6 +12,7 @@ import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
 import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
+import { TenantSwitcherComponent } from './tenant-switcher/tenant-switcher.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
@@ -20,7 +21,7 @@ import { NotificationsStore } from '../../../features/notifications/store/notifi
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe, LpLogoComponent],
+  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe, LpLogoComponent, TenantSwitcherComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })

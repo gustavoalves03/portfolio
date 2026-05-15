@@ -79,6 +79,7 @@
           </a>
         }
         @if (authService.isAuthenticated()) {
+          <lp-tenant-switcher></lp-tenant-switcher>
           <button
             type="button"
             [matMenuTriggerFor]="userMenu"
