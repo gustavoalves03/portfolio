@@ -282,36 +282,31 @@ public class AuthController {
     // -----------------------------------------------------------------------
 
     private AuthResponse buildAuthResponse(User user, Long activeTenantId) {
-        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
-        List<String> roleNames = resolved.stream().map(Enum::name).toList();
-        String token = tokenService.generateToken(user.getId(), user.getEmail(), roleNames, activeTenantId);
-        UserDto dto = toUserDto(user, resolved, roleNames);
+        UserDto dto = buildUserDto(user, activeTenantId);
+        String token = tokenService.generateToken(user.getId(), user.getEmail(),
+                dto.getRoles(), activeTenantId);
         return new AuthResponse(token, dto);
     }
 
     private UserDto buildUserDto(User user, Long activeTenantId) {
         Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
         List<String> roleNames = resolved.stream().map(Enum::name).toList();
-        return toUserDto(user, resolved, roleNames);
-    }
-
-    private UserDto toUserDto(User user, Set<Role> resolved, List<String> roleNames) {
+        List<com.luxpretty.app.me.web.dto.TenantSummary> tenants =
+                userRoleService.findUserTenantIds(user.getId()).stream()
+                        .map(tenantRepository::findById)
+                        .flatMap(java.util.Optional::stream)
+                        .map(t -> new com.luxpretty.app.me.web.dto.TenantSummary(
+                                t.getId(), t.getSlug(), t.getName()))
+                        .toList();
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .imageUrl(user.getImageUrl())
                 .provider(user.getProvider())
-                .role(pickLegacyRole(resolved))
                 .roles(roleNames)
+                .activeTenantId(activeTenantId)
+                .availableTenants(tenants)
                 .build();
-    }
-
-    private static String pickLegacyRole(Set<Role> roles) {
-        if (roles.contains(Role.ADMIN)) return "ADMIN";
-        if (roles.contains(Role.COMMERCIAL)) return "COMMERCIAL";
-        if (roles.contains(Role.PRO)) return "PRO";
-        if (roles.contains(Role.EMPLOYEE)) return "EMPLOYEE";
-        return null;
     }
 }
