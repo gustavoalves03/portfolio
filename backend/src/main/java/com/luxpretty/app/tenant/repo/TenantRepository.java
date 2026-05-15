@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface TenantRepository extends JpaRepository<Tenant, Long> {
     Optional<Tenant> findBySlug(String slug);
     Optional<Tenant> findByOwnerId(Long ownerId);
+    Optional<Tenant> findByStripeCustomerId(String stripeCustomerId);
+    Optional<Tenant> findByStripeSubscriptionId(String stripeSubscriptionId);
     boolean existsBySlug(String slug);
 
     List<Tenant> findByStatus(TenantStatus status);
