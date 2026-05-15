@@ -2,8 +2,11 @@ package com.luxpretty.app.mail.domain;
 
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
+import com.luxpretty.app.mail.vars.InvoicePaidVars;
+import com.luxpretty.app.mail.vars.InvoicePaymentFailedVars;
 import com.luxpretty.app.mail.vars.MailVars;
 import com.luxpretty.app.mail.vars.ResetPasswordVars;
+import com.luxpretty.app.mail.vars.TrialEndingVars;
 import com.luxpretty.app.mail.vars.WelcomeProVars;
 
 /**
@@ -23,7 +26,10 @@ public enum MailTemplate {
     RESET_PASSWORD("reset-password", ResetPasswordVars.class),
     BOOKING_CONFIRMED("booking-confirmed", BookingConfirmedVars.class),
     BOOKING_RECEIVED_PRO("booking-received-pro", BookingReceivedProVars.class),
-    WELCOME_PRO("welcome-pro", WelcomeProVars.class);
+    WELCOME_PRO("welcome-pro", WelcomeProVars.class),
+    INVOICE_PAID("invoice-paid", InvoicePaidVars.class),
+    INVOICE_PAYMENT_FAILED("invoice-payment-failed", InvoicePaymentFailedVars.class),
+    TRIAL_ENDING("trial-ending", TrialEndingVars.class);
 
     private final String templatePath;
     private final Class<? extends MailVars> varsClass;

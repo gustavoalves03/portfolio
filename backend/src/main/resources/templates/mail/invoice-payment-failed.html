@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Échec du paiement — LuxPretty')}">
+<body>
+<div th:fragment="content">
+    <h1>Un souci avec votre paiement</h1>
+    <p>Bonjour <span th:text="${userName}">…</span>,</p>
+    <p>Le prélèvement de <strong th:text="${amountFormatted}">…</strong>
+       pour votre abonnement LuxPretty (<span th:text="${tenantSlug}">…</span>) n'a pas abouti.</p>
+    <p>Pas d'inquiétude — Stripe va retenter automatiquement dans les jours qui viennent.
+       Si vous préférez mettre à jour votre moyen de paiement maintenant, c'est ici :</p>
+    <p><a th:href="${portalUrl}" class="cta">Mettre à jour ma carte</a></p>
+    <p>Si nous ne parvenons pas à percevoir le paiement, l'accès à votre espace sera mis en pause temporairement.</p>
+</div>
+</body>
+</html>

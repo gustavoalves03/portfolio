@@ -1,0 +1,13 @@
+Bonjour [(${userName})],
+
+Le prélèvement de [(${amountFormatted})] pour votre abonnement LuxPretty
+([(${tenantSlug})]) n'a pas abouti.
+
+Pas d'inquiétude — Stripe va retenter automatiquement dans les jours qui viennent.
+Si vous préférez mettre à jour votre moyen de paiement maintenant :
+[(${portalUrl})]
+
+Si nous ne parvenons pas à percevoir le paiement, l'accès à votre espace
+sera mis en pause temporairement.
+
+— LuxPretty

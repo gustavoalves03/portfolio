@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Paiement reçu — LuxPretty')}">
+<body>
+<div th:fragment="content">
+    <h1>Paiement reçu</h1>
+    <p>Bonjour <span th:text="${userName}">…</span>,</p>
+    <p>Nous avons bien reçu votre paiement de <strong th:text="${amountFormatted}">…</strong>
+       pour votre abonnement LuxPretty (<span th:text="${tenantSlug}">…</span>).</p>
+    <p>Votre facture n° <span th:text="${invoiceNumber}">…</span> est disponible :</p>
+    <p><a th:href="${invoicePdfUrl}" class="cta">Télécharger la facture</a></p>
+    <p>Merci pour votre confiance.</p>
+    <p><a th:href="${dashboardUrl}">Accéder à mon espace</a></p>
+</div>
+</body>
+</html>

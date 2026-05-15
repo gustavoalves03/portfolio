@@ -5,6 +5,7 @@ import com.luxpretty.app.mail.domain.MailOutbox;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
+import com.luxpretty.app.mail.vars.InvoicePaidVars;
 import com.luxpretty.app.mail.vars.MailVars;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -114,6 +115,12 @@ public class ThymeleafMailRenderer implements MailRenderer {
                 yield "Nouveau rendez-vous — " + v.clientName();
             }
             case WELCOME_PRO -> "Bienvenue sur LuxPretty";
+            case INVOICE_PAID -> {
+                InvoicePaidVars v = (InvoicePaidVars) vars;
+                yield "Paiement reçu — " + v.amountFormatted();
+            }
+            case INVOICE_PAYMENT_FAILED -> "Un souci avec votre paiement — LuxPretty";
+            case TRIAL_ENDING -> "Votre essai gratuit se termine bientôt";
         };
     }
 

@@ -1,0 +1,13 @@
+Bonjour [(${userName})],
+
+Votre essai gratuit de l'offre [(${tierLabel})] se termine le [(${trialEndDateFormatted})].
+
+À cette date, votre abonnement [(${priceLabel})] sera activé automatiquement.
+Vous n'avez rien à faire.
+
+Vous pouvez à tout moment annuler ou changer d'offre depuis votre espace :
+[(${dashboardUrl})]
+
+Une question ? Répondez simplement à cet email.
+
+— LuxPretty
