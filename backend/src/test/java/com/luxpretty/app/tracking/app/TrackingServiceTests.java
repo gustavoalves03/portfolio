@@ -72,7 +72,7 @@ class TrackingServiceTests {
 
     private void stubCallerAsOwner(Long callerId) {
         stubSchemaExecutor();
-        lenient().when(userRoleService.hasAnyRoleAcrossScopes(callerId,
+        lenient().when(userRoleService.hasAnyRoleOnCurrentTenant(callerId,
                 com.luxpretty.app.users.domain.Role.PRO,
                 com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
     }

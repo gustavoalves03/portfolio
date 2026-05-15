@@ -146,8 +146,7 @@ public class LeaveRequestService {
 
     private boolean isManager(Long callerUserId) {
         if (callerUserId == null) return false;
-        return applicationSchemaExecutor.call(
-                () -> userRoleService.hasAnyRoleAcrossScopes(callerUserId, Role.PRO, Role.ADMIN));
+        return userRoleService.hasAnyRoleOnCurrentTenant(callerUserId, Role.PRO, Role.ADMIN);
     }
 
     /**

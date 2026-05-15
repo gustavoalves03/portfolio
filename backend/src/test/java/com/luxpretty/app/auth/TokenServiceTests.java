@@ -24,10 +24,18 @@ class TokenServiceTests {
     private static final long ONE_DAY_MS = 86_400_000L;
 
     private TokenService tokenService;
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
 
     @BeforeEach
     void setUp() {
-        tokenService = new TokenService();
+        userRoleService = org.mockito.Mockito.mock(com.luxpretty.app.users.app.UserRoleService.class);
+        tenantRepository = org.mockito.Mockito.mock(com.luxpretty.app.tenant.repo.TenantRepository.class);
+        // Default: empty tenants for the User-overload tests. Specific tests stub
+        // findUserTenantIds + resolveRoles as needed.
+        org.mockito.Mockito.lenient().when(userRoleService.findUserTenantIds(org.mockito.ArgumentMatchers.anyLong()))
+                .thenReturn(java.util.List.of());
+        tokenService = new TokenService(userRoleService, tenantRepository);
         ReflectionTestUtils.setField(tokenService, "tokenSecret", TEST_SECRET);
         ReflectionTestUtils.setField(tokenService, "tokenExpirationMs", ONE_DAY_MS);
     }
@@ -73,10 +81,11 @@ class TokenServiceTests {
         assertThat(tokenService.validateToken("")).isFalse();
     }
 
-    // Lot6: generateToken(userId, email, role) includes all three claims in payload
+    // Scoped-RBAC: generateToken(userId, email, roles, activeTenantId) includes all claims
     @Test
-    void generateToken_withEmailAndRole_includesAllClaims() {
-        String token = tokenService.generateToken(99L, "sophie@salon.fr", "PRO");
+    void generateToken_withRolesAndActiveTenant_includesAllClaims() {
+        String token = tokenService.generateToken(
+                99L, "sophie@salon.fr", java.util.List.of("PRO"), 42L);
 
         SecretKey key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
         Claims claims = Jwts.parser()
@@ -87,7 +96,8 @@ class TokenServiceTests {
 
         assertThat(claims.getSubject()).isEqualTo("99");
         assertThat(claims.get("email", String.class)).isEqualTo("sophie@salon.fr");
-        assertThat(claims.get("role", String.class)).isEqualTo("PRO");
+        assertThat(claims.get("roles", java.util.List.class)).containsExactly("PRO");
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(42L);
         assertThat(claims.getIssuedAt()).isNotNull();
         assertThat(claims.getExpiration()).isNotNull();
         assertThat(claims.getExpiration()).isAfter(claims.getIssuedAt());

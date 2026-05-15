@@ -421,7 +421,7 @@ class AuthControllerTests {
 
         // Must not leak whether the email exists by touching downstream services
         verify(passwordEncoder, never()).matches(any(), any());
-        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyList(), any());
         verify(userRepository, never()).save(any());
     }
 
@@ -445,7 +445,7 @@ class AuthControllerTests {
         assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(1);
         // Not yet locked (threshold is 5)
         assertThat(captor.getValue().getAccountLockedUntil()).isNull();
-        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyList(), any());
     }
 
     @Test

@@ -27,7 +27,11 @@ class UserRoleServiceTests {
     @BeforeEach
     void setUp() {
         repo = mock(UserRoleAssignmentRepository.class);
-        service = new UserRoleService(repo);
+        com.luxpretty.app.tenant.repo.TenantRepository tenantRepository =
+                mock(com.luxpretty.app.tenant.repo.TenantRepository.class);
+        com.luxpretty.app.multitenancy.ApplicationSchemaExecutor applicationSchemaExecutor =
+                mock(com.luxpretty.app.multitenancy.ApplicationSchemaExecutor.class);
+        service = new UserRoleService(repo, tenantRepository, applicationSchemaExecutor);
     }
 
     @Test

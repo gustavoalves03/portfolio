@@ -32,12 +32,6 @@ public class TokenService {
     private final UserRoleService userRoleService;
     private final TenantRepository tenantRepository;
 
-    /** Default constructor preserved for tests that build TokenService with no deps. */
-    public TokenService() {
-        this.userRoleService = null;
-        this.tenantRepository = null;
-    }
-
     public TokenService(UserRoleService userRoleService, TenantRepository tenantRepository) {
         this.userRoleService = userRoleService;
         this.tenantRepository = tenantRepository;
@@ -61,20 +55,6 @@ public class TokenService {
             .compact();
     }
 
-    public String generateToken(Long userId, String email, String role) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + tokenExpirationMs);
-
-        return Jwts.builder()
-            .subject(String.valueOf(userId))
-            .claim("email", email)
-            .claim("role", role)
-            .issuedAt(now)
-            .expiration(expiryDate)
-            .signWith(getSigningKey())
-            .compact();
-    }
-
     /**
      * Scoped-RBAC overload (used by AuthController + OAuth2 handler). Emits
      * a roles[] claim + activeTenantId + availableTenants[] for the frontend.
@@ -83,24 +63,18 @@ public class TokenService {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + tokenExpirationMs);
 
-        JwtBuilder builder = Jwts.builder()
+        List<Map<String, Object>> tenants = userRoleService.findUserTenantIds(userId).stream()
+                .map(tenantRepository::findById)
+                .flatMap(java.util.Optional::stream)
+                .map(this::toTenantSummaryMap)
+                .toList();
+
+        return Jwts.builder()
             .subject(String.valueOf(userId))
             .claim("email", email)
             .claim("roles", roles)
-            .claim("activeTenantId", activeTenantId);
-
-        // availableTenants only added when the user has TENANT-scoped assignments;
-        // requires UserRoleService + TenantRepository to be wired (production path).
-        if (userRoleService != null && tenantRepository != null) {
-            List<Map<String, Object>> tenants = userRoleService.findUserTenantIds(userId).stream()
-                    .map(tenantRepository::findById)
-                    .flatMap(java.util.Optional::stream)
-                    .map(this::toTenantSummaryMap)
-                    .toList();
-            builder.claim("availableTenants", tenants);
-        }
-
-        return builder
+            .claim("activeTenantId", activeTenantId)
+            .claim("availableTenants", tenants)
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(getSigningKey())
@@ -121,11 +95,6 @@ public class TokenService {
 
     /** Generate a token with an explicit activeTenantId (used by /switch-tenant). */
     public String generateToken(User user, Long activeTenantId) {
-        if (userRoleService == null) {
-            // Defensive fallback for tests that built TokenService with no deps —
-            // emit an empty roles[] and the requested activeTenantId.
-            return generateToken(user.getId(), user.getEmail(), List.<String>of(), activeTenantId);
-        }
         Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
         List<String> roleNames = resolved.stream().map(Enum::name).toList();
         return generateToken(user.getId(), user.getEmail(), roleNames, activeTenantId);

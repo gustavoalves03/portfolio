@@ -540,7 +540,7 @@ public class CareBookingService {
         if (caller == null) {
             return null;
         }
-        boolean canManage = userRoleService.hasAnyRoleAcrossScopes(caller.getId(), Role.PRO, Role.ADMIN);
+        boolean canManage = userRoleService.hasAnyRoleOnCurrentTenant(caller.getId(), Role.PRO, Role.ADMIN);
         if (canManage) {
             return null;
         }
@@ -560,7 +560,7 @@ public class CareBookingService {
         if (caller == null) {
             return;
         }
-        boolean canManage = userRoleService.hasAnyRoleAcrossScopes(caller.getId(), Role.PRO, Role.ADMIN);
+        boolean canManage = userRoleService.hasAnyRoleOnCurrentTenant(caller.getId(), Role.PRO, Role.ADMIN);
         if (canManage) {
             return;
         }

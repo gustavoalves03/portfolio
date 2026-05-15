@@ -401,7 +401,7 @@ class EmployeeServiceTests {
         EmployeePermissionService permissionService = new EmployeePermissionService(
                 employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor, userRoleService);
 
-        when(userRoleService.hasAnyRoleAcrossScopes(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
+        when(userRoleService.hasAnyRoleOnCurrentTenant(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
 
         // Employee record's userId == proUserId → same identity
         Employee selfEmployee = new Employee();
@@ -430,7 +430,7 @@ class EmployeeServiceTests {
         EmployeePermissionService permissionService = new EmployeePermissionService(
                 employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor, userRoleService);
 
-        when(userRoleService.hasAnyRoleAcrossScopes(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
+        when(userRoleService.hasAnyRoleOnCurrentTenant(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
 
         Employee target = new Employee();
         target.setId(targetEmployeeId);

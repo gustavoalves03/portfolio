@@ -86,8 +86,7 @@ public class TrackingService {
         if (targetUserId != null && caller.getId().equals(targetUserId)) {
             return;
         }
-        boolean canManage = applicationSchemaExecutor.call(
-                () -> userRoleService.hasAnyRoleAcrossScopes(caller.getId(), Role.PRO, Role.ADMIN));
+        boolean canManage = userRoleService.hasAnyRoleOnCurrentTenant(caller.getId(), Role.PRO, Role.ADMIN);
         if (canManage) {
             return;
         }

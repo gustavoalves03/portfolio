@@ -227,7 +227,7 @@ class TrackingAccessLevelSecurityTests {
         TrackingService service = trackingService();
 
         Long proUserId = 1L;
-        when(userRoleService.hasAnyRoleAcrossScopes(proUserId,
+        when(userRoleService.hasAnyRoleOnCurrentTenant(proUserId,
                 com.luxpretty.app.users.domain.Role.PRO,
                 com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 

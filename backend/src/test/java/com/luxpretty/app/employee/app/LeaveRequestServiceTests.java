@@ -76,7 +76,7 @@ class LeaveRequestServiceTests {
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
 
         // Default role assignments: PRO_USER_ID is a manager, EMPLOYEE_USER_ID is not.
-        lenient().when(userRoleService.hasAnyRoleAcrossScopes(PRO_USER_ID,
+        lenient().when(userRoleService.hasAnyRoleOnCurrentTenant(PRO_USER_ID,
                 com.luxpretty.app.users.domain.Role.PRO,
                 com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
@@ -370,7 +370,7 @@ class LeaveRequestServiceTests {
         // to self-approve, the service must still refuse.
         Long selfCallerUserId = EMPLOYEE_USER_ID;
         // The employee/self caller has PRO across scopes (mis-configured account).
-        when(userRoleService.hasAnyRoleAcrossScopes(selfCallerUserId,
+        when(userRoleService.hasAnyRoleOnCurrentTenant(selfCallerUserId,
                 com.luxpretty.app.users.domain.Role.PRO,
                 com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
@@ -422,7 +422,7 @@ class LeaveRequestServiceTests {
         pendingLeave.setStatus(LeaveStatus.PENDING);
 
         Long otherProUserId = 501L;
-        when(userRoleService.hasAnyRoleAcrossScopes(otherProUserId,
+        when(userRoleService.hasAnyRoleOnCurrentTenant(otherProUserId,
                 com.luxpretty.app.users.domain.Role.PRO,
                 com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 

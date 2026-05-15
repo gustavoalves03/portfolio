@@ -3,6 +3,10 @@ package com.luxpretty.app.users.app;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.ScopeType;
 import com.luxpretty.app.users.domain.UserRoleAssignment;
+import com.luxpretty.app.multitenancy.ApplicationSchemaExecutor;
+import com.luxpretty.app.multitenancy.TenantContext;
+import com.luxpretty.app.tenant.domain.Tenant;
+import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.repo.UserRoleAssignmentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +21,15 @@ import java.util.stream.Collectors;
 public class UserRoleService {
 
     private final UserRoleAssignmentRepository repo;
+    private final TenantRepository tenantRepository;
+    private final ApplicationSchemaExecutor applicationSchemaExecutor;
 
-    public UserRoleService(UserRoleAssignmentRepository repo) {
+    public UserRoleService(UserRoleAssignmentRepository repo,
+                           TenantRepository tenantRepository,
+                           ApplicationSchemaExecutor applicationSchemaExecutor) {
         this.repo = repo;
+        this.tenantRepository = tenantRepository;
+        this.applicationSchemaExecutor = applicationSchemaExecutor;
     }
 
     @Transactional
@@ -58,16 +68,36 @@ public class UserRoleService {
     }
 
     /**
-     * Returns true if the user holds any of the given roles in any scope
-     * (GLOBAL or any TENANT). Convenience for permission checks that don't
-     * need to know which specific tenant the role applies to — e.g. "is this
-     * user a PRO somewhere in the platform?".
+     * Returns true if the user holds any of the given roles **resolved against
+     * a specific tenant**: GLOBAL roles always count; TENANT roles count only
+     * when scopeId matches activeTenantId.
      */
     @Transactional(readOnly = true)
-    public boolean hasAnyRoleAcrossScopes(Long userId, Role... roles) {
+    public boolean hasAnyRole(Long userId, Long activeTenantId, Role... roles) {
         Set<Role> wanted = Set.of(roles);
-        return repo.findByUserId(userId).stream()
-                .anyMatch(a -> wanted.contains(a.getRole()));
+        return resolveRoles(userId, activeTenantId).stream().anyMatch(wanted::contains);
+    }
+
+    /**
+     * Returns true if the user holds any of the given roles resolved against
+     * the tenant currently set in {@link TenantContext}. GLOBAL roles always
+     * count; TENANT roles count only when scopeId matches the active tenant.
+     *
+     * <p>This is the safe check for tenant-scoped permission gates inside a
+     * request that already established TenantContext (via TenantFilter,
+     * JwtAuthenticationFilter, or an explicit set in a tenant-schema endpoint).
+     * If no tenant is set, only GLOBAL roles are considered — i.e. an ADMIN
+     * still passes, but a PRO on tenant X does not become PRO "everywhere".
+     */
+    @Transactional(readOnly = true)
+    public boolean hasAnyRoleOnCurrentTenant(Long userId, Role... roles) {
+        String slug = TenantContext.getCurrentTenant();
+        Long activeTenantId = slug == null
+                ? null
+                : applicationSchemaExecutor.call(() -> tenantRepository.findBySlug(slug)
+                        .map(Tenant::getId)
+                        .orElse(null));
+        return hasAnyRole(userId, activeTenantId, roles);
     }
 
     @Transactional(readOnly = true)

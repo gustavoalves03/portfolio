@@ -42,9 +42,12 @@ class OAuth2AuthenticationSuccessHandlerTests {
     private static final String TEST_SECRET = "test-secret-key-for-unit-tests-min-32-bytes-ok";
     private static final String REDIRECT_URI = "http://localhost:4300/oauth2/redirect";
 
+    @org.mockito.Mock
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+
     @BeforeEach
     void setUp() {
-        tokenService = new TokenService();
+        tokenService = new TokenService(userRoleService, tenantRepository);
         ReflectionTestUtils.setField(tokenService, "tokenSecret", TEST_SECRET);
         ReflectionTestUtils.setField(tokenService, "tokenExpirationMs", 86400000L);
 

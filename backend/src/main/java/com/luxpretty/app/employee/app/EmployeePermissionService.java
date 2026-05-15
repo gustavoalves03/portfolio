@@ -86,8 +86,7 @@ public class EmployeePermissionService {
         if (callerUserId == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
         }
-        boolean isManager = applicationSchemaExecutor.call(
-                () -> userRoleService.hasAnyRoleAcrossScopes(callerUserId, Role.PRO, Role.ADMIN));
+        boolean isManager = userRoleService.hasAnyRoleOnCurrentTenant(callerUserId, Role.PRO, Role.ADMIN);
         if (!isManager) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Only tenant owners may modify employee permissions");
