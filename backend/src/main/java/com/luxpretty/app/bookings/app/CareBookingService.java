@@ -65,6 +65,7 @@ public class CareBookingService {
     private final com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher;
     private final SalonClientService salonClientService;
     private final BookingPolicyService bookingPolicyService;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
@@ -74,7 +75,8 @@ public class CareBookingService {
                                com.luxpretty.app.employee.repo.EmployeeRepository employeeRepository,
                                com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher,
                                SalonClientService salonClientService,
-                               BookingPolicyService bookingPolicyService) {
+                               BookingPolicyService bookingPolicyService,
+                               com.luxpretty.app.users.app.UserRoleService userRoleService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -87,6 +89,7 @@ public class CareBookingService {
         this.notificationDispatcher = notificationDispatcher;
         this.salonClientService = salonClientService;
         this.bookingPolicyService = bookingPolicyService;
+        this.userRoleService = userRoleService;
     }
 
     @Transactional(readOnly = true)
@@ -537,10 +540,8 @@ public class CareBookingService {
         if (caller == null) {
             return null;
         }
-        Role role = userRepository.findById(caller.getId())
-                .map(User::getRole)
-                .orElse(null);
-        if (role == Role.PRO || role == Role.ADMIN) {
+        boolean canManage = userRoleService.hasAnyRoleOnCurrentTenant(caller.getId(), Role.PRO, Role.ADMIN);
+        if (canManage) {
             return null;
         }
         // EMPLOYEE (or unknown role) — lock results to their own employeeId.
@@ -559,10 +560,8 @@ public class CareBookingService {
         if (caller == null) {
             return;
         }
-        Role role = userRepository.findById(caller.getId())
-                .map(User::getRole)
-                .orElse(null);
-        if (role == Role.PRO || role == Role.ADMIN) {
+        boolean canManage = userRoleService.hasAnyRoleOnCurrentTenant(caller.getId(), Role.PRO, Role.ADMIN);
+        if (canManage) {
             return;
         }
         Long callerEmployeeId = employeeRepository.findByUserId(caller.getId())

@@ -55,6 +55,9 @@ class LeaveRequestServiceTests {
     @Mock
     private ApplicationSchemaExecutor applicationSchemaExecutor;
 
+    @Mock
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+
     @InjectMocks
     private LeaveRequestService leaveRequestService;
 
@@ -72,24 +75,10 @@ class LeaveRequestServiceTests {
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
 
-        // Default caller lookups (lenient — not every test uses every principal).
-        User proUser = User.builder()
-                .id(PRO_USER_ID)
-                .name("Owner")
-                .email("owner@luxpretty.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
-                .build();
-        lenient().when(userRepository.findById(PRO_USER_ID)).thenReturn(Optional.of(proUser));
-
-        User employeeUser = User.builder()
-                .id(EMPLOYEE_USER_ID)
-                .name("Sophie Martin")
-                .email("sophie@luxpretty.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
-                .build();
-        lenient().when(userRepository.findById(EMPLOYEE_USER_ID)).thenReturn(Optional.of(employeeUser));
+        // Default role assignments: PRO_USER_ID is a manager, EMPLOYEE_USER_ID is not.
+        lenient().when(userRoleService.hasAnyRoleOnCurrentTenant(PRO_USER_ID,
+                com.luxpretty.app.users.domain.Role.PRO,
+                com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
         employee = new Employee();
         employee.setId(1L);
@@ -357,16 +346,8 @@ class LeaveRequestServiceTests {
         LeaveReviewDto dto = new LeaveReviewDto(LeaveStatus.APPROVED, "cross-tenant review");
         when(leaveRequestRepository.findById(1L)).thenReturn(Optional.of(pendingLeave));
 
-        // Caller is a plain USER (not PRO/ADMIN). A leave reviewer must be PRO/ADMIN.
+        // Caller is a plain USER (no PRO/ADMIN assignment — default mock returns false).
         Long plainUserId = 999L;
-        User plainUser = User.builder()
-                .id(plainUserId)
-                .name("Attacker")
-                .email("attacker@example.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.USER)
-                .build();
-        when(userRepository.findById(plainUserId)).thenReturn(Optional.of(plainUser));
 
         assertThatThrownBy(() -> leaveRequestService.reviewLeave(1L, dto, plainUserId))
                 .isInstanceOf(ResponseStatusException.class)
@@ -388,14 +369,10 @@ class LeaveRequestServiceTests {
         // If that user somehow had PRO role (mis-configured account) and tried
         // to self-approve, the service must still refuse.
         Long selfCallerUserId = EMPLOYEE_USER_ID;
-        User selfPro = User.builder()
-                .id(selfCallerUserId)
-                .name("Sophie Martin")
-                .email("sophie@luxpretty.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.PRO) // even if somehow PRO
-                .build();
-        when(userRepository.findById(selfCallerUserId)).thenReturn(Optional.of(selfPro));
+        // The employee/self caller has PRO across scopes (mis-configured account).
+        when(userRoleService.hasAnyRoleOnCurrentTenant(selfCallerUserId,
+                com.luxpretty.app.users.domain.Role.PRO,
+                com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
         LeaveReviewDto selfApproveDto = new LeaveReviewDto(
                 LeaveStatus.APPROVED, "approved by me, for me");
@@ -445,14 +422,9 @@ class LeaveRequestServiceTests {
         pendingLeave.setStatus(LeaveStatus.PENDING);
 
         Long otherProUserId = 501L;
-        User otherPro = User.builder()
-                .id(otherProUserId)
-                .name("Owner B")
-                .email("owner-b@luxpretty.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
-                .build();
-        when(userRepository.findById(otherProUserId)).thenReturn(Optional.of(otherPro));
+        when(userRoleService.hasAnyRoleOnCurrentTenant(otherProUserId,
+                com.luxpretty.app.users.domain.Role.PRO,
+                com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
         assertThatThrownBy(() ->
                 leaveRequestService.reviewLeave(1L, rejectDto, otherProUserId))

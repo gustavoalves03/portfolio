@@ -40,21 +40,31 @@ public class TenantFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof com.luxpretty.app.auth.UserPrincipal principal) {
-                boolean tenantSet = tenantService.findByOwnerId(principal.getId())
-                        .map(tenant -> {
-                            TenantContext.setCurrentTenant(tenant.getSlug());
-                            logger.debug("TenantContext set to {} for user {}", tenant.getSlug(), principal.getId());
-                            return true;
-                        })
-                        .orElse(false);
+            // Respect any TenantContext already set upstream:
+            // - JwtAuthenticationFilter sets it from the JWT's activeTenantId claim
+            //   (post scoped-RBAC migration — supports users with multiple tenants
+            //   and the /api/me/switch-tenant flow).
+            // - Public /api/salon/{slug}/** handlers set it inline from the URL.
+            // Only fall back to the legacy ownership lookup when neither path ran.
+            if (TenantContext.getCurrentTenant() == null) {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.isAuthenticated()
+                        && auth.getPrincipal() instanceof com.luxpretty.app.auth.UserPrincipal principal) {
+                    boolean tenantSet = tenantService.findByOwnerId(principal.getId())
+                            .map(tenant -> {
+                                TenantContext.setCurrentTenant(tenant.getSlug());
+                                logger.debug("TenantContext set to {} for user {}", tenant.getSlug(), principal.getId());
+                                return true;
+                            })
+                            .orElse(false);
 
-                if (!tenantSet) {
-                    User user = userRepository.findById(principal.getId()).orElse(null);
-                    if (user != null && user.getTenantSlug() != null) {
-                        TenantContext.setCurrentTenant(user.getTenantSlug());
-                        logger.debug("TenantContext set to {} for employee user {}", user.getTenantSlug(), principal.getId());
+                    if (!tenantSet) {
+                        User user = userRepository.findById(principal.getId()).orElse(null);
+                        if (user != null && user.getTenantSlug() != null) {
+                            TenantContext.setCurrentTenant(user.getTenantSlug());
+                            logger.debug("TenantContext set to {} for employee user {}",
+                                    user.getTenantSlug(), principal.getId());
+                        }
                     }
                 }
             }

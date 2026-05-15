@@ -16,6 +16,7 @@ import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.users.domain.AuthProvider;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
@@ -67,6 +68,7 @@ public class SmokeTestSeedController {
     private final TenantSchemaManager tenantSchemaManager;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final UserRoleService userRoleService;
 
     public SmokeTestSeedController(UserRepository userRepository,
                                    TenantRepository tenantRepository,
@@ -77,7 +79,8 @@ public class SmokeTestSeedController {
                                    ClientBookingHistoryRepository clientBookingHistoryRepository,
                                    TenantSchemaManager tenantSchemaManager,
                                    PasswordEncoder passwordEncoder,
-                                   TokenService tokenService) {
+                                   TokenService tokenService,
+                                   UserRoleService userRoleService) {
         this.userRepository = userRepository;
         this.tenantRepository = tenantRepository;
         this.categoryRepository = categoryRepository;
@@ -88,6 +91,7 @@ public class SmokeTestSeedController {
         this.tenantSchemaManager = tenantSchemaManager;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.userRoleService = userRoleService;
     }
 
     /**
@@ -112,7 +116,6 @@ public class SmokeTestSeedController {
                         .email(PRO_EMAIL)
                         .password(passwordEncoder.encode(DEFAULT_PASSWORD))
                         .provider(AuthProvider.LOCAL)
-                        .role(Role.PRO)
                         .emailVerified(true)
                         .tenantSlug(SALON_SLUG)
                         .build()));
@@ -130,7 +133,6 @@ public class SmokeTestSeedController {
                         .email(CLIENT_EMAIL)
                         .password(passwordEncoder.encode(DEFAULT_PASSWORD))
                         .provider(AuthProvider.LOCAL)
-                        .role(Role.USER)
                         .emailVerified(true)
                         .build()));
 
@@ -143,6 +145,10 @@ public class SmokeTestSeedController {
                     .status(TenantStatus.ACTIVE)
                     .build());
         }
+        // Ensure PRO + EMPLOYEE assignments exist for the pro on this tenant.
+        // Idempotent — re-running the seed adds nothing new.
+        userRoleService.assignOnTenant(pro.getId(), Role.PRO, tenant.getId());
+        userRoleService.assignOnTenant(pro.getId(), Role.EMPLOYEE, tenant.getId());
         // Provision + migrate are both idempotent on H2; the migrate step
         // adds columns that the base provisioning doesn't create
         // (e.g. OPENING_HOURS.EMPLOYEE_ID, CARE.DISPLAY_ORDER, …).
@@ -191,8 +197,11 @@ public class SmokeTestSeedController {
             TenantContext.clear();
         }
 
-        String proToken = tokenService.generateToken(pro.getId(), pro.getEmail(), pro.getRole().name());
-        String clientToken = tokenService.generateToken(client.getId(), client.getEmail(), client.getRole().name());
+        java.util.List<String> proRoles = userRoleService.resolveRoles(pro.getId(), tenant.getId())
+                .stream().map(Enum::name).toList();
+        String proToken = tokenService.generateToken(pro.getId(), pro.getEmail(), proRoles, tenant.getId());
+        String clientToken = tokenService.generateToken(client.getId(), client.getEmail(),
+                java.util.List.of(), null);
 
         LocalDate targetDate = nextWeekday(LocalDate.now().plusDays(2));
 

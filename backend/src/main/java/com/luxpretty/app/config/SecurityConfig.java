@@ -51,6 +51,8 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final TenantFilter tenantFilter;
     private final OAuth2RoleHintFilter oAuth2RoleHintFilter;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private final com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
     private final SubscriptionGuard subscriptionGuard;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
@@ -64,6 +66,8 @@ public class SecurityConfig {
                           UserRepository userRepository,
                           TenantFilter tenantFilter,
                           OAuth2RoleHintFilter oAuth2RoleHintFilter,
+                          com.luxpretty.app.users.app.UserRoleService userRoleService,
+                          com.luxpretty.app.tenant.repo.TenantRepository tenantRepository,
                           SubscriptionGuard subscriptionGuard) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -76,6 +80,8 @@ public class SecurityConfig {
         this.userRepository = userRepository;
         this.tenantFilter = tenantFilter;
         this.oAuth2RoleHintFilter = oAuth2RoleHintFilter;
+        this.userRoleService = userRoleService;
+        this.tenantRepository = tenantRepository;
         this.subscriptionGuard = subscriptionGuard;
     }
 
@@ -112,7 +118,7 @@ public class SecurityConfig {
         http
                 // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter, then subscription guard
                 .addFilterBefore(oAuth2RoleHintFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository, tenantRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
                 .addFilterAfter(subscriptionGuard, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf

@@ -61,6 +61,7 @@ class CareBookingServiceTests {
     @Mock private com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher;
     @Mock private com.luxpretty.app.tracking.app.SalonClientService salonClientService;
     @Mock private BookingPolicyService bookingPolicyService;
+    @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     @InjectMocks
     private CareBookingService service;
@@ -1093,14 +1094,7 @@ class CareBookingServiceTests {
         Long callerUserId = 900L;
         Long callerEmployeeId = 7L;
 
-        User callerUser = User.builder()
-                .id(callerUserId)
-                .name("Louise")
-                .email("louise@salon.fr")
-                .role(Role.EMPLOYEE)
-                .build();
-        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
-
+        // Caller has no PRO/ADMIN assignment (default mock returns false), only an Employee row.
         com.luxpretty.app.employee.domain.Employee callerEmployee = new com.luxpretty.app.employee.domain.Employee();
         callerEmployee.setId(callerEmployeeId);
         callerEmployee.setUserId(callerUserId);
@@ -1149,15 +1143,8 @@ class CareBookingServiceTests {
 
         when(bookingRepo.findById(800L)).thenReturn(Optional.of(otherEmployeeBooking));
 
-        // Caller is a DIFFERENT employee (id=99), with role EMPLOYEE.
+        // Caller is a DIFFERENT employee (id=99), no PRO/ADMIN assignment.
         Long callerUserId = 900L;
-        User callerUser = User.builder()
-                .id(callerUserId)
-                .name("Louise")
-                .email("louise@salon.fr")
-                .role(Role.EMPLOYEE)
-                .build();
-        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
 
         com.luxpretty.app.employee.domain.Employee callerEmployee = new com.luxpretty.app.employee.domain.Employee();
         callerEmployee.setId(99L);

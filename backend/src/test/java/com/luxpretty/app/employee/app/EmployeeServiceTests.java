@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,6 +70,12 @@ class EmployeeServiceTests {
     @Mock
     private EmployeePermissionRepository employeePermissionRepository;
 
+    @Mock
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+
+    @Mock
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -84,6 +91,12 @@ class EmployeeServiceTests {
             invocation.<Runnable>getArgument(0).run();
             return null;
         }).when(applicationSchemaExecutor).run(any(Runnable.class));
+        // Default tenant lookup for create(): "camille-dubois" → id=42L (idempotent).
+        com.luxpretty.app.tenant.domain.Tenant t = new com.luxpretty.app.tenant.domain.Tenant();
+        t.setId(42L);
+        t.setSlug("camille-dubois");
+        lenient().when(tenantRepository.findBySlug("camille-dubois"))
+                .thenReturn(java.util.Optional.of(t));
         TenantContext.clear();
 
         user = User.builder()
@@ -92,7 +105,6 @@ class EmployeeServiceTests {
                 .email("alice@example.com")
                 .password("hashed")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
                 .build();
 
         care = new Care();
@@ -133,11 +145,12 @@ class EmployeeServiceTests {
 
         EmployeeResponse response = employeeService.create(req);
 
-        // Verify User created with EMPLOYEE role and LOCAL provider
+        // Verify User created with LOCAL provider. EMPLOYEE role lives in
+        // USER_ROLE_ASSIGNMENTS now; Task 7 wires the assignment call in
+        // EmployeeService.create.
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository, atLeast(1)).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
-        assertThat(savedUser.getRole()).isEqualTo(Role.EMPLOYEE);
         assertThat(savedUser.getProvider()).isEqualTo(AuthProvider.LOCAL);
         assertThat(savedUser.getEmail()).isEqualTo("alice@example.com");
         assertThat(savedUser.getPassword()).isEqualTo("hashed");
@@ -156,6 +169,11 @@ class EmployeeServiceTests {
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("Alice Dupont");
         assertThat(TenantContext.getCurrentTenant()).isEqualTo("camille-dubois");
+
+        // The EMPLOYEE@TENANT assignment is created for the new user. The captured
+        // builder has no id (set on persist); the mock save returns the seeded `user`
+        // (id=10L), which is what the assignment call uses.
+        verify(userRoleService).assignOnTenant(eq(10L), eq(Role.EMPLOYEE), eq(42L));
     }
 
     @Test
@@ -353,18 +371,9 @@ class EmployeeServiceTests {
         Long attackerUserId = 10L; // employee.userId — matches the target's userId
 
         EmployeePermissionService permissionService = new EmployeePermissionService(
-                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor, userRoleService);
 
-        // Attacker is an EMPLOYEE (not PRO/ADMIN) — caller-role lookup resolves to EMPLOYEE.
-        User attacker = User.builder()
-                .id(attackerUserId)
-                .name("Alice Dupont")
-                .email("alice@example.com")
-                .password("hashed")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
-                .build();
-        when(userRepository.findById(attackerUserId)).thenReturn(Optional.of(attacker));
+        // Attacker is an EMPLOYEE (no PRO/ADMIN assignment) — default mock returns false.
 
         Map<PermissionDomain, AccessLevel> selfEscalation = Map.of(
                 PermissionDomain.PROFILE, AccessLevel.WRITE,
@@ -390,16 +399,9 @@ class EmployeeServiceTests {
         Long targetEmployeeId = 42L;
 
         EmployeePermissionService permissionService = new EmployeePermissionService(
-                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor, userRoleService);
 
-        User pro = User.builder()
-                .id(proUserId)
-                .name("Pro User")
-                .email("pro@example.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
-                .build();
-        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
+        when(userRoleService.hasAnyRoleOnCurrentTenant(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
 
         // Employee record's userId == proUserId → same identity
         Employee selfEmployee = new Employee();
@@ -426,16 +428,9 @@ class EmployeeServiceTests {
         Long targetEmployeeUserId = 10L; // different from proUserId
 
         EmployeePermissionService permissionService = new EmployeePermissionService(
-                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor);
+                employeePermissionRepository, employeeRepository, userRepository, applicationSchemaExecutor, userRoleService);
 
-        User pro = User.builder()
-                .id(proUserId)
-                .name("Pro")
-                .email("pro@example.com")
-                .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
-                .build();
-        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
+        when(userRoleService.hasAnyRoleOnCurrentTenant(proUserId, Role.PRO, Role.ADMIN)).thenReturn(true);
 
         Employee target = new Employee();
         target.setId(targetEmployeeId);
@@ -474,7 +469,6 @@ class EmployeeServiceTests {
                 .name("Sophie Martin")
                 .email("sophie@martin.test")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
 
         when(employeeRepository.findByUserId(42L)).thenReturn(Optional.empty());
@@ -498,7 +492,6 @@ class EmployeeServiceTests {
                 .name("Sophie Martin")
                 .email("sophie@martin.test")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
 
         Employee existing = new Employee();
@@ -523,7 +516,6 @@ class EmployeeServiceTests {
                 .name("Sophie Martin")
                 .email("sophie@martin.test")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
 
         assertThatThrownBy(() -> employeeService.createSelfEmployee(owner))

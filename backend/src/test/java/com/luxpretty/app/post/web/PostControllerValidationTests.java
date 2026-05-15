@@ -5,6 +5,7 @@ import com.luxpretty.app.auth.CustomOidcUserService;
 import com.luxpretty.app.auth.OAuth2AuthenticationFailureHandler;
 import com.luxpretty.app.auth.OAuth2AuthenticationSuccessHandler;
 import com.luxpretty.app.auth.TokenService;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.common.error.GlobalExceptionHandler;
 import com.luxpretty.app.common.error.RestAccessDeniedHandler;
 import com.luxpretty.app.common.error.RestAuthenticationEntryPoint;
@@ -59,6 +60,8 @@ class PostControllerValidationTests {
 
     @MockBean private PostService service;
     @MockBean private TokenService tokenService;
+    @MockBean private UserRoleService userRoleService;
+    @MockBean private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
     @MockBean private UserRepository userRepository;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;
     @MockBean private CustomOidcUserService customOidcUserService;

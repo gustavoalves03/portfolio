@@ -25,13 +25,18 @@ class TenantProvisioningServiceTests {
     @Mock private TenantRepository tenantRepository;
     @Mock private TenantSchemaManager schemaManager;
     @Mock private EmployeeService employeeService;
+    @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     private TenantProvisioningService service;
 
     @BeforeEach
     void setUp() {
-        service = new TenantProvisioningService(tenantRepository, schemaManager, employeeService);
-        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> inv.getArgument(0));
+        service = new TenantProvisioningService(tenantRepository, schemaManager, employeeService, userRoleService);
+        when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> {
+            Tenant t = inv.getArgument(0);
+            if (t.getId() == null) t.setId(42L);
+            return t;
+        });
     }
 
     private User user(long id, String name) {
@@ -104,5 +109,17 @@ class TenantProvisioningServiceTests {
         ArgumentCaptor<User> ownerCaptor = ArgumentCaptor.forClass(User.class);
         verify(employeeService).createSelfEmployee(ownerCaptor.capture());
         assertThat(ownerCaptor.getValue().getId()).isEqualTo(7L);
+    }
+
+    @Test
+    void provision_assignsProAndEmployeeRoles() {
+        User owner = user(7L, "Alice");
+
+        service.provision(owner);
+
+        verify(userRoleService).assignOnTenant(7L,
+                com.luxpretty.app.users.domain.Role.PRO, 42L);
+        verify(userRoleService).assignOnTenant(7L,
+                com.luxpretty.app.users.domain.Role.EMPLOYEE, 42L);
     }
 }

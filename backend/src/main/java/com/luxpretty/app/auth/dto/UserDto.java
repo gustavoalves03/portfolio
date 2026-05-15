@@ -1,10 +1,11 @@
 package com.luxpretty.app.auth.dto;
 
 import com.luxpretty.app.users.domain.AuthProvider;
-import com.luxpretty.app.users.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -15,5 +16,11 @@ public class UserDto {
     private String email;
     private String imageUrl;
     private AuthProvider provider;
-    private Role role;
+    /**
+     * Legacy single-role field for backwards compat with the current frontend.
+     * Populated as the highest-priority role from {@link #roles}
+     * (ADMIN &gt; COMMERCIAL &gt; PRO &gt; EMPLOYEE). Frontend (PR2) migrates to {@link #roles}.
+     */
+    private String role;
+    private List<String> roles;
 }
