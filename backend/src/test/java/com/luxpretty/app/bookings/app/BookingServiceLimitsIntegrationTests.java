@@ -48,7 +48,6 @@ class BookingServiceLimitsIntegrationTests {
         client = User.builder()
                 .email("alice@test.com")
                 .name("Alice")
-                .role(Role.USER)
                 .provider(AuthProvider.LOCAL)
                 .build();
         client = userRepo.save(client);

@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,6 +55,9 @@ class AuthControllerTests {
     private TokenService tokenService;
 
     @MockBean
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+
+    @MockBean
     private TenantProvisioningService tenantProvisioningService;
 
     @MockBean
@@ -79,12 +83,18 @@ class AuthControllerTests {
                 .email("sophie@salon.fr")
                 .password("$2a$encoded")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .emailVerified(false)
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token-abc");
+        com.luxpretty.app.tenant.domain.Tenant tenant = new com.luxpretty.app.tenant.domain.Tenant();
+        tenant.setId(42L);
+        tenant.setSlug("sophie-martin");
+        when(tenantProvisioningService.provision(any(User.class))).thenReturn(tenant);
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), eq(42L)))
+                .thenReturn("jwt-token-abc");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -167,7 +177,7 @@ class AuthControllerTests {
     @Test
     void forgotPassword_existingEmail_returns200() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+                .provider(AuthProvider.LOCAL).build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -196,7 +206,6 @@ class AuthControllerTests {
     @Test
     void forgotPassword_existingValidToken_skipsEmail() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("existing-token")
                 .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
                 .build();
@@ -216,7 +225,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_validToken_updatesPassword() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("valid-token")
                 .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
                 .build();
@@ -240,7 +248,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_expiredToken_returns400() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("expired-token")
                 .passwordResetTokenExpiresAt(Instant.now().minusSeconds(60))
                 .build();
@@ -266,7 +273,7 @@ class AuthControllerTests {
     @Test
     void forgotPassword_generatesUuidTokenWithOneHourExpiration() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+                .provider(AuthProvider.LOCAL).build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -297,7 +304,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_nullExpiration_returns400() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("orphan-token")
                 .passwordResetTokenExpiresAt(null)
                 .build();
@@ -317,7 +323,6 @@ class AuthControllerTests {
     @Test
     void login_lockedAccount_returns423() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(5)
                 .accountLockedUntil(Instant.now().plusSeconds(900))
                 .build();
@@ -336,7 +341,6 @@ class AuthControllerTests {
     @Test
     void login_fifthFailedAttempt_locksAccount() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(4)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -357,12 +361,13 @@ class AuthControllerTests {
     @Test
     void login_successResetsFailedAttempts() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(3)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-token");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         mockMvc.perform(post("/api/auth/login")
@@ -381,12 +386,16 @@ class AuthControllerTests {
     @Test
     void login_happyPath_returnsTokenAndUser() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(0)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-abc");
+        when(userRoleService.findUserTenantIds(1L)).thenReturn(java.util.List.of(42L));
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-abc");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -412,7 +421,7 @@ class AuthControllerTests {
 
         // Must not leak whether the email exists by touching downstream services
         verify(passwordEncoder, never()).matches(any(), any());
-        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyList(), any());
         verify(userRepository, never()).save(any());
     }
 
@@ -420,7 +429,6 @@ class AuthControllerTests {
     @Test
     void login_wrongPasswordFirstAttempt_returns401AndIncrementsCounter() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(0)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -437,19 +445,20 @@ class AuthControllerTests {
         assertThat(captor.getValue().getFailedLoginAttempts()).isEqualTo(1);
         // Not yet locked (threshold is 5)
         assertThat(captor.getValue().getAccountLockedUntil()).isNull();
-        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyString());
+        verify(tokenService, never()).generateToken(anyLong(), anyString(), anyList(), any());
     }
 
     @Test
     void login_expiredLockout_allowsLogin() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(5)
                 .accountLockedUntil(Instant.now().minusSeconds(60))
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-token");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         mockMvc.perform(post("/api/auth/login")

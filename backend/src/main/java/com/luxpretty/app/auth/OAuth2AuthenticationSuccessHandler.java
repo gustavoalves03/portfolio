@@ -1,5 +1,7 @@
 package com.luxpretty.app.auth;
 
+import com.luxpretty.app.users.app.UserRoleService;
+import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
 import com.luxpretty.app.users.repo.UserRepository;
 import jakarta.servlet.ServletException;
@@ -15,19 +17,25 @@ import org.springframework.web.util.UriComponentsBuilder;
 import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final UserRoleService userRoleService;
 
     @Value("${app.oauth2.authorized-redirect-uri}")
     private String authorizedRedirectUri;
 
-    public OAuth2AuthenticationSuccessHandler(TokenService tokenService, UserRepository userRepository) {
+    public OAuth2AuthenticationSuccessHandler(TokenService tokenService,
+                                              UserRepository userRepository,
+                                              UserRoleService userRoleService) {
         this.tokenService = tokenService;
         this.userRepository = userRepository;
+        this.userRoleService = userRoleService;
     }
 
     @Override
@@ -61,7 +69,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findById(withId.getUserId())
             .orElseThrow(() -> new OAuth2AuthenticationException("User not found"));
 
-        String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
+        Long activeTenantId = userRoleService.findUserTenantIds(user.getId())
+                .stream().findFirst().orElse(null);
+        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
+        List<String> roleNames = resolved.stream().map(Enum::name).toList();
+        String token = tokenService.generateToken(user.getId(), user.getEmail(), roleNames, activeTenantId);
 
         return UriComponentsBuilder.fromUriString(authorizedRedirectUri)
             .queryParam("token", token)

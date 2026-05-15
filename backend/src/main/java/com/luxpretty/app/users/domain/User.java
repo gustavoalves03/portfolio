@@ -67,11 +67,6 @@ public class User {
     @Column(name = "account_locked_until")
     private java.time.Instant accountLockedUntil;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    @Column(name = "role", nullable = false)
-    private Role role = Role.USER;
-
     @Column(name = "consent_given_at")
     private LocalDateTime consentGivenAt;
 

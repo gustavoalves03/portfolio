@@ -6,6 +6,8 @@ import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
+import com.luxpretty.app.users.app.UserRoleService;
+import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +22,17 @@ public class TenantProvisioningService {
     private final TenantRepository tenantRepository;
     private final TenantSchemaManager tenantSchemaManager;
     private final EmployeeService employeeService;
+    private final UserRoleService userRoleService;
 
     public TenantProvisioningService(
             TenantRepository tenantRepository,
             TenantSchemaManager tenantSchemaManager,
-            EmployeeService employeeService) {
+            EmployeeService employeeService,
+            UserRoleService userRoleService) {
         this.tenantRepository = tenantRepository;
         this.tenantSchemaManager = tenantSchemaManager;
         this.employeeService = employeeService;
+        this.userRoleService = userRoleService;
     }
 
     @Transactional
@@ -49,6 +54,11 @@ public class TenantProvisioningService {
                 .build();
 
         Tenant saved = tenantRepository.save(tenant);
+
+        // Assign PRO + EMPLOYEE scoped roles on this new tenant for the owner.
+        // Idempotent (UK_USER_ROLE_SCOPE enforces it at the DB level).
+        userRoleService.assignOnTenant(owner.getId(), Role.PRO, saved.getId());
+        userRoleService.assignOnTenant(owner.getId(), Role.EMPLOYEE, saved.getId());
 
         // Seed the "pro-self" employee inside the new tenant's schema so the
         // owner can immediately appear as a bookable practitioner. The context

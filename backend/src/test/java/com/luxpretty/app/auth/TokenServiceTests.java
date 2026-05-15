@@ -24,10 +24,18 @@ class TokenServiceTests {
     private static final long ONE_DAY_MS = 86_400_000L;
 
     private TokenService tokenService;
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
 
     @BeforeEach
     void setUp() {
-        tokenService = new TokenService();
+        userRoleService = org.mockito.Mockito.mock(com.luxpretty.app.users.app.UserRoleService.class);
+        tenantRepository = org.mockito.Mockito.mock(com.luxpretty.app.tenant.repo.TenantRepository.class);
+        // Default: empty tenants for the User-overload tests. Specific tests stub
+        // findUserTenantIds + resolveRoles as needed.
+        org.mockito.Mockito.lenient().when(userRoleService.findUserTenantIds(org.mockito.ArgumentMatchers.anyLong()))
+                .thenReturn(java.util.List.of());
+        tokenService = new TokenService(userRoleService, tenantRepository);
         ReflectionTestUtils.setField(tokenService, "tokenSecret", TEST_SECRET);
         ReflectionTestUtils.setField(tokenService, "tokenExpirationMs", ONE_DAY_MS);
     }
@@ -73,10 +81,11 @@ class TokenServiceTests {
         assertThat(tokenService.validateToken("")).isFalse();
     }
 
-    // Lot6: generateToken(userId, email, role) includes all three claims in payload
+    // Scoped-RBAC: generateToken(userId, email, roles, activeTenantId) includes all claims
     @Test
-    void generateToken_withEmailAndRole_includesAllClaims() {
-        String token = tokenService.generateToken(99L, "sophie@salon.fr", "PRO");
+    void generateToken_withRolesAndActiveTenant_includesAllClaims() {
+        String token = tokenService.generateToken(
+                99L, "sophie@salon.fr", java.util.List.of("PRO"), 42L);
 
         SecretKey key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
         Claims claims = Jwts.parser()
@@ -87,7 +96,8 @@ class TokenServiceTests {
 
         assertThat(claims.getSubject()).isEqualTo("99");
         assertThat(claims.get("email", String.class)).isEqualTo("sophie@salon.fr");
-        assertThat(claims.get("role", String.class)).isEqualTo("PRO");
+        assertThat(claims.get("roles", java.util.List.class)).containsExactly("PRO");
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(42L);
         assertThat(claims.getIssuedAt()).isNotNull();
         assertThat(claims.getExpiration()).isNotNull();
         assertThat(claims.getExpiration()).isAfter(claims.getIssuedAt());
@@ -107,5 +117,145 @@ class TokenServiceTests {
                 .compact();
 
         assertThat(tokenService.validateToken(tokenSignedElsewhere)).isFalse();
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Task 5 — Scoped RBAC: roles[] + activeTenantId + availableTenants
+    // ──────────────────────────────────────────────────────────────────────
+
+    private TokenService buildScopedTokenService(
+            com.luxpretty.app.users.app.UserRoleService userRoleService,
+            com.luxpretty.app.tenant.repo.TenantRepository tenantRepository) {
+        TokenService svc = new TokenService(userRoleService, tenantRepository);
+        ReflectionTestUtils.setField(svc, "tokenSecret", TEST_SECRET);
+        ReflectionTestUtils.setField(svc, "tokenExpirationMs", ONE_DAY_MS);
+        return svc;
+    }
+
+    @Test
+    void generateToken_includesRolesAndActiveTenantClaims() {
+        String token = tokenService.generateToken(1L, "a@a.com",
+                java.util.List.of("PRO", "EMPLOYEE"), 42L);
+
+        SecretKey key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+
+        assertThat(claims.get("roles", java.util.List.class))
+                .containsExactlyInAnyOrder("PRO", "EMPLOYEE");
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(42L);
+        assertThat(claims.get("email", String.class)).isEqualTo("a@a.com");
+    }
+
+    @Test
+    void generateTokenForUser_picksFirstTenantAsActive() {
+        var userRoleService = org.mockito.Mockito.mock(
+                com.luxpretty.app.users.app.UserRoleService.class);
+        var tenantRepository = org.mockito.Mockito.mock(
+                com.luxpretty.app.tenant.repo.TenantRepository.class);
+        org.mockito.Mockito.when(userRoleService.findUserTenantIds(1L))
+                .thenReturn(java.util.List.of(99L));
+        org.mockito.Mockito.when(userRoleService.resolveRoles(1L, 99L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        var tenant = new com.luxpretty.app.tenant.domain.Tenant();
+        tenant.setId(99L);
+        tenant.setSlug("first");
+        tenant.setName("First");
+        org.mockito.Mockito.when(tenantRepository.findById(99L)).thenReturn(java.util.Optional.of(tenant));
+
+        TokenService svc = buildScopedTokenService(userRoleService, tenantRepository);
+        com.luxpretty.app.users.domain.User user = com.luxpretty.app.users.domain.User.builder()
+                .id(1L).email("a@a.com").build();
+
+        String token = svc.generateToken(user);
+        SecretKey key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(99L);
+        assertThat(claims.get("roles", java.util.List.class)).containsExactly("PRO");
+    }
+
+    @Test
+    void generateTokenForUser_includesAvailableTenants() {
+        var userRoleService = org.mockito.Mockito.mock(
+                com.luxpretty.app.users.app.UserRoleService.class);
+        var tenantRepository = org.mockito.Mockito.mock(
+                com.luxpretty.app.tenant.repo.TenantRepository.class);
+        org.mockito.Mockito.when(userRoleService.findUserTenantIds(1L))
+                .thenReturn(java.util.List.of(42L, 43L));
+        org.mockito.Mockito.when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        com.luxpretty.app.tenant.domain.Tenant t1 = new com.luxpretty.app.tenant.domain.Tenant();
+        t1.setId(42L); t1.setSlug("salon-x"); t1.setName("Salon X");
+        com.luxpretty.app.tenant.domain.Tenant t2 = new com.luxpretty.app.tenant.domain.Tenant();
+        t2.setId(43L); t2.setSlug("salon-y"); t2.setName("Salon Y");
+        org.mockito.Mockito.when(tenantRepository.findById(42L)).thenReturn(java.util.Optional.of(t1));
+        org.mockito.Mockito.when(tenantRepository.findById(43L)).thenReturn(java.util.Optional.of(t2));
+
+        TokenService svc = buildScopedTokenService(userRoleService, tenantRepository);
+        com.luxpretty.app.users.domain.User user = com.luxpretty.app.users.domain.User.builder()
+                .id(1L).email("a@a.com").build();
+
+        String token = svc.generateToken(user);
+        SecretKey key = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+
+        java.util.List<?> tenants = claims.get("availableTenants", java.util.List.class);
+        assertThat(tenants).hasSize(2);
+    }
+
+    @Test
+    void generateTokenForUser_emptyRoles_whenNoAssignments() {
+        var userRoleService = org.mockito.Mockito.mock(
+                com.luxpretty.app.users.app.UserRoleService.class);
+        var tenantRepository = org.mockito.Mockito.mock(
+                com.luxpretty.app.tenant.repo.TenantRepository.class);
+        org.mockito.Mockito.when(userRoleService.findUserTenantIds(2L))
+                .thenReturn(java.util.List.of());
+        org.mockito.Mockito.when(userRoleService.resolveRoles(2L, null))
+                .thenReturn(java.util.Set.of());
+
+        TokenService svc = buildScopedTokenService(userRoleService, tenantRepository);
+        com.luxpretty.app.users.domain.User user = com.luxpretty.app.users.domain.User.builder()
+                .id(2L).email("client@a.com").build();
+
+        String token = svc.generateToken(user);
+        assertThat(svc.getRolesFromToken(token)).isEmpty();
+        assertThat(svc.getActiveTenantIdFromToken(token)).isNull();
+    }
+
+    @Test
+    void generateTokenForUser_overrideActiveTenant() {
+        var userRoleService = org.mockito.Mockito.mock(
+                com.luxpretty.app.users.app.UserRoleService.class);
+        var tenantRepository = org.mockito.Mockito.mock(
+                com.luxpretty.app.tenant.repo.TenantRepository.class);
+        org.mockito.Mockito.when(userRoleService.findUserTenantIds(1L))
+                .thenReturn(java.util.List.of(42L, 43L));
+        org.mockito.Mockito.when(userRoleService.resolveRoles(1L, 43L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        com.luxpretty.app.tenant.domain.Tenant t = new com.luxpretty.app.tenant.domain.Tenant();
+        t.setId(43L); t.setSlug("salon-y"); t.setName("Salon Y");
+        org.mockito.Mockito.when(tenantRepository.findById(43L)).thenReturn(java.util.Optional.of(t));
+        com.luxpretty.app.tenant.domain.Tenant t2 = new com.luxpretty.app.tenant.domain.Tenant();
+        t2.setId(42L); t2.setSlug("salon-x"); t2.setName("Salon X");
+        org.mockito.Mockito.when(tenantRepository.findById(42L)).thenReturn(java.util.Optional.of(t2));
+
+        TokenService svc = buildScopedTokenService(userRoleService, tenantRepository);
+        com.luxpretty.app.users.domain.User user = com.luxpretty.app.users.domain.User.builder()
+                .id(1L).email("a@a.com").build();
+
+        String token = svc.generateToken(user, 43L);
+
+        assertThat(svc.getActiveTenantIdFromToken(token)).isEqualTo(43L);
+        assertThat(svc.getRolesFromToken(token)).containsExactly("PRO");
+    }
+
+    @Test
+    void getRolesAndActiveTenantFromToken_readsBackTheClaims() {
+        String token = tokenService.generateToken(7L, "x@x.com",
+                java.util.List.of("ADMIN"), 13L);
+
+        assertThat(tokenService.getRolesFromToken(token)).containsExactly("ADMIN");
+        assertThat(tokenService.getActiveTenantIdFromToken(token)).isEqualTo(13L);
     }
 }

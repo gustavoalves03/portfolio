@@ -33,19 +33,25 @@ class OAuth2AuthenticationSuccessHandlerTests {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+
     private TokenService tokenService;
     private OAuth2AuthenticationSuccessHandler handler;
 
     private static final String TEST_SECRET = "test-secret-key-for-unit-tests-min-32-bytes-ok";
     private static final String REDIRECT_URI = "http://localhost:4300/oauth2/redirect";
 
+    @org.mockito.Mock
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+
     @BeforeEach
     void setUp() {
-        tokenService = new TokenService();
+        tokenService = new TokenService(userRoleService, tenantRepository);
         ReflectionTestUtils.setField(tokenService, "tokenSecret", TEST_SECRET);
         ReflectionTestUtils.setField(tokenService, "tokenExpirationMs", 86400000L);
 
-        handler = new OAuth2AuthenticationSuccessHandler(tokenService, userRepository);
+        handler = new OAuth2AuthenticationSuccessHandler(tokenService, userRepository, userRoleService);
         ReflectionTestUtils.setField(handler, "authorizedRedirectUri", REDIRECT_URI);
     }
 
@@ -57,11 +63,13 @@ class OAuth2AuthenticationSuccessHandlerTests {
             .name("Sophie Martin")
             .email("sophie@salon.fr")
             .provider(AuthProvider.GOOGLE)
-            .role(Role.PRO)
             .emailVerified(true)
             .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRoleService.findUserTenantIds(1L)).thenReturn(java.util.List.of(42L));
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
 
         CustomOAuth2User oAuth2User = mock(CustomOAuth2User.class);
         when(oAuth2User.getUserId()).thenReturn(1L);
@@ -90,7 +98,8 @@ class OAuth2AuthenticationSuccessHandlerTests {
 
         assertThat(claims.getSubject()).isEqualTo("1");
         assertThat(claims.get("email", String.class)).isEqualTo("sophie@salon.fr");
-        assertThat(claims.get("role", String.class)).isEqualTo("PRO");
+        assertThat(claims.get("roles", java.util.List.class)).containsExactly("PRO");
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(42L);
     }
 
     // Lot6: user not found after OAuth2 flow → throws OAuth2AuthenticationException
@@ -116,7 +125,7 @@ class OAuth2AuthenticationSuccessHandlerTests {
     void onAuthenticationSuccess_clearsRoleHintCookie() throws Exception {
         User user = User.builder()
             .id(1L).name("Sophie").email("sophie@salon.fr")
-            .provider(AuthProvider.GOOGLE).role(Role.USER).emailVerified(true).build();
+            .provider(AuthProvider.GOOGLE).emailVerified(true).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 

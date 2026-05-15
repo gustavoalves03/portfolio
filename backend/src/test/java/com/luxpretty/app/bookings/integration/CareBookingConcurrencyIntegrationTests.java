@@ -106,7 +106,6 @@ class CareBookingConcurrencyIntegrationTests {
                         .email("owner-concurrency@test.com")
                         .password("password")
                         .provider(AuthProvider.LOCAL)
-                        .role(Role.PRO)
                         .emailVerified(true)
                         .build()));
         ownerUserId = owner.getId();
@@ -117,7 +116,6 @@ class CareBookingConcurrencyIntegrationTests {
                         .email("client-concurrency@test.com")
                         .password("password")
                         .provider(AuthProvider.LOCAL)
-                        .role(Role.USER)
                         .emailVerified(true)
                         .build()));
         clientUserId = client.getId();

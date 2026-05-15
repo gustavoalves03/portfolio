@@ -95,13 +95,16 @@ class AuthFlowIntegrationTests {
         String loginToken = loginBody.get("accessToken").asText();
         assertThat(loginToken).isNotBlank();
 
-        // 3. /me with a valid Bearer token returns the user DTO
+        // 3. /me with a valid Bearer token returns the user DTO.
+        // After scoped-RBAC migration: a /register/client signup creates no
+        // UserRoleAssignment (CLIENT implicite), so role and roles are empty.
         mockMvc.perform(get("/api/auth/me")
                         .header("Authorization", "Bearer " + loginToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value(EMAIL))
                 .andExpect(jsonPath("$.name").value("Flow User"))
-                .andExpect(jsonPath("$.role").value("USER"));
+                .andExpect(jsonPath("$.role").doesNotExist())
+                .andExpect(jsonPath("$.roles").isEmpty());
     }
 
     @Test

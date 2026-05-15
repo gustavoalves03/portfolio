@@ -38,17 +38,23 @@ public class EmployeeService {
     private final CareRepository careRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private final com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository,
                            UserRepository userRepository,
                            CareRepository careRepository,
                            PasswordEncoder passwordEncoder,
-                           ApplicationSchemaExecutor applicationSchemaExecutor) {
+                           ApplicationSchemaExecutor applicationSchemaExecutor,
+                           com.luxpretty.app.users.app.UserRoleService userRoleService,
+                           com.luxpretty.app.tenant.repo.TenantRepository tenantRepository) {
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
         this.passwordEncoder = passwordEncoder;
         this.applicationSchemaExecutor = applicationSchemaExecutor;
+        this.userRoleService = userRoleService;
+        this.tenantRepository = tenantRepository;
     }
 
     // -----------------------------------------------------------------------
@@ -123,7 +129,6 @@ public class EmployeeService {
                             .email(req.email())
                             .password(passwordEncoder.encode(req.password()))
                             .provider(AuthProvider.LOCAL)
-                            .role(Role.EMPLOYEE)
                             .emailVerified(false)
                             .consentGivenAt(java.time.LocalDateTime.now())
                             .tenantSlug(tenantSlug)
@@ -147,6 +152,18 @@ public class EmployeeService {
 
         try {
             Employee saved = employeeRepository.save(employee);
+            // Grant the EMPLOYEE scoped role on this tenant. Resolves tenantSlug
+            // → tenantId via the application schema (TenantRepository lives in
+            // the shared schema).
+            final Long savedUserId = savedUser.getId();
+            applicationSchemaExecutor.run(() -> {
+                Long tenantId = tenantRepository.findBySlug(tenantSlug)
+                        .map(com.luxpretty.app.tenant.domain.Tenant::getId)
+                        .orElseThrow(() -> new IllegalStateException(
+                                "Tenant not found for slug " + tenantSlug));
+                userRoleService.assignOnTenant(savedUserId,
+                        com.luxpretty.app.users.domain.Role.EMPLOYEE, tenantId);
+            });
             return toResponse(saved);
         } catch (RuntimeException ex) {
             rollbackSharedUser(savedUser.getId(), ex);

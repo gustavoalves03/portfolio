@@ -51,6 +51,8 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final TenantFilter tenantFilter;
     private final OAuth2RoleHintFilter oAuth2RoleHintFilter;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private final com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
                           RestAuthenticationEntryPoint authenticationEntryPoint,
@@ -62,7 +64,9 @@ public class SecurityConfig {
                           TokenService tokenService,
                           UserRepository userRepository,
                           TenantFilter tenantFilter,
-                          OAuth2RoleHintFilter oAuth2RoleHintFilter) {
+                          OAuth2RoleHintFilter oAuth2RoleHintFilter,
+                          com.luxpretty.app.users.app.UserRoleService userRoleService,
+                          com.luxpretty.app.tenant.repo.TenantRepository tenantRepository) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
@@ -74,6 +78,8 @@ public class SecurityConfig {
         this.userRepository = userRepository;
         this.tenantFilter = tenantFilter;
         this.oAuth2RoleHintFilter = oAuth2RoleHintFilter;
+        this.userRoleService = userRoleService;
+        this.tenantRepository = tenantRepository;
     }
 
     @Bean
@@ -109,7 +115,7 @@ public class SecurityConfig {
         http
                 // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter
                 .addFilterBefore(oAuth2RoleHintFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository, tenantRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
