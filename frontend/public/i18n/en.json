@@ -20,6 +20,7 @@
     "comingSoon": "Coming soon",
     "back": "Back",
     "apply": "Apply",
+    "clientMode": "Client mode",
     "form": {
       "fillRequiredFields": "Fill in all required fields to continue"
     },
@@ -1332,7 +1333,8 @@
     "booking": {
       "limitDaily": "You already have a booking that day at this salon.",
       "limitNewClientWeekly": "First visits are limited to one booking per week."
-    }
+    },
+    "tenantSwitchFailed": "Could not switch salon"
   },
   "evolution": {
     "title": "My Evolution",

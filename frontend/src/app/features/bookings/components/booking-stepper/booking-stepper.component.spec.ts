@@ -42,7 +42,9 @@ describe('BookingStepperComponent', () => {
       name: 'Pro',
       email: 'pro@x.test',
       provider: AuthProvider.LOCAL,
-      role: Role.PRO,
+      roles: [Role.PRO],
+      activeTenantId: 42,
+      availableTenants: [],
     };
     authService = jasmine.createSpyObj('AuthService', [], {
       user: () => fakeUser,

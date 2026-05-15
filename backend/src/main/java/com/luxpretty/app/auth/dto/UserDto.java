@@ -1,5 +1,6 @@
 package com.luxpretty.app.auth.dto;
 
+import com.luxpretty.app.me.web.dto.TenantSummary;
 import com.luxpretty.app.users.domain.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,11 +17,7 @@ public class UserDto {
     private String email;
     private String imageUrl;
     private AuthProvider provider;
-    /**
-     * Legacy single-role field for backwards compat with the current frontend.
-     * Populated as the highest-priority role from {@link #roles}
-     * (ADMIN &gt; COMMERCIAL &gt; PRO &gt; EMPLOYEE). Frontend (PR2) migrates to {@link #roles}.
-     */
-    private String role;
     private List<String> roles;
+    private Long activeTenantId;
+    private List<TenantSummary> availableTenants;
 }

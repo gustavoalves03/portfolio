@@ -17,10 +17,13 @@ describe('Header', () => {
   let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    authService = jasmine.createSpyObj('AuthService', ['logout'], {
+    authService = jasmine.createSpyObj('AuthService', ['logout', 'hasRole'], {
       isAuthenticated: signal(false),
       user: signal(null),
+      availableTenants: signal([]),
+      activeTenantId: signal(null),
     });
+    authService.hasRole.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -84,13 +87,16 @@ describe('Header — salon name stability', () => {
   let isAuth$: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
-    user$ = signal({ id: 1, role: 'PRO' } as any);
+    user$ = signal({ id: 1, roles: ['PRO'], activeTenantId: 42, availableTenants: [] } as any);
     isAuth$ = signal(true);
 
-    const auth = jasmine.createSpyObj('AuthService', ['logout'], {
+    const auth = jasmine.createSpyObj('AuthService', ['logout', 'hasRole'], {
       isAuthenticated: isAuth$,
       user: user$,
+      availableTenants: signal([]),
+      activeTenantId: signal(42),
     });
+    auth.hasRole.and.callFake((...roles: string[]) => roles.includes('PRO'));
 
     salonService = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
       'getProfile',
@@ -202,10 +208,13 @@ describe('Header — small LuxPretty logo on salon pages', () => {
     salonService = jasmine.createSpyObj('SalonProfileService', ['getProfile', 'getPublicSalon']);
     salonService.getPublicSalon.and.returnValue(of({ name: 'Le Salon Rose', slug: 'le-salon-rose' } as any));
 
-    const authService = jasmine.createSpyObj('AuthService', ['logout'], {
+    const authService = jasmine.createSpyObj('AuthService', ['logout', 'hasRole'], {
       isAuthenticated: signal(false),
       user: signal(null),
+      availableTenants: signal([]),
+      activeTenantId: signal(null),
     });
+    authService.hasRole.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [

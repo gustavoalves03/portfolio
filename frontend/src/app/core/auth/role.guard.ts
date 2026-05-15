@@ -22,8 +22,7 @@ export const roleGuard = (requiredRole: Role): CanActivateFn => {
         if (!authenticated) {
           return router.createUrlTree(['/login']);
         }
-        const user = authService.user();
-        if (user?.role === requiredRole || user?.role === Role.ADMIN) {
+        if (authService.hasRole(requiredRole, Role.ADMIN)) {
           return true;
         }
         return router.createUrlTree(['/']);

@@ -113,8 +113,27 @@ class MeControllerTests {
                         .content("{\"tenantId\": 42}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("new.jwt.token"))
-                .andExpect(jsonPath("$.user.role").value("PRO"))
-                .andExpect(jsonPath("$.user.roles[0]").value("PRO"));
+                .andExpect(jsonPath("$.user.roles[0]").value("PRO"))
+                .andExpect(jsonPath("$.user.activeTenantId").value(42));
+    }
+
+    @Test
+    void switchTenant_acceptsNullTenantId_emitsClientMode() throws Exception {
+        when(userRoleService.findUserTenantIds(1L)).thenReturn(List.of(42L));
+        User u = User.builder().id(1L).email("a@a.com").name("A").build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(u));
+        when(tokenService.generateToken(any(User.class), eq((Long) null))).thenReturn("client.mode.token");
+        when(userRoleService.resolveRoles(1L, null)).thenReturn(Set.of());
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/me/switch-tenant")
+                        .with(authentication(authFor(1L)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"tenantId\": null}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("client.mode.token"))
+                .andExpect(jsonPath("$.user.activeTenantId").doesNotExist())
+                .andExpect(jsonPath("$.user.roles").isEmpty());
     }
 
     @Test
