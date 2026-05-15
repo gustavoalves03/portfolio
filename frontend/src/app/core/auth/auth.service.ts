@@ -1,9 +1,8 @@
 import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
-import { Role } from './auth.model';
+import { Role, TenantSummary, User, AuthResponse } from './auth.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of, map } from 'rxjs';
-import { User } from './auth.model';
 import { isPlatformBrowser } from '@angular/common';
 import { API_BASE_URL } from '../config/api-base-url.token';
 import { TenantStatusService } from '../tenant/tenant-status.service';
@@ -27,6 +26,12 @@ export class AuthService {
   // Computed signals
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
   readonly user = this.currentUser.asReadonly();
+
+  // Scoped-RBAC signals derived from the JWT-driven currentUser
+  readonly roles = computed<Role[]>(() => this.currentUser()?.roles ?? []);
+  readonly activeTenantId = computed<number | null>(() => this.currentUser()?.activeTenantId ?? null);
+  readonly availableTenants = computed<TenantSummary[]>(() => this.currentUser()?.availableTenants ?? []);
+  readonly isClientMode = computed<boolean>(() => this.activeTenantId() === null);
 
   constructor() {
     // Load token from localStorage on init (browser only)
@@ -178,17 +183,46 @@ export class AuthService {
   }
 
   /**
-   * Navigate to the appropriate dashboard based on user role
+   * Navigate to the appropriate dashboard based on the user's roles and
+   * whether a tenant context is active. In client mode (no activeTenantId),
+   * pros and employees go to the public home — they're acting as clients.
    */
   navigateByRole(): void {
-    const role = this.currentUser()?.role;
-    if (role === Role.PRO || role === Role.ADMIN) {
+    const inClientMode = this.isClientMode();
+    if (!inClientMode && this.hasRole(Role.PRO, Role.ADMIN)) {
       this.router.navigate(['/pro/dashboard']);
-    } else if (role === Role.EMPLOYEE) {
+    } else if (!inClientMode && this.hasRole(Role.EMPLOYEE)) {
       this.router.navigate(['/employee/bookings']);
     } else {
       this.router.navigate(['/']);
     }
+  }
+
+  /**
+   * True if the user holds ANY of the given roles.
+   * ADMIN is NOT auto-promoted — callers that want ADMIN to bypass must
+   * include Role.ADMIN explicitly: hasRole(Role.PRO, Role.ADMIN).
+   */
+  hasRole(...required: Role[]): boolean {
+    const userRoles = this.roles();
+    return required.some(r => userRoles.includes(r));
+  }
+
+  /**
+   * Switch the active tenant. Pass null to drop into client mode (no tenant
+   * context, only GLOBAL roles apply). Re-issues the JWT and updates the
+   * stored user.
+   */
+  switchTenant(tenantId: number | null): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiBaseUrl}/api/me/switch-tenant`,
+      { tenantId }
+    ).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.currentUser.set(response.user);
+      })
+    );
   }
 
   /**
