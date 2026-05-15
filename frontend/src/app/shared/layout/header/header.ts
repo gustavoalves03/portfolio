@@ -29,9 +29,11 @@ export class Header {
   protected readonly authService = inject(AuthService);
   protected readonly notificationsStore = inject(NotificationsStore);
   protected readonly dialog = inject(MatDialog);
+  protected readonly Role = Role;
   protected readonly isPro = computed(() => {
-    const role = this.authService.user()?.role;
-    return role === Role.PRO || role === Role.ADMIN || role === Role.EMPLOYEE;
+    // Read user() to subscribe the computed to currentUser changes.
+    this.authService.user();
+    return this.authService.hasRole(Role.PRO, Role.ADMIN, Role.EMPLOYEE);
   });
 
   protected readonly salonName = signal('');

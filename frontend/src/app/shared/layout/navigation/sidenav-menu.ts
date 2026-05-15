@@ -38,10 +38,9 @@ export class SidenavMenu {
   ];
 
   protected readonly routes = computed<NavigationRoute[]>(() => {
-    const user = this.authService.user();
-    const role = user?.role;
-    const isPro = role === Role.PRO || role === Role.ADMIN;
-    const isEmployee = role === Role.EMPLOYEE;
+    this.authService.user(); // subscribe to currentUser changes
+    const isPro = this.authService.hasRole(Role.PRO, Role.ADMIN);
+    const isEmployee = this.authService.hasRole(Role.EMPLOYEE);
 
     // PRO: only show pro routes (no public Accueil/À propos)
     // Filter out the employees route when the feature is disabled
