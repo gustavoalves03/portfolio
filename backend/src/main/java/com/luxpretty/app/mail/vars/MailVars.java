@@ -6,4 +6,5 @@ package com.luxpretty.app.mail.vars;
  * Records are serialized to JSON and stored in {@code MAIL_OUTBOX.VARS_JSON}.
  */
 public sealed interface MailVars
-    permits ResetPasswordVars, BookingConfirmedVars, BookingReceivedProVars, WelcomeProVars {}
+    permits ResetPasswordVars, BookingConfirmedVars, BookingReceivedProVars, WelcomeProVars,
+            InvoicePaidVars, InvoicePaymentFailedVars, TrialEndingVars {}

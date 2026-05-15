@@ -1,0 +1,13 @@
+Bonjour [(${userName})],
+
+Nous avons bien reçu votre paiement de [(${amountFormatted})]
+pour votre abonnement LuxPretty ([(${tenantSlug})]).
+
+Votre facture n° [(${invoiceNumber})] est disponible :
+[(${invoicePdfUrl})]
+
+Merci pour votre confiance.
+
+Accéder à mon espace : [(${dashboardUrl})]
+
+— LuxPretty

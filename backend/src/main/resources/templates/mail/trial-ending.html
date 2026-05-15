@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Votre essai se termine bientôt — LuxPretty')}">
+<body>
+<div th:fragment="content">
+    <h1>Votre essai gratuit se termine bientôt</h1>
+    <p>Bonjour <span th:text="${userName}">…</span>,</p>
+    <p>Votre essai gratuit de l'offre <strong th:text="${tierLabel}">…</strong>
+       se termine le <strong th:text="${trialEndDateFormatted}">…</strong>.</p>
+    <p>À cette date, votre abonnement <span th:text="${priceLabel}">…</span>
+       sera activé automatiquement. Vous n'avez rien à faire.</p>
+    <p>Vous pouvez à tout moment annuler ou changer d'offre depuis votre espace :</p>
+    <p><a th:href="${dashboardUrl}" class="cta">Gérer mon abonnement</a></p>
+    <p>Une question ? Répondez simplement à cet email.</p>
+</div>
+</body>
+</html>
