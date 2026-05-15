@@ -2,14 +2,20 @@ export enum AuthProvider {
   LOCAL = 'LOCAL',
   GOOGLE = 'GOOGLE',
   FACEBOOK = 'FACEBOOK',
-  APPLE = 'APPLE'
+  APPLE = 'APPLE',
 }
 
 export enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
   PRO = 'PRO',
-  EMPLOYEE = 'EMPLOYEE'
+  EMPLOYEE = 'EMPLOYEE',
+  COMMERCIAL = 'COMMERCIAL',
+  ADMIN = 'ADMIN',
+}
+
+export interface TenantSummary {
+  id: number;
+  slug: string;
+  name: string;
 }
 
 export interface User {
@@ -18,7 +24,9 @@ export interface User {
   email: string;
   imageUrl?: string;
   provider: AuthProvider;
-  role: Role;
+  roles: Role[];
+  activeTenantId: number | null;
+  availableTenants: TenantSummary[];
 }
 
 export interface AuthResponse {
