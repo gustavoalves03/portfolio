@@ -1631,5 +1631,26 @@
       "subtitle": "Vos paiements en salon",
       "navLink": "Mes factures"
     }
+  },
+  "paymentOnboarding": {
+    "eyebrow": "PAIEMENT",
+    "title": "Votre essai gratuit commence.",
+    "subtitle": "Aucun prélèvement avant 7 jours. Annulable à tout moment.",
+    "recap": {
+      "gestionMonthly": "Gestion · 49,99 €/mois",
+      "gestionYearly": "Gestion · 42,49 €/mois facturé à l'année",
+      "premiumMonthly": "Premium · 67,99 €/mois",
+      "premiumYearly": "Premium · 57,79 €/mois facturé à l'année"
+    },
+    "cardLabel": "Informations de paiement",
+    "submit": "Confirmer mon essai",
+    "submitting": "Confirmation...",
+    "trust": "Stripe gère le paiement de manière sécurisée.",
+    "errors": {
+      "init": "Impossible d'initialiser le paiement. Réessayez.",
+      "stripe": "Carte refusée ou invalide.",
+      "subscription": "L'abonnement n'a pas pu être créé. Réessayez.",
+      "generic": "Une erreur est survenue."
+    }
   }
 }

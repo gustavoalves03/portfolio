@@ -1627,5 +1627,26 @@
       "subtitle": "Your salon payments",
       "navLink": "My invoices"
     }
+  },
+  "paymentOnboarding": {
+    "eyebrow": "PAYMENT",
+    "title": "Your free trial begins.",
+    "subtitle": "No charge for 7 days. Cancel anytime.",
+    "recap": {
+      "gestionMonthly": "Gestion · €49.99/month",
+      "gestionYearly": "Gestion · €42.49/mo billed yearly",
+      "premiumMonthly": "Premium · €67.99/month",
+      "premiumYearly": "Premium · €57.79/mo billed yearly"
+    },
+    "cardLabel": "Payment details",
+    "submit": "Confirm my trial",
+    "submitting": "Confirming...",
+    "trust": "Stripe processes payment securely.",
+    "errors": {
+      "init": "Could not initialize payment. Try again.",
+      "stripe": "Card declined or invalid.",
+      "subscription": "Subscription could not be created. Try again.",
+      "generic": "Something went wrong."
+    }
   }
 }

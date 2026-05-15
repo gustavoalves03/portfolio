@@ -43,3 +43,7 @@ export interface SubscriptionResponse {
 export interface PortalSessionResponse {
   url: string;
 }
+
+export interface StripeConfigResponse {
+  publishableKey: string;
+}

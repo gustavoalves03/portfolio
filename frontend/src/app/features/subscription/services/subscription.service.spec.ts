@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import {
   CreateSubscriptionRequest,
   PricingPlan,
+  StripeConfigResponse,
   SubscriptionResponse,
 } from '../models/subscription.model';
 
@@ -30,6 +31,17 @@ describe('SubscriptionService', () => {
   });
 
   afterEach(() => httpMock.verify());
+
+  it('getStripeConfig GETs /api/stripe/config and returns the publishableKey', () => {
+    const config: StripeConfigResponse = { publishableKey: 'pk_test_abc123' };
+    let received: StripeConfigResponse | undefined;
+    service.getStripeConfig().subscribe(r => (received = r));
+
+    const req = httpMock.expectOne(`${API}/api/stripe/config`);
+    expect(req.request.method).toBe('GET');
+    req.flush(config);
+    expect(received).toEqual(config);
+  });
 
   it('getPricing GETs /api/pricing and returns the plan list', () => {
     const plans: PricingPlan[] = [

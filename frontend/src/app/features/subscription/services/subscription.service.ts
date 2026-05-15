@@ -7,6 +7,7 @@ import {
   PortalSessionResponse,
   PricingPlan,
   SetupIntentResponse,
+  StripeConfigResponse,
   SubscriptionResponse,
 } from '../models/subscription.model';
 
@@ -14,6 +15,10 @@ import {
 export class SubscriptionService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+
+  getStripeConfig(): Observable<StripeConfigResponse> {
+    return this.http.get<StripeConfigResponse>(`${this.apiBaseUrl}/api/stripe/config`);
+  }
 
   getPricing(): Observable<PricingPlan[]> {
     return this.http.get<PricingPlan[]>(`${this.apiBaseUrl}/api/pricing`);

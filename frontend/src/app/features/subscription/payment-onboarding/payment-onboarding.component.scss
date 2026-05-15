@@ -1,0 +1,236 @@
+// LuxPretty palette
+$nacre: #fbf7f4;
+$white: #ffffff;
+$sea-mist: #d4dbd7;
+$dusty-rose: #c97b84;
+$rose-light: #f3dedc;
+$sand: #f5efe7;
+$charcoal: #2c2a28;
+$body: #6b655f;
+$error-bg: #fdf0f1;
+$error-border: #f0c4c8;
+$error-text: #c0485a;
+
+:host {
+  display: block;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  background: $nacre;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  background: $white;
+  border: 1px solid $sea-mist;
+  border-radius: 24px;
+  padding: 40px 48px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow:
+    0 4px 6px -1px rgba(44, 42, 40, 0.06),
+    0 10px 15px -3px rgba(44, 42, 40, 0.04),
+    0 1px 2px rgba(44, 42, 40, 0.04);
+
+  @media (max-width: 600px) {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+}
+
+// Eyebrow
+.eyebrow {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $dusty-rose;
+  margin: 0 0 12px;
+}
+
+// Title
+.title {
+  font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 600;
+  line-height: 1.15;
+  color: $charcoal;
+  margin: 0 0 10px;
+}
+
+// Subtitle
+.subtitle {
+  font-size: 15px;
+  color: $body;
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+// Recap pill
+.recap-pill {
+  display: inline-block;
+  background: $sand;
+  border: 1px solid #e8dfd4;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: $charcoal;
+  margin: 0 auto 28px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// Card field
+.card-field-wrapper {
+  margin-bottom: 20px;
+}
+
+.card-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: $body;
+  margin: 0 0 8px;
+}
+
+.card-element {
+  border: 1px solid $sea-mist;
+  border-radius: 10px;
+  padding: 14px;
+  background: $white;
+  transition: border-color 0.15s ease;
+  min-height: 48px;
+
+  &:focus-within {
+    border-color: $dusty-rose;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(201, 123, 132, 0.15);
+  }
+}
+
+// Error banner
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $error-bg;
+  border: 1px solid $error-border;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: $error-text;
+  margin-bottom: 16px;
+  line-height: 1.4;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Submit button
+.submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: $dusty-rose;
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease,
+    opacity 0.15s ease;
+  margin-bottom: 16px;
+
+  &:hover:not(:disabled) {
+    background: #b86870;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Trust note
+.trust-note {
+  text-align: center;
+  font-size: 12px;
+  color: $body;
+  margin: 0;
+  opacity: 0.8;
+}
+
+// Skeleton loader
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .skeleton-eyebrow {
+    height: 12px;
+    width: 80px;
+    background: $sea-mist;
+    border-radius: 6px;
+  }
+
+  .skeleton-title {
+    height: 36px;
+    width: 85%;
+    background: $sea-mist;
+    border-radius: 8px;
+  }
+
+  .skeleton-subtitle {
+    height: 14px;
+    width: 70%;
+    background: $sea-mist;
+    border-radius: 6px;
+  }
+
+  .skeleton-recap {
+    height: 32px;
+    width: 60%;
+    background: $sea-mist;
+    border-radius: 999px;
+    margin: 0 auto;
+  }
+
+  .skeleton-card {
+    height: 100px;
+    background: $sea-mist;
+    border-radius: 10px;
+  }
+
+  .skeleton-button {
+    height: 48px;
+    background: #e8b4b9;
+    border-radius: 10px;
+    opacity: 0.4;
+  }
+}
+
+// Tailwind-style pulse animation fallback
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
