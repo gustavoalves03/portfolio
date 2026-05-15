@@ -53,6 +53,7 @@ public class SecurityConfig {
     private final OAuth2RoleHintFilter oAuth2RoleHintFilter;
     private final com.luxpretty.app.users.app.UserRoleService userRoleService;
     private final com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+    private final SubscriptionGuard subscriptionGuard;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
                           RestAuthenticationEntryPoint authenticationEntryPoint,
@@ -66,7 +67,8 @@ public class SecurityConfig {
                           TenantFilter tenantFilter,
                           OAuth2RoleHintFilter oAuth2RoleHintFilter,
                           com.luxpretty.app.users.app.UserRoleService userRoleService,
-                          com.luxpretty.app.tenant.repo.TenantRepository tenantRepository) {
+                          com.luxpretty.app.tenant.repo.TenantRepository tenantRepository,
+                          SubscriptionGuard subscriptionGuard) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
@@ -80,6 +82,7 @@ public class SecurityConfig {
         this.oAuth2RoleHintFilter = oAuth2RoleHintFilter;
         this.userRoleService = userRoleService;
         this.tenantRepository = tenantRepository;
+        this.subscriptionGuard = subscriptionGuard;
     }
 
     @Bean
@@ -113,16 +116,17 @@ public class SecurityConfig {
         };
 
         http
-                // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter
+                // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter, then subscription guard
                 .addFilterBefore(oAuth2RoleHintFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository, tenantRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(subscriptionGuard, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
                         // /api/test/** is only mapped when the `smoke-test` profile is active
                         // (see SmokeTestSeedController). Exemption is inert otherwise.
-                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**", "/api/test/**", "/api/webhooks/postmark")
+                        .ignoringRequestMatchers("/oauth2/**", "/api/auth/**", "/ws/**", "/api/test/**", "/api/webhooks/postmark", "/api/webhooks/stripe")
                 )
                 .cors(cors -> cors.configurationSource(request -> {
                     var c = new CorsConfiguration();
@@ -139,7 +143,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/ping", "/api/webhooks/postmark").permitAll()
+                        .requestMatchers("/actuator/health", "/ping", "/api/webhooks/postmark", "/api/webhooks/stripe").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
