@@ -37,6 +37,7 @@ public class TrackingService {
     private final EmployeePermissionService permissionService;
     private final EmployeeRepository employeeRepository;
     private final StorageBackend storageBackend;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     public TrackingService(ClientProfileRepository profileRepo,
                            VisitRecordRepository visitRepo,
@@ -46,7 +47,8 @@ public class TrackingService {
                            ApplicationSchemaExecutor applicationSchemaExecutor,
                            EmployeePermissionService permissionService,
                            EmployeeRepository employeeRepository,
-                           StorageBackend storageBackend) {
+                           StorageBackend storageBackend,
+                           com.luxpretty.app.users.app.UserRoleService userRoleService) {
         this.profileRepo = profileRepo;
         this.visitRepo = visitRepo;
         this.photoRepo = photoRepo;
@@ -56,6 +58,7 @@ public class TrackingService {
         this.permissionService = permissionService;
         this.employeeRepository = employeeRepository;
         this.storageBackend = storageBackend;
+        this.userRoleService = userRoleService;
     }
 
     // ── Authorization helpers ──
@@ -83,8 +86,9 @@ public class TrackingService {
         if (targetUserId != null && caller.getId().equals(targetUserId)) {
             return;
         }
-        Role role = resolveCallerRole(caller.getId());
-        if (role == Role.PRO || role == Role.ADMIN) {
+        boolean canManage = applicationSchemaExecutor.call(
+                () -> userRoleService.hasAnyRoleAcrossScopes(caller.getId(), Role.PRO, Role.ADMIN));
+        if (canManage) {
             return;
         }
         // Must be an employee with adequate permission.
@@ -93,12 +97,6 @@ public class TrackingService {
                         "Caller has no tracking access"))
                 .getId();
         permissionService.requireAccess(employeeId, domain, level);
-    }
-
-    private Role resolveCallerRole(Long callerId) {
-        return applicationSchemaExecutor.call(() -> userRepository.findById(callerId)
-                .map(User::getRole)
-                .orElse(null));
     }
 
     // ── Profile ──

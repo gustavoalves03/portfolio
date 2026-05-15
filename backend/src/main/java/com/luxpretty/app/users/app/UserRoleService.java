@@ -57,6 +57,19 @@ public class UserRoleService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+    /**
+     * Returns true if the user holds any of the given roles in any scope
+     * (GLOBAL or any TENANT). Convenience for permission checks that don't
+     * need to know which specific tenant the role applies to — e.g. "is this
+     * user a PRO somewhere in the platform?".
+     */
+    @Transactional(readOnly = true)
+    public boolean hasAnyRoleAcrossScopes(Long userId, Role... roles) {
+        Set<Role> wanted = Set.of(roles);
+        return repo.findByUserId(userId).stream()
+                .anyMatch(a -> wanted.contains(a.getRole()));
+    }
+
     @Transactional(readOnly = true)
     public List<Long> findUserTenantIds(Long userId) {
         return repo.findByUserIdAndScopeType(userId, ScopeType.TENANT).stream()

@@ -74,13 +74,14 @@ class TrackingAccessLevelSecurityTests {
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
     @Mock private EmployeePermissionService mockPermissionService;
     @Mock private StorageBackend storageBackend;
+    @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     private TrackingService trackingService() {
         lenient().when(applicationSchemaExecutor.call(any()))
                 .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
         return new TrackingService(profileRepo, visitRepo, photoRepo, reminderRepo,
                 userRepository, applicationSchemaExecutor,
-                mockPermissionService, employeeRepo, storageBackend);
+                mockPermissionService, employeeRepo, storageBackend, userRoleService);
     }
 
     private static UserPrincipal principal(Long id) {
@@ -93,7 +94,6 @@ class TrackingAccessLevelSecurityTests {
                 .name("Employee")
                 .email("emp@example.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
                 .build();
         when(userRepository.findById(callerUserId)).thenReturn(Optional.of(u));
 
@@ -239,7 +239,6 @@ class TrackingAccessLevelSecurityTests {
                 .name("Owner")
                 .email("owner@example.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
         when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
 

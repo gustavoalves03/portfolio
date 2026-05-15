@@ -33,6 +33,9 @@ class OAuth2AuthenticationSuccessHandlerTests {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
+
     private TokenService tokenService;
     private OAuth2AuthenticationSuccessHandler handler;
 
@@ -45,7 +48,7 @@ class OAuth2AuthenticationSuccessHandlerTests {
         ReflectionTestUtils.setField(tokenService, "tokenSecret", TEST_SECRET);
         ReflectionTestUtils.setField(tokenService, "tokenExpirationMs", 86400000L);
 
-        handler = new OAuth2AuthenticationSuccessHandler(tokenService, userRepository);
+        handler = new OAuth2AuthenticationSuccessHandler(tokenService, userRepository, userRoleService);
         ReflectionTestUtils.setField(handler, "authorizedRedirectUri", REDIRECT_URI);
     }
 
@@ -57,7 +60,6 @@ class OAuth2AuthenticationSuccessHandlerTests {
             .name("Sophie Martin")
             .email("sophie@salon.fr")
             .provider(AuthProvider.GOOGLE)
-            .role(Role.PRO)
             .emailVerified(true)
             .build();
 
@@ -116,7 +118,7 @@ class OAuth2AuthenticationSuccessHandlerTests {
     void onAuthenticationSuccess_clearsRoleHintCookie() throws Exception {
         User user = User.builder()
             .id(1L).name("Sophie").email("sophie@salon.fr")
-            .provider(AuthProvider.GOOGLE).role(Role.USER).emailVerified(true).build();
+            .provider(AuthProvider.GOOGLE).emailVerified(true).build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 

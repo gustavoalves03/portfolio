@@ -123,7 +123,6 @@ public class EmployeeService {
                             .email(req.email())
                             .password(passwordEncoder.encode(req.password()))
                             .provider(AuthProvider.LOCAL)
-                            .role(Role.EMPLOYEE)
                             .emailVerified(false)
                             .consentGivenAt(java.time.LocalDateTime.now())
                             .tenantSlug(tenantSlug)

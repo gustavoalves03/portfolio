@@ -8,6 +8,7 @@ import com.luxpretty.app.config.CsrfLoggingFilter;
 import com.luxpretty.app.common.error.RestAccessDeniedHandler;
 import com.luxpretty.app.common.error.RestAuthenticationEntryPoint;
 import com.luxpretty.app.auth.TokenService;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.users.repo.UserRepository;
 import com.luxpretty.app.auth.CustomOAuth2UserService;
 import com.luxpretty.app.auth.CustomOidcUserService;
@@ -49,6 +50,7 @@ class ProCategoryControllerTests {
     private CategoryService categoryService;
 
     @MockBean private TokenService tokenService;
+    @MockBean private UserRoleService userRoleService;
     @MockBean private UserRepository userRepository;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;
     @MockBean private CustomOidcUserService customOidcUserService;

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class TokenService {
@@ -47,6 +48,25 @@ public class TokenService {
             .subject(String.valueOf(userId))
             .claim("email", email)
             .claim("role", role)
+            .issuedAt(now)
+            .expiration(expiryDate)
+            .signWith(getSigningKey())
+            .compact();
+    }
+
+    /**
+     * Scoped-RBAC overload: emit a roles[] claim + activeTenantId. Task 5 will
+     * promote this to the canonical signature and remove the 3-arg variant.
+     */
+    public String generateToken(Long userId, String email, List<String> roles, Long activeTenantId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + tokenExpirationMs);
+
+        return Jwts.builder()
+            .subject(String.valueOf(userId))
+            .claim("email", email)
+            .claim("roles", roles)
+            .claim("activeTenantId", activeTenantId)
             .issuedAt(now)
             .expiration(expiryDate)
             .signWith(getSigningKey())

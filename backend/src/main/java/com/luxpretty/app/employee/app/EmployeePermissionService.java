@@ -26,15 +26,18 @@ public class EmployeePermissionService {
     private final EmployeeRepository employeeRepo;
     private final UserRepository userRepository;
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     public EmployeePermissionService(EmployeePermissionRepository permissionRepo,
                                       EmployeeRepository employeeRepo,
                                       UserRepository userRepository,
-                                      ApplicationSchemaExecutor applicationSchemaExecutor) {
+                                      ApplicationSchemaExecutor applicationSchemaExecutor,
+                                      com.luxpretty.app.users.app.UserRoleService userRoleService) {
         this.permissionRepo = permissionRepo;
         this.employeeRepo = employeeRepo;
         this.userRepository = userRepository;
         this.applicationSchemaExecutor = applicationSchemaExecutor;
+        this.userRoleService = userRoleService;
     }
 
     @Transactional(readOnly = true)
@@ -83,10 +86,9 @@ public class EmployeePermissionService {
         if (callerUserId == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
         }
-        Role role = applicationSchemaExecutor.call(() -> userRepository.findById(callerUserId)
-                .map(User::getRole)
-                .orElse(null));
-        if (role != Role.PRO && role != Role.ADMIN) {
+        boolean isManager = applicationSchemaExecutor.call(
+                () -> userRoleService.hasAnyRoleAcrossScopes(callerUserId, Role.PRO, Role.ADMIN));
+        if (!isManager) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Only tenant owners may modify employee permissions");
         }

@@ -120,13 +120,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // client, matching what end users expect from "Sign in with Google".
         String roleHint = readRoleHint();
         boolean isPro = "pro".equalsIgnoreCase(roleHint);
-        Role role = isPro ? Role.PRO : Role.USER;
         logger.info("Creating new {} OAuth2 user for {} (role hint: {})",
-                role, oAuth2UserInfo.getEmail(), roleHint);
-        User newUser = createNewUser(provider, oAuth2UserInfo, role);
+                isPro ? "PRO" : "CLIENT", oAuth2UserInfo.getEmail(), roleHint);
+        User newUser = createNewUser(provider, oAuth2UserInfo);
         User savedUser = userRepository.save(newUser);
 
         // Only provision a tenant when the user explicitly signed up as a pro.
+        // TenantProvisioningService creates the PRO@TENANT + EMPLOYEE@TENANT
+        // assignments (Task 7). Non-pro signups stay CLIENT implicite (no assignment).
         if (isPro) {
             boolean tenantExists = tenantRepository.findByOwnerId(savedUser.getId()).isPresent();
             if (!tenantExists) {
@@ -138,14 +139,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return savedUser;
     }
 
-    private User createNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo, Role role) {
+    private User createNewUser(AuthProvider provider, OAuth2UserInfo oAuth2UserInfo) {
         return User.builder()
             .name(oAuth2UserInfo.getName())
             .email(oAuth2UserInfo.getEmail())
             .imageUrl(oAuth2UserInfo.getImageUrl())
             .provider(provider)
             .providerId(oAuth2UserInfo.getId())
-            .role(role)
             .emailVerified(true) // OAuth2 providers verify emails
             .build();
     }

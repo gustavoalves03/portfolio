@@ -79,7 +79,6 @@ class AuthControllerTests {
                 .email("sophie@salon.fr")
                 .password("$2a$encoded")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .emailVerified(false)
                 .build();
 
@@ -167,7 +166,7 @@ class AuthControllerTests {
     @Test
     void forgotPassword_existingEmail_returns200() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+                .provider(AuthProvider.LOCAL).build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -196,7 +195,6 @@ class AuthControllerTests {
     @Test
     void forgotPassword_existingValidToken_skipsEmail() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("existing-token")
                 .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
                 .build();
@@ -216,7 +214,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_validToken_updatesPassword() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("valid-token")
                 .passwordResetTokenExpiresAt(Instant.now().plusSeconds(1800))
                 .build();
@@ -240,7 +237,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_expiredToken_returns400() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("expired-token")
                 .passwordResetTokenExpiresAt(Instant.now().minusSeconds(60))
                 .build();
@@ -266,7 +262,7 @@ class AuthControllerTests {
     @Test
     void forgotPassword_generatesUuidTokenWithOneHourExpiration() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO).build();
+                .provider(AuthProvider.LOCAL).build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -297,7 +293,6 @@ class AuthControllerTests {
     @Test
     void resetPassword_nullExpiration_returns400() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .provider(AuthProvider.LOCAL).role(Role.PRO)
                 .passwordResetToken("orphan-token")
                 .passwordResetTokenExpiresAt(null)
                 .build();
@@ -317,7 +312,6 @@ class AuthControllerTests {
     @Test
     void login_lockedAccount_returns423() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(5)
                 .accountLockedUntil(Instant.now().plusSeconds(900))
                 .build();
@@ -336,7 +330,6 @@ class AuthControllerTests {
     @Test
     void login_fifthFailedAttempt_locksAccount() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(4)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -357,7 +350,6 @@ class AuthControllerTests {
     @Test
     void login_successResetsFailedAttempts() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(3)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -381,7 +373,6 @@ class AuthControllerTests {
     @Test
     void login_happyPath_returnsTokenAndUser() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(0)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -420,7 +411,6 @@ class AuthControllerTests {
     @Test
     void login_wrongPasswordFirstAttempt_returns401AndIncrementsCounter() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(0)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
@@ -443,7 +433,6 @@ class AuthControllerTests {
     @Test
     void login_expiredLockout_allowsLogin() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
-                .password("$2a$encoded").provider(AuthProvider.LOCAL).role(Role.PRO)
                 .failedLoginAttempts(5)
                 .accountLockedUntil(Instant.now().minusSeconds(60))
                 .build();

@@ -75,7 +75,6 @@ class TrackingServiceTests {
                 .name("Pro")
                 .email("pro@example.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
         lenient().when(userRepository.findById(callerId)).thenReturn(Optional.of(proUser));
     }
@@ -151,7 +150,6 @@ class TrackingServiceTests {
                 .name("Mallory")
                 .email("mallory@example.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.USER)
                 .build();
         when(userRepository.findById(attackerId)).thenReturn(Optional.of(attacker));
         when(employeeRepository.findByUserId(attackerId)).thenReturn(Optional.empty());
@@ -188,7 +186,6 @@ class TrackingServiceTests {
                 .name("Sophie")
                 .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
                 .build();
         when(userRepository.findById(employeeUserId)).thenReturn(Optional.of(employeeUser));
 

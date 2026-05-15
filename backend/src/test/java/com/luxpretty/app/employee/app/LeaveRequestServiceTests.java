@@ -78,7 +78,6 @@ class LeaveRequestServiceTests {
                 .name("Owner")
                 .email("owner@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
         lenient().when(userRepository.findById(PRO_USER_ID)).thenReturn(Optional.of(proUser));
 
@@ -87,7 +86,6 @@ class LeaveRequestServiceTests {
                 .name("Sophie Martin")
                 .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.EMPLOYEE)
                 .build();
         lenient().when(userRepository.findById(EMPLOYEE_USER_ID)).thenReturn(Optional.of(employeeUser));
 
@@ -364,7 +362,6 @@ class LeaveRequestServiceTests {
                 .name("Attacker")
                 .email("attacker@example.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.USER)
                 .build();
         when(userRepository.findById(plainUserId)).thenReturn(Optional.of(plainUser));
 
@@ -393,7 +390,6 @@ class LeaveRequestServiceTests {
                 .name("Sophie Martin")
                 .email("sophie@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO) // even if somehow PRO
                 .build();
         when(userRepository.findById(selfCallerUserId)).thenReturn(Optional.of(selfPro));
 
@@ -450,7 +446,6 @@ class LeaveRequestServiceTests {
                 .name("Owner B")
                 .email("owner-b@luxpretty.com")
                 .provider(AuthProvider.LOCAL)
-                .role(Role.PRO)
                 .build();
         when(userRepository.findById(otherProUserId)).thenReturn(Optional.of(otherPro));
 

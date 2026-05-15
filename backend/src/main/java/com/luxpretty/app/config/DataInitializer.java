@@ -16,6 +16,7 @@ import com.luxpretty.app.tenant.app.SlugUtils;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.users.domain.AuthProvider;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
@@ -48,7 +49,8 @@ public class DataInitializer {
             CategoryRepository categoryRepository,
             CareRepository careRepository,
             OpeningHourRepository openingHourRepository,
-            PostRepository postRepository
+            PostRepository postRepository,
+            UserRoleService userRoleService
     ) {
         return args -> {
             if (userRepository.count() > 0) {
@@ -60,12 +62,15 @@ public class DataInitializer {
 
             // ── Admin ──
             User admin = createUser(userRepository, passwordEncoder,
-                    "LuxPretty Admin", "admin@luxpretty.com", "Admin2026!", Role.ADMIN);
+                    "LuxPretty Admin", "admin@luxpretty.com", "Admin2026!");
+            userRoleService.assignGlobal(admin.getId(), Role.ADMIN);
 
             // ── Pro 1: Sophie's salon ──
             User sophie = createUser(userRepository, passwordEncoder,
-                    "Sophie Martin", "sophie@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Sophie Martin", "sophie@luxpretty.com", DEFAULT_PASSWORD);
             Tenant salonSophie = createTenant(tenantRepository, sophie);
+            userRoleService.assignOnTenant(sophie.getId(), Role.PRO, salonSophie.getId());
+            userRoleService.assignOnTenant(sophie.getId(), Role.EMPLOYEE, salonSophie.getId());
             salonSophie.setName("L'Atelier de Sophie");
             salonSophie.setDescription("Institut de beauté spécialisé dans les soins du visage et le bien-être. " +
                     "Venez découvrir nos soins personnalisés dans un cadre chaleureux.");
@@ -84,8 +89,10 @@ public class DataInitializer {
 
             // ── Pro 2: Camille's salon ──
             User camille = createUser(userRepository, passwordEncoder,
-                    "Camille Dubois", "camille@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Camille Dubois", "camille@luxpretty.com", DEFAULT_PASSWORD);
             Tenant salonCamille = createTenant(tenantRepository, camille);
+            userRoleService.assignOnTenant(camille.getId(), Role.PRO, salonCamille.getId());
+            userRoleService.assignOnTenant(camille.getId(), Role.EMPLOYEE, salonCamille.getId());
             salonCamille.setName("Beauté by Camille");
             salonCamille.setDescription("Espace dédié à la beauté des ongles et au maquillage professionnel. " +
                     "Nail art, pose de vernis semi-permanent et maquillage événementiel.");
@@ -104,8 +111,10 @@ public class DataInitializer {
 
             // ── Pro 3: Isabelle's salon (Bordeaux) ──
             User isabelle = createUser(userRepository, passwordEncoder,
-                    "Isabelle Dupont", "isabelle@luxpretty.com", DEFAULT_PASSWORD, Role.PRO);
+                    "Isabelle Dupont", "isabelle@luxpretty.com", DEFAULT_PASSWORD);
             Tenant salonIsabelle = createTenant(tenantRepository, isabelle);
+            userRoleService.assignOnTenant(isabelle.getId(), Role.PRO, salonIsabelle.getId());
+            userRoleService.assignOnTenant(isabelle.getId(), Role.EMPLOYEE, salonIsabelle.getId());
             salonIsabelle.setName("Éclat Naturel");
             salonIsabelle.setDescription("Soins bio et naturels pour le visage et le corps. " +
                     "Produits certifiés bio, ambiance zen et cocooning.");
@@ -122,13 +131,13 @@ public class DataInitializer {
             seedSalonIsabelle(salonIsabelle.getSlug(), categoryRepository, careRepository, openingHourRepository);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonIsabelle.getName(), salonIsabelle.getSlug(), isabelle.getEmail());
 
-            // ── Clients ──
+            // ── Clients (CLIENT implicite — no UserRoleAssignment row) ──
             createUser(userRepository, passwordEncoder,
-                    "Marie Leroy", "marie@test.com", DEFAULT_PASSWORD, Role.USER);
+                    "Marie Leroy", "marie@test.com", DEFAULT_PASSWORD);
             createUser(userRepository, passwordEncoder,
-                    "Julie Petit", "julie@test.com", DEFAULT_PASSWORD, Role.USER);
+                    "Julie Petit", "julie@test.com", DEFAULT_PASSWORD);
             createUser(userRepository, passwordEncoder,
-                    "Clara Moreau", "clara@test.com", DEFAULT_PASSWORD, Role.USER);
+                    "Clara Moreau", "clara@test.com", DEFAULT_PASSWORD);
 
             // ── Posts (images from Unsplash) ──
             seedPosts(postRepository);
@@ -142,17 +151,16 @@ public class DataInitializer {
     }
 
     private User createUser(UserRepository repo, PasswordEncoder encoder,
-                            String name, String email, String password, Role role) {
+                            String name, String email, String password) {
         User user = User.builder()
                 .name(name)
                 .email(email)
                 .password(encoder.encode(password))
                 .provider(AuthProvider.LOCAL)
                 .emailVerified(true)
-                .role(role)
                 .build();
         User saved = repo.save(user);
-        logger.info("  → User created: {} ({}) [{}]", name, email, role);
+        logger.info("  → User created: {} ({})", name, email);
         return saved;
     }
 

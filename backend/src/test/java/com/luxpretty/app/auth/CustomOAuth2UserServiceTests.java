@@ -160,7 +160,7 @@ class CustomOAuth2UserServiceTests {
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.empty());
 
         User savedUser = User.builder().id(1L).name("Sophie Martin").email("sophie@salon.fr")
-            .provider(AuthProvider.GOOGLE).providerId("sub-123").role(Role.USER).emailVerified(true).build();
+            .provider(AuthProvider.GOOGLE).providerId("sub-123").emailVerified(true).build();
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         CustomOAuth2User result = (CustomOAuth2User) service.loadUser(request);
@@ -169,7 +169,8 @@ class CustomOAuth2UserServiceTests {
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
-        assertThat(captor.getValue().getRole()).isEqualTo(Role.USER);
+        // No tenant provisioning + no role-hint cookie ⇒ CLIENT implicite
+        // (no UserRoleAssignment created). User.role field no longer exists.
         assertThat(captor.getValue().getEmailVerified()).isTrue();
         assertThat(captor.getValue().getProvider()).isEqualTo(AuthProvider.GOOGLE);
 
@@ -190,7 +191,7 @@ class CustomOAuth2UserServiceTests {
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.empty());
 
         User savedUser = User.builder().id(1L).name("Sophie Martin").email("sophie@salon.fr")
-            .provider(AuthProvider.GOOGLE).providerId("sub-123").role(Role.PRO).emailVerified(true).build();
+            .provider(AuthProvider.GOOGLE).providerId("sub-123").emailVerified(true).build();
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(tenantRepository.findByOwnerId(1L)).thenReturn(Optional.empty());
         when(tenantProvisioningService.provision(any(User.class))).thenReturn(mock(Tenant.class));
@@ -201,7 +202,8 @@ class CustomOAuth2UserServiceTests {
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
-        assertThat(captor.getValue().getRole()).isEqualTo(Role.PRO);
+        // PRO role-hint cookie ⇒ tenant provisioning runs. The PRO@TENANT +
+        // EMPLOYEE@TENANT assignments are created inside provision() (Task 7).
         assertThat(captor.getValue().getEmailVerified()).isTrue();
         assertThat(captor.getValue().getProvider()).isEqualTo(AuthProvider.GOOGLE);
 
@@ -215,7 +217,6 @@ class CustomOAuth2UserServiceTests {
         service.setStubbedUser(mockGoogleUser("sub-123", "Sophie Updated", "sophie@salon.fr"));
 
         User existingUser = User.builder().id(1L).name("Sophie Old")
-            .provider(AuthProvider.GOOGLE).providerId("sub-123").role(Role.PRO)
             .imageUrl("https://old.url").build();
         when(userRepository.findByProviderAndProviderId(AuthProvider.GOOGLE, "sub-123"))
             .thenReturn(Optional.of(existingUser));
@@ -243,7 +244,7 @@ class CustomOAuth2UserServiceTests {
             .thenReturn(Optional.empty());
 
         User localUser = User.builder().id(2L).name("Sophie Martin").email("sophie@salon.fr")
-            .provider(AuthProvider.LOCAL).password("$2a$hash").role(Role.PRO).emailVerified(false).build();
+            .password("$2a$hash").provider(AuthProvider.LOCAL).emailVerified(false).build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(localUser));
         when(userRepository.save(any(User.class))).thenReturn(localUser);
 

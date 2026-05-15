@@ -6,6 +6,7 @@ import com.luxpretty.app.auth.CustomOidcUserService;
 import com.luxpretty.app.auth.OAuth2AuthenticationFailureHandler;
 import com.luxpretty.app.auth.OAuth2AuthenticationSuccessHandler;
 import com.luxpretty.app.auth.TokenService;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.care.app.CareService;
 import com.luxpretty.app.care.web.dto.CareResponse;
 import com.luxpretty.app.common.error.GlobalExceptionHandler;
@@ -55,6 +56,7 @@ class CareControllerValidationTests {
 
     @MockBean private CareService service;
     @MockBean private TokenService tokenService;
+    @MockBean private UserRoleService userRoleService;
     @MockBean private UserRepository userRepository;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;
     @MockBean private CustomOidcUserService customOidcUserService;

@@ -6,6 +6,7 @@ import com.luxpretty.app.auth.CustomOidcUserService;
 import com.luxpretty.app.auth.OAuth2AuthenticationFailureHandler;
 import com.luxpretty.app.auth.OAuth2AuthenticationSuccessHandler;
 import com.luxpretty.app.auth.TokenService;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.common.error.RestAccessDeniedHandler;
 import com.luxpretty.app.common.error.RestAuthenticationEntryPoint;
 import com.luxpretty.app.config.CsrfLoggingFilter;

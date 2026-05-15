@@ -33,15 +33,18 @@ public class LeaveRequestService {
     private final LeaveRequestRepository leaveRequestRepository;
     private final UserRepository userRepository;
     private final ApplicationSchemaExecutor applicationSchemaExecutor;
+    private final com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     public LeaveRequestService(EmployeeRepository employeeRepository,
                                LeaveRequestRepository leaveRequestRepository,
                                UserRepository userRepository,
-                               ApplicationSchemaExecutor applicationSchemaExecutor) {
+                               ApplicationSchemaExecutor applicationSchemaExecutor,
+                               com.luxpretty.app.users.app.UserRoleService userRoleService) {
         this.employeeRepository = employeeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
         this.userRepository = userRepository;
         this.applicationSchemaExecutor = applicationSchemaExecutor;
+        this.userRoleService = userRoleService;
     }
 
     @Transactional
@@ -141,11 +144,10 @@ public class LeaveRequestService {
     // Authorization helpers
     // -----------------------------------------------------------------------
 
-    private Role resolveCallerRole(Long callerUserId) {
-        if (callerUserId == null) return null;
-        return applicationSchemaExecutor.call(() -> userRepository.findById(callerUserId)
-                .map(User::getRole)
-                .orElse(null));
+    private boolean isManager(Long callerUserId) {
+        if (callerUserId == null) return false;
+        return applicationSchemaExecutor.call(
+                () -> userRoleService.hasAnyRoleAcrossScopes(callerUserId, Role.PRO, Role.ADMIN));
     }
 
     /**
@@ -156,8 +158,7 @@ public class LeaveRequestService {
         if (callerUserId == null) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
         }
-        Role role = resolveCallerRole(callerUserId);
-        if (role != Role.PRO && role != Role.ADMIN) {
+        if (!isManager(callerUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Only tenant owners may review leave requests");
         }
@@ -177,8 +178,7 @@ public class LeaveRequestService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthenticated caller");
         }
         // Tenant owners always allowed.
-        Role role = resolveCallerRole(callerUserId);
-        if (role == Role.PRO || role == Role.ADMIN) {
+        if (isManager(callerUserId)) {
             return;
         }
         // Caller is reading their own leaves?

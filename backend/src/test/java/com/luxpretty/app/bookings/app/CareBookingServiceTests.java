@@ -1097,7 +1097,6 @@ class CareBookingServiceTests {
                 .id(callerUserId)
                 .name("Louise")
                 .email("louise@salon.fr")
-                .role(Role.EMPLOYEE)
                 .build();
         when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
 
@@ -1155,7 +1154,6 @@ class CareBookingServiceTests {
                 .id(callerUserId)
                 .name("Louise")
                 .email("louise@salon.fr")
-                .role(Role.EMPLOYEE)
                 .build();
         when(userRepository.findById(callerUserId)).thenReturn(Optional.of(callerUser));
 

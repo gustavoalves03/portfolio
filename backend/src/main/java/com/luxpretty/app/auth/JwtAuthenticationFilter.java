@@ -1,5 +1,7 @@
 package com.luxpretty.app.auth;
 
+import com.luxpretty.app.users.app.UserRoleService;
+import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
 import com.luxpretty.app.users.repo.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -24,10 +26,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final UserRoleService userRoleService;
 
-    public JwtAuthenticationFilter(TokenService tokenService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(TokenService tokenService,
+                                   UserRepository userRepository,
+                                   UserRoleService userRoleService) {
         this.tokenService = tokenService;
         this.userRepository = userRepository;
+        this.userRoleService = userRoleService;
     }
 
     @Override
@@ -43,7 +49,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
                 UserPrincipal userPrincipal = UserPrincipal.create(user);
-                var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+                // Task 4 shim: expose every role the user has anywhere so existing
+                // hasRole(...) authorizations keep working. Task 6 will replace this
+                // by reading roles[] + activeTenantId from the JWT claims.
+                java.util.Set<Role> roles = new java.util.LinkedHashSet<>(userRoleService.resolveRoles(user.getId(), null));
+                for (Long tid : userRoleService.findUserTenantIds(user.getId())) {
+                    roles.addAll(userRoleService.resolveRoles(user.getId(), tid));
+                }
+                List<SimpleGrantedAuthority> authorities = roles.stream()
+                        .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
+                        .toList();
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userPrincipal,
                     null,

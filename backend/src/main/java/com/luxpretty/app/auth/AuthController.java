@@ -13,6 +13,7 @@ import com.luxpretty.app.mail.vars.ResetPasswordVars;
 import com.luxpretty.app.mail.vars.WelcomeProVars;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
 import com.luxpretty.app.tenant.repo.TenantRepository;
+import com.luxpretty.app.users.app.UserRoleService;
 import com.luxpretty.app.users.domain.AuthProvider;
 import com.luxpretty.app.users.domain.Role;
 import com.luxpretty.app.users.domain.User;
@@ -34,7 +35,9 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -49,19 +52,21 @@ public class AuthController {
     private final TenantProvisioningService tenantProvisioningService;
     private final TenantRepository tenantRepository;
     private final MailOutboxService mailOutbox;
+    private final UserRoleService userRoleService;
 
     @Value("${app.frontend.base-url}")
     private String frontendBaseUrl;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService,
                           TenantProvisioningService tenantProvisioningService, TenantRepository tenantRepository,
-                          MailOutboxService mailOutbox) {
+                          MailOutboxService mailOutbox, UserRoleService userRoleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.tenantProvisioningService = tenantProvisioningService;
         this.tenantRepository = tenantRepository;
         this.mailOutbox = mailOutbox;
+        this.userRoleService = userRoleService;
     }
 
     @PostMapping("/register")
@@ -92,15 +97,16 @@ public class AuthController {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .provider(AuthProvider.LOCAL)
-                .role(role)
                 .emailVerified(false)
                 .consentGivenAt(LocalDateTime.now())
                 .build();
 
         User savedUser = userRepository.save(user);
 
+        Long activeTenantId = null;
         if (provisionTenant) {
-            tenantProvisioningService.provision(savedUser);
+            var tenant = tenantProvisioningService.provision(savedUser);
+            activeTenantId = tenant.getId();
         }
         mailOutbox.queue(
                 MailTemplate.WELCOME_PRO,
@@ -111,18 +117,8 @@ public class AuthController {
                 savedUser.getEmail(),
                 null);
 
-        String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());
-
-        UserDto userDto = UserDto.builder()
-                .id(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .imageUrl(savedUser.getImageUrl())
-                .provider(savedUser.getProvider())
-                .role(savedUser.getRole())
-                .build();
-
-        return ResponseEntity.ok(new AuthResponse(token, userDto));
+        AuthResponse response = buildAuthResponse(savedUser, activeTenantId);
+        return ResponseEntity.ok(response);
     }
 
     private ResponseEntity<AuthResponse> registerProWithSalonInfo(ProRegisterRequest request) {
@@ -134,7 +130,6 @@ public class AuthController {
                 .name(request.name())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .role(Role.PRO)
                 .provider(AuthProvider.LOCAL)
                 .emailVerified(false)
                 .consentGivenAt(LocalDateTime.now())
@@ -164,18 +159,8 @@ public class AuthController {
             logger.warn("Failed to queue welcome email for {}: {}", savedUser.getEmail(), e.getMessage());
         }
 
-        String token = tokenService.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole().name());
-
-        UserDto userDto = UserDto.builder()
-                .id(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .imageUrl(savedUser.getImageUrl())
-                .provider(savedUser.getProvider())
-                .role(savedUser.getRole())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AuthResponse(token, userDto));
+        AuthResponse response = buildAuthResponse(savedUser, tenant.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
@@ -211,18 +196,9 @@ public class AuthController {
             userRepository.save(user);
         }
 
-        String token = tokenService.generateToken(user.getId(), user.getEmail(), user.getRole().name());
-
-        UserDto userDto = UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .imageUrl(user.getImageUrl())
-                .provider(user.getProvider())
-                .role(user.getRole())
-                .build();
-
-        return ResponseEntity.ok(new AuthResponse(token, userDto));
+        Long activeTenantId = userRoleService.findUserTenantIds(user.getId())
+                .stream().findFirst().orElse(null);
+        return ResponseEntity.ok(buildAuthResponse(user, activeTenantId));
     }
 
     @GetMapping("/me")
@@ -237,16 +213,9 @@ public class AuthController {
         User user = userRepository.findById(userPrincipal.getId())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserDto userDto = UserDto.builder()
-            .id(user.getId())
-            .name(user.getName())
-            .email(user.getEmail())
-            .imageUrl(user.getImageUrl())
-            .provider(user.getProvider())
-            .role(user.getRole())
-            .build();
-
-        return ResponseEntity.ok(userDto);
+        Long activeTenantId = userRoleService.findUserTenantIds(user.getId())
+                .stream().findFirst().orElse(null);
+        return ResponseEntity.ok(buildUserDto(user, activeTenantId));
     }
 
     @PostMapping("/forgot-password")
@@ -295,5 +264,43 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+    }
+
+    // -----------------------------------------------------------------------
+    // Helpers: token + UserDto assembly from scoped role assignments
+    // -----------------------------------------------------------------------
+
+    private AuthResponse buildAuthResponse(User user, Long activeTenantId) {
+        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
+        List<String> roleNames = resolved.stream().map(Enum::name).toList();
+        String token = tokenService.generateToken(user.getId(), user.getEmail(), roleNames, activeTenantId);
+        UserDto dto = toUserDto(user, resolved, roleNames);
+        return new AuthResponse(token, dto);
+    }
+
+    private UserDto buildUserDto(User user, Long activeTenantId) {
+        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), activeTenantId);
+        List<String> roleNames = resolved.stream().map(Enum::name).toList();
+        return toUserDto(user, resolved, roleNames);
+    }
+
+    private UserDto toUserDto(User user, Set<Role> resolved, List<String> roleNames) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .imageUrl(user.getImageUrl())
+                .provider(user.getProvider())
+                .role(pickLegacyRole(resolved))
+                .roles(roleNames)
+                .build();
+    }
+
+    private static String pickLegacyRole(Set<Role> roles) {
+        if (roles.contains(Role.ADMIN)) return "ADMIN";
+        if (roles.contains(Role.COMMERCIAL)) return "COMMERCIAL";
+        if (roles.contains(Role.PRO)) return "PRO";
+        if (roles.contains(Role.EMPLOYEE)) return "EMPLOYEE";
+        return null;
     }
 }
