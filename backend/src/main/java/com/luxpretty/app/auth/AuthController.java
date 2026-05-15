@@ -11,6 +11,7 @@ import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.ResetPasswordVars;
 import com.luxpretty.app.mail.vars.WelcomeProVars;
+import com.luxpretty.app.subscription.app.SubscriptionService;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.app.UserRoleService;
@@ -52,6 +53,7 @@ public class AuthController {
     private final TenantProvisioningService tenantProvisioningService;
     private final TenantRepository tenantRepository;
     private final MailOutboxService mailOutbox;
+    private final SubscriptionService subscriptionService;
     private final UserRoleService userRoleService;
 
     @Value("${app.frontend.base-url}")
@@ -59,13 +61,15 @@ public class AuthController {
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService,
                           TenantProvisioningService tenantProvisioningService, TenantRepository tenantRepository,
-                          MailOutboxService mailOutbox, UserRoleService userRoleService) {
+                          MailOutboxService mailOutbox, SubscriptionService subscriptionService,
+                          UserRoleService userRoleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.tenantProvisioningService = tenantProvisioningService;
         this.tenantRepository = tenantRepository;
         this.mailOutbox = mailOutbox;
+        this.subscriptionService = subscriptionService;
         this.userRoleService = userRoleService;
     }
 
@@ -145,6 +149,13 @@ public class AuthController {
         tenant.setAddressCity(request.addressCity());
         tenant.setSiret(request.siret());
         tenantRepository.save(tenant);
+
+        // Initialize Stripe customer for the tenant (idempotent, non-blocking on failure)
+        try {
+            subscriptionService.initializeForTenant(savedUser, tenant);
+        } catch (Exception e) {
+            logger.warn("Failed to initialize Stripe customer for tenant {}: {}", tenant.getSlug(), e.getMessage());
+        }
 
         try {
             mailOutbox.queue(

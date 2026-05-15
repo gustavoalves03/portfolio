@@ -1,6 +1,6 @@
 package com.luxpretty.app.config;
 
-import com.luxpretty.app.auth.UserPrincipal;
+import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.subscription.domain.SubscriptionStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import jakarta.servlet.Filter;
@@ -11,7 +11,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -46,15 +45,17 @@ public class SubscriptionGuard implements Filter {
             return;
         }
 
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof UserPrincipal principal)) {
-            chain.doFilter(req, res); // let SecurityConfig reject downstream
+        // Resolve the active tenant from TenantContext (set by JwtAuthenticationFilter
+        // from the JWT activeTenantId claim — respects multi-tenant role assignments).
+        String activeSlug = TenantContext.getCurrentTenant();
+        if (activeSlug == null || activeSlug.isBlank()) {
+            chain.doFilter(req, res); // unauthenticated or no active tenant — let downstream decide
             return;
         }
 
-        var tenantOpt = tenantRepository.findByOwnerId(principal.getId());
+        var tenantOpt = tenantRepository.findBySlug(activeSlug);
         if (tenantOpt.isEmpty()) {
-            chain.doFilter(req, res); // no tenant context, downstream decides
+            chain.doFilter(req, res); // tenant slug claim is stale — let downstream decide
             return;
         }
 

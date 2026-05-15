@@ -1,5 +1,8 @@
 package com.luxpretty.app.tenant.domain;
 
+import com.luxpretty.app.subscription.domain.SubscriptionBilling;
+import com.luxpretty.app.subscription.domain.SubscriptionStatus;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -104,6 +107,34 @@ public class Tenant {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // ── Stripe subscription state (PR1) ──
+    @Column(name = "stripe_customer_id")
+    private String stripeCustomerId;
+
+    @Column(name = "stripe_subscription_id")
+    private String stripeSubscriptionId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_status", nullable = false, length = 32)
+    @Builder.Default
+    private SubscriptionStatus subscriptionStatus = SubscriptionStatus.VITRINE_FREE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_tier", nullable = false, length = 32)
+    @Builder.Default
+    private SubscriptionTier subscriptionTier = SubscriptionTier.VITRINE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_billing", nullable = false, length = 16)
+    @Builder.Default
+    private SubscriptionBilling subscriptionBilling = SubscriptionBilling.FREE;
+
+    @Column(name = "current_period_end")
+    private LocalDateTime currentPeriodEnd;
+
+    @Column(name = "trial_end")
+    private LocalDateTime trialEnd;
 
     @PrePersist
     protected void onCreate() {

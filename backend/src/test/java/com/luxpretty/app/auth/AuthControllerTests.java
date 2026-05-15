@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luxpretty.app.auth.dto.RegisterRequest;
 import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
+import com.luxpretty.app.subscription.app.SubscriptionService;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
 import com.luxpretty.app.tenant.app.TenantService;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -62,6 +63,9 @@ class AuthControllerTests {
 
     @MockBean
     private MailOutboxService mailOutbox;
+
+    @MockBean
+    private SubscriptionService subscriptionService;
 
     @MockBean
     private TenantService tenantService;

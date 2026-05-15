@@ -114,6 +114,12 @@
 			<artifactId>postmark</artifactId>
 			<version>1.10.0</version>
 		</dependency>
+		<!-- Stripe payments SDK -->
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>26.10.0</version>
+		</dependency>
 		<!-- Jsoup: HTML manipulation, used to inline CSS in mail templates -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
