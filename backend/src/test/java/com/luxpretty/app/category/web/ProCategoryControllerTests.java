@@ -51,6 +51,7 @@ class ProCategoryControllerTests {
 
     @MockBean private TokenService tokenService;
     @MockBean private UserRoleService userRoleService;
+    @MockBean private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
     @MockBean private UserRepository userRepository;
     @MockBean private CustomOAuth2UserService customOAuth2UserService;
     @MockBean private CustomOidcUserService customOidcUserService;

@@ -43,6 +43,7 @@ class EmployeeControllerTests {
     @MockBean EmployeeService service;
     @MockBean TokenService tokenService;
     @MockBean UserRoleService userRoleService;
+    @MockBean com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
     @MockBean UserRepository userRepository;
     @MockBean CustomOAuth2UserService customOAuth2UserService;
     @MockBean CustomOidcUserService customOidcUserService;
