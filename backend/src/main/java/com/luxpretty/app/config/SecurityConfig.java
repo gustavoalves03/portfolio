@@ -51,6 +51,7 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final TenantFilter tenantFilter;
     private final OAuth2RoleHintFilter oAuth2RoleHintFilter;
+    private final SubscriptionGuard subscriptionGuard;
 
     public SecurityConfig(RestAccessDeniedHandler accessDeniedHandler,
                           RestAuthenticationEntryPoint authenticationEntryPoint,
@@ -62,7 +63,8 @@ public class SecurityConfig {
                           TokenService tokenService,
                           UserRepository userRepository,
                           TenantFilter tenantFilter,
-                          OAuth2RoleHintFilter oAuth2RoleHintFilter) {
+                          OAuth2RoleHintFilter oAuth2RoleHintFilter,
+                          SubscriptionGuard subscriptionGuard) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.csrfLoggingFilter = csrfLoggingFilter;
@@ -74,6 +76,7 @@ public class SecurityConfig {
         this.userRepository = userRepository;
         this.tenantFilter = tenantFilter;
         this.oAuth2RoleHintFilter = oAuth2RoleHintFilter;
+        this.subscriptionGuard = subscriptionGuard;
     }
 
     @Bean
@@ -107,10 +110,11 @@ public class SecurityConfig {
         };
 
         http
-                // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter
+                // Add OAuth2 role hint filter, JWT authentication filter, then tenant resolution filter, then subscription guard
                 .addFilterBefore(oAuth2RoleHintFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthenticationFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(subscriptionGuard, JwtAuthenticationFilter.class)
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
