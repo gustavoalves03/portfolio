@@ -1,0 +1,28 @@
+@if (visible()) {
+  <button mat-stroked-button [matMenuTriggerFor]="menu" class="tenant-chip" data-testid="tenant-switcher-chip">
+    <mat-icon>{{ iconName() }}</mat-icon>
+    <span class="tenant-label">{{ label() }}</span>
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    @for (t of tenants(); track t.id) {
+      <button mat-menu-item (click)="switch(t.id)" [attr.data-testid]="'tenant-item-' + t.id">
+        @if (activeId() === t.id) {
+          <mat-icon>check</mat-icon>
+        } @else {
+          <mat-icon></mat-icon>
+        }
+        <span>{{ t.name || t.slug }}</span>
+      </button>
+    }
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="switch(null)" data-testid="tenant-item-client-mode">
+      @if (activeId() === null) {
+        <mat-icon>check</mat-icon>
+      } @else {
+        <mat-icon></mat-icon>
+      }
+      <span>{{ 'common.clientMode' | transloco }}</span>
+    </button>
+  </mat-menu>
+}
