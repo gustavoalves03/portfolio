@@ -55,6 +55,8 @@ class TrackingServiceTests {
     @Mock private ApplicationSchemaExecutor applicationSchemaExecutor;
     @Mock private EmployeePermissionService permissionService;
     @Mock private EmployeeRepository employeeRepository;
+    @Mock private com.luxpretty.app.common.storage.StorageBackend storageBackend;
+    @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     @InjectMocks
     private TrackingService service;
@@ -70,13 +72,9 @@ class TrackingServiceTests {
 
     private void stubCallerAsOwner(Long callerId) {
         stubSchemaExecutor();
-        User proUser = User.builder()
-                .id(callerId)
-                .name("Pro")
-                .email("pro@example.com")
-                .provider(AuthProvider.LOCAL)
-                .build();
-        lenient().when(userRepository.findById(callerId)).thenReturn(Optional.of(proUser));
+        lenient().when(userRoleService.hasAnyRoleAcrossScopes(callerId,
+                com.luxpretty.app.users.domain.Role.PRO,
+                com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
     }
 
     @Test
@@ -143,15 +141,8 @@ class TrackingServiceTests {
 
         when(visitRepo.findById(999L)).thenReturn(Optional.of(victimVisit));
 
-        // Attacker is a plain USER — not owner, not PRO/ADMIN, not an employee.
+        // Attacker is a plain USER — no PRO/ADMIN assignment (default mock false), not an employee.
         stubSchemaExecutor();
-        User attacker = User.builder()
-                .id(attackerId)
-                .name("Mallory")
-                .email("mallory@example.com")
-                .provider(AuthProvider.LOCAL)
-                .build();
-        when(userRepository.findById(attackerId)).thenReturn(Optional.of(attacker));
         when(employeeRepository.findByUserId(attackerId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
@@ -181,13 +172,7 @@ class TrackingServiceTests {
         when(visitRepo.findById(999L)).thenReturn(Optional.of(victimVisit));
 
         stubSchemaExecutor();
-        User employeeUser = User.builder()
-                .id(employeeUserId)
-                .name("Sophie")
-                .email("sophie@luxpretty.com")
-                .provider(AuthProvider.LOCAL)
-                .build();
-        when(userRepository.findById(employeeUserId)).thenReturn(Optional.of(employeeUser));
+        // Employee — no PRO/ADMIN role across scopes (default mock false).
 
         Employee employee = new Employee();
         employee.setId(employeeId);

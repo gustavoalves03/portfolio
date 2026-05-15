@@ -89,14 +89,7 @@ class TrackingAccessLevelSecurityTests {
     }
 
     private void stubCallerIsEmployee(Long callerUserId, Long employeeId) {
-        User u = User.builder()
-                .id(callerUserId)
-                .name("Employee")
-                .email("emp@example.com")
-                .provider(AuthProvider.LOCAL)
-                .build();
-        when(userRepository.findById(callerUserId)).thenReturn(Optional.of(u));
-
+        // No PRO/ADMIN assignment for this user — default mock returns false.
         Employee emp = new Employee();
         emp.setId(employeeId);
         emp.setUserId(callerUserId);
@@ -234,13 +227,9 @@ class TrackingAccessLevelSecurityTests {
         TrackingService service = trackingService();
 
         Long proUserId = 1L;
-        User pro = User.builder()
-                .id(proUserId)
-                .name("Owner")
-                .email("owner@example.com")
-                .provider(AuthProvider.LOCAL)
-                .build();
-        when(userRepository.findById(proUserId)).thenReturn(Optional.of(pro));
+        when(userRoleService.hasAnyRoleAcrossScopes(proUserId,
+                com.luxpretty.app.users.domain.Role.PRO,
+                com.luxpretty.app.users.domain.Role.ADMIN)).thenReturn(true);
 
         ClientProfile profile = new ClientProfile();
         profile.setId(1L);
@@ -248,7 +237,6 @@ class TrackingAccessLevelSecurityTests {
         when(profileRepo.findByUserId(7L)).thenReturn(Optional.of(profile));
         when(visitRepo.findByClientProfileIdOrderByVisitDateDesc(1L)).thenReturn(List.of());
         when(reminderRepo.findByUserIdAndSentFalseOrderByRecommendedDateAsc(7L)).thenReturn(List.of());
-        when(userRepository.findById(7L)).thenReturn(Optional.empty());
 
         var history = service.getClientHistory(7L, principal(proUserId));
 

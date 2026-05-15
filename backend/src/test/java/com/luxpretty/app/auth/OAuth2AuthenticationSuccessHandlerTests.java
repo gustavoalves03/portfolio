@@ -64,6 +64,9 @@ class OAuth2AuthenticationSuccessHandlerTests {
             .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRoleService.findUserTenantIds(1L)).thenReturn(java.util.List.of(42L));
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
 
         CustomOAuth2User oAuth2User = mock(CustomOAuth2User.class);
         when(oAuth2User.getUserId()).thenReturn(1L);
@@ -92,7 +95,8 @@ class OAuth2AuthenticationSuccessHandlerTests {
 
         assertThat(claims.getSubject()).isEqualTo("1");
         assertThat(claims.get("email", String.class)).isEqualTo("sophie@salon.fr");
-        assertThat(claims.get("role", String.class)).isEqualTo("PRO");
+        assertThat(claims.get("roles", java.util.List.class)).containsExactly("PRO");
+        assertThat(claims.get("activeTenantId", Long.class)).isEqualTo(42L);
     }
 
     // Lot6: user not found after OAuth2 flow → throws OAuth2AuthenticationException

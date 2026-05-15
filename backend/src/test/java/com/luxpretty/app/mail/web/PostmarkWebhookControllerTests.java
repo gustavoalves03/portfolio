@@ -50,6 +50,7 @@ class PostmarkWebhookControllerTests {
 
     // Required by SecurityConfig (mirrors ProInvoiceControllerTests)
     @MockBean TokenService tokenService;
+    @MockBean UserRoleService userRoleService;
     @MockBean CustomOAuth2UserService customOAuth2UserService;
     @MockBean CustomOidcUserService customOidcUserService;
     @MockBean OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;

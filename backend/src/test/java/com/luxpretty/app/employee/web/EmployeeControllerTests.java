@@ -42,6 +42,7 @@ class EmployeeControllerTests {
 
     @MockBean EmployeeService service;
     @MockBean TokenService tokenService;
+    @MockBean UserRoleService userRoleService;
     @MockBean UserRepository userRepository;
     @MockBean CustomOAuth2UserService customOAuth2UserService;
     @MockBean CustomOidcUserService customOidcUserService;

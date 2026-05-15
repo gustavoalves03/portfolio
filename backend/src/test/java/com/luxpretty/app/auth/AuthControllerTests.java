@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,6 +53,9 @@ class AuthControllerTests {
 
     @MockBean
     private TokenService tokenService;
+
+    @MockBean
+    private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
     @MockBean
     private TenantProvisioningService tenantProvisioningService;
@@ -83,7 +87,14 @@ class AuthControllerTests {
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token-abc");
+        com.luxpretty.app.tenant.domain.Tenant tenant = new com.luxpretty.app.tenant.domain.Tenant();
+        tenant.setId(42L);
+        tenant.setSlug("sophie-martin");
+        when(tenantProvisioningService.provision(any(User.class))).thenReturn(tenant);
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), eq(42L)))
+                .thenReturn("jwt-token-abc");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -350,11 +361,13 @@ class AuthControllerTests {
     @Test
     void login_successResetsFailedAttempts() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(3)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-token");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         mockMvc.perform(post("/api/auth/login")
@@ -373,11 +386,16 @@ class AuthControllerTests {
     @Test
     void login_happyPath_returnsTokenAndUser() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(0)
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-abc");
+        when(userRoleService.findUserTenantIds(1L)).thenReturn(java.util.List.of(42L));
+        when(userRoleService.resolveRoles(1L, 42L))
+                .thenReturn(java.util.Set.of(com.luxpretty.app.users.domain.Role.PRO));
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-abc");
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -433,12 +451,14 @@ class AuthControllerTests {
     @Test
     void login_expiredLockout_allowsLogin() throws Exception {
         User user = User.builder().id(1L).name("Sophie").email("sophie@salon.fr")
+                .password("$2a$encoded").provider(AuthProvider.LOCAL)
                 .failedLoginAttempts(5)
                 .accountLockedUntil(Instant.now().minusSeconds(60))
                 .build();
         when(userRepository.findByEmail("sophie@salon.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "$2a$encoded")).thenReturn(true);
-        when(tokenService.generateToken(1L, "sophie@salon.fr", "PRO")).thenReturn("jwt-token");
+        when(tokenService.generateToken(eq(1L), eq("sophie@salon.fr"), anyList(), any()))
+                .thenReturn("jwt-token");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         mockMvc.perform(post("/api/auth/login")
