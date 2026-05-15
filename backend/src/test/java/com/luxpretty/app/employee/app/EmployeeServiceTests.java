@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,6 +73,9 @@ class EmployeeServiceTests {
     @Mock
     private com.luxpretty.app.users.app.UserRoleService userRoleService;
 
+    @Mock
+    private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+
     @InjectMocks
     private EmployeeService employeeService;
 
@@ -87,6 +91,12 @@ class EmployeeServiceTests {
             invocation.<Runnable>getArgument(0).run();
             return null;
         }).when(applicationSchemaExecutor).run(any(Runnable.class));
+        // Default tenant lookup for create(): "camille-dubois" → id=42L (idempotent).
+        com.luxpretty.app.tenant.domain.Tenant t = new com.luxpretty.app.tenant.domain.Tenant();
+        t.setId(42L);
+        t.setSlug("camille-dubois");
+        lenient().when(tenantRepository.findBySlug("camille-dubois"))
+                .thenReturn(java.util.Optional.of(t));
         TenantContext.clear();
 
         user = User.builder()
@@ -159,6 +169,11 @@ class EmployeeServiceTests {
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("Alice Dupont");
         assertThat(TenantContext.getCurrentTenant()).isEqualTo("camille-dubois");
+
+        // The EMPLOYEE@TENANT assignment is created for the new user. The captured
+        // builder has no id (set on persist); the mock save returns the seeded `user`
+        // (id=10L), which is what the assignment call uses.
+        verify(userRoleService).assignOnTenant(eq(10L), eq(Role.EMPLOYEE), eq(42L));
     }
 
     @Test
