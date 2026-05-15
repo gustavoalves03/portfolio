@@ -47,8 +47,10 @@ export class TenantFeaturesService {
 
   constructor() {
     effect(() => {
-      const user = this.authService.user();
-      const isPro = user?.role === Role.PRO || user?.role === Role.ADMIN;
+      // Read user() to subscribe the effect to currentUser changes;
+      // permission decision goes through hasRole() which reads roles[].
+      this.authService.user();
+      const isPro = this.authService.hasRole(Role.PRO, Role.ADMIN);
       if (isPro) {
         this.loadFeatures();
       } else {

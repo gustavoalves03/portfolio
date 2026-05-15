@@ -79,6 +79,7 @@
           </a>
         }
         @if (authService.isAuthenticated()) {
+          <lp-tenant-switcher></lp-tenant-switcher>
           <button
             type="button"
             [matMenuTriggerFor]="userMenu"
@@ -123,7 +124,7 @@
             </svg>
           </button>
         }
-        @if (authService.user()?.role === 'PRO' || authService.user()?.role === 'ADMIN') {
+        @if (authService.hasRole(Role.PRO, Role.ADMIN)) {
           <a
             routerLink="/pro/manage"
             aria-label="Gérer"

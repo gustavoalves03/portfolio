@@ -106,7 +106,9 @@ class AuthControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("jwt-token-abc"))
                 .andExpect(jsonPath("$.user.email").value("sophie@salon.fr"))
-                .andExpect(jsonPath("$.user.role").value("PRO"));
+                .andExpect(jsonPath("$.user.roles[0]").value("PRO"))
+                .andExpect(jsonPath("$.user.activeTenantId").value(42))
+                .andExpect(jsonPath("$.user.availableTenants").isArray());
 
         verify(tenantProvisioningService, times(1)).provision(any(User.class));
         verify(mailOutbox, times(1)).queue(eq(MailTemplate.WELCOME_PRO), any(), anyString(), isNull());
@@ -407,7 +409,8 @@ class AuthControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("jwt-abc"))
                 .andExpect(jsonPath("$.user.email").value("sophie@salon.fr"))
-                .andExpect(jsonPath("$.user.role").value("PRO"));
+                .andExpect(jsonPath("$.user.roles[0]").value("PRO"))
+                .andExpect(jsonPath("$.user.activeTenantId").value(42));
 
         // No state change when counters already at zero
         verify(userRepository, never()).save(any());

@@ -54,17 +54,28 @@ public class MeController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody SwitchTenantRequest req) {
 
-        List<Long> allowed = userRoleService.findUserTenantIds(principal.getId());
-        if (!allowed.contains(req.tenantId())) {
-            throw new AccessDeniedException("User has no role on tenant " + req.tenantId());
+        Long requested = req.tenantId();
+        // Privilege drop (tenantId == null) is always allowed for an authenticated user
+        // — it just narrows the JWT's roles[] to GLOBAL-only. A non-null tenantId must
+        // match one of the user's TENANT-scoped assignments.
+        if (requested != null) {
+            List<Long> allowed = userRoleService.findUserTenantIds(principal.getId());
+            if (!allowed.contains(requested)) {
+                throw new AccessDeniedException("User has no role on tenant " + requested);
+            }
         }
 
         User user = userRepository.findById(principal.getId())
                 .orElseThrow(() -> new IllegalStateException("User missing"));
-        String newToken = tokenService.generateToken(user, req.tenantId());
+        String newToken = tokenService.generateToken(user, requested);
 
-        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), req.tenantId());
+        Set<Role> resolved = userRoleService.resolveRoles(user.getId(), requested);
         List<String> roleNames = resolved.stream().map(Enum::name).toList();
+        List<TenantSummary> tenants = userRoleService.findUserTenantIds(user.getId()).stream()
+                .map(tenantRepository::findById)
+                .flatMap(Optional::stream)
+                .map(t -> new TenantSummary(t.getId(), t.getSlug(), t.getName()))
+                .toList();
 
         UserDto dto = UserDto.builder()
                 .id(user.getId())
@@ -72,18 +83,11 @@ public class MeController {
                 .email(user.getEmail())
                 .imageUrl(user.getImageUrl())
                 .provider(user.getProvider())
-                .role(pickLegacyRole(resolved))
                 .roles(roleNames)
+                .activeTenantId(requested)
+                .availableTenants(tenants)
                 .build();
 
         return ResponseEntity.ok(new AuthResponse(newToken, dto));
-    }
-
-    private static String pickLegacyRole(Set<Role> roles) {
-        if (roles.contains(Role.ADMIN)) return "ADMIN";
-        if (roles.contains(Role.COMMERCIAL)) return "COMMERCIAL";
-        if (roles.contains(Role.PRO)) return "PRO";
-        if (roles.contains(Role.EMPLOYEE)) return "EMPLOYEE";
-        return null;
     }
 }

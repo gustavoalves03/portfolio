@@ -167,7 +167,8 @@ export class BottomNavComponent {
   private readonly currentUrl = signal('');
   private readonly salonSlug = signal('');
 
-  private readonly role = computed(() => this.authService.user()?.role);
+  // Subscribe-only computed to drive change detection on currentUser updates.
+  private readonly userVersion = computed(() => this.authService.user());
   private readonly isAuthenticated = this.authService.isAuthenticated;
 
   constructor() {
@@ -177,10 +178,11 @@ export class BottomNavComponent {
       this.currentUrl.set(event.urlAfterRedirects);
     });
 
-    // Load salon slug for PRO users
+    // Load salon slug for PRO / EMPLOYEE users
     effect(() => {
-      const role = this.role();
-      if ((role === Role.PRO || role === Role.ADMIN || role === Role.EMPLOYEE) && this.authService.isAuthenticated()) {
+      this.userVersion(); // subscribe
+      if (this.authService.hasRole(Role.PRO, Role.ADMIN, Role.EMPLOYEE)
+          && this.authService.isAuthenticated()) {
         this.salonService.getProfile().subscribe({
           next: (tenant) => this.salonSlug.set(tenant.slug),
           error: () => this.salonSlug.set(''),
@@ -190,7 +192,7 @@ export class BottomNavComponent {
   }
 
   readonly tabs = computed<BottomTab[]>(() => {
-    const role = this.role();
+    this.userVersion(); // subscribe to currentUser changes
 
     // Hide bottom nav on management/settings pages
     const url = this.currentUrl();
@@ -210,7 +212,7 @@ export class BottomNavComponent {
     }
 
     // PRO / ADMIN
-    if (role === Role.PRO || role === Role.ADMIN) {
+    if (this.authService.hasRole(Role.PRO, Role.ADMIN)) {
       return [
         { id: 'pro-bookings', labelKey: 'bottomNav.pro.bookings', path: '/pro/bookings', icon: 'calendar_today' },
         { id: 'pro-my-posts', labelKey: 'bottomNav.pro.myPosts', path: '/pro/posts', icon: 'photo_library' },
@@ -221,7 +223,7 @@ export class BottomNavComponent {
     }
 
     // EMPLOYEE
-    if (role === Role.EMPLOYEE) {
+    if (this.authService.hasRole(Role.EMPLOYEE)) {
       return [
         { id: 'emp-bookings', labelKey: 'bottomNav.employee.bookings', path: '/employee/bookings', icon: 'event' },
         { id: 'emp-leaves', labelKey: 'bottomNav.employee.leaves', path: '/employee/leaves', icon: 'beach_access' },

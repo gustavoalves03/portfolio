@@ -18,8 +18,8 @@ export class Footer {
   readonly year = new Date().getFullYear();
 
   readonly isPro = computed(() => {
-    const role = this.authService.user()?.role;
-    return role === Role.PRO || role === Role.ADMIN;
+    this.authService.user(); // subscribe to changes
+    return this.authService.hasRole(Role.PRO, Role.ADMIN);
   });
 
   readonly isLoggedIn = this.authService.isAuthenticated;

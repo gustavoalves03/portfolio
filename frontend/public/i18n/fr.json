@@ -20,6 +20,7 @@
     "comingSoon": "Bientôt disponible",
     "back": "Retour",
     "apply": "Appliquer",
+    "clientMode": "Mode client",
     "form": {
       "fillRequiredFields": "Remplissez tous les champs requis pour continuer"
     },
@@ -1336,7 +1337,8 @@
     "booking": {
       "limitDaily": "Vous avez déjà un rendez-vous ce jour-là chez ce salon.",
       "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine."
-    }
+    },
+    "tenantSwitchFailed": "Impossible de changer de salon"
   },
   "evolution": {
     "title": "Mon évolution",
