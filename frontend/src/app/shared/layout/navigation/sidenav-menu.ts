@@ -58,7 +58,7 @@ export class SidenavMenu {
 
     // Public/Client: show public routes + client routes if authenticated
     const base = [...NAVIGATION_ROUTES];
-    if (user) {
+    if (this.authService.isAuthenticated()) {
       base.push(...CLIENT_NAVIGATION_ROUTES);
     }
     return base;
