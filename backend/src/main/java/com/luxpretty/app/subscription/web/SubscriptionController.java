@@ -9,11 +9,13 @@ import com.luxpretty.app.subscription.web.dto.CreateSubscriptionRequest;
 import com.luxpretty.app.subscription.web.dto.PortalSessionResponse;
 import com.luxpretty.app.subscription.web.dto.PricingPlanDto;
 import com.luxpretty.app.subscription.web.dto.SetupIntentResponse;
+import com.luxpretty.app.subscription.web.dto.StripeConfigResponse;
 import com.luxpretty.app.subscription.web.dto.SubscriptionResponse;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +42,15 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
     private final PricingCatalog pricingCatalog;
     private final TenantRepository tenantRepository;
+
+    @Value("${app.stripe.publishable-key:}")
+    private String stripePublishableKey;
+
+    // PUBLIC — returns the Stripe publishable key for frontend Stripe.js initialisation
+    @GetMapping("/api/stripe/config")
+    public StripeConfigResponse getStripeConfig() {
+        return new StripeConfigResponse(stripePublishableKey);
+    }
 
     // PUBLIC — no auth (mapped at /api/pricing)
     @GetMapping("/api/pricing")

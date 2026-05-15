@@ -354,4 +354,13 @@ class SubscriptionControllerTests {
 
         verify(subscriptionService, never()).createPortalSession(anyLong());
     }
+
+    // Test 11: getStripeConfig_returnsPublishableKey_publicly
+    @Test
+    void getStripeConfig_returnsPublishableKey_publicly() throws Exception {
+        // No auth, no tenant context — this endpoint is permitAll
+        mockMvc.perform(get("/api/stripe/config"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.publishableKey").exists());
+    }
 }
