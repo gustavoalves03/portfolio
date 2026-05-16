@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SalonProfileService } from '../../features/salon-profile/services/salon-profile.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { PublicSalonResponse, PublicCareDto } from '../../features/salon-profile/models/salon-profile.model';
 import { BookingDialogComponent, BookingDialogData } from './booking-dialog/booking-dialog.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
@@ -37,6 +38,13 @@ export class SalonPageComponent implements OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthService);
+
+  // Bookings are disabled while a PRO/EMPLOYEE/ADMIN is in tenant context.
+  // Visitors not logged in (and clients in client mode) can always book.
+  protected readonly bookingDisabled = computed(
+    () => this.auth.isAuthenticated() && !this.auth.isClientMode(),
+  );
 
   protected salon = signal<PublicSalonResponse | null>(null);
   protected loading = signal(true);
@@ -138,6 +146,7 @@ export class SalonPageComponent implements OnDestroy {
   }
 
   protected onBook(care: PublicCareDto): void {
+    if (this.bookingDisabled()) return;
     this.openBookingDialog(care);
   }
 

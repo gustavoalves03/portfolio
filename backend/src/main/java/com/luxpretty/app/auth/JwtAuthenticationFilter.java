@@ -49,7 +49,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-                UserPrincipal userPrincipal = UserPrincipal.create(user);
+                Long jwtActiveTenantId = tokenService.getActiveTenantIdFromToken(jwt);
+                java.util.Map<String, Object> attrs = jwtActiveTenantId == null
+                        ? null
+                        : java.util.Map.of("activeTenantId", jwtActiveTenantId);
+                UserPrincipal userPrincipal = UserPrincipal.create(user, attrs);
                 List<String> roleNames = tokenService.getRolesFromToken(jwt);
                 List<GrantedAuthority> authorities = roleNames.stream()
                         .map(n -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + n))

@@ -274,6 +274,16 @@ public class PublicSalonController {
     public ClientBookingResponse book(@PathVariable String slug,
                                        @Valid @RequestBody ClientBookingRequest request,
                                        @AuthenticationPrincipal UserPrincipal principal) {
+        // Client booking is for "client mode" only. A PRO/EMPLOYEE/ADMIN with an
+        // active tenant context must switch back to client mode first.
+        Object activeTenantId = principal.getAttributes() == null
+                ? null
+                : principal.getAttributes().get("activeTenantId");
+        if (activeTenantId != null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Switch to client mode to book an appointment");
+        }
+
         var tenant = tenantService.findBySlug(slug)
                 .filter(t -> t.getStatus() == TenantStatus.ACTIVE)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Salon not found"));

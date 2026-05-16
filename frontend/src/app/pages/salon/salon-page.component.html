@@ -25,6 +25,7 @@
           [salon]="salon"
           [slug]="slug"
           [isPreviewMode]="isPreviewMode()"
+          [bookingDisabled]="bookingDisabled()"
           (book)="onBook($event)"
           (bookFromPost)="onBookFromPost($event)"
         />
@@ -101,8 +102,14 @@
                               mat-flat-button
                               class="book-btn"
                               (click)="onBook(care)"
-                              [disabled]="isPreviewMode()"
-                              [attr.title]="isPreviewMode() ? ('salon.preview.banner.bookingDisabled' | transloco) : null"
+                              [disabled]="isPreviewMode() || bookingDisabled()"
+                              [attr.title]="
+                                isPreviewMode()
+                                  ? ('salon.preview.banner.bookingDisabled' | transloco)
+                                  : bookingDisabled()
+                                    ? ('salon.bookingDisabledProMode' | transloco)
+                                    : null
+                              "
                             >
                               {{ 'booking.book' | transloco }}
                             </button>

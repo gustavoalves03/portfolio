@@ -1084,6 +1084,7 @@
         "bookingDisabled": "Booking is disabled in preview mode"
       }
     },
+    "bookingDisabledProMode": "Switch to Client mode to book",
     "previewShare": {
       "title": "Share a preview",
       "subtitle": "Generate a temporary link to show your storefront to someone before publication.",

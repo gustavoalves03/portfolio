@@ -1088,6 +1088,7 @@
         "bookingDisabled": "La réservation est désactivée en mode aperçu"
       }
     },
+    "bookingDisabledProMode": "Passez en mode Client pour réserver",
     "previewShare": {
       "title": "Partager un aperçu",
       "subtitle": "Générez un lien temporaire pour montrer votre vitrine à un proche avant publication.",

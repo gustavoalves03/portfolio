@@ -104,8 +104,14 @@
                       <button
                         type="button"
                         class="book-btn"
-                        [disabled]="isPreviewMode()"
-                        [attr.title]="isPreviewMode() ? ('salon.preview.banner.bookingDisabled' | transloco) : null"
+                        [disabled]="isPreviewMode() || bookingDisabled()"
+                        [attr.title]="
+                          isPreviewMode()
+                            ? ('salon.preview.banner.bookingDisabled' | transloco)
+                            : bookingDisabled()
+                              ? ('salon.bookingDisabledProMode' | transloco)
+                              : null
+                        "
                         (click)="onBook(care)"
                       >
                         {{ 'booking.book' | transloco }}

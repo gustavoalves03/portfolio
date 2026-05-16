@@ -22,6 +22,7 @@ export class SalonPagePcComponent {
   readonly salon = input.required<PublicSalonResponse>();
   readonly slug = input.required<string>();
   readonly isPreviewMode = input(false);
+  readonly bookingDisabled = input(false);
 
   readonly book = output<PublicCareDto>();
   readonly bookFromPost = output<number>();
@@ -95,12 +96,12 @@ export class SalonPagePcComponent {
   }
 
   protected onBook(care: PublicCareDto): void {
-    if (this.isPreviewMode()) return;
+    if (this.isPreviewMode() || this.bookingDisabled()) return;
     this.book.emit(care);
   }
 
   protected onBookFromPost(careId: number): void {
-    if (this.isPreviewMode()) return;
+    if (this.isPreviewMode() || this.bookingDisabled()) return;
     this.bookFromPost.emit(careId);
   }
 

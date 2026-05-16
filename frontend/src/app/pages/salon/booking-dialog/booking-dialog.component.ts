@@ -130,6 +130,10 @@ export class BookingDialogComponent {
       return;
     }
 
+    // Client booking is for "client mode" only — a PRO with an active tenant
+    // context must switch back to client mode first.
+    if (!this.authService.isClientMode()) return;
+
     this.submitBooking();
   }
 

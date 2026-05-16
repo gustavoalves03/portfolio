@@ -134,8 +134,12 @@ describe('BookingDialogComponent', () => {
       salonSpy.getEmployeesForCare.and.returnValue(of([]));
       salonSpy.getAvailableSlots.and.returnValue(of([selectedSlot]));
 
-      const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isAuthenticated']);
+      const auth = jasmine.createSpyObj<AuthService>(
+        'AuthService',
+        ['isAuthenticated', 'isClientMode'],
+      );
       auth.isAuthenticated.and.returnValue(true);
+      auth.isClientMode.and.returnValue(true);
 
       const data: BookingDialogData = { slug: 'test-salon', care };
 
@@ -251,6 +255,93 @@ describe('BookingDialogComponent', () => {
 
       expect(snackOpen).not.toHaveBeenCalled();
       expect(component.bookingError()).toBe('Internal Server Error');
+    });
+  });
+
+  describe('client-mode guard (regression)', () => {
+    // A PRO/EMPLOYEE/ADMIN currently in their tenant context
+    // (isClientMode() === false) must NOT be able to create a client booking.
+    // The button should be unreachable in the UI; even if confirm() is invoked
+    // programmatically, it must not call salonService.createBooking().
+    function setupWithMode(isClientMode: boolean): {
+      cmp: BookingDialogComponent;
+      salonSpy: jasmine.SpyObj<SalonProfileService>;
+    } {
+      const closedDaysSvc = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
+        'loadPublicClosedDays',
+        'loadClosedDays',
+      ]);
+      closedDaysSvc.loadPublicClosedDays.and.returnValue(of([]));
+
+      const salonSpy = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
+        'getEmployeesForCare',
+        'getAvailableSlots',
+        'createBooking',
+      ]);
+      salonSpy.getEmployeesForCare.and.returnValue(of([]));
+      salonSpy.createBooking.and.returnValue(of({
+        bookingId: 1,
+        careName: 'Soin',
+        carePrice: 5000,
+        careDuration: 60,
+        appointmentDate: '2026-05-20',
+        appointmentTime: '10:00',
+        status: 'PENDING',
+        salonName: 'Salon A',
+      }));
+
+      const auth = jasmine.createSpyObj<AuthService>(
+        'AuthService',
+        ['isAuthenticated', 'isClientMode'],
+      );
+      auth.isAuthenticated.and.returnValue(true);
+      auth.isClientMode.and.returnValue(isClientMode);
+
+      const data: BookingDialogData = { slug: 'sophie-martin', care };
+
+      TestBed.configureTestingModule({
+        imports: [
+          BookingDialogComponent,
+          TranslocoTestingModule.forRoot({
+            langs: { fr: {} },
+            translocoConfig: { defaultLang: 'fr' },
+          }),
+        ],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideNoopAnimations(),
+          { provide: MatDialogRef, useValue: { close: () => undefined } },
+          { provide: MAT_DIALOG_DATA, useValue: data },
+          { provide: MatDialog, useValue: { open: () => ({ afterClosed: () => of(null) }) } },
+          { provide: ClosedDaysService, useValue: closedDaysSvc },
+          { provide: SalonProfileService, useValue: salonSpy },
+          { provide: AuthService, useValue: auth },
+        ],
+      });
+
+      const fixture = TestBed.createComponent(BookingDialogComponent);
+      fixture.detectChanges();
+      const cmp = fixture.componentInstance;
+
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 1);
+      cmp.selectedDate.set(futureDate);
+      cmp.selectedSlot.set({ startTime: '10:00', endTime: '11:00' });
+      return { cmp, salonSpy };
+    }
+
+    it('does NOT call createBooking when the user is in PRO mode (isClientMode=false)', () => {
+      const { cmp, salonSpy } = setupWithMode(false);
+      cmp.confirm();
+      expect(salonSpy.createBooking).not.toHaveBeenCalled();
+    });
+
+    it('DOES call createBooking when the user is in client mode (isClientMode=true)', () => {
+      const { cmp, salonSpy } = setupWithMode(true);
+      cmp.confirm();
+      expect(salonSpy.createBooking).toHaveBeenCalledTimes(1);
     });
   });
 });
