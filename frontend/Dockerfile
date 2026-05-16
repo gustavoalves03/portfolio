@@ -27,18 +27,26 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # 5) Normaliser la sortie du build vers /tmp/dist
+# Angular 17+ avec @angular/build:application produit dist/<project>/browser/*
+# (SSR enabled) ou dist/<project>/* (SSR disabled).
 RUN set -eux; \
     mkdir -p /tmp/dist; \
-    if compgen -G "dist/*/browser/*" > /dev/null; then \
-      cp -r dist/*/browser/* /tmp/dist/; \
-    elif compgen -G "dist/*/*" > /dev/null; then \
-      cp -r dist/*/* /tmp/dist/; \
+    BROWSER_DIR=$(find dist -mindepth 2 -maxdepth 2 -type d -name browser | head -1); \
+    if [ -n "$BROWSER_DIR" ]; then \
+      echo "Found browser bundle in $BROWSER_DIR"; \
+      cp -r "$BROWSER_DIR"/. /tmp/dist/; \
     else \
-      cp -r dist/* /tmp/dist/ 2>/dev/null || true; \
-    fi
+      PROJECT_DIR=$(find dist -mindepth 1 -maxdepth 1 -type d | head -1); \
+      echo "No browser/ subdir, using $PROJECT_DIR"; \
+      cp -r "$PROJECT_DIR"/. /tmp/dist/; \
+    fi; \
+    ls -la /tmp/dist/ | head -10; \
+    test -f /tmp/dist/index.html || (echo "ERROR: no index.html in /tmp/dist" && exit 1)
 
 # --- Run ---
 FROM nginx:alpine
+# Remove default nginx welcome page (otherwise it lingers if our copy misses it)
+RUN rm -f /usr/share/nginx/html/index.html /usr/share/nginx/html/50x.html
 # SPA fallback
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /tmp/dist/ /usr/share/nginx/html/
