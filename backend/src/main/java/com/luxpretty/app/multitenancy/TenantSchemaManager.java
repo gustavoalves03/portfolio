@@ -369,6 +369,26 @@ public class TenantSchemaManager {
                     TOTAL_HT      NUMBER(12,2) NOT NULL,
                     POSITION      NUMBER(10) NOT NULL,
                     CONSTRAINT FK_CLIENT_INVOICE_LINE_INV FOREIGN KEY (INVOICE_ID) REFERENCES CLIENT_INVOICES(ID) ON DELETE CASCADE
+                )""",
+                // Mirrors db/migration/oracle/V8__create_mail_outbox.sql for legacy tenants.
+                // Without this, MailOutboxService.queue() fails with ORA-04043 and Spring
+                // surfaces a misleading "Malformed request body" via the retried filter chain.
+                """
+                CREATE TABLE MAIL_OUTBOX (
+                    ID                    NUMBER(19) GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                    TEMPLATE              VARCHAR2(64 CHAR) NOT NULL,
+                    RECIPIENT_EMAIL       VARCHAR2(320 CHAR) NOT NULL,
+                    TENANT_SLUG           VARCHAR2(64 CHAR),
+                    VARS_JSON             CLOB NOT NULL,
+                    STATUS                VARCHAR2(32 CHAR) DEFAULT 'PENDING' NOT NULL,
+                    ATTEMPTS              NUMBER(5) DEFAULT 0 NOT NULL,
+                    NEXT_ATTEMPT_AT       TIMESTAMP NOT NULL,
+                    LAST_ERROR            VARCHAR2(2000 CHAR),
+                    PROVIDER_MESSAGE_ID   VARCHAR2(255 CHAR),
+                    CREATED_AT            TIMESTAMP NOT NULL,
+                    SENT_AT               TIMESTAMP,
+                    DELIVERED_AT          TIMESTAMP,
+                    CONSTRAINT CK_MAIL_OUTBOX_STATUS CHECK (STATUS IN ('PENDING','IN_FLIGHT','SENT','PERMANENTLY_FAILED'))
                 )"""
         };
 
