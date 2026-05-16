@@ -57,8 +57,10 @@ public class StripeService {
             .addItem(SubscriptionCreateParams.Item.builder().setPrice(priceId).build())
             .setTrialPeriodDays(7L)
             .setDefaultPaymentMethod(defaultPaymentMethodId)
+            // Disabled until the business is VAT-registered in LU.
+            // Re-enable + configure Stripe Tax immatriculation when the VAT number is issued.
             .setAutomaticTax(SubscriptionCreateParams.AutomaticTax.builder()
-                .setEnabled(true).build())
+                .setEnabled(false).build())
             .setPaymentSettings(SubscriptionCreateParams.PaymentSettings.builder()
                 .setSaveDefaultPaymentMethod(
                     SubscriptionCreateParams.PaymentSettings.SaveDefaultPaymentMethod.ON_SUBSCRIPTION)
