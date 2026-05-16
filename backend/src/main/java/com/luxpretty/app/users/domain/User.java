@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.hibernate.type.NumericBooleanConverter;
 
 import java.time.LocalDateTime;
 
@@ -39,7 +40,8 @@ public class User {
     private Boolean emailVerified = false;
 
     @Builder.Default
-    @Column(name = "email_blocked", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "email_blocked", nullable = false, columnDefinition = "NUMBER(1)")
     private Boolean emailBlocked = false;
 
     @Column(name = "password")

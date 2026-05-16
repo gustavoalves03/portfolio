@@ -35,13 +35,14 @@ public class UserRoleService {
     @Transactional
     public UserRoleAssignment assign(Long userId, Role role, ScopeType scopeType, Long scopeId) {
         validateScope(role, scopeType, scopeId);
-        return repo.findByUserIdAndRoleAndScopeTypeAndScopeId(userId, role, scopeType, scopeId)
+        return applicationSchemaExecutor.call(() -> repo.findByUserIdAndRoleAndScopeTypeAndScopeId(
+                        userId, role, scopeType, scopeId)
                 .orElseGet(() -> repo.save(UserRoleAssignment.builder()
                         .userId(userId)
                         .role(role)
                         .scopeType(scopeType)
                         .scopeId(scopeId)
-                        .build()));
+                        .build())));
     }
 
     public UserRoleAssignment assignGlobal(Long userId, Role role) {
@@ -54,17 +55,18 @@ public class UserRoleService {
 
     @Transactional
     public void revoke(Long userId, Role role, ScopeType scopeType, Long scopeId) {
-        repo.deleteByUserIdAndRoleAndScopeTypeAndScopeId(userId, role, scopeType, scopeId);
+        applicationSchemaExecutor.run(() ->
+                repo.deleteByUserIdAndRoleAndScopeTypeAndScopeId(userId, role, scopeType, scopeId));
     }
 
     @Transactional(readOnly = true)
     public Set<Role> resolveRoles(Long userId, Long activeTenantId) {
-        return repo.findByUserId(userId).stream()
+        return applicationSchemaExecutor.call(() -> repo.findByUserId(userId).stream()
                 .filter(a -> a.getScopeType() == ScopeType.GLOBAL
                         || (a.getScopeType() == ScopeType.TENANT
                                 && Objects.equals(a.getScopeId(), activeTenantId)))
                 .map(UserRoleAssignment::getRole)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
     /**
@@ -102,10 +104,10 @@ public class UserRoleService {
 
     @Transactional(readOnly = true)
     public List<Long> findUserTenantIds(Long userId) {
-        return repo.findByUserIdAndScopeType(userId, ScopeType.TENANT).stream()
+        return applicationSchemaExecutor.call(() -> repo.findByUserIdAndScopeType(userId, ScopeType.TENANT).stream()
                 .map(UserRoleAssignment::getScopeId)
                 .distinct()
-                .toList();
+                .toList());
     }
 
     private void validateScope(Role role, ScopeType scopeType, Long scopeId) {
