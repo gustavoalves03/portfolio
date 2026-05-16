@@ -149,11 +149,17 @@ sudo ufw status
 sudo fail2ban-client status sshd
 ```
 
-## Dettes techniques (post-Phase 3)
+## Dettes techniques (suivi)
 
-1. **Flyway désactivé** sur le VPS (`SPRING_FLYWAY_ENABLED=false`) — V9/V10/V12 plantent sur fresh DB car pas de garde idempotente. À fixer : ajouter même pattern que V2 (skip si table inexistante).
-2. **MailWorker ORA-02014** (`SELECT FOR UPDATE` sur vue avec DISTINCT) — erreur runtime sur background job, app continue de tourner.
-3. **`application-prodtest.properties` contient password Hostinger en clair** dans le git — à externaliser en env var + purger l'historique.
+| # | Sujet | État |
+|---|---|---|
+| 1 | Flyway désactivé sur VPS | ✅ **Résolu 2026-05-16** — V9/V10/V12/V13 patchées (gardes idempotentes), baseline V13 fait sur VPS, Flyway réactivé (`SPRING_FLYWAY_ENABLED=true`) |
+| 2 | MailWorker ORA-02014 (`SELECT FOR UPDATE` sur vue avec DISTINCT) | ⏳ runtime error sur background job, app continue de tourner |
+| 3 | `application-prodtest.properties` contient password Hostinger en clair dans git | ⏳ à externaliser en env var + purger l'historique git |
+| 4 | Pas de backup Oracle auto | ⏳ planifier `expdp` vers R2 |
+| 5 | Pas de monitoring/APM | ⏳ |
+
+**Baseline Flyway** : DB baselinée à V13 le 2026-05-16. Les futures migrations V14+ tourneront normalement au prochain boot backend. Les V2-V13 sont historiquement supposées déjà appliquées (créées par Hibernate ddl-auto).
 
 Voir : `docs/superpowers/plans/2026-05-16-vps-prod-setup-plan.md`
 Voir : `docs/superpowers/specs/2026-05-16-vps-prod-setup-design.md`
