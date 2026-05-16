@@ -148,6 +148,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stripe/config").permitAll() // Public Stripe publishable key
+                        .requestMatchers(HttpMethod.GET, "/api/pricing").permitAll() // Public pricing plans
                         .requestMatchers("/api/auth/me").authenticated() // Must come before /api/auth/** permitAll
                         .requestMatchers("/oauth2/**", "/api/auth/**").permitAll() // OAuth2 and auth endpoints
                         .requestMatchers("/ws/**").permitAll() // WebSocket handshake (auth handled by WebSocketAuthInterceptor)
