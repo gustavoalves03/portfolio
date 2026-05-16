@@ -96,7 +96,30 @@ Ou ré-ajouter une clé SSH manuellement dans `/home/deploy/.ssh/authorized_keys
 - ✅ **Phase 2** (2026-05-16) — Docker Engine 29.2 + Compose v5 (deploy dans groupe docker)
 - ✅ **Phase 3** (2026-05-16) — stack app sur VPS (Oracle Free + backend Spring + frontend Nginx)
 - ✅ **Phase 4** (2026-05-16) — Caddy 2.11 + DNS + TLS Let's Encrypt
-- ⏳ **Phase 5** — CI/CD GitHub Actions (à faire)
+- ✅ **Phase 5** (2026-05-16) — CI/CD GitHub Actions (build → GHCR → SSH deploy)
+
+## CI/CD
+
+Workflow : `.github/workflows/deploy.yml`
+- **Déclenché** sur push `main` (ou manuel via `workflow_dispatch`)
+- **3 jobs** : `build-backend` + `build-frontend` (parallèle, ~2-3 min) → `deploy` (SSH au VPS, ~1 min)
+- **Images** publiées sur GHCR : `ghcr.io/gustavoalves03/luxpretty-{backend,frontend}:{latest,SHA}`
+- **Healthcheck** post-deploy sur `https://luxpretty.lu` et `/api/*`
+
+**Secrets GitHub :**
+- `VPS_HOST` = `51.255.194.40`
+- `VPS_USER` = `deploy`
+- `VPS_SSH_KEY` = clé privée ed25519 `~/.ssh/luxpretty_deploy` (paire installée dans `~deploy/.ssh/authorized_keys` sur le VPS)
+
+**Rollback manuel** (si nouveau deploy plante) :
+```bash
+ssh deploy@51.255.194.40
+cd /home/deploy/luxpretty
+# Identifier un SHA précédent (regarder docker image ls)
+export BACKEND_IMAGE=ghcr.io/gustavoalves03/luxpretty-backend:<PREV_SHA>
+export FRONTEND_IMAGE=ghcr.io/gustavoalves03/luxpretty-frontend:<PREV_SHA>
+docker compose -f docker-compose.prod.yml --env-file .env up -d
+```
 
 ## Commandes utiles VPS
 
