@@ -98,21 +98,21 @@
                               <span class="care-separator">·</span>
                               <span class="care-price">{{ formatPrice(care.price) }}</span>
                             </div>
-                            <button
-                              mat-flat-button
-                              class="book-btn"
-                              (click)="onBook(care)"
-                              [disabled]="isPreviewMode() || bookingDisabled()"
-                              [attr.title]="
-                                isPreviewMode()
-                                  ? ('salon.preview.banner.bookingDisabled' | transloco)
-                                  : bookingDisabled()
-                                    ? ('salon.bookingDisabledProMode' | transloco)
+                            @if (!bookingDisabled()) {
+                              <button
+                                mat-flat-button
+                                class="book-btn"
+                                (click)="onBook(care)"
+                                [disabled]="isPreviewMode()"
+                                [attr.title]="
+                                  isPreviewMode()
+                                    ? ('salon.preview.banner.bookingDisabled' | transloco)
                                     : null
-                              "
-                            >
-                              {{ 'booking.book' | transloco }}
-                            </button>
+                                "
+                              >
+                                {{ 'booking.book' | transloco }}
+                              </button>
+                            }
                           </div>
                         </div>
                       </div>

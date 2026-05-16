@@ -101,21 +101,21 @@
                         <span class="care-duration">{{ formatDuration(care.duration) }}</span>
                         <span class="care-price serif">{{ formatPrice(care.price) }}</span>
                       </div>
-                      <button
-                        type="button"
-                        class="book-btn"
-                        [disabled]="isPreviewMode() || bookingDisabled()"
-                        [attr.title]="
-                          isPreviewMode()
-                            ? ('salon.preview.banner.bookingDisabled' | transloco)
-                            : bookingDisabled()
-                              ? ('salon.bookingDisabledProMode' | transloco)
+                      @if (!bookingDisabled()) {
+                        <button
+                          type="button"
+                          class="book-btn"
+                          [disabled]="isPreviewMode()"
+                          [attr.title]="
+                            isPreviewMode()
+                              ? ('salon.preview.banner.bookingDisabled' | transloco)
                               : null
-                        "
-                        (click)="onBook(care)"
-                      >
-                        {{ 'booking.book' | transloco }}
-                      </button>
+                          "
+                          (click)="onBook(care)"
+                        >
+                          {{ 'booking.book' | transloco }}
+                        </button>
+                      }
                     </div>
                   </div>
                 </article>

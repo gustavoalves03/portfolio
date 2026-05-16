@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   inject,
   input,
   output,
@@ -203,7 +204,7 @@ import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet
                       <mat-icon>share</mat-icon>
                       <span>{{ 'posts.share' | transloco }}</span>
                     </button>
-                    @if (post.careId) {
+                    @if (post.careId && !bookingDisabled()) {
                       <button class="sa-btn book-btn" (click)="onBook(post)">
                         <mat-icon>calendar_today</mat-icon>
                         <span>{{ 'posts.book' | transloco }}</span>
@@ -793,6 +794,12 @@ export class SalonPostsViewerComponent {
   readonly snapScroll = viewChild<ElementRef<HTMLElement>>('snapScroll');
 
   readonly isPro = signal(false);
+
+  // Bookings are disabled while a PRO/EMPLOYEE/ADMIN is in tenant context.
+  // Visitors not logged in (and clients in client mode) can always book.
+  readonly bookingDisabled = computed(
+    () => this.authService.isAuthenticated() && !this.authService.isClientMode(),
+  );
 
   constructor() {
     effect(() => {
