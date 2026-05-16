@@ -104,7 +104,9 @@ class StripeServiceTests {
     }
 
     @Test
-    void createSubscription_enablesAutomaticTax_andSavesDefaultPaymentMethod() throws Exception {
+    void createSubscription_disablesAutomaticTax_andSavesDefaultPaymentMethod() throws Exception {
+        // automatic_tax is disabled until the business is VAT-registered in LU.
+        // Flip this assertion to true (and the SDK call) when VAT immatriculation lands.
         StripeService svc = newService();
 
         try (MockedStatic<Subscription> mocked = mockStatic(Subscription.class)) {
@@ -118,7 +120,7 @@ class StripeServiceTests {
             Map<String, Object> map = captor.getValue().toMap();
             @SuppressWarnings("unchecked")
             Map<String, Object> automaticTax = (Map<String, Object>) map.get("automatic_tax");
-            assertThat(automaticTax).containsEntry("enabled", true);
+            assertThat(automaticTax).containsEntry("enabled", false);
             @SuppressWarnings("unchecked")
             Map<String, Object> paymentSettings = (Map<String, Object>) map.get("payment_settings");
             assertThat(paymentSettings).containsEntry("save_default_payment_method", "on_subscription");
