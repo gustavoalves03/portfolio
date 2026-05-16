@@ -82,9 +82,55 @@ Ou ré-ajouter une clé SSH manuellement dans `/home/deploy/.ssh/authorized_keys
 | `/etc/fail2ban/jail.local` | Conf fail2ban custom |
 | `/etc/apt/apt.conf.d/20auto-upgrades` | Auto-updates activés |
 
-## Statut Phase 1
+## URL prod
 
-✅ Phase 1 terminée (2026-05-16) — durcissement OK.
+- 🌐 **https://luxpretty.lu** — site live
+- 🌐 **https://www.luxpretty.lu** — alias
+- API : `https://luxpretty.lu/api/*`
+- OAuth callback : `https://luxpretty.lu/login/oauth2/code/google`
+- Cert Let's Encrypt valide jusqu'au 14 août 2026 (renouvellement auto par Caddy)
 
-Prochaine étape : Phase 2 (Docker), Phase 3 (stack app), Phase 4 (Caddy + DNS + TLS), Phase 5 (GH Actions CI/CD).
+## Statut phases
+
+- ✅ **Phase 1** (2026-05-16) — durcissement VPS (deploy user, sshd, UFW, fail2ban)
+- ✅ **Phase 2** (2026-05-16) — Docker Engine 29.2 + Compose v5 (deploy dans groupe docker)
+- ✅ **Phase 3** (2026-05-16) — stack app sur VPS (Oracle Free + backend Spring + frontend Nginx)
+- ✅ **Phase 4** (2026-05-16) — Caddy 2.11 + DNS + TLS Let's Encrypt
+- ⏳ **Phase 5** — CI/CD GitHub Actions (à faire)
+
+## Commandes utiles VPS
+
+```bash
+# SSH (depuis local Mac, après ssh-add une fois)
+ssh deploy@51.255.194.40
+
+# Voir l'état de la stack
+docker compose -f /home/deploy/luxpretty/docker-compose.prod.yml ps
+
+# Logs backend
+docker logs luxpretty-backend --tail 100 -f
+
+# Logs Caddy
+sudo journalctl -u caddy -f
+
+# Restart un service
+docker compose -f /home/deploy/luxpretty/docker-compose.prod.yml restart backend
+
+# Reload Caddy (après modif Caddyfile)
+sudo systemctl reload caddy
+
+# Vérifier UFW
+sudo ufw status
+
+# Vérifier fail2ban
+sudo fail2ban-client status sshd
+```
+
+## Dettes techniques (post-Phase 3)
+
+1. **Flyway désactivé** sur le VPS (`SPRING_FLYWAY_ENABLED=false`) — V9/V10/V12 plantent sur fresh DB car pas de garde idempotente. À fixer : ajouter même pattern que V2 (skip si table inexistante).
+2. **MailWorker ORA-02014** (`SELECT FOR UPDATE` sur vue avec DISTINCT) — erreur runtime sur background job, app continue de tourner.
+3. **`application-prodtest.properties` contient password Hostinger en clair** dans le git — à externaliser en env var + purger l'historique.
+
 Voir : `docs/superpowers/plans/2026-05-16-vps-prod-setup-plan.md`
+Voir : `docs/superpowers/specs/2026-05-16-vps-prod-setup-design.md`
