@@ -1,0 +1,80 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:latest
+    container_name: oracle-db
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+    volumes:
+      - oradata:/opt/oracle/oradata
+    networks: [luxpretty-prod]
+    healthcheck:
+      test: ["CMD", "/opt/oracle/healthcheck.sh"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10m
+      retries: 80
+    restart: unless-stopped
+
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/gustavoalves03/luxpretty-backend:latest}
+    container_name: luxpretty-backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+      SPRING_DATASOURCE_USERNAME: ${APP_USER}
+      SPRING_DATASOURCE_PASSWORD: ${APP_USER_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+      ORACLE_ADMIN_USER: ${ORACLE_ADMIN_USER}
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      MULTITENANCY_PROVISIONING_JDBC_URL: jdbc:oracle:thin:@oracle:1521/FREEPDB1
+      MULTITENANCY_PROVISIONING_USERNAME: ${ORACLE_ADMIN_USER}
+      MULTITENANCY_PROVISIONING_PASSWORD: ${ORACLE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      OAUTH2_REDIRECT_URI: ${OAUTH2_REDIRECT_URI}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-r2}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_BUCKET: ${R2_BUCKET}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      APP_SEED_DEMO_DATA: "false"
+      APP_MAIL_PROVIDER: ${APP_MAIL_PROVIDER:-smtp}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp.hostinger.com}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-465}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
+      SMTP_SSL: ${SMTP_SSL:-true}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-noreply@luxpretty.lu}
+      APP_MAIL_FROM_NAME: ${APP_MAIL_FROM_NAME:-LuxPretty}
+      POSTMARK_API_TOKEN: ${POSTMARK_API_TOKEN:-}
+      POSTMARK_WEBHOOK_SECRET: ${POSTMARK_WEBHOOK_SECRET:-}
+    depends_on:
+      oracle:
+        condition: service_healthy
+    networks: [luxpretty-prod]
+    restart: unless-stopped
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/gustavoalves03/luxpretty-frontend:latest}
+    container_name: luxpretty-frontend
+    ports:
+      - "127.0.0.1:8081:80"
+    networks: [luxpretty-prod]
+    restart: unless-stopped
+
+networks:
+  luxpretty-prod:
+    driver: bridge
+
+volumes:
+  oradata:
