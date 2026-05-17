@@ -16,9 +16,9 @@ import java.util.Optional;
  * properties (from env vars in prod), so they can differ between test and
  * live mode without code changes.
  *
- * <p>{@link SubscriptionTier#VITRINE} is the free tier and has no Stripe
- * price — {@link #priceIdFor(SubscriptionTier, SubscriptionBilling)}
- * returns {@link Optional#empty()} for it.
+ * <p>All tiers (VITRINE, GESTION, PREMIUM) are paid tiers. If a Price ID
+ * is not configured for a given tier/billing combo, lookups return
+ * {@link Optional#empty()}.
  */
 @Component
 public class PricingCatalog {
@@ -26,6 +26,8 @@ public class PricingCatalog {
     private final Map<TierBilling, String> priceMap;
 
     public PricingCatalog(
+        @Value("${app.stripe.price.vitrine-monthly:}") String vitrineMonthly,
+        @Value("${app.stripe.price.vitrine-yearly:}") String vitrineYearly,
         @Value("${app.stripe.price.gestion-monthly:}") String gestionMonthly,
         @Value("${app.stripe.price.gestion-yearly:}") String gestionYearly,
         @Value("${app.stripe.price.premium-monthly:}") String premiumMonthly,
@@ -34,6 +36,8 @@ public class PricingCatalog {
         // We use a mutable HashMap (not Map.of) so blank values can be
         // omitted; lookups for blank entries naturally return empty.
         this.priceMap = new HashMap<>();
+        putIfPresent(SubscriptionTier.VITRINE, SubscriptionBilling.MONTHLY, vitrineMonthly);
+        putIfPresent(SubscriptionTier.VITRINE, SubscriptionBilling.YEARLY, vitrineYearly);
         putIfPresent(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY, gestionMonthly);
         putIfPresent(SubscriptionTier.GESTION, SubscriptionBilling.YEARLY, gestionYearly);
         putIfPresent(SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY, premiumMonthly);
@@ -48,12 +52,9 @@ public class PricingCatalog {
 
     /**
      * Returns the Stripe Price ID for the (tier, billing) combo, or empty if
-     * the tier is VITRINE or if the matching property isn't configured.
+     * the matching property isn't configured.
      */
     public Optional<String> priceIdFor(SubscriptionTier tier, SubscriptionBilling billing) {
-        if (tier == SubscriptionTier.VITRINE) {
-            return Optional.empty();
-        }
         return Optional.ofNullable(priceMap.get(new TierBilling(tier, billing)));
     }
 

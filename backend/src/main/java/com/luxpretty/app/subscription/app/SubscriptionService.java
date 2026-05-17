@@ -59,19 +59,14 @@ public class SubscriptionService {
      *
      * @param tenantId the tenant's ID
      * @param tier the subscription tier (VITRINE, GESTION, PREMIUM)
-     * @param billing the billing period (FREE, MONTHLY, YEARLY)
+     * @param billing the billing period (MONTHLY, YEARLY)
      * @param paymentMethodId the Stripe Payment Method ID (e.g., pm_xxx)
      * @return the updated Tenant with subscription details
-     * @throws IllegalArgumentException if tier == VITRINE (free tier, no Stripe needed)
      * @throws Exception if Stripe API call fails
      */
     @Transactional
     public Tenant startCheckout(Long tenantId, SubscriptionTier tier, SubscriptionBilling billing,
                                 String paymentMethodId) throws Exception {
-        if (tier == SubscriptionTier.VITRINE) {
-            throw new IllegalArgumentException("VITRINE tier does not require a Stripe subscription");
-        }
-
         Tenant tenant = tenantRepository.findById(tenantId)
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
 

@@ -11,20 +11,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PricingCatalogTests {
 
     @Test
-    void priceIdFor_returnsEmpty_forVitrineTier() {
+    void priceIdFor_returnsEmpty_forVitrine_whenNotConfigured() {
+        // VITRINE is now a paid tier — empty result only when no price ID is set
         PricingCatalog catalog = new PricingCatalog(
+            "", "",
             "price_gestion_monthly", "price_gestion_yearly",
             "price_premium_monthly", "price_premium_yearly");
 
-        Optional<String> result = catalog.priceIdFor(
-            SubscriptionTier.VITRINE, SubscriptionBilling.FREE);
+        assertThat(catalog.priceIdFor(SubscriptionTier.VITRINE, SubscriptionBilling.MONTHLY)).isEmpty();
+        assertThat(catalog.priceIdFor(SubscriptionTier.VITRINE, SubscriptionBilling.YEARLY)).isEmpty();
+    }
 
-        assertThat(result).isEmpty();
+    @Test
+    void priceIdFor_returnsConfiguredPrice_forVitrineMonthly() {
+        PricingCatalog catalog = new PricingCatalog(
+            "price_vitrine_monthly_test", "",
+            "", "", "", "");
+
+        assertThat(catalog.priceIdFor(SubscriptionTier.VITRINE, SubscriptionBilling.MONTHLY))
+            .contains("price_vitrine_monthly_test");
     }
 
     @Test
     void priceIdFor_returnsConfiguredPrice_forGestionMonthly() {
         PricingCatalog catalog = new PricingCatalog(
+            "", "",
             "price_gestion_monthly_test", "",
             "", "");
 
@@ -37,7 +48,7 @@ class PricingCatalogTests {
     @Test
     void priceIdFor_returnsConfiguredPrice_forPremiumYearly() {
         PricingCatalog catalog = new PricingCatalog(
-            "", "", "", "price_premium_yearly_test");
+            "", "", "", "", "", "price_premium_yearly_test");
 
         Optional<String> result = catalog.priceIdFor(
             SubscriptionTier.PREMIUM, SubscriptionBilling.YEARLY);
@@ -48,6 +59,7 @@ class PricingCatalogTests {
     @Test
     void tierBillingFor_returnsCorrectTuple_givenPriceId() {
         PricingCatalog catalog = new PricingCatalog(
+            "", "",
             "price_GM", "price_GY",
             "price_PM", "price_PY");
 
@@ -61,8 +73,9 @@ class PricingCatalogTests {
     @Test
     void priceIdFor_returnsEmpty_whenPropertyIsBlank() {
         // Blank/unset properties (env vars not provided) → no matching price
-        PricingCatalog catalog = new PricingCatalog("", "", "", "");
+        PricingCatalog catalog = new PricingCatalog("", "", "", "", "", "");
 
+        assertThat(catalog.priceIdFor(SubscriptionTier.VITRINE, SubscriptionBilling.MONTHLY)).isEmpty();
         assertThat(catalog.priceIdFor(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY)).isEmpty();
         assertThat(catalog.priceIdFor(SubscriptionTier.PREMIUM, SubscriptionBilling.YEARLY)).isEmpty();
     }
