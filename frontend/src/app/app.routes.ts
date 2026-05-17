@@ -12,6 +12,7 @@ import { ForgotPasswordComponent } from './pages/auth/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './pages/auth/reset-password/reset-password.component';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
+import { proEmailVerifiedGuard } from './core/auth/pro-email-verified.guard';
 import { Role } from './core/auth/auth.model';
 
 export const routes: Routes = [
@@ -63,7 +64,7 @@ export const routes: Routes = [
   // Protected pro routes
   {
     path: 'pro',
-    canActivate: [authGuard, roleGuard(Role.PRO)],
+    canActivate: [authGuard, roleGuard(Role.PRO), proEmailVerifiedGuard],
     loadComponent: () =>
       import('./pages/pro/pro-shell.component').then((m) => m.ProShellComponent),
     children: [
