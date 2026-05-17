@@ -1,0 +1,21 @@
+@if (user() && user()!.emailVerified === false) {
+  <div class="verify-banner" role="alert">
+    <mat-icon class="banner-icon">mail_outline</mat-icon>
+    <div class="banner-text">
+      <strong>{{ 'verifyEmail.banner.title' | transloco }}</strong>
+      <span>{{ 'verifyEmail.banner.body' | transloco: { email: user()!.email } }}</span>
+    </div>
+    <button
+      mat-flat-button
+      class="banner-action"
+      [disabled]="loading() || cooldownSec() > 0"
+      (click)="resend()"
+    >
+      @if (cooldownSec() > 0) {
+        {{ 'verifyEmail.banner.resend' | transloco }} ({{ cooldownSec() }}s)
+      } @else {
+        {{ 'verifyEmail.banner.resend' | transloco }}
+      }
+    </button>
+  </div>
+}

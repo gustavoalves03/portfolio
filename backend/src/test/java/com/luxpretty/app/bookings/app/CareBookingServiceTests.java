@@ -79,8 +79,8 @@ class CareBookingServiceTests {
         // explicitly before invoking the method under test.
         TenantContext.setCurrentTenant("test-tenant");
 
-        client = User.builder().id(1L).name("Marie").email("marie@test.com").build();
-        owner = User.builder().id(2L).name("Sophie").email("sophie@test.com").build();
+        client = User.builder().id(1L).name("Marie").email("marie@test.com").emailVerified(true).build();
+        owner = User.builder().id(2L).name("Sophie").email("sophie@test.com").emailVerified(true).build();
 
         care30min = new Care();
         care30min.setId(10L);
@@ -233,7 +233,7 @@ class CareBookingServiceTests {
         assertThat(result.status()).isEqualTo("CONFIRMED");
 
         // Client 2: slot check returns empty → CONFLICT
-        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").build();
+        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").emailVerified(true).build();
         ClientBookingRequest req2 = new ClientBookingRequest(10L, futureDate, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client2, owner, "Salon", req2))
@@ -985,7 +985,7 @@ class CareBookingServiceTests {
         assertThat(firstResult.status()).isEqualTo("CONFIRMED");
 
         // Client 2: same slot, check passes (stale view), save hits UK → CONFLICT
-        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").build();
+        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").emailVerified(true).build();
         ClientBookingRequest req2 = new ClientBookingRequest(10L, futureDate, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client2, owner, "Salon", req2))
@@ -1358,6 +1358,53 @@ class CareBookingServiceTests {
         assertThat(booking.getStatus()).isEqualTo(CareBookingStatus.CANCELLED);
         verify(bookingRepo).save(booking);
         verifyNoInteractions(notificationDispatcher);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Email verification guard ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("create — client emailVerified=false → 403 EMAIL_NOT_VERIFIED")
+    void create_clientEmailNotVerified_throws403() {
+        User unverifiedClient = User.builder()
+                .id(1L).name("Marie").email("marie@test.com")
+                .emailVerified(false)
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(unverifiedClient));
+
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(9, 0),
+                        CareBookingStatus.CONFIRMED, null, null);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(rse.getReason()).isEqualTo("EMAIL_NOT_VERIFIED");
+                });
+    }
+
+    @Test
+    @DisplayName("createClientBooking — client emailVerified=false → 403 EMAIL_NOT_VERIFIED")
+    void createClientBooking_clientEmailNotVerified_throws403() {
+        User unverifiedClient = User.builder()
+                .id(1L).name("Marie").email("marie@test.com")
+                .emailVerified(false)
+                .build();
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(unverifiedClient, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(rse.getReason()).isEqualTo("EMAIL_NOT_VERIFIED");
+                });
     }
 
     // ── Helpers ──

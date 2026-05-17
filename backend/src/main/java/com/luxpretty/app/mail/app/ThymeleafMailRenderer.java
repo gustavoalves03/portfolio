@@ -5,6 +5,7 @@ import com.luxpretty.app.mail.domain.MailOutbox;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
+import com.luxpretty.app.mail.vars.BookingReminderVars;
 import com.luxpretty.app.mail.vars.InvoicePaidVars;
 import com.luxpretty.app.mail.vars.MailVars;
 import org.jsoup.Jsoup;
@@ -40,14 +41,21 @@ public class ThymeleafMailRenderer implements MailRenderer {
         MailVars vars = deserialize(row);
         Map<String, Object> ctxVars = toContextMap(vars);
 
+        // Explicit suffixes so each call hits the right resolver:
+        //  - "<name>.html" → Spring Boot's default HTML resolver
+        //  - "<name>.txt"  → mailTextTemplateResolver (TEXT mode, restricted to *.txt)
+        // Without explicit suffixes the .txt resolver hijacks both calls
+        // (lower order wins) and the HTML body comes back as stripped text.
+        String base = "mail/" + row.getTemplate().templatePath();
+
         Context htmlCtx = new Context();
         ctxVars.forEach(htmlCtx::setVariable);
-        String html = templateEngine.process("mail/" + row.getTemplate().templatePath(), htmlCtx);
+        String html = templateEngine.process(base + ".html", htmlCtx);
         String inlined = inlineCss(html);
 
         Context txtCtx = new Context();
         ctxVars.forEach(txtCtx::setVariable);
-        String txt = templateEngine.process("mail/" + row.getTemplate().templatePath(), txtCtx);
+        String txt = templateEngine.process(base + ".txt", txtCtx);
 
         String subject = subjectFor(row.getTemplate(), vars);
         return new Rendered(subject, inlined, txt);
@@ -121,6 +129,11 @@ public class ThymeleafMailRenderer implements MailRenderer {
             }
             case INVOICE_PAYMENT_FAILED -> "Un souci avec votre paiement — LuxPretty";
             case TRIAL_ENDING -> "Votre essai gratuit se termine bientôt";
+            case VERIFY_EMAIL -> "Vérifie ton email LuxPretty";
+            case BOOKING_REMINDER_J1 -> {
+                BookingReminderVars v = (BookingReminderVars) vars;
+                yield "Rappel : ton RDV demain à " + v.timeStr();
+            }
         };
     }
 

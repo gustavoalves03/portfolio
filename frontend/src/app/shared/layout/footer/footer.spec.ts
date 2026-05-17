@@ -18,6 +18,7 @@ describe('Footer', () => {
       roles,
       activeTenantId: roles.length > 0 ? 42 : null,
       availableTenants: [],
+      emailVerified: true,
     };
   }
 

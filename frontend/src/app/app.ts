@@ -4,6 +4,7 @@ import { RouterOutlet } from '@angular/router';
 import { Header } from './shared/layout/header/header';
 import { Footer } from './shared/layout/footer/footer';
 import { BottomNavComponent } from './shared/layout/bottom-nav/bottom-nav.component';
+import { VerifyEmailBannerComponent } from './shared/layout/verify-email-banner/verify-email-banner.component';
 import { LangService } from './i18n/lang.service';
 import { NotificationToastComponent } from './features/notifications/components/notification-toast/notification-toast.component';
 import { NotificationsStore } from './features/notifications/store/notifications.store';
@@ -13,7 +14,7 @@ import { MobileMiniFooterComponent } from './shared/layout/mobile-mini-footer/mo
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent, CookieBannerComponent, MobileMiniFooterComponent],
+  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent, VerifyEmailBannerComponent, CookieBannerComponent, MobileMiniFooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

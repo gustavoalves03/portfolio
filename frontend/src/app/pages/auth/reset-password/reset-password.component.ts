@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -43,9 +43,11 @@ export class ResetPasswordComponent implements OnInit {
   );
 
   token: string | null = null;
-  isLoading = false;
-  resetSuccess = false;
-  invalidToken = false;
+  // Signals required for zoneless change detection — plain class fields
+  // do not trigger re-render after async callbacks (subscribe next/error).
+  readonly isLoading = signal(false);
+  readonly resetSuccess = signal(false);
+  readonly invalidToken = signal(false);
 
   get passwordControl() { return this.form.get('password'); }
   get confirmPasswordControl() { return this.form.get('confirmPassword'); }
@@ -53,7 +55,7 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
     if (!this.token) {
-      this.invalidToken = true;
+      this.invalidToken.set(true);
     }
   }
 
@@ -63,17 +65,17 @@ export class ResetPasswordComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
-    this.invalidToken = false;
+    this.isLoading.set(true);
+    this.invalidToken.set(false);
 
     this.authService.resetPassword(this.token, this.form.value.password!).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.resetSuccess = true;
+        this.isLoading.set(false);
+        this.resetSuccess.set(true);
       },
-      error: (err: HttpErrorResponse) => {
-        this.isLoading = false;
-        this.invalidToken = true;
+      error: (_err: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.invalidToken.set(true);
       },
     });
   }

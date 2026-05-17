@@ -61,7 +61,7 @@ describe('ForgotPasswordComponent', () => {
     component.onSubmit();
 
     expect(authServiceSpy.requestPasswordReset).toHaveBeenCalledWith('sophie@salon.fr');
-    expect(component.emailSent).toBeTrue();
+    expect(component.emailSent()).toBeTrue();
   });
 
   it('should still show success on error (no enumeration)', () => {
@@ -70,6 +70,6 @@ describe('ForgotPasswordComponent', () => {
     component.form.setValue({ email: 'sophie@salon.fr' });
     component.onSubmit();
 
-    expect(component.emailSent).toBeTrue();
+    expect(component.emailSent()).toBeTrue();
   });
 });

@@ -1,0 +1,21 @@
+<div class="container">
+  @if (state() === 'pending') {
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>{{ 'common.loading' | transloco }}</p>
+  }
+  @if (state() === 'success') {
+    <h1>{{ 'verifyEmail.success.title' | transloco }}</h1>
+    <p>{{ 'verifyEmail.success.body' | transloco }}</p>
+  }
+  @if (state() === 'expired') {
+    <h1>{{ 'verifyEmail.expired.title' | transloco }}</h1>
+    <p>{{ 'verifyEmail.expired.body' | transloco }}</p>
+    <button mat-flat-button color="primary" (click)="resend()">
+      {{ 'verifyEmail.required.resend' | transloco }}
+    </button>
+  }
+  @if (state() === 'invalid') {
+    <h1>{{ 'verifyEmail.invalid' | transloco }}</h1>
+    <a mat-stroked-button routerLink="/">{{ 'nav.home' | transloco }}</a>
+  }
+</div>

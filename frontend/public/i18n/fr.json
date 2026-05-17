@@ -70,6 +70,11 @@
       "subtitle": "Rejoignez LuxPretty et développez votre activité",
       "name": "Nom complet",
       "email": "Adresse e-mail",
+      "emailConfirm": {
+        "label": "Confirmer l'e-mail",
+        "mismatch": "Les e-mails ne correspondent pas"
+      },
+      "emailSuggestion": "Voulais-tu dire <strong>{{email}}</strong> ?",
       "password": "Mot de passe",
       "passwordHint": "Au moins 8 caractères",
       "consent": "J'accepte les <a href='/cgu' target='_blank'>Conditions Générales d'Utilisation</a> et la <a href='/confidentialite' target='_blank'>Politique de Confidentialité</a>",
@@ -1207,6 +1212,13 @@
     "book": "Réserver",
     "chooseEmployee": "Choisir un collaborateur",
     "noPreference": "Pas de préférence",
+    "blocked": {
+      "notVerified": {
+        "title": "Vérifie ton email pour réserver",
+        "body": "On t'a envoyé un mail à {{email}}.",
+        "resend": "Renvoyer le mail"
+      }
+    },
     "stepper": {
       "step1": "Prestation",
       "step1Employee": "Avec qui ?",
@@ -1686,6 +1698,28 @@
       "subscription": "L'abonnement n'a pas pu être créé. Réessayez.",
       "generic": "Une erreur est survenue."
     }
+  },
+  "verifyEmail": {
+    "banner": {
+      "title": "Vérifie ton email",
+      "body": "Pour activer toutes les fonctionnalités, vérifie ton email à {{email}}.",
+      "resend": "Renvoyer le mail"
+    },
+    "required": {
+      "title": "Vérifie ton email",
+      "body": "Pour accéder à ton espace pro, vérifie ton email.",
+      "resend": "Renvoyer le mail",
+      "resendCooldown": "Mail renvoyé, vérifie ta boîte."
+    },
+    "success": {
+      "title": "Email vérifié ✓",
+      "body": "Bienvenue sur LuxPretty"
+    },
+    "expired": {
+      "title": "Lien expiré",
+      "body": "Demande un nouveau lien"
+    },
+    "invalid": "Lien invalide"
   },
   "cookieBanner": {
     "message": "Ce site utilise uniquement des cookies nécessaires à son fonctionnement.",

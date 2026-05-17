@@ -50,6 +50,10 @@
               {{ 'auth.login.submit' | transloco }}
             }
           </button>
+
+          <p class="forgot-password-link">
+            <a (click)="goToForgotPassword()">{{ 'auth.login.forgotPassword' | transloco }}</a>
+          </p>
         </form>
 
         <div class="divider-row">

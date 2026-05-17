@@ -27,6 +27,7 @@ export interface User {
   roles: Role[];
   activeTenantId: number | null;
   availableTenants: TenantSummary[];
+  emailVerified: boolean;
 }
 
 export interface AuthResponse {

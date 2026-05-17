@@ -15,6 +15,7 @@ import { PublicClosedDaysStore } from '../../../features/availability/public-clo
 import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
+import { EmailNotVerifiedModalComponent } from '../../../features/bookings/modals/email-not-verified-modal/email-not-verified-modal.component';
 import { SheetHandleComponent } from '../../../shared/uis/sheet-handle/sheet-handle.component';
 import { bottomSheetConfig } from '../../../shared/uis/sheet-handle/bottom-sheet.config';
 
@@ -227,6 +228,10 @@ private loadSlots(date: Date): void {
   }
 
   private handleBookingError(err: unknown): void {
+    if (err instanceof HttpErrorResponse && err.status === 403 && err.error?.error === 'EMAIL_NOT_VERIFIED') {
+      this.matDialog.open(EmailNotVerifiedModalComponent, { width: '420px' });
+      return;
+    }
     if (err instanceof HttpErrorResponse && err.status === 409) {
       const code = err.error?.code as string | undefined;
       if (code === 'BOOKING_LIMIT_DAILY_EXCEEDED') {

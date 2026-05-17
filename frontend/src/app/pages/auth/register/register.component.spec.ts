@@ -100,6 +100,7 @@ describe('RegisterComponent', () => {
     component.form.setValue({
       name: 'Sophie Martin',
       email: 'sophie@salon.fr',
+      emailConfirm: 'sophie@salon.fr',
       password: 'password123',
       confirmPassword: 'password123',
       consent: true,
@@ -122,6 +123,7 @@ describe('RegisterComponent', () => {
     component.form.setValue({
       name: 'Sophie Martin',
       email: 'existing@salon.fr',
+      emailConfirm: 'existing@salon.fr',
       password: 'password123',
       confirmPassword: 'password123',
       consent: true,
@@ -142,5 +144,26 @@ describe('RegisterComponent', () => {
     });
     expect(component.form.errors?.['passwordMismatch']).toBe(true);
     expect(component.form.invalid).toBe(true);
+  });
+
+  it('marks the form invalid when emails do not match', () => {
+    component.form.patchValue({
+      name: 'Demo',
+      email: 'demo@example.com',
+      emailConfirm: 'other@example.com',
+      password: 'secret123',
+      confirmPassword: 'secret123',
+      consent: true,
+    });
+    expect(component.form.errors?.['emailMismatch']).toBe(true);
+    expect(component.form.invalid).toBe(true);
+  });
+
+  it('applyEmailSuggestion replaces email and clears suggestion', () => {
+    component.emailControl?.setValue('user@gmial.com');
+    component.emailSuggestion.set('user@gmail.com');
+    component.applyEmailSuggestion();
+    expect(component.emailControl?.value).toBe('user@gmail.com');
+    expect(component.emailSuggestion()).toBeNull();
   });
 });

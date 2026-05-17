@@ -91,6 +91,21 @@
   }
 }
 
+.forgot-password-link {
+  text-align: right;
+  font-size: 13px;
+  margin: 8px 0 0;
+
+  a {
+    color: var(--pf-rose);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .switch-link {
   text-align: center;
   font-size: 12px;

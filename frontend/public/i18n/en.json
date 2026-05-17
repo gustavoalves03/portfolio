@@ -70,6 +70,11 @@
       "subtitle": "Join LuxPretty and grow your business",
       "name": "Full name",
       "email": "Email address",
+      "emailConfirm": {
+        "label": "Confirm email",
+        "mismatch": "Emails don't match"
+      },
+      "emailSuggestion": "Did you mean <strong>{{email}}</strong>?",
       "password": "Password",
       "passwordHint": "At least 8 characters",
       "consent": "I accept the <a href='/tos' target='_blank'>Terms of Service</a> and <a href='/privacy' target='_blank'>Privacy Policy</a>",
@@ -1203,6 +1208,13 @@
     "book": "Book",
     "chooseEmployee": "Choose a practitioner",
     "noPreference": "No preference",
+    "blocked": {
+      "notVerified": {
+        "title": "Verify your email to book",
+        "body": "We sent an email to {{email}}.",
+        "resend": "Resend email"
+      }
+    },
     "stepper": {
       "step1": "Service",
       "step1Employee": "With whom?",
@@ -1682,6 +1694,28 @@
       "subscription": "Subscription could not be created. Try again.",
       "generic": "Something went wrong."
     }
+  },
+  "verifyEmail": {
+    "banner": {
+      "title": "Verify your email",
+      "body": "To activate all features, verify your email at {{email}}.",
+      "resend": "Resend email"
+    },
+    "required": {
+      "title": "Verify your email",
+      "body": "To access your pro space, please verify your email.",
+      "resend": "Resend email",
+      "resendCooldown": "Email sent, check your inbox."
+    },
+    "success": {
+      "title": "Email verified ✓",
+      "body": "Welcome to LuxPretty"
+    },
+    "expired": {
+      "title": "Link expired",
+      "body": "Request a new link"
+    },
+    "invalid": "Invalid link"
   },
   "cookieBanner": {
     "message": "This site only uses cookies necessary for its operation.",

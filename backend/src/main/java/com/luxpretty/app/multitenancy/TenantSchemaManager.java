@@ -405,6 +405,8 @@ public class TenantSchemaManager {
                 "ALTER TABLE VISIT_PHOTOS ADD (UPLOADED_BY NUMBER(19))",
                 "ALTER TABLE CLIENT_REMINDERS ADD (CREATED_BY NUMBER(19))",
                 "ALTER TABLE CARE_BOOKINGS ADD (SALON_CLIENT_ID NUMBER(19))",
+                // J-1 booking reminder scheduler — mirror of tenant Flyway V5__booking_reminder_sent_at.sql
+                "ALTER TABLE CARE_BOOKINGS ADD (REMINDER_SENT_AT TIMESTAMP WITH TIME ZONE)",
                 // Align legacy tenant schemas with the nullable PHONE column declared in CREATE TABLE.
                 "ALTER TABLE SALON_CLIENTS MODIFY (PHONE VARCHAR2(20 CHAR) NULL)",
                 // @Version on LeaveRequest — added after the LEAVE_REQUESTS table existed in
@@ -698,6 +700,8 @@ public class TenantSchemaManager {
                 "ALTER TABLE VISIT_PHOTOS ADD COLUMN IF NOT EXISTS UPLOADED_BY BIGINT",
                 "ALTER TABLE CLIENT_REMINDERS ADD COLUMN IF NOT EXISTS CREATED_BY BIGINT",
                 "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS SALON_CLIENT_ID BIGINT",
+                // J-1 booking reminder scheduler — mirror of tenant Flyway V5__booking_reminder_sent_at.sql
+                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS REMINDER_SENT_AT TIMESTAMP WITH TIME ZONE",
                 // Align legacy H2 tenant schemas with the nullable PHONE column declared in CREATE TABLE.
                 "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL",
                 // @Version on LeaveRequest (legacy schemas miss it).

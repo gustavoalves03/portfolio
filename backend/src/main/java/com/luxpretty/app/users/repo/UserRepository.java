@@ -15,6 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
     Boolean existsByEmail(String email);
     Optional<User> findByPasswordResetToken(String passwordResetToken);
+    Optional<User> findByEmailVerificationToken(String emailVerificationToken);
 
     @Query("SELECT u.emailBlocked FROM User u WHERE u.email = :email")
     Optional<Boolean> findEmailBlockedByEmail(@Param("email") String email);

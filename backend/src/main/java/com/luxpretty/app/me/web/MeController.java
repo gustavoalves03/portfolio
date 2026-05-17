@@ -86,6 +86,7 @@ public class MeController {
                 .roles(roleNames)
                 .activeTenantId(requested)
                 .availableTenants(tenants)
+                .emailVerified(Boolean.TRUE.equals(user.getEmailVerified()))
                 .build();
 
         return ResponseEntity.ok(new AuthResponse(newToken, dto));

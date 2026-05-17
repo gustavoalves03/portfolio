@@ -36,6 +36,7 @@ describe('AuthService', () => {
       roles: [Role.PRO],
       activeTenantId: 42,
       availableTenants: [{ id: 42, slug: 'salon-x', name: 'Salon X' }],
+      emailVerified: true,
       ...overrides,
     };
     (service as any).currentUser.set(user);

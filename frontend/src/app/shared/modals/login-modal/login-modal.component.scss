@@ -59,6 +59,21 @@ form {
   white-space: nowrap;
 }
 
+.forgot-link {
+  text-align: center;
+  font-size: 13px;
+  margin: 0.5rem 0 0;
+
+  a {
+    color: var(--mat-sys-primary, #e91e63);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .register-link {
   text-align: center;
   font-size: 13px;

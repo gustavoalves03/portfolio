@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Vérifie ton email LuxPretty')}">
+<body>
+<div th:fragment="content">
+    <h1>Vérifie ton email</h1>
+    <p>Bonjour <span th:text="${name}">…</span>,</p>
+    <p>Bienvenue chez LuxPretty ! Pour activer ton compte, clique sur le bouton ci-dessous.</p>
+    <p><a th:href="${verifyUrl}" class="cta">Vérifier mon email</a></p>
+    <p>Ce lien expire dans 24 heures. Si tu n'as pas créé de compte, ignore ce mail.</p>
+</div>
+</body>
+</html>

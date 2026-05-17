@@ -16,8 +16,29 @@
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'proSignup.modal.fields.email' | transloco }}</mat-label>
-      <input matInput required type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" />
+      <input matInput required type="email" [ngModel]="email()" (ngModelChange)="onEmailChange($event)" name="email" />
     </mat-form-field>
+
+    @if (emailSuggestion(); as suggestion) {
+      <div class="email-suggestion" data-testid="pro-signup-email-suggestion">
+        <button
+          type="button"
+          class="email-suggestion-btn"
+          (click)="applyEmailSuggestion()"
+          [innerHTML]="'auth.register.emailSuggestion' | transloco: { email: suggestion }"
+        ></button>
+      </div>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'auth.register.emailConfirm.label' | transloco }}</mat-label>
+      <input matInput required type="email" [ngModel]="emailConfirm()" (ngModelChange)="emailConfirm.set($event)" name="emailConfirm" />
+    </mat-form-field>
+    @if (emailMismatch()) {
+      <p class="form-error" data-testid="pro-signup-email-mismatch">
+        {{ 'auth.register.emailConfirm.mismatch' | transloco }}
+      </p>
+    }
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'proSignup.modal.fields.password' | transloco }}</mat-label>

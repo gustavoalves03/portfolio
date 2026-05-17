@@ -1,0 +1,19 @@
+.container {
+  max-width: 520px;
+  margin: 4rem auto;
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  .email {
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  button {
+    margin: 0.5rem;
+  }
+}

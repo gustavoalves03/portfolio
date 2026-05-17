@@ -1,0 +1,13 @@
+Bonjour [(${clientName})],
+
+Petit rappel : tu as un rendez-vous demain chez [(${salonName})].
+
+  Soin    : [(${careName})]
+  Date    : [(${dateStr})] à [(${timeStr})]
+[# th:if="${address}"]  Adresse : [(${address})]
+[/]
+
+Voir mon RDV : [(${bookingUrl})]
+
+À demain !
+— LuxPretty
