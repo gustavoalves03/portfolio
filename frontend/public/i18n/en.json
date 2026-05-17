@@ -1675,5 +1675,11 @@
       "subscription": "Subscription could not be created. Try again.",
       "generic": "Something went wrong."
     }
+  },
+  "cookieBanner": {
+    "message": "This site only uses cookies necessary for its operation.",
+    "learnMore": "Learn more",
+    "dismiss": "Got it",
+    "ariaLabel": "Cookie usage notice"
   }
 }

@@ -1679,5 +1679,11 @@
       "subscription": "L'abonnement n'a pas pu être créé. Réessayez.",
       "generic": "Une erreur est survenue."
     }
+  },
+  "cookieBanner": {
+    "message": "Ce site utilise uniquement des cookies nécessaires à son fonctionnement.",
+    "learnMore": "En savoir plus",
+    "dismiss": "J'ai compris",
+    "ariaLabel": "Information sur l'utilisation des cookies"
   }
 }
