@@ -38,6 +38,11 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
+  },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
   {
     path: 'discover',
