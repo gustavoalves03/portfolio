@@ -58,6 +58,18 @@ export class AuthModalComponent {
     consent: [false, Validators.requiredTrue],
   });
 
+  onConsentLinkClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const href = anchor.getAttribute('href');
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   onLogin(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
