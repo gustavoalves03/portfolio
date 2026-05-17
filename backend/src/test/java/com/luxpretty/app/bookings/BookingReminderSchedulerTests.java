@@ -126,4 +126,51 @@ class BookingReminderSchedulerTests {
                 eq(tenant.getSlug()));
         verify(bookingRepo).save(booking);
     }
+
+    @Test
+    void sendReminders_bookingAlreadyReminded_skipped() {
+        // The repository query filters reminderSentAt IS NULL so an already-
+        // reminded booking simply does not appear in the result set.
+        when(tenantRepository.findAll()).thenReturn(List.of(tenant));
+        when(bookingRepo.findRemindersDueOnDate(LocalDate.now().plusDays(1)))
+                .thenReturn(List.of()); // already-reminded => filtered out
+
+        scheduler.sendReminders();
+
+        verify(mailOutbox, never()).queue(any(), any(), any(), any());
+        verify(bookingRepo, never()).save(any());
+    }
+
+    @Test
+    void sendReminders_cancelledBooking_skipped() {
+        // Same idea: cancelled bookings are filtered out by status=CONFIRMED.
+        when(tenantRepository.findAll()).thenReturn(List.of(tenant));
+        when(bookingRepo.findRemindersDueOnDate(LocalDate.now().plusDays(1)))
+                .thenReturn(List.of()); // not CONFIRMED => filtered out
+
+        scheduler.sendReminders();
+
+        verify(mailOutbox, never()).queue(any(), any(), any(), any());
+        verify(bookingRepo, never()).save(any());
+    }
+
+    @Test
+    void sendReminders_confirmationLessThan2hAgo_skippedButMarked() {
+        CareBooking booking = newBooking(
+                LocalDateTime.now().minusMinutes(30), // fresh confirmation
+                CareBookingStatus.CONFIRMED,
+                null);
+
+        when(tenantRepository.findAll()).thenReturn(List.of(tenant));
+        when(bookingRepo.findRemindersDueOnDate(LocalDate.now().plusDays(1)))
+                .thenReturn(List.of(booking));
+
+        scheduler.sendReminders();
+
+        // No mail because confirmation is fresh.
+        verify(mailOutbox, never()).queue(any(), any(), any(), any());
+        // But reminderSentAt is set + saved to avoid re-checking next hour.
+        verify(bookingRepo, times(1)).save(booking);
+        org.assertj.core.api.Assertions.assertThat(booking.getReminderSentAt()).isNotNull();
+    }
 }
