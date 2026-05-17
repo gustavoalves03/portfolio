@@ -48,4 +48,46 @@ class EmailVerificationAuthControllerTests {
         assertThat(reloaded.getEmailVerified()).isTrue();
         assertThat(reloaded.getEmailVerificationToken()).isNull();
     }
+
+    @Test
+    void verifyEmail_invalidToken_returns400() throws Exception {
+        mockMvc.perform(post("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"does-not-exist\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void verifyEmail_expiredToken_returns400() throws Exception {
+        String token = UUID.randomUUID().toString();
+        userRepo.save(User.builder()
+            .name("Expired").email("expired@example.com")
+            .password("x").provider(AuthProvider.LOCAL)
+            .emailVerified(false)
+            .emailVerificationToken(token)
+            .emailVerificationTokenExpiresAt(Instant.now().minusSeconds(60))
+            .build());
+
+        mockMvc.perform(post("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"" + token + "\"}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void verifyEmail_alreadyVerified_returns200_idempotent() throws Exception {
+        String token = UUID.randomUUID().toString();
+        userRepo.save(User.builder()
+            .name("Done").email("done@example.com")
+            .password("x").provider(AuthProvider.LOCAL)
+            .emailVerified(true)
+            .emailVerificationToken(token)
+            .emailVerificationTokenExpiresAt(Instant.now().plusSeconds(3600))
+            .build());
+
+        mockMvc.perform(post("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"" + token + "\"}"))
+            .andExpect(status().isOk());
+    }
 }
