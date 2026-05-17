@@ -1360,6 +1360,34 @@ class CareBookingServiceTests {
         verifyNoInteractions(notificationDispatcher);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── Email verification guard ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("create — client emailVerified=false → 403 EMAIL_NOT_VERIFIED")
+    void create_clientEmailNotVerified_throws403() {
+        User unverifiedClient = User.builder()
+                .id(1L).name("Marie").email("marie@test.com")
+                .emailVerified(false)
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(unverifiedClient));
+
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(9, 0),
+                        CareBookingStatus.CONFIRMED, null, null);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(rse.getReason()).isEqualTo("EMAIL_NOT_VERIFIED");
+                });
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
