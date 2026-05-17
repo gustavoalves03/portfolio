@@ -1196,6 +1196,13 @@
     "book": "Book",
     "chooseEmployee": "Choose a practitioner",
     "noPreference": "No preference",
+    "blocked": {
+      "notVerified": {
+        "title": "Verify your email to book",
+        "body": "We sent an email to {{email}}.",
+        "resend": "Resend email"
+      }
+    },
     "stepper": {
       "step1": "Service",
       "step1Employee": "With whom?",
@@ -1675,5 +1682,22 @@
       "subscription": "Subscription could not be created. Try again.",
       "generic": "Something went wrong."
     }
+  },
+  "verifyEmail": {
+    "required": {
+      "title": "Verify your email",
+      "body": "To access your pro space, please verify your email.",
+      "resend": "Resend email",
+      "resendCooldown": "Email sent, check your inbox."
+    },
+    "success": {
+      "title": "Email verified ✓",
+      "body": "Welcome to LuxPretty"
+    },
+    "expired": {
+      "title": "Link expired",
+      "body": "Request a new link"
+    },
+    "invalid": "Invalid link"
   }
 }
