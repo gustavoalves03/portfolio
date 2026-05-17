@@ -60,6 +60,12 @@ public class User {
     @Column(name = "password_reset_token_expires_at")
     private java.time.Instant passwordResetTokenExpiresAt;
 
+    @Column(name = "email_verification_token", unique = true)
+    private String emailVerificationToken;
+
+    @Column(name = "email_verification_token_expires_at")
+    private java.time.Instant emailVerificationTokenExpiresAt;
+
     @Builder.Default
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
