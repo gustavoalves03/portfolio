@@ -39,6 +39,17 @@
   &.past {
     opacity: 0.75;
   }
+
+  // Cancelled upcoming bookings stay visible but are visually de-emphasised.
+  &.is-cancelled {
+    opacity: 0.7;
+
+    .care-name,
+    .booking-datetime {
+      text-decoration: line-through;
+      text-decoration-color: rgba(198, 40, 40, 0.4);
+    }
+  }
 }
 
 .booking-header {
@@ -66,8 +77,8 @@
   }
 
   &.cancelled {
-    background: #f5f5f5;
-    color: #757575;
+    background: #fdecea;
+    color: #c62828;
   }
 }
 

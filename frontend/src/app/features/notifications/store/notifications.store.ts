@@ -54,9 +54,11 @@ export const NotificationsStore = signalStore(
       )
     ),
     loadInitial(): void {
+      // Show both read and unread notifications so the user keeps a history;
+      // the unread state is rendered via a visual indicator on each row.
       const since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
       patchState(store, { notifications: [], page: 0, mode: 'recent', hasMore: false });
-      notificationsService.list({ read: false, since, page: 0, size: PAGE_SIZE }).subscribe({
+      notificationsService.list({ since, page: 0, size: PAGE_SIZE }).subscribe({
         next: (res: any) => {
           patchState(store, {
             notifications: res.content,
@@ -70,7 +72,7 @@ export const NotificationsStore = signalStore(
     loadNextPage(): void {
       if (store.hasMore()) {
         const nextPage = store.page() + 1;
-        const args: any = { read: false, page: nextPage, size: PAGE_SIZE };
+        const args: any = { page: nextPage, size: PAGE_SIZE };
         if (store.mode() === 'recent') {
           args.since = new Date(Date.now() - RECENT_WINDOW_MS).toISOString();
         }
@@ -88,7 +90,7 @@ export const NotificationsStore = signalStore(
       }
       if (store.mode() === 'recent') {
         patchState(store, { mode: 'full', page: 0 });
-        notificationsService.list({ read: false, page: 0, size: PAGE_SIZE }).subscribe({
+        notificationsService.list({ page: 0, size: PAGE_SIZE }).subscribe({
           next: (res: any) => {
             const existingIds = new Set(store.notifications().map((n) => n.id));
             const merged = [
@@ -123,13 +125,18 @@ export const NotificationsStore = signalStore(
       )
     ),
     dismiss(id: number): void {
+      // Swipe / dismiss no longer removes the notification — it just marks it
+      // as read so the user keeps the history. Visual distinction (dot, dim)
+      // is rendered on each row based on the `read` flag.
       const item = store.notifications().find((n) => n.id === id);
-      const wasUnread = item ? !item.read : false;
+      if (!item || item.read) return;
       notificationsService.markAsRead(id).subscribe({
         next: () => {
           patchState(store, {
-            notifications: store.notifications().filter((n) => n.id !== id),
-            unreadCount: wasUnread ? Math.max(0, store.unreadCount() - 1) : store.unreadCount(),
+            notifications: store.notifications().map((n) =>
+              n.id === id ? { ...n, read: true } : n,
+            ),
+            unreadCount: Math.max(0, store.unreadCount() - 1),
           });
         },
         error: () => {},

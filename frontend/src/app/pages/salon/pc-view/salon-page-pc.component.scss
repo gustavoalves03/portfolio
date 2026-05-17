@@ -439,17 +439,16 @@
 /* Leaflet marker styles (rendered into div produced by L.divIcon) */
 :host ::ng-deep {
   .salon-map-marker {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
   }
   .salon-pin {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, var(--d-rose-deep), var(--d-rose));
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    width: 22px;
+    height: 22px;
+    background: #c66075;
+    border-radius: 50%;
     border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   }
   .leaflet-container {
     font-family: inherit;

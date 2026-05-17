@@ -61,9 +61,11 @@ public class ClientBookingHistoryService {
 
     @Transactional(readOnly = true)
     public List<ClientBookingHistoryResponse> getUpcoming(Long userId) {
+        // Include CANCELLED bookings so the client still sees them with a
+        // visible cancellation badge until the appointment date has passed.
         List<ClientBookingHistory> bookings = applicationSchemaExecutor.call(() ->
-                repo.findByUserIdAndStatusAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAscAppointmentTimeAsc(
-                        userId, "CONFIRMED", LocalDate.now()
+                repo.findByUserIdAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAscAppointmentTimeAsc(
+                        userId, LocalDate.now()
                 )
         );
         return bookings.stream().map(this::toResponse).toList();

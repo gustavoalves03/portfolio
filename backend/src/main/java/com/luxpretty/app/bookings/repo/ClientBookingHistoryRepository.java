@@ -12,6 +12,11 @@ public interface ClientBookingHistoryRepository extends JpaRepository<ClientBook
     List<ClientBookingHistory> findByUserIdAndStatusAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAscAppointmentTimeAsc(
             Long userId, String status, LocalDate fromDate);
 
+    // Upcoming bookings irrespective of status so that CANCELLED bookings stay
+    // visible in the client's list until their date has passed.
+    List<ClientBookingHistory> findByUserIdAndAppointmentDateGreaterThanEqualOrderByAppointmentDateAscAppointmentTimeAsc(
+            Long userId, LocalDate fromDate);
+
     List<ClientBookingHistory> findByUserIdAndAppointmentDateBeforeOrderByAppointmentDateDescAppointmentTimeDesc(
             Long userId, LocalDate beforeDate);
 

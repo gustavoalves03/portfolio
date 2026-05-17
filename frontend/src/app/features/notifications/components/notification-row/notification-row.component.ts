@@ -15,9 +15,13 @@ import { SwipeLeftDirective } from './swipe-left.directive';
         <mat-icon>check</mat-icon>
       </div>
       <div class="notif-card"
+           [class.is-read]="notification().read"
            appSwipeLeft
            (swipeLeftCommitted)="swipedLeft.emit()"
            (click)="rowClick.emit()">
+        @if (!notification().read) {
+          <span class="unread-dot" aria-hidden="true"></span>
+        }
         <div class="icon-cell">
           <mat-icon>notifications</mat-icon>
         </div>
@@ -43,11 +47,26 @@ import { SwipeLeftDirective } from './swipe-left.directive';
     .notif-card {
       position: relative; z-index: 2;
       background: white;
-      padding: 10px 12px;
+      padding: 10px 12px 10px 22px;
       display: flex; gap: 10px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
       cursor: pointer;
       touch-action: pan-y;
+      transition: background 150ms ease, opacity 150ms ease;
+    }
+    .notif-card.is-read {
+      background: #fafaf8;
+      opacity: 0.78;
+    }
+    .notif-card.is-read .title { font-weight: 500; color: #555; }
+    .unread-dot {
+      position: absolute;
+      left: 10px; top: 50%;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--pf-rose, #c66075);
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 2px rgba(198, 96, 117, 0.18);
     }
     .icon-cell {
       width: 34px; height: 34px;

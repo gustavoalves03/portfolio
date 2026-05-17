@@ -208,18 +208,17 @@
 // Map markers for contact tab
 :host ::ng-deep {
   .salon-map-marker {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
   }
 
   .salon-pin {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    border: 3px solid white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    width: 22px;
+    height: 22px;
+    background: #c66075;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   }
 }
 

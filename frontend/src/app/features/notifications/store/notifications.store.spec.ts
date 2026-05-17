@@ -52,7 +52,9 @@ describe('NotificationsStore', () => {
     expect(args.page).toBe(0);
     expect(args.size).toBe(20);
     expect(args.since).toBeDefined();
-    expect(args.read).toBeFalse();
+    // Both read and unread notifications must be returned so the user keeps
+    // their history; the visual unread/read state is rendered per-row.
+    expect(args.read).toBeUndefined();
 
     const sinceMs = new Date(args.since!).getTime();
     const expected = Date.now() - 48 * 60 * 60 * 1000;
@@ -120,12 +122,13 @@ describe('NotificationsStore', () => {
     expect(store.mode()).toBe('full');
     const args = service.list.calls.mostRecent().args[0] as { since?: string; read?: boolean };
     expect(args.since).toBeUndefined();
-    expect(args.read).toBeFalse();
+    // Full-mode load also includes read notifications.
+    expect(args.read).toBeUndefined();
     const ids = store.notifications().map(n => n.id).sort();
     expect(ids).toEqual([1, 2, 3, 4]);
   });
 
-  it('dismiss removes item and decrements unreadCount when item was unread', () => {
+  it('dismiss flips the notification to read in place and decrements unreadCount when it was unread', () => {
     store.loadInitial();
     store.loadUnreadCount();
     const initialCount = store.unreadCount();
@@ -133,7 +136,9 @@ describe('NotificationsStore', () => {
     store.dismiss(1);
 
     expect(service.markAsRead).toHaveBeenCalledWith(1);
-    expect(store.notifications().map(n => n.id)).toEqual([2]);
+    // The notification stays in the list — only its `read` flag flips.
+    expect(store.notifications().map(n => n.id)).toEqual([1, 2]);
+    expect(store.notifications().find(n => n.id === 1)?.read).toBeTrue();
     expect(store.unreadCount()).toBe(initialCount - 1);
   });
 

@@ -51,8 +51,11 @@ export const ClientBookingsStore = signalStore(
           service.cancelBooking(slug, bookingId).pipe(
             tap({
               next: () => {
-                // Remove from upcoming, add to past is not needed since we reload
-                const updated = store.upcoming().filter((b) => b.bookingId !== bookingId);
+                // Keep the cancelled booking in the list so the client still
+                // sees it (with a CANCELLED badge) until its date has passed.
+                const updated = store.upcoming().map((b) =>
+                  b.bookingId === bookingId ? { ...b, status: 'CANCELLED' } : b,
+                );
                 patchState(store, { upcoming: updated, cancellingId: null });
               },
               error: () => patchState(store, { cancellingId: null }),

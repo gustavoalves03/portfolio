@@ -138,9 +138,12 @@ export class SalonPagePcComponent {
 
         const salonIcon = this.L.divIcon({
           className: 'salon-map-marker',
-          html: '<div class="salon-pin"></div>',
-          iconSize: [28, 28],
-          iconAnchor: [14, 28],
+          html:
+            '<div style="width:22px;height:22px;border-radius:50%;' +
+            'background:#c66075;border:3px solid #fff;' +
+            'box-shadow:0 4px 12px rgba(0,0,0,0.35);box-sizing:border-box;"></div>',
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
         });
         this.L.marker([lat, lng], { icon: salonIcon }).addTo(this.mapInstance);
       }
