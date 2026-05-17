@@ -20,4 +20,6 @@ public class UserDto {
     private List<String> roles;
     private Long activeTenantId;
     private List<TenantSummary> availableTenants;
+    @Builder.Default
+    private Boolean emailVerified = false;
 }

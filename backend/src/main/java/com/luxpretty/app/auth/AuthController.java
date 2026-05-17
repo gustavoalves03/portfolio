@@ -425,6 +425,7 @@ public class AuthController {
                 .roles(roleNames)
                 .activeTenantId(activeTenantId)
                 .availableTenants(tenants)
+                .emailVerified(Boolean.TRUE.equals(user.getEmailVerified()))
                 .build();
     }
 }
