@@ -1715,7 +1715,7 @@
     },
     "notice": {
       "title": "Legal Notice",
-      "preLaunchBanner": "⚠️ LuxPretty is currently a pre-launch project run as a personal venture. The publishing entity is being incorporated.",
+      "preLaunchBanner": "LuxPretty is currently a pre-launch project run as a personal venture. The publishing entity is being incorporated.",
       "sections": {
         "placeholder": {
           "title": "Section to write",

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LegalLayoutComponent } from '../legal-layout/legal-layout.component';
+import { LEGAL_LAST_UPDATED } from '../legal.constants';
 
 @Component({
   selector: 'app-legal-notice-page',
@@ -10,6 +11,6 @@ import { LegalLayoutComponent } from '../legal-layout/legal-layout.component';
   styleUrl: './legal-notice-page.component.scss',
 })
 export class LegalNoticePageComponent {
-  readonly updatedAt = '2026-05-17';
+  readonly updatedAt = LEGAL_LAST_UPDATED;
   readonly sections: ReadonlyArray<string> = ['placeholder'];
 }

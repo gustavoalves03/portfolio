@@ -1,5 +1,6 @@
 <app-legal-layout titleKey="legal.notice.title" [updatedAt]="updatedAt">
   <div class="legal-prelaunch-banner" role="status">
+    <span class="legal-prelaunch-banner__icon" aria-hidden="true">⚠️</span>
     {{ 'legal.notice.preLaunchBanner' | transloco }}
   </div>
   @for (section of sections; track section) {

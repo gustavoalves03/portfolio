@@ -1719,7 +1719,7 @@
     },
     "notice": {
       "title": "Mentions légales",
-      "preLaunchBanner": "⚠️ LuxPretty est actuellement un projet en pré-lancement opéré à titre personnel. La société éditrice est en cours d'immatriculation.",
+      "preLaunchBanner": "LuxPretty est actuellement un projet en pré-lancement opéré à titre personnel. La société éditrice est en cours d'immatriculation.",
       "sections": {
         "placeholder": {
           "title": "Section à rédiger",
@@ -1728,7 +1728,7 @@
       }
     },
     "cookies": {
-      "title": "Politique cookies",
+      "title": "Politique en matière de cookies",
       "sections": {
         "placeholder": {
           "title": "Section à rédiger",
