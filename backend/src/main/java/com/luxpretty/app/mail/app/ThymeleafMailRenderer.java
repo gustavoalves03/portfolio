@@ -41,14 +41,21 @@ public class ThymeleafMailRenderer implements MailRenderer {
         MailVars vars = deserialize(row);
         Map<String, Object> ctxVars = toContextMap(vars);
 
+        // Explicit suffixes so each call hits the right resolver:
+        //  - "<name>.html" → Spring Boot's default HTML resolver
+        //  - "<name>.txt"  → mailTextTemplateResolver (TEXT mode, restricted to *.txt)
+        // Without explicit suffixes the .txt resolver hijacks both calls
+        // (lower order wins) and the HTML body comes back as stripped text.
+        String base = "mail/" + row.getTemplate().templatePath();
+
         Context htmlCtx = new Context();
         ctxVars.forEach(htmlCtx::setVariable);
-        String html = templateEngine.process("mail/" + row.getTemplate().templatePath(), htmlCtx);
+        String html = templateEngine.process(base + ".html", htmlCtx);
         String inlined = inlineCss(html);
 
         Context txtCtx = new Context();
         ctxVars.forEach(txtCtx::setVariable);
-        String txt = templateEngine.process("mail/" + row.getTemplate().templatePath(), txtCtx);
+        String txt = templateEngine.process(base + ".txt", txtCtx);
 
         String subject = subjectFor(row.getTemplate(), vars);
         return new Rendered(subject, inlined, txt);
