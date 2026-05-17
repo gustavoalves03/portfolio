@@ -125,7 +125,7 @@ export const CLIENT_NAVIGATION_ROUTES: NavigationRoute[] = [
   },
   {
     label: 'nav.client.becomePro',
-    path: '/register/pro',
+    path: '/pricing',
     icon: 'storefront',
     requiresAuth: true
   },

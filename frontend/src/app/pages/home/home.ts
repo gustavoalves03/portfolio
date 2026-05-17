@@ -110,7 +110,7 @@ export class Home {
   }
 
   onLaunchPro(): void {
-    this.router.navigate(['/register/pro']);
+    this.router.navigate(['/pricing']);
   }
 
   readonly heroBlobUrl =
