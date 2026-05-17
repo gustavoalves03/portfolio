@@ -141,6 +141,33 @@
   letter-spacing: 0.02em;
 }
 
+.lp-footer__legal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.lp-footer__legal-link {
+  color: inherit;
+  opacity: 0.8;
+  font-size: 0.85rem;
+  text-decoration: none;
+  position: relative;
+  transition: opacity 150ms ease;
+
+  &:not(:last-child)::after {
+    content: '·';
+    margin-left: 0.85rem;
+    opacity: 0.4;
+  }
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+}
+
 /* ==========================================================================
    Pro footer — minimal in-app
    ========================================================================== */

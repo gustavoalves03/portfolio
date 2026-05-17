@@ -25,7 +25,7 @@
     </mat-form-field>
 
     <mat-checkbox required [ngModel]="consent()" (ngModelChange)="consent.set($event)" name="consent">
-      {{ 'proSignup.modal.fields.consent' | transloco }}
+      <span [innerHTML]="'proSignup.modal.fields.consent' | transloco"></span>
     </mat-checkbox>
 
     @if (errorKey()) {

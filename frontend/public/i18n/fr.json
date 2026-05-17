@@ -989,7 +989,15 @@
         "houseCareers": "Carrières",
         "housePress": "Contact presse",
         "rights": "© 2026 LuxPretty. Tous droits réservés.",
-        "legal": "Mentions légales · Confidentialité · Cookies"
+        "legal": "Mentions légales · Confidentialité · Cookies",
+        "legalLinks": {
+          "cgu": "CGU",
+          "cgv": "CGV",
+          "privacy": "Confidentialité",
+          "legalNotice": "Mentions légales",
+          "cookies": "Cookies",
+          "ariaLabel": "Liens légaux"
+        }
       },
       "parallax": {
         "eyebrow": "LuxPretty Pro",
@@ -1596,7 +1604,7 @@
         "name": "Votre nom",
         "email": "Email",
         "password": "Mot de passe (8 caractères min.)",
-        "consent": "J'accepte les conditions générales d'utilisation"
+        "consent": "J'accepte les <a href='/cgu' target='_blank' rel='noopener'>Conditions Générales d'Utilisation</a> et les <a href='/cgv' target='_blank' rel='noopener'>Conditions Générales de Vente</a> de LuxPretty"
       },
       "submit": "Créer mon compte",
       "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
