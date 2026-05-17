@@ -62,7 +62,7 @@ describe('ResetPasswordComponent', () => {
 
   it('should show invalid token when no token in URL', () => {
     setup(null);
-    expect(component.invalidToken).toBeTrue();
+    expect(component.invalidToken()).toBeTrue();
   });
 
   it('should not submit when passwords do not match', () => {
@@ -81,7 +81,7 @@ describe('ResetPasswordComponent', () => {
     component.onSubmit();
 
     expect(authServiceSpy.resetPassword).toHaveBeenCalledWith('valid-token', 'newpass123');
-    expect(component.resetSuccess).toBeTrue();
+    expect(component.resetSuccess()).toBeTrue();
   });
 
   it('should show invalid token error on 400 response', () => {
@@ -92,7 +92,7 @@ describe('ResetPasswordComponent', () => {
     component.form.setValue({ password: 'newpass123', confirmPassword: 'newpass123' });
     component.onSubmit();
 
-    expect(component.invalidToken).toBeTrue();
-    expect(component.resetSuccess).toBeFalse();
+    expect(component.invalidToken()).toBeTrue();
+    expect(component.resetSuccess()).toBeFalse();
   });
 });

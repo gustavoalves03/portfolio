@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -33,8 +33,10 @@ export class ForgotPasswordComponent {
     email: ['', [Validators.required, Validators.email]],
   });
 
-  isLoading = false;
-  emailSent = false;
+  // Signals required for zoneless change detection — plain class fields
+  // do not trigger re-render after async callbacks (subscribe next/error).
+  readonly isLoading = signal(false);
+  readonly emailSent = signal(false);
 
   get emailControl() { return this.form.get('email'); }
 
@@ -44,16 +46,16 @@ export class ForgotPasswordComponent {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     this.authService.requestPasswordReset(this.form.value.email!).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.emailSent = true;
+        this.isLoading.set(false);
+        this.emailSent.set(true);
       },
       error: () => {
-        this.isLoading = false;
-        this.emailSent = true;
+        this.isLoading.set(false);
+        this.emailSent.set(true);
       },
     });
   }
