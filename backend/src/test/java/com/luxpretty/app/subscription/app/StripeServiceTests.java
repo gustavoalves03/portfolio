@@ -62,7 +62,7 @@ class StripeServiceTests {
     }
 
     @Test
-    void createSetupIntent_buildsOffSessionCardIntent() throws Exception {
+    void createSetupIntent_buildsOffSessionAutomaticIntent() throws Exception {
         StripeService svc = newService();
 
         try (MockedStatic<SetupIntent> mocked = mockStatic(SetupIntent.class)) {
@@ -77,8 +77,10 @@ class StripeServiceTests {
             Map<String, Object> map = captor.getValue().toMap();
             assertThat(map).containsEntry("customer", "cus_abc");
             assertThat(map).containsEntry("usage", "off_session");
-            assertThat(map.get("payment_method_types")).asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.LIST)
-                .containsExactly("card");
+            assertThat(map).doesNotContainKey("payment_method_types");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> apm = (Map<String, Object>) map.get("automatic_payment_methods");
+            assertThat(apm).containsEntry("enabled", true);
             assertThat(result.getClientSecret()).isEqualTo("seti_secret_xyz");
         }
     }

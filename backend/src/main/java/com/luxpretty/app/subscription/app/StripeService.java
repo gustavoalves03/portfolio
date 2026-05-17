@@ -44,7 +44,11 @@ public class StripeService {
     public SetupIntent createSetupIntent(String customerId) throws Exception {
         SetupIntentCreateParams params = SetupIntentCreateParams.builder()
             .setCustomer(customerId)
-            .addPaymentMethodType("card")
+            .setAutomaticPaymentMethods(
+                SetupIntentCreateParams.AutomaticPaymentMethods.builder()
+                    .setEnabled(true)
+                    .build()
+            )
             .setUsage(SetupIntentCreateParams.Usage.OFF_SESSION)
             .build();
         return SetupIntent.create(params);
