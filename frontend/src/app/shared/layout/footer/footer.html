@@ -9,6 +9,13 @@
       <span class="lp-footer-pro__sep">·</span>
       <a routerLink="/pricing" class="lp-footer-pro__link">{{ 'home.v1.footer.proPricing' | transloco }}</a>
     </div>
+    <nav class="lp-footer-pro__legal-nav" [attr.aria-label]="'home.v1.footer.legalLinks.ariaLabel' | transloco">
+      <a routerLink="/cgu" class="lp-footer-pro__legal-link">{{ 'home.v1.footer.legalLinks.cgu' | transloco }}</a>
+      <a routerLink="/cgv" class="lp-footer-pro__legal-link">{{ 'home.v1.footer.legalLinks.cgv' | transloco }}</a>
+      <a routerLink="/confidentialite" class="lp-footer-pro__legal-link">{{ 'home.v1.footer.legalLinks.privacy' | transloco }}</a>
+      <a routerLink="/mentions-legales" class="lp-footer-pro__legal-link">{{ 'home.v1.footer.legalLinks.legalNotice' | transloco }}</a>
+      <a routerLink="/cookies" class="lp-footer-pro__legal-link">{{ 'home.v1.footer.legalLinks.cookies' | transloco }}</a>
+    </nav>
   </footer>
 } @else {
   <!-- Full footer: visitor or logged-in client. Dark elegant (F2). -->

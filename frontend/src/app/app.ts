@@ -9,10 +9,11 @@ import { NotificationToastComponent } from './features/notifications/components/
 import { NotificationsStore } from './features/notifications/store/notifications.store';
 import { AuthService } from './core/auth/auth.service';
 import { CookieBannerComponent } from './shared/components/cookie-banner/cookie-banner.component';
+import { MobileMiniFooterComponent } from './shared/layout/mobile-mini-footer/mobile-mini-footer.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent, CookieBannerComponent],
+  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent, CookieBannerComponent, MobileMiniFooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

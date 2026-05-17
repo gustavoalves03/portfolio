@@ -1,0 +1,45 @@
+.mobile-mini-footer {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-mini-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1rem calc(72px + env(safe-area-inset-bottom));
+    background: var(--mat-sys-surface-container-low, #f9fafb);
+    color: var(--mat-sys-on-surface-variant, #6b7280);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .mobile-mini-footer__logo {
+    display: block;
+    opacity: 0.7;
+  }
+
+  .mobile-mini-footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .mobile-mini-footer__link {
+    color: inherit;
+    opacity: 0.8;
+    text-decoration: none;
+    position: relative;
+
+    &:not(:last-child)::after {
+      content: '·';
+      margin-left: 0.5rem;
+      opacity: 0.4;
+    }
+
+    &:hover { opacity: 1; text-decoration: underline; }
+    &:focus-visible { opacity: 1; text-decoration: underline; outline-offset: 2px; }
+  }
+}
