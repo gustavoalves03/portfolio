@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -117,8 +116,6 @@ class BookingReminderSchedulerTests {
         when(tenantRepository.findAll()).thenReturn(List.of(tenant));
         when(bookingRepo.findRemindersDueOnDate(LocalDate.now().plusDays(1)))
                 .thenReturn(List.of(booking));
-        when(userRepository.findById(client.getId())).thenReturn(Optional.of(client));
-        when(careRepository.findById(care.getId())).thenReturn(Optional.of(care));
 
         scheduler.sendReminders();
 
