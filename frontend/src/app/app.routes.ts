@@ -210,5 +210,34 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/feed/feed.component').then(m => m.FeedComponent),
   },
 
+  // Legal pages
+  {
+    path: 'cgu',
+    loadComponent: () =>
+      import('./pages/legal/cgu/cgu-page.component').then((m) => m.CguPageComponent),
+  },
+  {
+    path: 'cgv',
+    loadComponent: () =>
+      import('./pages/legal/cgv/cgv-page.component').then((m) => m.CgvPageComponent),
+  },
+  {
+    path: 'confidentialite',
+    loadComponent: () =>
+      import('./pages/legal/privacy/privacy-page.component').then((m) => m.PrivacyPageComponent),
+  },
+  {
+    path: 'mentions-legales',
+    loadComponent: () =>
+      import('./pages/legal/legal-notice/legal-notice-page.component').then(
+        (m) => m.LegalNoticePageComponent,
+      ),
+  },
+  {
+    path: 'cookies',
+    loadComponent: () =>
+      import('./pages/legal/cookies/cookies-page.component').then((m) => m.CookiesPageComponent),
+  },
+
   { path: '**', component: NotFound },
 ];
