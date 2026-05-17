@@ -165,6 +165,26 @@ export class AuthService {
   }
 
   /**
+   * Verify the user's email using a token received by email.
+   */
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiBaseUrl}/api/auth/verify-email`,
+      { token }
+    );
+  }
+
+  /**
+   * Re-send the email verification message to the currently authenticated user.
+   */
+  sendVerification(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiBaseUrl}/api/auth/send-verification`,
+      {}
+    );
+  }
+
+  /**
    * Load current user from backend
    */
   private loadCurrentUser(): Observable<User> {
