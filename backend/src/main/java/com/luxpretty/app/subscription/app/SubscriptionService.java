@@ -80,6 +80,20 @@ public class SubscriptionService {
         tenant.setStripeSubscriptionId(stripeSub.getId());
         tenant.setSubscriptionTier(tier);
         tenant.setSubscriptionBilling(billing);
+        // Sync status immediately. Webhooks will reconcile later if state changes,
+        // but in dev (no webhook listener) we must not leave the tenant in
+        // VITRINE_FREE — otherwise the publish gate keeps blocking after payment.
+        tenant.setSubscriptionStatus(mapStripeStatus(stripeSub.getStatus()));
+        if (stripeSub.getCurrentPeriodEnd() != null) {
+            tenant.setCurrentPeriodEnd(LocalDateTime.ofInstant(
+                Instant.ofEpochSecond(stripeSub.getCurrentPeriodEnd()),
+                ZoneOffset.UTC));
+        }
+        if (stripeSub.getTrialEnd() != null) {
+            tenant.setTrialEnd(LocalDateTime.ofInstant(
+                Instant.ofEpochSecond(stripeSub.getTrialEnd()),
+                ZoneOffset.UTC));
+        }
         tenantRepository.save(tenant);
 
         return tenant;

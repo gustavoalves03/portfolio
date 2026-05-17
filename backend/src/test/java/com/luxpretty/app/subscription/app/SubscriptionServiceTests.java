@@ -93,6 +93,7 @@ class SubscriptionServiceTests {
 
         Subscription stripeSubscription = new Subscription();
         stripeSubscription.setId("sub_456");
+        stripeSubscription.setStatus("active");
 
         when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
         when(pricingCatalog.priceIdFor(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY))
@@ -108,10 +109,35 @@ class SubscriptionServiceTests {
         assertThat(result.getStripeSubscriptionId()).isEqualTo("sub_456");
         assertThat(result.getSubscriptionTier()).isEqualTo(SubscriptionTier.GESTION);
         assertThat(result.getSubscriptionBilling()).isEqualTo(SubscriptionBilling.MONTHLY);
+        assertThat(result.getSubscriptionStatus()).isEqualTo(SubscriptionStatus.ACTIVE);
 
         verify(pricingCatalog).priceIdFor(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY);
         verify(stripeService).createSubscription("cus_123", "price_gestion_monthly", "pm_789");
         verify(tenantRepository).save(tenant);
+    }
+
+    @Test
+    void startCheckout_setsTrialingStatus_whenStripeReturnsTrialing() throws Exception {
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .build();
+
+        Subscription stripeSubscription = new Subscription();
+        stripeSubscription.setId("sub_trial");
+        stripeSubscription.setStatus("trialing");
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+        when(pricingCatalog.priceIdFor(SubscriptionTier.PREMIUM, SubscriptionBilling.YEARLY))
+            .thenReturn(Optional.of("price_premium_yearly"));
+        when(stripeService.createSubscription("cus_123", "price_premium_yearly", "pm_789"))
+            .thenReturn(stripeSubscription);
+
+        Tenant result = subscriptionService.startCheckout(
+            1L, SubscriptionTier.PREMIUM, SubscriptionBilling.YEARLY, "pm_789");
+
+        assertThat(result.getSubscriptionStatus()).isEqualTo(SubscriptionStatus.TRIALING);
     }
 
     @Test
