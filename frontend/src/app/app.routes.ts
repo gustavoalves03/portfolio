@@ -26,10 +26,7 @@ export const routes: Routes = [
         (m) => m.PricingPageComponent,
       ),
   },
-  {
-    path: 'register/pro',
-    loadComponent: () => import('./pages/auth/register-pro/register-pro.component').then(m => m.RegisterProComponent),
-  },
+  { path: 'register/pro', redirectTo: '/pricing', pathMatch: 'full' },
   {
     path: 'pro/onboarding/payment',
     loadComponent: () =>
