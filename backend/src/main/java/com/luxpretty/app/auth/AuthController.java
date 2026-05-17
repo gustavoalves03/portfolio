@@ -159,6 +159,10 @@ public class AuthController {
                 savedUser.getEmail(),
                 null);
 
+        // LOCAL register: queue email verification mail.
+        // OAuth flows set emailVerified=true and do NOT reach this path.
+        queueVerificationMail(savedUser);
+
         AuthResponse response = buildAuthResponse(savedUser, activeTenantId);
         return ResponseEntity.ok(response);
     }
@@ -211,6 +215,14 @@ public class AuthController {
                     null);
         } catch (Exception e) {
             logger.warn("Failed to queue welcome email for {}: {}", savedUser.getEmail(), e.getMessage());
+        }
+
+        // LOCAL pro register: queue email verification mail.
+        // OAuth flows set emailVerified=true and do NOT reach this path.
+        try {
+            queueVerificationMail(savedUser);
+        } catch (Exception e) {
+            logger.warn("Failed to queue verification email for {}: {}", savedUser.getEmail(), e.getMessage());
         }
 
         AuthResponse response = buildAuthResponse(savedUser, tenant.getId());
