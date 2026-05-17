@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,7 @@ class EmailVerificationAuthControllerTests {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private UserRepository userRepo;
+    @Autowired private TokenService tokenService;
 
     @Test
     void verifyEmail_validToken_setsEmailVerifiedTrue() throws Exception {
@@ -89,5 +91,65 @@ class EmailVerificationAuthControllerTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"token\":\"" + token + "\"}"))
             .andExpect(status().isOk());
+    }
+
+    // ------------------------------------------------------------------
+    // send-verification
+    // ------------------------------------------------------------------
+
+    @Test
+    void sendVerification_unauthenticated_returns401() throws Exception {
+        mockMvc.perform(post("/api/auth/send-verification"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void sendVerification_alreadyVerified_returns409() throws Exception {
+        User u = userRepo.save(User.builder()
+            .name("Verified").email("send-verif-already@example.com")
+            .password("x").provider(AuthProvider.LOCAL)
+            .emailVerified(true)
+            .build());
+        String jwt = tokenService.generateToken(u.getId(), u.getEmail(), Collections.emptyList(), null);
+
+        mockMvc.perform(post("/api/auth/send-verification")
+                .header("Authorization", "Bearer " + jwt))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    void sendVerification_cooldown_returns429() throws Exception {
+        String existingToken = UUID.randomUUID().toString();
+        User u = userRepo.save(User.builder()
+            .name("Cooldown").email("send-verif-cooldown@example.com")
+            .password("x").provider(AuthProvider.LOCAL)
+            .emailVerified(false)
+            .emailVerificationToken(existingToken)
+            // fresh token (just created): expiresAt = now + 24h
+            .emailVerificationTokenExpiresAt(Instant.now().plusSeconds(3600 * 24))
+            .build());
+        String jwt = tokenService.generateToken(u.getId(), u.getEmail(), Collections.emptyList(), null);
+
+        mockMvc.perform(post("/api/auth/send-verification")
+                .header("Authorization", "Bearer " + jwt))
+            .andExpect(status().isTooManyRequests());
+    }
+
+    @Test
+    void sendVerification_freshUser_returns200_andSetsToken() throws Exception {
+        User u = userRepo.save(User.builder()
+            .name("Fresh").email("send-verif-fresh@example.com")
+            .password("x").provider(AuthProvider.LOCAL)
+            .emailVerified(false)
+            .build());
+        String jwt = tokenService.generateToken(u.getId(), u.getEmail(), Collections.emptyList(), null);
+
+        mockMvc.perform(post("/api/auth/send-verification")
+                .header("Authorization", "Bearer " + jwt))
+            .andExpect(status().isOk());
+
+        User reloaded = userRepo.findById(u.getId()).orElseThrow();
+        assertThat(reloaded.getEmailVerificationToken()).isNotNull();
+        assertThat(reloaded.getEmailVerificationTokenExpiresAt()).isAfter(Instant.now());
     }
 }

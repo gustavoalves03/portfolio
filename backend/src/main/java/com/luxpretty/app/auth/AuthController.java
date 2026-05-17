@@ -12,6 +12,7 @@ import com.luxpretty.app.auth.dto.VerifyEmailRequest;
 import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.ResetPasswordVars;
+import com.luxpretty.app.mail.vars.VerifyEmailVars;
 import com.luxpretty.app.mail.vars.WelcomeProVars;
 import com.luxpretty.app.subscription.app.SubscriptionService;
 import com.luxpretty.app.tenant.app.TenantProvisioningService;
@@ -339,6 +340,47 @@ public class AuthController {
         user.setEmailVerificationTokenExpiresAt(null);
         userRepository.save(user);
         return ResponseEntity.ok(Map.of("message", "Email verified"));
+    }
+
+    @PostMapping("/send-verification")
+    @Transactional
+    public ResponseEntity<?> sendVerification(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "ALREADY_VERIFIED"));
+        }
+
+        // Cooldown: skip if the last token was created less than 1 minute ago.
+        // A freshly issued token has expiresAt = now + 24h, so if it is still
+        // greater than (now + 24h - 1min) then it was issued < 1 min ago.
+        if (user.getEmailVerificationToken() != null
+                && user.getEmailVerificationTokenExpiresAt() != null
+                && user.getEmailVerificationTokenExpiresAt().isAfter(Instant.now().plusSeconds(3600 * 24 - 60))) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "COOLDOWN", "retryAfter", 60));
+        }
+
+        queueVerificationMail(user);
+        return ResponseEntity.ok(Map.of("message", "Verification email sent"));
+    }
+
+    private void queueVerificationMail(User user) {
+        String token = UUID.randomUUID().toString();
+        user.setEmailVerificationToken(token);
+        user.setEmailVerificationTokenExpiresAt(Instant.now().plusSeconds(3600L * 24));
+        userRepository.save(user);
+
+        mailOutbox.queue(
+                MailTemplate.VERIFY_EMAIL,
+                new VerifyEmailVars(user.getName(), frontendBaseUrl + "/verify-email?token=" + token),
+                user.getEmail(),
+                null);
     }
 
     // -----------------------------------------------------------------------
