@@ -8,6 +8,7 @@ import com.luxpretty.app.auth.dto.ProUpgradeRequest;
 import com.luxpretty.app.auth.dto.RegisterRequest;
 import com.luxpretty.app.auth.dto.ResetPasswordRequest;
 import com.luxpretty.app.auth.dto.UserDto;
+import com.luxpretty.app.auth.dto.VerifyEmailRequest;
 import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.ResetPasswordVars;
@@ -316,6 +317,28 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+    }
+
+    @PostMapping("/verify-email")
+    @Transactional
+    public ResponseEntity<Map<String, String>> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        User user = userRepository.findByEmailVerificationToken(request.token())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_TOKEN"));
+
+        if (Boolean.TRUE.equals(user.getEmailVerified())) {
+            return ResponseEntity.ok(Map.of("message", "already verified"));
+        }
+
+        if (user.getEmailVerificationTokenExpiresAt() == null
+                || user.getEmailVerificationTokenExpiresAt().isBefore(Instant.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_EXPIRED");
+        }
+
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationTokenExpiresAt(null);
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Email verified"));
     }
 
     // -----------------------------------------------------------------------
