@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
-const STORAGE_KEY = 'lp_cookie_banner_v1';
+export const STORAGE_KEY = 'lp_cookie_banner_v1';
 
 @Injectable({ providedIn: 'root' })
 export class CookieBannerService {
@@ -23,9 +23,11 @@ export class CookieBannerService {
     if (!this.isBrowser) return;
     try {
       localStorage.setItem(STORAGE_KEY, 'dismissed');
+      // Only mark dismissed in-memory when persistence succeeds — if it fails,
+      // leave the banner visible: better than inconsistent UX across reloads.
+      this.dismissed.set(true);
     } catch {
-      /* localStorage unavailable (private mode, quota) — silently ignore */
+      /* localStorage unavailable (private mode, quota) — banner stays visible */
     }
-    this.dismissed.set(true);
   }
 }

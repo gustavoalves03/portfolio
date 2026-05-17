@@ -1,9 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID, provideZonelessChangeDetection } from '@angular/core';
-import { CookieBannerService } from './cookie-banner.service';
+import { CookieBannerService, STORAGE_KEY } from './cookie-banner.service';
 
 describe('CookieBannerService', () => {
-  const STORAGE_KEY = 'lp_cookie_banner_v1';
 
   beforeEach(() => {
     localStorage.removeItem(STORAGE_KEY);
@@ -51,5 +50,12 @@ describe('CookieBannerService', () => {
     const service = createService('server');
     service.dismiss();
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it('dismiss() does not update the signal when localStorage.setItem throws', () => {
+    const service = createService('browser');
+    spyOn(localStorage, 'setItem').and.throwError('QuotaExceededError');
+    service.dismiss();
+    expect(service.dismissed()).toBe(false);
   });
 });
