@@ -1697,27 +1697,179 @@
     "cgu": {
       "title": "Terms of Use",
       "sections": {
-        "placeholder": {
-          "title": "Section to write",
-          "body": "<p>Content to be written in PR3.</p>"
+        "objet": {
+          "title": "1. Purpose and Acceptance",
+          "body": "<p>These Terms of Use (the \"TOU\") govern access to and use of the LuxPretty platform available at <a href='https://luxpretty.lu'>luxpretty.lu</a> (the \"Platform\"). By creating an account or using the Platform, you acknowledge that you have read, understood and unreservedly accepted these TOU.</p>"
+        },
+        "definitions": {
+          "title": "2. Definitions",
+          "body": "<ul><li><strong>Platform</strong>: the LuxPretty website and application.</li><li><strong>User</strong>: any person accessing the Platform, whether a Client or a Pro.</li><li><strong>Client</strong>: end user wishing to book a treatment.</li><li><strong>Pro</strong> or <strong>Salon</strong>: professional or establishment offering treatments through the Platform.</li><li><strong>Account</strong>: secure personal space created by the User.</li><li><strong>Content</strong>: any textual, photographic or other material published on the Platform by Users.</li><li><strong>Service</strong>: the set of features offered by the Platform.</li></ul>"
+        },
+        "role": {
+          "title": "3. LuxPretty's Role",
+          "body": "<p>LuxPretty operates a <strong>matchmaking platform</strong> between Clients and Pros. LuxPretty is in no way a party to the treatment contract concluded between the Client and the Salon. LuxPretty does not provide any treatment and gives no warranty as to the quality, availability or performance of the services offered by Salons. Any complaint relating to a treatment must be addressed directly to the Salon concerned.</p>"
+        },
+        "inscription": {
+          "title": "4. Registration and Account",
+          "body": "<p>Registration is open to any person aged 16 or over. The User undertakes to provide accurate, complete and up-to-date information, and to keep it as such. The password is strictly personal and confidential. Only one account per person is allowed. Email address validation is required.</p>"
+        },
+        "engagementsUser": {
+          "title": "5. User Obligations",
+          "body": "<p>The User undertakes to use the Platform fairly and in accordance with applicable laws. The following are notably prohibited: unlawful, defamatory, insulting, sexual or violent content; identity theft; collection of other users' data; any attempt of unauthorised access to the systems.</p>"
+        },
+        "engagementsPro": {
+          "title": "6. Salon Obligations",
+          "body": "<p>The Salon undertakes to hold all legal authorisations required for its activity in Luxembourg (business permit, required professional qualifications). It warrants the accuracy of the information published (prices, durations, photos, descriptions), compliance with appointments confirmed via the Platform, and a professional attitude towards Clients.</p>"
+        },
+        "contenus": {
+          "title": "7. User-Generated Content",
+          "body": "<p>The User retains the rights to the content they publish (reviews, photos). By publishing it, the User grants LuxPretty a non-exclusive, free, worldwide licence to use, reproduce and display such content as part of the Service. LuxPretty reserves the right to moderate or remove without notice any content that is manifestly unlawful or contrary to the TOU.</p>"
+        },
+        "pi": {
+          "title": "8. LuxPretty Intellectual Property",
+          "body": "<p>The LuxPretty brand, its logo, source code, design, visual identity and all elements making up the Platform are the exclusive property of LuxPretty and protected by applicable laws. Any unauthorised reproduction or use is strictly prohibited.</p>"
+        },
+        "responsabilite": {
+          "title": "9. Limitation of Liability",
+          "body": "<p>LuxPretty provides the Service on an \"as is\" basis and under a best-efforts obligation. LuxPretty does not guarantee uninterrupted availability, the absence of bugs, or the quality or performance of treatments (see §3). LuxPretty cannot be held liable for indirect damages resulting from the use of the Platform. LuxPretty's liability is excluded in the event of force majeure.</p>"
+        },
+        "suspension": {
+          "title": "10. Account Suspension and Termination",
+          "body": "<p>LuxPretty may suspend or terminate an account in the event of a breach of the TOU, fraud, abuse or behaviour harmful to other Users. Save in case of emergency, the User has 7 days from notification to remedy the situation. Suspension results in temporary loss of access to the Service; termination results in the permanent deletion of the account in accordance with the terms set out in the Privacy Policy.</p>"
+        },
+        "donnees": {
+          "title": "11. Personal Data",
+          "body": "<p>The processing of personal data is described in our <a href='/confidentialite'>Privacy Policy</a>.</p>"
+        },
+        "modification": {
+          "title": "12. Changes to the TOU",
+          "body": "<p>LuxPretty may amend the TOU at any time. Changes are notified by email and/or banner on the Platform at least 30 days before they take effect. Continued use of the Platform after that date constitutes acceptance of the new TOU.</p>"
+        },
+        "droit": {
+          "title": "13. Governing Law and Jurisdiction",
+          "body": "<p>These TOU are governed by Luxembourg law. In the event of a dispute, and after an attempt at amicable settlement, the courts of Luxembourg-Ville shall have exclusive jurisdiction.</p>"
+        },
+        "contact": {
+          "title": "14. Contact",
+          "body": "<p>For any question relating to these TOU: <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a>.</p>"
         }
       }
     },
     "cgv": {
       "title": "Terms of Sale (Pros)",
       "sections": {
-        "placeholder": {
-          "title": "Section to write",
-          "body": "<p>Content to be written in PR3.</p>"
+        "objet": {
+          "title": "1. Purpose",
+          "body": "<p>These Terms of Sale (the \"TOS\") govern the subscription by a professional (the \"Pro\") to a paid subscription to the LuxPretty Pro platform.</p>"
+        },
+        "b2b": {
+          "title": "2. B2B Qualification and Waiver of Withdrawal Right",
+          "body": "<p>The Pro subscribes in their capacity as a professional acting within the scope of their economic activity. Accordingly, and in compliance with Luxembourg law and Directive 2011/83/EU, <strong>the 14-day withdrawal right applicable to consumers does NOT apply</strong>. The Pro expressly waives any claim in this respect.</p>"
+        },
+        "service": {
+          "title": "3. Service Description",
+          "body": "<p>The subscription provides access to the features of the LuxPretty Pro Platform: management of the schedule, treatments, clients, payments, and any feature included in the subscribed plan. Features may evolve over time.</p>"
+        },
+        "prix": {
+          "title": "4. Price and Billing",
+          "body": "<p>Prices are expressed in euros, excluding VAT. The applicable Luxembourg VAT (17% by default) is added to the invoice. Payment is made by credit card via our provider <a href='https://stripe.com' target='_blank' rel='noopener'>Stripe</a>. An invoice is issued for each billing cycle and is available from the Pro's dashboard.</p>"
+        },
+        "essai": {
+          "title": "5. Free Trial",
+          "body": "<p>A 7-day free trial is offered to each new Pro. At the end of this period, the subscription automatically converts to a paid subscription according to the chosen plan. A reminder email is sent 2 days before the end of the trial.</p>"
+        },
+        "duree": {
+          "title": "6. Term and Renewal",
+          "body": "<p>The subscription is entered into for a monthly or annual term depending on the chosen plan. It is tacitly renewed at each due date, unless cancelled in accordance with the conditions set out in Article 7.</p>"
+        },
+        "annulation": {
+          "title": "7. Cancellation",
+          "body": "<p>The Pro may cancel their subscription at any time from their management dashboard (subscription section). Cancellation takes effect at the end of the current period. <strong>The period already paid is non-refundable.</strong> The Pro retains access to the Service until the end of the period.</p>"
+        },
+        "defautPaiement": {
+          "title": "8. Payment Failure",
+          "body": "<p>In the event of a failed charge, Stripe will make up to 4 further attempts over 14 days. If the situation is not remedied by the end of this period, the subscription is automatically suspended. Settlement of the payment results in the immediate restoration of the Service.</p>"
+        },
+        "evolution": {
+          "title": "9. Service and Price Changes",
+          "body": "<p>LuxPretty may modify the features, conditions or prices of its subscriptions. Any price increase is notified by email at least 30 days before it takes effect; the Pro may then cancel their subscription free of charge before that date.</p>"
+        },
+        "sla": {
+          "title": "10. Service Level",
+          "body": "<p>LuxPretty undertakes to provide the Service under a best-efforts obligation. No specific availability commitment is contractually guaranteed. Planned maintenance operations are announced, where possible, at least 48 hours in advance.</p>"
+        },
+        "responsabilite": {
+          "title": "11. Liability",
+          "body": "<p>LuxPretty's liability is capped at the amount paid by the Pro for the subscription over the 12 months preceding the triggering event. Indirect damages such as loss of clientele, loss of profit or reputational harm are excluded.</p>"
+        },
+        "donnees": {
+          "title": "12. Pro Data and Reversibility",
+          "body": "<p>The Pro may at any time export their data (salon profile, clients, bookings, treatments) from their dashboard. In the event of termination, data is retained for 90 days and then deleted, unless a contrary legal obligation applies (invoices retained for 10 years).</p>"
+        },
+        "forceMajeure": {
+          "title": "13. Force Majeure",
+          "body": "<p>No party may be held liable for a breach resulting from an event of force majeure as defined by Luxembourg case law.</p>"
+        },
+        "droit": {
+          "title": "14. Governing Law and Jurisdiction",
+          "body": "<p>These TOS are governed by Luxembourg law. The courts of Luxembourg-Ville shall have exclusive jurisdiction over any dispute.</p>"
         }
       }
     },
     "privacy": {
       "title": "Privacy Policy",
       "sections": {
-        "placeholder": {
-          "title": "Section to write",
-          "body": "<p>Content to be written in PR3.</p>"
+        "responsable": {
+          "title": "1. Data Controller",
+          "body": "<p>The data controller for personal data is LuxPretty, contact <a href='mailto:privacy@luxpretty.lu'>privacy@luxpretty.lu</a>. Full details (corporate name, registered office, trade register number) are set out in our <a href='/mentions-legales'>Legal Notice</a>.</p>"
+        },
+        "donneesCollectees": {
+          "title": "2. Data Collected",
+          "body": "<ul><li><strong>Account</strong>: email, password (hashed), last name, first name, role, language, creation date.</li><li><strong>Pro profile</strong>: salon name, address, phone, photos, treatments, opening hours.</li><li><strong>Bookings</strong>: date, treatment, client, salon, notes, status.</li><li><strong>Payments</strong>: fully processed by Stripe. LuxPretty stores no banking data.</li><li><strong>Content</strong>: reviews, uploaded photos, published posts.</li><li><strong>Technical logs</strong>: IP address, user-agent, timestamp (security, anti-fraud).</li></ul>"
+        },
+        "baseLegale": {
+          "title": "3. Legal Basis for Processing",
+          "body": "<ul><li><strong>Performance of the contract</strong>: account creation, bookings, access to the Service.</li><li><strong>Consent</strong>: marketing communications (separate opt-in, upcoming).</li><li><strong>Legitimate interest</strong>: logging for security and fraud prevention.</li><li><strong>Legal obligation</strong>: invoicing, accounting (10-year retention).</li></ul>"
+        },
+        "finalites": {
+          "title": "4. Purposes",
+          "body": "<p>Provision of the Service, payment management, Platform security, fraud prevention, transactional communications (appointment confirmation, etc.), compliance with legal obligations.</p>"
+        },
+        "destinataires": {
+          "title": "5. Recipients and Sub-Processors",
+          "body": "<ul><li><strong>Stripe</strong> (Ireland / United States) — payment processing.</li><li><strong>Postmark</strong> (United States) — transactional email delivery.</li><li><strong>OVH</strong> (France) — server and database hosting.</li><li><strong>Cloudflare</strong> (United States) — CDN and DDoS protection.</li><li><strong>Cloudflare R2</strong> — storage of uploaded images.</li><li><strong>Google</strong> (United States) — optional OAuth sign-in.</li><li><strong>Meta / Facebook</strong> (United States) — optional OAuth sign-in (planned).</li></ul>"
+        },
+        "transferts": {
+          "title": "6. Non-EU Transfers",
+          "body": "<p>Some sub-processors (Stripe, Postmark, Cloudflare, Google, Meta) are established in the United States. Transfers are framed by the standard contractual clauses adopted by the European Commission, guaranteeing a level of protection equivalent to that of the EU.</p>"
+        },
+        "conservation": {
+          "title": "7. Retention Periods",
+          "body": "<ul><li>Active account: until deletion request.</li><li>Account inactive for 3 years: automatic deletion.</li><li>Billing data: 10 years (Luxembourg accounting obligation).</li><li>Technical logs: 6 months.</li><li>Pro data after termination: 90 days, then deleted.</li></ul>"
+        },
+        "droits": {
+          "title": "8. Your GDPR Rights",
+          "body": "<p>You may at any time exercise the following rights: access, rectification, erasure, portability, objection, restriction of processing, withdrawal of consent, post-mortem instructions.</p>"
+        },
+        "exercice": {
+          "title": "9. How to Exercise Your Rights",
+          "body": "<p>To exercise your rights, contact us at <a href='mailto:privacy@luxpretty.lu'>privacy@luxpretty.lu</a> attaching proof of identity. We will respond within one month, extendable to three months for complex requests.</p>"
+        },
+        "reclamation": {
+          "title": "10. Complaints",
+          "body": "<p>If you consider that your rights are not being respected, you may lodge a complaint with the Commission Nationale pour la Protection des Données (CNPD), 15 boulevard du Jazz, L-4370 Belvaux, Luxembourg — <a href='https://cnpd.public.lu' target='_blank' rel='noopener'>cnpd.public.lu</a>.</p>"
+        },
+        "securite": {
+          "title": "11. Security",
+          "body": "<p>Your data is encrypted in transit (HTTPS) and stored securely. Passwords are hashed (BCrypt). Administrative access is limited to what is strictly necessary and logged.</p>"
+        },
+        "mineurs": {
+          "title": "12. Minors",
+          "body": "<p>Registration on the Platform is reserved for persons aged 16 or over. The consent of a legal representative is required for minors aged 16 to 18. Any account reported as belonging to an unauthorised minor will be deleted.</p>"
+        },
+        "modification": {
+          "title": "13. Policy Changes",
+          "body": "<p>This policy may be amended. Any material change will be notified 30 days before it takes effect.</p>"
         }
       }
     },
@@ -1725,18 +1877,58 @@
       "title": "Legal Notice",
       "preLaunchBanner": "LuxPretty is currently a pre-launch project run as a personal venture. The publishing entity is being incorporated.",
       "sections": {
-        "placeholder": {
-          "title": "Section to write",
-          "body": "<p>Content to be written in PR3.</p>"
+        "editeur": {
+          "title": "1. Publisher",
+          "body": "<p><strong>Name</strong>: LuxPretty [TO BE COMPLETED — corporate name after incorporation]<br><strong>Status</strong>: [TO BE COMPLETED]<br><strong>Address</strong>: [TO BE COMPLETED]<br><strong>Contact</strong>: <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a><br><strong>Luxembourg Trade Register</strong>: [TO BE COMPLETED]<br><strong>VAT ID</strong>: [TO BE COMPLETED]</p>"
+        },
+        "directeur": {
+          "title": "2. Publication Director",
+          "body": "<p>Gustavo Alves.</p>"
+        },
+        "hebergeur": {
+          "title": "3. Host",
+          "body": "<p>OVH SAS<br>2 rue Kellermann, 59100 Roubaix, France<br>Phone: +33 9 72 10 10 07<br><a href='https://www.ovh.com' target='_blank' rel='noopener'>www.ovh.com</a></p>"
+        },
+        "cdn": {
+          "title": "4. CDN and Security",
+          "body": "<p>Cloudflare, Inc.<br>101 Townsend Street, San Francisco, CA 94107, United States<br><a href='https://www.cloudflare.com' target='_blank' rel='noopener'>www.cloudflare.com</a></p>"
+        },
+        "conception": {
+          "title": "5. Design and Development",
+          "body": "<p>LuxPretty.</p>"
+        },
+        "credits": {
+          "title": "6. Photo Credits",
+          "body": "<p>Illustrative photos: [TO BE COMPLETED — Unsplash, Pexels, licensed pro photos, etc.]. Photos published by Salons remain the property of their authors.</p>"
+        },
+        "signalement": {
+          "title": "7. Reporting Illegal Content",
+          "body": "<p>Any manifestly unlawful content may be reported to <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a>. In accordance with the Luxembourg e-commerce law, LuxPretty will act promptly after notification.</p>"
         }
       }
     },
     "cookies": {
       "title": "Cookies Policy",
       "sections": {
-        "placeholder": {
-          "title": "Section to write",
-          "body": "<p>Content to be written in PR3.</p>"
+        "definition": {
+          "title": "1. What Is a Cookie?",
+          "body": "<p>A cookie is a small file placed by a website on a user's device (computer, smartphone, tablet) to store certain information between visits. We also use browser local storage technologies (<em>localStorage</em>) for similar purposes.</p>"
+        },
+        "utilises": {
+          "title": "2. Cookies and Storage Used on LuxPretty",
+          "body": "<table><thead><tr><th>Name</th><th>Type</th><th>Purpose</th><th>Duration</th><th>Legal Basis</th></tr></thead><tbody><tr><td>XSRF-TOKEN</td><td>Session cookie</td><td>Protection against CSRF attacks</td><td>Session</td><td>Strictly necessary</td></tr><tr><td>JSESSIONID (or equivalent)</td><td>Session cookie</td><td>User authentication</td><td>Session</td><td>Strictly necessary</td></tr><tr><td>lp_auth_token</td><td>localStorage</td><td>Authentication token</td><td>Until sign-out</td><td>Strictly necessary</td></tr><tr><td>lp_lang</td><td>localStorage</td><td>Language preference</td><td>Persistent</td><td>Strictly necessary</td></tr><tr><td>lp_cookie_banner_v1</td><td>localStorage</td><td>Stores dismissal of the cookie banner</td><td>Persistent</td><td>Strictly necessary</td></tr><tr><td>__stripe_mid, __stripe_sid</td><td>Third-party cookies (stripe.com)</td><td>Payment security, fraud prevention</td><td>1 year / session</td><td>Necessary for payment execution</td></tr></tbody></table>"
+        },
+        "aucunTracking": {
+          "title": "3. No Audience Measurement or Marketing Cookies",
+          "body": "<p>LuxPretty <strong>uses no third-party audience measurement tool</strong> (Google Analytics, Matomo, etc.), <strong>no advertising pixel</strong> and <strong>no profiling cookie</strong>. Should this change, we would set up an explicit prior consent mechanism.</p>"
+        },
+        "gestion": {
+          "title": "4. How to Manage Cookies",
+          "body": "<p>You can configure your browser to accept, refuse or delete cookies. <strong>Disabling strictly necessary cookies prevents the Platform from working properly</strong> (authentication, payment). Help links: <a href='https://support.google.com/chrome/answer/95647' target='_blank' rel='noopener'>Chrome</a>, <a href='https://support.mozilla.org/en-US/kb/enhanced-tracking-protection-firefox-desktop' target='_blank' rel='noopener'>Firefox</a>, <a href='https://support.apple.com/en-us/guide/safari/sfri11471/mac' target='_blank' rel='noopener'>Safari</a>, <a href='https://support.microsoft.com/en-us/microsoft-edge' target='_blank' rel='noopener'>Edge</a>.</p>"
+        },
+        "modification": {
+          "title": "5. Policy Changes",
+          "body": "<p>This policy may evolve. Any material change (notably the addition of a non-strictly-necessary cookie) will be notified 30 days before it takes effect and will trigger the display of a new consent banner.</p>"
         }
       }
     }
