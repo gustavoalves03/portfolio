@@ -63,3 +63,50 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  # ── ntfy notifications ─────────────────────────────────────────────────
+  # Runs after both jobs regardless of their outcome. Notifies on failure
+  # and on the recovery transition (CI green after a previous red).
+  notify:
+    name: Notify CI status
+    needs: [backend, frontend]
+    if: always() && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on failure
+        if: needs.backend.result == 'failure' || needs.frontend.result == 'failure'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          curl -sS \
+            -H "Title: 🔴 CI failed — ${{ github.event.head_commit.message }}" \
+            -H "Priority: high" \
+            -H "Tags: rotating_light,${{ github.actor }}" \
+            -H "Click: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "backend=${{ needs.backend.result }} · frontend=${{ needs.frontend.result }}" \
+            "https://ntfy.sh/${NTFY_TOPIC}"
+
+      - name: Detect previous CI status
+        if: needs.backend.result == 'success' && needs.frontend.result == 'success'
+        id: prev
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Look at the previous CI run on main to decide if this is a "back to green" transition.
+          PREV=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?branch=main&per_page=2" \
+                 --jq '.workflow_runs[1].conclusion // "unknown"')
+          echo "previous=$PREV" >> "$GITHUB_OUTPUT"
+
+      - name: Notify on recovery (was red, now green)
+        if: needs.backend.result == 'success' && needs.frontend.result == 'success' && steps.prev.outputs.previous == 'failure'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          curl -sS \
+            -H "Title: 🟢 CI back to green — ${{ github.event.head_commit.message }}" \
+            -H "Tags: white_check_mark" \
+            -H "Click: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "CI passes again after the previous run was red." \
+            "https://ntfy.sh/${NTFY_TOPIC}"

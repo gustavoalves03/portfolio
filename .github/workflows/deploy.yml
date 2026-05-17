@@ -116,3 +116,38 @@ jobs:
           CODE=$(curl -sk -o /dev/null -w '%{http_code}' https://luxpretty.lu/api/cares)
           [ "$CODE" = "200" ] || [ "$CODE" = "401" ] || [ "$CODE" = "403" ] || (echo "Backend KO ($CODE)" && exit 1)
           echo "Backend OK ($CODE)"
+
+  # ── ntfy notifications ─────────────────────────────────────────────────
+  # Runs after all deploy jobs regardless of outcome.
+  notify:
+    name: Notify deploy status
+    needs: [build-backend, build-frontend, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on success
+        if: needs.deploy.result == 'success' && needs.build-backend.result == 'success' && needs.build-frontend.result == 'success'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          curl -sS \
+            -H "Title: 🚀 Deploy OK — ${{ github.event.head_commit.message }}" \
+            -H "Tags: rocket" \
+            -H "Click: https://luxpretty.lu/" \
+            -d "https://luxpretty.lu is live with ${{ github.sha }}" \
+            "https://ntfy.sh/${NTFY_TOPIC}"
+
+      - name: Notify on failure
+        if: needs.deploy.result == 'failure' || needs.build-backend.result == 'failure' || needs.build-frontend.result == 'failure'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          curl -sS \
+            -H "Title: ⚠️ Deploy failed — ${{ github.event.head_commit.message }}" \
+            -H "Priority: high" \
+            -H "Tags: warning,${{ github.actor }}" \
+            -H "Click: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "build-backend=${{ needs.build-backend.result }} · build-frontend=${{ needs.build-frontend.result }} · deploy=${{ needs.deploy.result }}" \
+            "https://ntfy.sh/${NTFY_TOPIC}"
