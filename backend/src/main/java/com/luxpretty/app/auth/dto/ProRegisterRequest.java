@@ -1,5 +1,7 @@
 package com.luxpretty.app.auth.dto;
 
+import com.luxpretty.app.subscription.domain.SubscriptionBilling;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import jakarta.validation.constraints.*;
 
 public record ProRegisterRequest(
@@ -7,11 +9,12 @@ public record ProRegisterRequest(
     @NotBlank @Email String email,
     @NotBlank @Size(min = 8) String password,
     @NotNull @AssertTrue Boolean consent,
-    @NotBlank String salonName,
+    @NotNull SubscriptionTier tier,
+    @NotNull SubscriptionBilling billing,
+    String salonName,
     String phone,
     String addressStreet,
     String addressPostalCode,
     String addressCity,
-    String siret,
-    String plan
+    String siret
 ) {}

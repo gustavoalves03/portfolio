@@ -142,12 +142,17 @@ public class AuthController {
 
         // Provision tenant with salon info
         var tenant = tenantProvisioningService.provision(savedUser);
-        tenant.setName(request.salonName());
+        String salonName = (request.salonName() != null && !request.salonName().isBlank())
+            ? request.salonName()
+            : request.name();
+        tenant.setName(salonName);
         tenant.setPhone(request.phone());
         tenant.setAddressStreet(request.addressStreet());
         tenant.setAddressPostalCode(request.addressPostalCode());
         tenant.setAddressCity(request.addressCity());
         tenant.setSiret(request.siret());
+        tenant.setSubscriptionTier(request.tier());
+        tenant.setSubscriptionBilling(request.billing());
         tenantRepository.save(tenant);
 
         // Initialize Stripe customer for the tenant (idempotent, non-blocking on failure)
