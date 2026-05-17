@@ -69,6 +69,11 @@ export class LoginModalComponent {
     this.router.navigateByUrl('/register');
   }
 
+  goToForgotPassword(): void {
+    this.dialogRef.close();
+    this.router.navigateByUrl('/forgot-password');
+  }
+
   loginWithGoogle(): void {
     // The Google flow is a full-page redirect, so closing the dialog before
     // leaving keeps the snackbar/dialog stack clean if the browser caches

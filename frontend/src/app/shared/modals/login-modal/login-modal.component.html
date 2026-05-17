@@ -53,6 +53,10 @@
       }
     </form>
 
+    <p class="forgot-link">
+      <a href="javascript:void(0)" (click)="goToForgotPassword()">{{ 'auth.login.forgotPassword' | transloco }}</a>
+    </p>
+
     <p class="register-link">
       {{ 'auth.login.noAccount' | transloco }}
       <a href="javascript:void(0)" (click)="goToRegister()">{{ 'auth.login.signUp' | transloco }}</a>
