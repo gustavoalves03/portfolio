@@ -1,7 +1,7 @@
 -- V14__user_email_verification_token.sql
 ALTER TABLE users ADD (
     email_verification_token VARCHAR2(36),
-    email_verification_token_expires_at TIMESTAMP
+    email_verification_token_expires_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE UNIQUE INDEX uk_users_email_verif_token ON users(email_verification_token);
