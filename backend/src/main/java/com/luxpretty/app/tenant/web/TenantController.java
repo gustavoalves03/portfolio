@@ -94,6 +94,20 @@ public class TenantController {
                     .body(new PublishErrorResponse("Salon cannot be published", missing));
         }
 
+        // Subscription gate: pro must have an ACTIVE or TRIALING Stripe subscription.
+        // Without it, surface 402 so the frontend can route to /pro/onboarding/payment.
+        var subStatus = tenant.getSubscriptionStatus();
+        boolean subscriptionActive = subStatus == com.luxpretty.app.subscription.domain.SubscriptionStatus.ACTIVE
+                || subStatus == com.luxpretty.app.subscription.domain.SubscriptionStatus.TRIALING;
+        if (!subscriptionActive) {
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                    .body(Map.of(
+                            "message", "Active subscription required to publish",
+                            "tier", tenant.getSubscriptionTier() != null ? tenant.getSubscriptionTier().name() : "VITRINE",
+                            "billing", tenant.getSubscriptionBilling() != null ? tenant.getSubscriptionBilling().name() : "MONTHLY"
+                    ));
+        }
+
         tenant.setStatus(TenantStatus.ACTIVE);
         tenantRepository.save(tenant);
         return ResponseEntity.ok().build();
