@@ -1,0 +1,40 @@
+<div class="acc-modal" data-testid="account-switcher-modal">
+  <header class="acc-head">
+    <h3 class="acc-title">{{ 'nav.accountSwitcher.title' | transloco }}</h3>
+    <button
+      type="button"
+      class="acc-close"
+      (click)="close()"
+      [attr.aria-label]="'common.close' | transloco"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <ul class="acc-list" role="listbox">
+    @for (item of items(); track item.key) {
+      <li>
+        <button
+          type="button"
+          class="acc-row"
+          [class.active]="item.active"
+          [attr.aria-current]="item.active ? 'true' : null"
+          [attr.data-testid]="'account-switcher-item-' + item.key"
+          (click)="select(item)"
+        >
+          <span class="avatar" [class.avatar-client]="item.tenantId === null">
+            @if (item.tenantId === null) {
+              <mat-icon>person</mat-icon>
+            } @else {
+              {{ item.initials }}
+            }
+          </span>
+          <span class="acc-name">{{ item.name }}</span>
+          @if (item.active) {
+            <mat-icon class="acc-check">check</mat-icon>
+          }
+        </button>
+      </li>
+    }
+  </ul>
+</div>
