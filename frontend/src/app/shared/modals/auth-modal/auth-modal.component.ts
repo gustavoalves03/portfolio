@@ -8,6 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -41,6 +42,7 @@ export class AuthModalComponent {
   private readonly authService = inject(AuthService);
   private readonly dialogRef = inject(MatDialogRef<AuthModalComponent>);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   readonly activeTab = signal(0);
   readonly isLoading = signal(false);
@@ -127,6 +129,11 @@ export class AuthModalComponent {
   switchToLogin(): void {
     this.activeTab.set(0);
     this.errorKey.set(null);
+  }
+
+  goToForgotPassword(): void {
+    this.dialogRef.close();
+    this.router.navigate(['/forgot-password']);
   }
 
   close(): void {
