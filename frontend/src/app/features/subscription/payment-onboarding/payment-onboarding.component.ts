@@ -162,7 +162,9 @@ export class PaymentOnboardingComponent implements OnInit, OnDestroy {
       })
       .subscribe({
         next: () => {
-          this.router.navigate(['/pro/dashboard']);
+          this.router.navigate(['/pro/dashboard'], {
+            queryParams: { paymentSuccess: '1' },
+          });
         },
         error: () => {
           this.error.set(this.transloco.translate('paymentOnboarding.errors.subscription'));

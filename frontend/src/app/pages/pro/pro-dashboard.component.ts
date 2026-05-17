@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LowerCasePipe, SlicePipe } from '@angular/common';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { parseYMD } from '../../core/utils/date-format';
@@ -63,6 +63,7 @@ export class ProDashboardComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly analyticsService = inject(AnalyticsService);
   private readonly personaSetupService = inject(PersonaSetupService);
   private readonly checklistService = inject(OnboardingChecklistService);
@@ -287,6 +288,24 @@ export class ProDashboardComponent {
   });
 
   constructor() {
+    // Show a one-time confirmation when returning from /pro/onboarding/payment
+    // after a successful Stripe subscription creation.
+    const params = this.route.snapshot.queryParamMap;
+    if (params.get('paymentSuccess') === '1') {
+      this.snackBar.open(
+        this.transloco.translate('pro.dashboard.paymentSuccess'),
+        undefined,
+        { duration: 4000 }
+      );
+      // Strip the query param so a reload doesn't re-trigger the message
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { paymentSuccess: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
+
     // Existing effects for publish/unpublish
     effect(() => {
       if (this.store.isActive()) {

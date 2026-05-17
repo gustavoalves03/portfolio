@@ -73,9 +73,11 @@ export const DashboardStore = signalStore(
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekEnd.getDate() + 7);
 
+            // Backend expects ISO.DATE (yyyy-MM-dd), not full ISO datetime.
+            const from = weekStart.toISOString().split('T')[0];
             return bookingsService
               .listDetailed(
-                { from: weekStart.toISOString(), status: undefined },
+                { from, status: undefined },
                 { page: 0, size: 5, sort: 'appointmentDate,asc' }
               )
               .pipe(

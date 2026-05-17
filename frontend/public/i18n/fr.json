@@ -354,6 +354,7 @@
       "publish": "Publier mon salon",
       "publishDisabledHint": "Complétez les étapes ci-dessus pour publier votre salon",
       "publishSuccess": "Votre salon est en ligne !",
+      "paymentSuccess": "Abonnement actif. Vous pouvez maintenant publier votre salon.",
       "publishError": "Impossible de publier le salon",
       "unpublish": "Dépublier",
       "unpublishConfirmTitle": "Dépublier votre salon ?",

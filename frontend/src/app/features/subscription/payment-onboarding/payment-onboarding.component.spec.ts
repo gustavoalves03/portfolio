@@ -206,7 +206,10 @@ describe('PaymentOnboardingComponent', () => {
 
       await fixture.whenStable();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+      expect(router.navigate).toHaveBeenCalledWith(
+        ['/pro/dashboard'],
+        { queryParams: { paymentSuccess: '1' } }
+      );
     });
 
     it('surfaces error when Stripe confirmSetup returns an error', async () => {

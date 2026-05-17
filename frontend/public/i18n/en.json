@@ -350,6 +350,7 @@
       "publish": "Publish my salon",
       "publishDisabledHint": "Complete the steps above to publish your salon",
       "publishSuccess": "Your salon is now online!",
+      "paymentSuccess": "Subscription active. You can now publish your salon.",
       "publishError": "Unable to publish salon",
       "unpublish": "Unpublish",
       "unpublishConfirmTitle": "Unpublish your salon?",
