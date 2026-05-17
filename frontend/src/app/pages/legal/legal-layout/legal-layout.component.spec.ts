@@ -1,7 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Component, provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { LegalLayoutComponent } from './legal-layout.component';
 
@@ -37,8 +35,6 @@ describe('LegalLayoutComponent', () => {
       ],
       providers: [
         provideZonelessChangeDetection(),
-        provideRouter([]),
-        provideHttpClient(),
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(HostComponent);
