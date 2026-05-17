@@ -110,7 +110,7 @@
           </mat-form-field>
 
           <mat-checkbox formControlName="consent" class="consent-checkbox">
-            <span [innerHTML]="'auth.register.consent' | transloco"></span>
+            <span class="consent-text" [innerHTML]="'auth.register.consent' | transloco" (click)="onConsentLinkClick($event)"></span>
           </mat-checkbox>
           @if (registerForm.get('consent')?.hasError('required') && registerForm.get('consent')?.touched) {
             <div class="consent-error">{{ 'auth.register.consentRequired' | transloco }}</div>

@@ -8,10 +8,12 @@ import { LangService } from './i18n/lang.service';
 import { NotificationToastComponent } from './features/notifications/components/notification-toast/notification-toast.component';
 import { NotificationsStore } from './features/notifications/store/notifications.store';
 import { AuthService } from './core/auth/auth.service';
+import { CookieBannerComponent } from './shared/components/cookie-banner/cookie-banner.component';
+import { MobileMiniFooterComponent } from './shared/layout/mobile-mini-footer/mobile-mini-footer.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent],
+  imports: [RouterOutlet, Header, Footer, BottomNavComponent, NotificationToastComponent, CookieBannerComponent, MobileMiniFooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

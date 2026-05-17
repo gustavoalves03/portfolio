@@ -56,6 +56,18 @@ export class RegisterComponent {
   get confirmPasswordControl() { return this.form.get('confirmPassword'); }
   get consentControl() { return this.form.get('consent'); }
 
+  onConsentLinkClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const href = anchor.getAttribute('href');
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

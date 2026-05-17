@@ -989,7 +989,14 @@
         "houseCareers": "Carrières",
         "housePress": "Contact presse",
         "rights": "© 2026 LuxPretty. Tous droits réservés.",
-        "legal": "Mentions légales · Confidentialité · Cookies"
+        "legalLinks": {
+          "cgu": "CGU",
+          "cgv": "CGV",
+          "privacy": "Confidentialité",
+          "legalNotice": "Mentions légales",
+          "cookies": "Cookies",
+          "ariaLabel": "Liens légaux"
+        }
       },
       "parallax": {
         "eyebrow": "LuxPretty Pro",
@@ -1596,7 +1603,7 @@
         "name": "Votre nom",
         "email": "Email",
         "password": "Mot de passe (8 caractères min.)",
-        "consent": "J'accepte les conditions générales d'utilisation"
+        "consent": "J'accepte les <a href='/cgu' target='_blank' rel='noopener'>Conditions Générales d'Utilisation</a> et les <a href='/cgv' target='_blank' rel='noopener'>Conditions Générales de Vente</a> de LuxPretty"
       },
       "submit": "Créer mon compte",
       "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
@@ -1680,9 +1687,253 @@
       "generic": "Une erreur est survenue."
     }
   },
+  "cookieBanner": {
+    "message": "Ce site utilise uniquement des cookies nécessaires à son fonctionnement.",
+    "learnMore": "En savoir plus",
+    "dismiss": "J'ai compris",
+    "ariaLabel": "Information sur l'utilisation des cookies"
+  },
   "legal": {
     "common": {
       "lastUpdated": "Dernière mise à jour :"
+    },
+    "cgu": {
+      "title": "Conditions Générales d'Utilisation",
+      "sections": {
+        "objet": {
+          "title": "1. Objet et acceptation",
+          "body": "<p>Les présentes Conditions Générales d'Utilisation (« CGU ») régissent l'accès et l'utilisation de la plateforme LuxPretty accessible à l'adresse <a href='https://luxpretty.lu'>luxpretty.lu</a> (la « Plateforme »). En créant un compte ou en utilisant la Plateforme, vous reconnaissez avoir lu, compris et accepté sans réserve les présentes CGU.</p>"
+        },
+        "definitions": {
+          "title": "2. Définitions",
+          "body": "<ul><li><strong>Plateforme</strong> : le site et l'application LuxPretty.</li><li><strong>Utilisateur</strong> : toute personne accédant à la Plateforme, qu'elle soit Cliente ou Pro.</li><li><strong>Cliente</strong> : utilisateur final souhaitant réserver un soin.</li><li><strong>Pro</strong> ou <strong>Salon</strong> : professionnel ou établissement proposant des soins via la Plateforme.</li><li><strong>Compte</strong> : espace personnel sécurisé créé par l'Utilisateur.</li><li><strong>Contenu</strong> : tout élément textuel, photographique ou autre publié sur la Plateforme par les Utilisateurs.</li><li><strong>Service</strong> : ensemble des fonctionnalités proposées par la Plateforme.</li></ul>"
+        },
+        "role": {
+          "title": "3. Rôle de LuxPretty",
+          "body": "<p>LuxPretty exploite une <strong>plateforme de mise en relation</strong> entre Clientes et Pros. LuxPretty n'est en aucun cas partie au contrat de soin conclu entre la Cliente et le Salon. LuxPretty ne fournit aucun soin et n'apporte aucune garantie quant à la qualité, la disponibilité ou l'exécution des prestations proposées par les Salons. Toute réclamation relative à un soin doit être adressée directement au Salon concerné.</p>"
+        },
+        "inscription": {
+          "title": "4. Inscription et compte",
+          "body": "<p>L'inscription est ouverte à toute personne âgée d'au moins 16 ans. L'Utilisateur s'engage à fournir des informations exactes, complètes et à jour, et à les maintenir telles. Le mot de passe est strictement personnel et confidentiel. Un seul compte par personne est autorisé. La validation de l'adresse e-mail est requise.</p>"
+        },
+        "engagementsUser": {
+          "title": "5. Engagements de l'Utilisateur",
+          "body": "<p>L'Utilisateur s'engage à un usage loyal et conforme aux lois en vigueur. Sont notamment interdits : contenus illicites, diffamatoires, injurieux, à caractère sexuel ou violent ; usurpation d'identité ; collecte de données d'autres utilisateurs ; toute tentative d'accès non autorisé aux systèmes.</p>"
+        },
+        "engagementsPro": {
+          "title": "6. Engagements du Salon",
+          "body": "<p>Le Salon s'engage à disposer de toutes les autorisations légales nécessaires à son activité au Luxembourg (autorisation d'établissement, qualifications professionnelles requises). Il garantit l'exactitude des informations publiées (prix, durées, photos, descriptions), le respect des rendez-vous confirmés via la Plateforme, et une attitude professionnelle envers les Clientes.</p>"
+        },
+        "contenus": {
+          "title": "7. Contenus publiés par les Utilisateurs",
+          "body": "<p>L'Utilisateur reste titulaire des droits sur les contenus qu'il publie (avis, photos). En les publiant, il accorde à LuxPretty une licence non exclusive, gratuite et mondiale d'utilisation, de reproduction et d'affichage de ces contenus dans le cadre du Service. LuxPretty se réserve le droit de modérer ou supprimer tout contenu manifestement illicite ou contraire aux CGU sans préavis.</p>"
+        },
+        "pi": {
+          "title": "8. Propriété intellectuelle LuxPretty",
+          "body": "<p>La marque LuxPretty, son logo, son code source, son design, sa charte graphique et l'ensemble des éléments composant la Plateforme sont la propriété exclusive de LuxPretty et protégés par les lois en vigueur. Toute reproduction ou utilisation non autorisée est strictement interdite.</p>"
+        },
+        "responsabilite": {
+          "title": "9. Limitation de responsabilité",
+          "body": "<p>LuxPretty fournit le Service en l'état et selon une obligation de moyens. LuxPretty ne garantit ni une disponibilité ininterrompue, ni l'absence de bug, ni la qualité ou l'exécution des soins (cf. §3). LuxPretty ne saurait être tenue responsable des dommages indirects résultant de l'utilisation de la Plateforme. La responsabilité de LuxPretty est exclue en cas de force majeure.</p>"
+        },
+        "suspension": {
+          "title": "10. Suspension et résiliation du compte",
+          "body": "<p>LuxPretty peut suspendre ou résilier un compte en cas de violation des CGU, fraude, abus ou comportement portant atteinte aux autres Utilisateurs. Sauf urgence, l'Utilisateur dispose d'un délai de 7 jours après notification pour régulariser sa situation. La suspension entraîne la perte temporaire d'accès au Service ; la résiliation entraîne la suppression définitive du compte selon les modalités prévues par la Politique de confidentialité.</p>"
+        },
+        "donnees": {
+          "title": "11. Données personnelles",
+          "body": "<p>Le traitement des données personnelles est décrit dans notre <a href='/confidentialite'>Politique de confidentialité</a>.</p>"
+        },
+        "modification": {
+          "title": "12. Modification des CGU",
+          "body": "<p>LuxPretty peut modifier les CGU à tout moment. Les modifications sont notifiées par e-mail et/ou bandeau sur la Plateforme au moins 30 jours avant leur entrée en vigueur. L'usage continu de la Plateforme après cette date vaut acceptation des nouvelles CGU.</p>"
+        },
+        "droit": {
+          "title": "13. Droit applicable et juridiction",
+          "body": "<p>Les présentes CGU sont régies par le droit luxembourgeois. En cas de litige, et après tentative de règlement amiable, les tribunaux de Luxembourg-Ville seront seuls compétents.</p>"
+        },
+        "contact": {
+          "title": "14. Contact",
+          "body": "<p>Pour toute question relative aux présentes CGU : <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a>.</p>"
+        }
+      }
+    },
+    "cgv": {
+      "title": "Conditions Générales de Vente",
+      "sections": {
+        "objet": {
+          "title": "1. Objet",
+          "body": "<p>Les présentes Conditions Générales de Vente (« CGV ») régissent la souscription par un professionnel (« le Pro ») à un abonnement payant à la plateforme LuxPretty Pro.</p>"
+        },
+        "b2b": {
+          "title": "2. Qualification B2B et renoncement à la rétractation",
+          "body": "<p>Le Pro souscrit en qualité de professionnel agissant dans le cadre de son activité économique. À ce titre, et conformément au droit luxembourgeois et à la directive 2011/83/UE, <strong>le droit de rétractation de 14 jours applicable aux consommateurs ne s'applique pas</strong>. Le Pro renonce expressément à toute demande à ce titre.</p>"
+        },
+        "service": {
+          "title": "3. Description du service",
+          "body": "<p>L'abonnement donne accès aux fonctionnalités de la Plateforme LuxPretty Pro : gestion du planning, des soins, des clientes, des paiements, et toute fonctionnalité incluse dans le plan souscrit. Les fonctionnalités peuvent évoluer dans le temps.</p>"
+        },
+        "prix": {
+          "title": "4. Prix et facturation",
+          "body": "<p>Les prix sont exprimés en euros, hors TVA. La TVA luxembourgeoise applicable (17 % par défaut) est ajoutée sur la facture. Le paiement est effectué par carte bancaire via notre prestataire <a href='https://stripe.com' target='_blank' rel='noopener'>Stripe</a>. Une facture est émise à chaque cycle de facturation et accessible depuis l'espace du Pro.</p>"
+        },
+        "essai": {
+          "title": "5. Essai gratuit",
+          "body": "<p>Une période d'essai gratuite de 7 jours est proposée à chaque nouveau Pro. À l'issue de cette période, l'abonnement bascule automatiquement en abonnement payant selon le plan choisi. Un e-mail de rappel est envoyé 2 jours avant la fin de l'essai.</p>"
+        },
+        "duree": {
+          "title": "6. Durée et renouvellement",
+          "body": "<p>L'abonnement est conclu pour une durée mensuelle ou annuelle selon le plan souscrit. Il est tacitement reconduit à chaque échéance, sauf annulation dans les conditions prévues à l'article 7.</p>"
+        },
+        "annulation": {
+          "title": "7. Annulation",
+          "body": "<p>Le Pro peut annuler son abonnement à tout moment depuis son espace de gestion (rubrique abonnement). L'annulation prend effet à la fin de la période en cours. <strong>La période déjà payée ne fait l'objet d'aucun remboursement.</strong> Le Pro conserve l'accès au Service jusqu'à la fin de la période.</p>"
+        },
+        "defautPaiement": {
+          "title": "8. Défaut de paiement",
+          "body": "<p>En cas d'échec de prélèvement, Stripe effectue jusqu'à 4 nouvelles tentatives sur 14 jours. À l'issue de cette période sans régularisation, l'abonnement est automatiquement suspendu. La régularisation du paiement entraîne la restauration immédiate du Service.</p>"
+        },
+        "evolution": {
+          "title": "9. Évolution du service et des prix",
+          "body": "<p>LuxPretty peut modifier les fonctionnalités, les conditions ou les prix de ses abonnements. Toute hausse de prix est notifiée par e-mail au moins 30 jours avant son entrée en vigueur ; le Pro peut alors annuler son abonnement sans frais avant cette date.</p>"
+        },
+        "sla": {
+          "title": "10. Niveau de service",
+          "body": "<p>LuxPretty s'engage à fournir le Service selon une obligation de moyens. Aucun engagement de disponibilité chiffré n'est contractualisé. Les opérations de maintenance planifiée sont annoncées, dans la mesure du possible, au moins 48 heures à l'avance.</p>"
+        },
+        "responsabilite": {
+          "title": "11. Responsabilité",
+          "body": "<p>La responsabilité de LuxPretty est plafonnée au montant payé par le Pro au titre de l'abonnement sur les 12 mois précédant le fait générateur. Sont exclus les dommages indirects tels que perte de clientèle, manque à gagner, atteinte à l'image.</p>"
+        },
+        "donnees": {
+          "title": "12. Données du Pro et réversibilité",
+          "body": "<p>Le Pro peut à tout moment exporter ses données (fiche salon, clients, bookings, soins) depuis son espace. En cas de résiliation, les données sont conservées 90 jours puis supprimées, sauf obligation légale contraire (factures conservées 10 ans).</p>"
+        },
+        "forceMajeure": {
+          "title": "13. Force majeure",
+          "body": "<p>Aucune partie ne saurait être tenue responsable d'un manquement résultant d'un événement de force majeure tel que défini par la jurisprudence luxembourgeoise.</p>"
+        },
+        "droit": {
+          "title": "14. Droit applicable et juridiction",
+          "body": "<p>Les présentes CGV sont régies par le droit luxembourgeois. Les tribunaux de Luxembourg-Ville sont seuls compétents pour tout litige.</p>"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "sections": {
+        "responsable": {
+          "title": "1. Responsable du traitement",
+          "body": "<p>Le responsable du traitement des données personnelles est LuxPretty, contact <a href='mailto:privacy@luxpretty.lu'>privacy@luxpretty.lu</a>. Les coordonnées complètes (raison sociale, siège, numéro RCS) sont précisées dans nos <a href='/mentions-legales'>mentions légales</a>.</p>"
+        },
+        "donneesCollectees": {
+          "title": "2. Données collectées",
+          "body": "<ul><li><strong>Compte</strong> : e-mail, mot de passe (hashé), nom, prénom, rôle, langue, date de création.</li><li><strong>Profil pro</strong> : nom du salon, adresse, téléphone, photos, soins, horaires.</li><li><strong>Bookings</strong> : date, soin, cliente, salon, notes, statut.</li><li><strong>Paiements</strong> : traités intégralement par Stripe. LuxPretty ne stocke aucune donnée bancaire.</li><li><strong>Contenus</strong> : avis, photos uploadées, posts publiés.</li><li><strong>Logs techniques</strong> : adresse IP, user-agent, horodatage (sécurité, anti-fraude).</li></ul>"
+        },
+        "baseLegale": {
+          "title": "3. Base légale des traitements",
+          "body": "<ul><li><strong>Exécution du contrat</strong> : création de compte, réservations, accès au Service.</li><li><strong>Consentement</strong> : communications marketing (opt-in séparé, à venir).</li><li><strong>Intérêt légitime</strong> : journalisation pour sécurité et lutte contre la fraude.</li><li><strong>Obligation légale</strong> : facturation, comptabilité (conservation 10 ans).</li></ul>"
+        },
+        "finalites": {
+          "title": "4. Finalités",
+          "body": "<p>Fourniture du Service, gestion des paiements, sécurité de la Plateforme, lutte contre la fraude, communications transactionnelles (confirmation de rendez-vous, etc.), respect des obligations légales.</p>"
+        },
+        "destinataires": {
+          "title": "5. Destinataires et sous-traitants",
+          "body": "<ul><li><strong>Stripe</strong> (Irlande / États-Unis) — traitement des paiements.</li><li><strong>Postmark</strong> (États-Unis) — envoi des e-mails transactionnels.</li><li><strong>OVH</strong> (France) — hébergement des serveurs et bases de données.</li><li><strong>Cloudflare</strong> (États-Unis) — CDN et protection DDoS.</li><li><strong>Cloudflare R2</strong> — stockage des images uploadées.</li><li><strong>Google</strong> (États-Unis) — connexion OAuth optionnelle.</li><li><strong>Meta / Facebook</strong> (États-Unis) — connexion OAuth optionnelle (prévue).</li></ul>"
+        },
+        "transferts": {
+          "title": "6. Transferts hors UE",
+          "body": "<p>Certains sous-traitants (Stripe, Postmark, Cloudflare, Google, Meta) sont établis aux États-Unis. Les transferts sont encadrés par les clauses contractuelles types adoptées par la Commission européenne, garantissant un niveau de protection équivalent à celui de l'UE.</p>"
+        },
+        "conservation": {
+          "title": "7. Durées de conservation",
+          "body": "<ul><li>Compte actif : jusqu'à demande de suppression.</li><li>Compte inactif depuis 3 ans : suppression automatique.</li><li>Données de facturation : 10 ans (obligation comptable luxembourgeoise).</li><li>Logs techniques : 6 mois.</li><li>Données du Pro après résiliation : 90 jours puis suppression.</li></ul>"
+        },
+        "droits": {
+          "title": "8. Vos droits RGPD",
+          "body": "<p>Vous disposez à tout moment des droits suivants : accès, rectification, effacement, portabilité, opposition, limitation du traitement, retrait du consentement, directives post-mortem.</p>"
+        },
+        "exercice": {
+          "title": "9. Modalités d'exercice de vos droits",
+          "body": "<p>Pour exercer vos droits, contactez-nous à <a href='mailto:privacy@luxpretty.lu'>privacy@luxpretty.lu</a> en joignant un justificatif d'identité. Nous répondrons sous un délai d'un mois, prolongeable à trois mois pour les demandes complexes.</p>"
+        },
+        "reclamation": {
+          "title": "10. Réclamation",
+          "body": "<p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez déposer une réclamation auprès de la Commission Nationale pour la Protection des Données (CNPD), 15 boulevard du Jazz, L-4370 Belvaux, Luxembourg — <a href='https://cnpd.public.lu' target='_blank' rel='noopener'>cnpd.public.lu</a>.</p>"
+        },
+        "securite": {
+          "title": "11. Sécurité",
+          "body": "<p>Vos données sont chiffrées en transit (HTTPS) et stockées de manière sécurisée. Les mots de passe sont hashés (BCrypt). Les accès administratifs sont limités au strict nécessaire et journalisés.</p>"
+        },
+        "mineurs": {
+          "title": "12. Mineurs",
+          "body": "<p>L'inscription à la Plateforme est réservée aux personnes âgées d'au moins 16 ans. L'accord d'un représentant légal est requis pour les mineurs de 16 à 18 ans. Tout compte signalé comme appartenant à un mineur non autorisé sera supprimé.</p>"
+        },
+        "modification": {
+          "title": "13. Modifications de la politique",
+          "body": "<p>Cette politique peut être modifiée. Toute modification matérielle sera notifiée 30 jours avant son entrée en vigueur.</p>"
+        }
+      }
+    },
+    "notice": {
+      "title": "Mentions légales",
+      "preLaunchBanner": "LuxPretty est actuellement un projet en pré-lancement opéré à titre personnel. La société éditrice est en cours d'immatriculation.",
+      "sections": {
+        "editeur": {
+          "title": "1. Éditeur du site",
+          "body": "<p><strong>Nom</strong> : LuxPretty [À COMPLÉTER — raison sociale après immatriculation]<br><strong>Statut</strong> : [À COMPLÉTER]<br><strong>Adresse</strong> : [À COMPLÉTER]<br><strong>Contact</strong> : <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a><br><strong>RCS Luxembourg</strong> : [À COMPLÉTER]<br><strong>N° TVA</strong> : [À COMPLÉTER]</p>"
+        },
+        "directeur": {
+          "title": "2. Directeur de la publication",
+          "body": "<p>Gustavo Alves.</p>"
+        },
+        "hebergeur": {
+          "title": "3. Hébergeur",
+          "body": "<p>OVH SAS<br>2 rue Kellermann, 59100 Roubaix, France<br>Téléphone : +33 9 72 10 10 07<br><a href='https://www.ovh.com' target='_blank' rel='noopener'>www.ovh.com</a></p>"
+        },
+        "cdn": {
+          "title": "4. CDN et sécurité",
+          "body": "<p>Cloudflare, Inc.<br>101 Townsend Street, San Francisco, CA 94107, États-Unis<br><a href='https://www.cloudflare.com' target='_blank' rel='noopener'>www.cloudflare.com</a></p>"
+        },
+        "conception": {
+          "title": "5. Conception et développement",
+          "body": "<p>LuxPretty.</p>"
+        },
+        "credits": {
+          "title": "6. Crédits photos",
+          "body": "<p>Photos d'illustration : [À COMPLÉTER — Unsplash, Pexels, photos pros sous licence, etc.]. Les photos publiées par les Salons restent la propriété de leurs auteurs.</p>"
+        },
+        "signalement": {
+          "title": "7. Signalement de contenu illicite",
+          "body": "<p>Tout contenu manifestement illicite peut être signalé à <a href='mailto:contact@luxpretty.lu'>contact@luxpretty.lu</a>. Conformément à la loi luxembourgeoise sur le commerce électronique, LuxPretty agira promptement après notification.</p>"
+        }
+      }
+    },
+    "cookies": {
+      "title": "Politique en matière de cookies",
+      "sections": {
+        "definition": {
+          "title": "1. Qu'est-ce qu'un cookie ?",
+          "body": "<p>Un cookie est un petit fichier déposé par un site sur le terminal d'un utilisateur (ordinateur, smartphone, tablette) pour mémoriser certaines informations entre les visites. Nous utilisons également des technologies de stockage local du navigateur (<em>localStorage</em>) à des fins similaires.</p>"
+        },
+        "utilises": {
+          "title": "2. Cookies et stockages utilisés sur LuxPretty",
+          "body": "<table><thead><tr><th>Nom</th><th>Type</th><th>Finalité</th><th>Durée</th><th>Base légale</th></tr></thead><tbody><tr><td>XSRF-TOKEN</td><td>Cookie de session</td><td>Protection contre les attaques CSRF</td><td>Session</td><td>Nécessaire</td></tr><tr><td>JSESSIONID (ou équivalent)</td><td>Cookie de session</td><td>Authentification utilisateur</td><td>Session</td><td>Nécessaire</td></tr><tr><td>lp_auth_token</td><td>localStorage</td><td>Jeton d'authentification</td><td>Jusqu'à déconnexion</td><td>Nécessaire</td></tr><tr><td>lp_lang</td><td>localStorage</td><td>Préférence de langue</td><td>Persistant</td><td>Nécessaire</td></tr><tr><td>lp_cookie_banner_v1</td><td>localStorage</td><td>Mémorisation de la fermeture du bandeau cookies</td><td>Persistant</td><td>Nécessaire</td></tr><tr><td>__stripe_mid, __stripe_sid</td><td>Cookies tiers (stripe.com)</td><td>Sécurisation des paiements, prévention fraude</td><td>1 an / session</td><td>Nécessaire à l'exécution du paiement</td></tr></tbody></table>"
+        },
+        "aucunTracking": {
+          "title": "3. Aucun cookie de mesure d'audience ou marketing",
+          "body": "<p>LuxPretty <strong>n'utilise aucun outil de mesure d'audience tiers</strong> (Google Analytics, Matomo, etc.), <strong>aucun pixel publicitaire</strong> et <strong>aucun cookie de profilage</strong>. Si cela venait à changer, nous mettrions en place un mécanisme de consentement préalable explicite.</p>"
+        },
+        "gestion": {
+          "title": "4. Comment gérer les cookies",
+          "body": "<p>Vous pouvez configurer votre navigateur pour accepter, refuser ou supprimer les cookies. <strong>La désactivation des cookies nécessaires empêche le bon fonctionnement de la Plateforme</strong> (authentification, paiement). Liens d'aide : <a href='https://support.google.com/chrome/answer/95647' target='_blank' rel='noopener'>Chrome</a>, <a href='https://support.mozilla.org/fr/kb/protection-renforcee-contre-pistage-firefox-ordinateur' target='_blank' rel='noopener'>Firefox</a>, <a href='https://support.apple.com/fr-fr/guide/safari/sfri11471/mac' target='_blank' rel='noopener'>Safari</a>, <a href='https://support.microsoft.com/fr-fr/microsoft-edge' target='_blank' rel='noopener'>Edge</a>.</p>"
+        },
+        "modification": {
+          "title": "5. Modifications de la politique",
+          "body": "<p>Cette politique peut évoluer. Toute modification matérielle (notamment l'ajout d'un cookie non strictement nécessaire) sera notifiée 30 jours avant son entrée en vigueur et donnera lieu à l'affichage d'un nouveau bandeau de consentement.</p>"
+        }
+      }
     }
   }
 }

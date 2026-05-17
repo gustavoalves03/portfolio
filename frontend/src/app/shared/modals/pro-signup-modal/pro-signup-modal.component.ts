@@ -51,6 +51,18 @@ export class ProSignupModalComponent {
   readonly isLoading = signal(false);
   readonly errorKey = signal<string | null>(null);
 
+  onConsentLinkClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const href = anchor.getAttribute('href');
+    if (href) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+
   isFormValid(): boolean {
     return this.name().trim().length > 0
       && this.email().includes('@')

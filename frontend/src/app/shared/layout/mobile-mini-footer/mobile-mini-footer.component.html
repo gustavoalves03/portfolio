@@ -1,0 +1,12 @@
+<footer class="mobile-mini-footer" [attr.aria-label]="'home.v1.footer.legalLinks.ariaLabel' | transloco">
+  <a routerLink="/" class="mobile-mini-footer__logo" aria-label="LuxPretty">
+    <app-lp-logo variant="small" />
+  </a>
+  <nav class="mobile-mini-footer__nav">
+    <a routerLink="/cgu" class="mobile-mini-footer__link">{{ 'home.v1.footer.legalLinks.cgu' | transloco }}</a>
+    <a routerLink="/cgv" class="mobile-mini-footer__link">{{ 'home.v1.footer.legalLinks.cgv' | transloco }}</a>
+    <a routerLink="/confidentialite" class="mobile-mini-footer__link">{{ 'home.v1.footer.legalLinks.privacy' | transloco }}</a>
+    <a routerLink="/mentions-legales" class="mobile-mini-footer__link">{{ 'home.v1.footer.legalLinks.legalNotice' | transloco }}</a>
+    <a routerLink="/cookies" class="mobile-mini-footer__link">{{ 'home.v1.footer.legalLinks.cookies' | transloco }}</a>
+  </nav>
+</footer>

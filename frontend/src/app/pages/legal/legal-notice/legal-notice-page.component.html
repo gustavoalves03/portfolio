@@ -1,0 +1,12 @@
+<app-legal-layout titleKey="legal.notice.title" [updatedAt]="updatedAt">
+  <div class="legal-prelaunch-banner" role="status">
+    <span class="legal-prelaunch-banner__icon" aria-hidden="true">⚠️</span>
+    {{ 'legal.notice.preLaunchBanner' | transloco }}
+  </div>
+  @for (section of sections; track section) {
+    <section class="legal-section">
+      <h2>{{ 'legal.notice.sections.' + section + '.title' | transloco }}</h2>
+      <div [innerHTML]="'legal.notice.sections.' + section + '.body' | transloco"></div>
+    </section>
+  }
+</app-legal-layout>

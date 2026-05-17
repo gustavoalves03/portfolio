@@ -59,7 +59,7 @@
       <!-- Consent checkbox (RGPD) -->
       <div class="consent-field">
         <mat-checkbox formControlName="consent" color="primary" data-testid="register-consent">
-          <span [innerHTML]="'auth.register.consent' | transloco"></span>
+          <span class="consent-text" [innerHTML]="'auth.register.consent' | transloco" (click)="onConsentLinkClick($event)"></span>
         </mat-checkbox>
         @if (consentControl?.invalid && consentControl?.touched) {
           <mat-error class="consent-error">{{ 'auth.register.consentRequired' | transloco }}</mat-error>

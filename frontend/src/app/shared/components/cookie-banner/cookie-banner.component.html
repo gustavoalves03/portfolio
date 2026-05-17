@@ -1,0 +1,22 @@
+@if (!service.dismissed()) {
+  <div
+    class="cookie-banner"
+    role="region"
+    [attr.aria-label]="'cookieBanner.ariaLabel' | transloco"
+  >
+    <p class="cookie-banner__message">
+      <span aria-hidden="true" class="cookie-banner__icon">🍪</span>
+      {{ 'cookieBanner.message' | transloco }}
+      <a routerLink="/cookies" class="cookie-banner__link">
+        {{ 'cookieBanner.learnMore' | transloco }}
+      </a>
+    </p>
+    <button
+      type="button"
+      class="cookie-banner__btn"
+      (click)="service.dismiss()"
+    >
+      {{ 'cookieBanner.dismiss' | transloco }}
+    </button>
+  </div>
+}
