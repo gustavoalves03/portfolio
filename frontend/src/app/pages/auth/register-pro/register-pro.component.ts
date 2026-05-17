@@ -147,17 +147,23 @@ export class RegisterProComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
+    const planToTier: Record<string, 'VITRINE' | 'GESTION' | 'PREMIUM'> = {
+      free: 'VITRINE',
+      pro: 'GESTION',
+      premium: 'PREMIUM',
+    };
     this.authService.registerPro({
       name: this.name().trim(),
       email: this.email().trim(),
       password: this.password(),
+      tier: planToTier[this.selectedPlan()] ?? 'GESTION',
+      billing: this.isYearly() ? 'YEARLY' : 'MONTHLY',
       salonName: this.salonName().trim(),
       phone: this.phone().trim(),
       addressStreet: this.addressStreet().trim(),
       addressPostalCode: this.addressPostalCode().trim(),
       addressCity: this.addressCity().trim(),
       siret: this.siret().trim(),
-      plan: this.selectedPlan(),
     }).subscribe({
       next: () => {
         this.isLoading.set(false);

@@ -1,0 +1,57 @@
+<div class="pro-signup-modal">
+  <header class="modal-header">
+    <h2 mat-dialog-title>
+      {{ 'proSignup.modal.title' | transloco: { tier: tier } }}
+    </h2>
+    <p class="modal-subtitle">
+      {{ 'proSignup.modal.subtitle' | transloco: { billing: billing } }}
+    </p>
+  </header>
+
+  <form mat-dialog-content class="form" (submit)="$event.preventDefault(); submit()">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'proSignup.modal.fields.name' | transloco }}</mat-label>
+      <input matInput required [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'proSignup.modal.fields.email' | transloco }}</mat-label>
+      <input matInput required type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'proSignup.modal.fields.password' | transloco }}</mat-label>
+      <input matInput required type="password" minlength="8" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" />
+    </mat-form-field>
+
+    <mat-checkbox required [ngModel]="consent()" (ngModelChange)="consent.set($event)" name="consent">
+      {{ 'proSignup.modal.fields.consent' | transloco }}
+    </mat-checkbox>
+
+    @if (errorKey()) {
+      <p class="form-error">{{ errorKey()! | transloco }}</p>
+    }
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      class="submit-btn"
+      [disabled]="!isFormValid() || isLoading()"
+    >
+      @if (isLoading()) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        {{ 'proSignup.modal.submit' | transloco }}
+      }
+    </button>
+
+    <button type="button" class="link-btn" (click)="openLogin()">
+      {{ 'proSignup.modal.alreadyHaveAccount' | transloco }}
+    </button>
+
+    <p class="no-card-notice">
+      {{ 'proSignup.modal.noCard' | transloco }}
+    </p>
+  </form>
+</div>

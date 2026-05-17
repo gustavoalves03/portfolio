@@ -48,10 +48,17 @@ export class AuthService {
    * Register a new beauty professional with email and password
    */
   registerPro(data: {
-    name: string; email: string; password: string;
-    salonName: string; phone: string;
-    addressStreet: string; addressPostalCode: string; addressCity: string;
-    siret: string; plan: string;
+    name: string;
+    email: string;
+    password: string;
+    tier: 'VITRINE' | 'GESTION' | 'PREMIUM';
+    billing: 'MONTHLY' | 'YEARLY';
+    salonName?: string;
+    phone?: string;
+    addressStreet?: string;
+    addressPostalCode?: string;
+    addressCity?: string;
+    siret?: string;
   }): Observable<User> {
     return this.http.post<{accessToken: string, user: User}>(
       `${this.apiBaseUrl}/api/auth/register/pro`,
@@ -63,6 +70,25 @@ export class AuthService {
       }),
       map(response => response.user),
       catchError(error => { throw error; })
+    );
+  }
+
+  /**
+   * Upgrade an already-authenticated client account to a pro plan
+   */
+  upgradeToPro(data: {
+    tier: 'VITRINE' | 'GESTION' | 'PREMIUM';
+    billing: 'MONTHLY' | 'YEARLY';
+  }): Observable<User> {
+    return this.http.post<{accessToken: string, user: User}>(
+      `${this.apiBaseUrl}/api/auth/upgrade-to-pro`,
+      data
+    ).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.currentUser.set(response.user);
+      }),
+      map(response => response.user),
     );
   }
 

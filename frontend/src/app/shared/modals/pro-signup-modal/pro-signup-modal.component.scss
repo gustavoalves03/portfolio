@@ -1,0 +1,64 @@
+.pro-signup-modal {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  max-width: 480px;
+  width: 100%;
+}
+
+.modal-header {
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .modal-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-error {
+  color: var(--mat-sys-error);
+  font-size: 14px;
+  margin: 0;
+}
+
+.submit-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  color: var(--mat-sys-primary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+  font-family: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.no-card-notice {
+  text-align: center;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 8px 0 0;
+}

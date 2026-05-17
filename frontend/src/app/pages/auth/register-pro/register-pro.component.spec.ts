@@ -179,13 +179,14 @@ describe('RegisterProComponent', () => {
       name: 'Sophie Martin',
       email: 'sophie@test.com',
       password: 'Password1!',
+      tier: 'GESTION',
+      billing: 'MONTHLY',
       salonName: 'Mon Salon',
       phone: '0102030405',
       addressStreet: '1 rue X',
       addressPostalCode: '75001',
       addressCity: 'Paris',
       siret: '12345678901234',
-      plan: 'pro',
     });
     expect(router).toHaveBeenCalledOnceWith(['/pro/dashboard']);
     expect(c.isLoading()).toBeFalse();
