@@ -314,6 +314,13 @@ public class CareBookingService {
     @Transactional
     public ClientBookingResponse createClientBooking(User client, User owner, String salonName,
                                                       ClientBookingRequest req) {
+        // Block public client booking when the client's email is not verified.
+        // Mirror of the guard in create(): the frontend intercepts 403 EMAIL_NOT_VERIFIED
+        // and opens a resend-verification modal (Flux 6 of email-verification spec).
+        if (!Boolean.TRUE.equals(client.getEmailVerified())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "EMAIL_NOT_VERIFIED");
+        }
+
         Care care = careRepository.findById(req.careId())
                 .filter(c -> c.getStatus() == CareStatus.ACTIVE)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Care not found or inactive"));

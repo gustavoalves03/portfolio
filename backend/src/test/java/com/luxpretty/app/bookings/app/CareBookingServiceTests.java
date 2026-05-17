@@ -233,7 +233,7 @@ class CareBookingServiceTests {
         assertThat(result.status()).isEqualTo("CONFIRMED");
 
         // Client 2: slot check returns empty → CONFLICT
-        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").build();
+        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").emailVerified(true).build();
         ClientBookingRequest req2 = new ClientBookingRequest(10L, futureDate, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client2, owner, "Salon", req2))
@@ -985,7 +985,7 @@ class CareBookingServiceTests {
         assertThat(firstResult.status()).isEqualTo("CONFIRMED");
 
         // Client 2: same slot, check passes (stale view), save hits UK → CONFLICT
-        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").build();
+        User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").emailVerified(true).build();
         ClientBookingRequest req2 = new ClientBookingRequest(10L, futureDate, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client2, owner, "Salon", req2))
