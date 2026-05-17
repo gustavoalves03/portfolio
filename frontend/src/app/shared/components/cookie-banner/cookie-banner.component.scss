@@ -61,6 +61,12 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
+@media (max-width: 767px) {
+  .cookie-banner {
+    bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+}
+
 @media (max-width: 640px) {
   .cookie-banner {
     flex-direction: column;
