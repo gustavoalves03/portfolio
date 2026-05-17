@@ -2,6 +2,8 @@ package com.luxpretty.app.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luxpretty.app.auth.dto.RegisterRequest;
+import com.luxpretty.app.subscription.domain.SubscriptionBilling;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.subscription.app.SubscriptionService;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -473,5 +476,50 @@ class AuthControllerTests {
                         .content("{\"email\":\"sophie@salon.fr\",\"password\":\"password123\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("jwt-token"));
+    }
+
+    // --- Upgrade to Pro ---
+
+    @Test
+    void upgradeToPro_unauthenticated_returns401() throws Exception {
+        String body = """
+            { "tier": "GESTION", "billing": "YEARLY" }
+            """;
+        mockMvc.perform(post("/api/auth/upgrade-to-pro")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "newpro@example.com")
+    void upgradeToPro_authenticatedClient_returns200() throws Exception {
+        User client = User.builder()
+            .id(99L)
+            .name("New Pro User")
+            .email("newpro@example.com")
+            .password("$2a$encoded")
+            .provider(AuthProvider.LOCAL)
+            .build();
+        when(userRepository.findByEmail("newpro@example.com")).thenReturn(Optional.of(client));
+        when(userRoleService.findUserTenantIds(99L)).thenReturn(java.util.List.of());
+
+        com.luxpretty.app.tenant.domain.Tenant tenant = new com.luxpretty.app.tenant.domain.Tenant();
+        tenant.setId(77L);
+        tenant.setSlug("new-pro-user");
+        when(tenantProvisioningService.provision(any(User.class))).thenReturn(tenant);
+        when(userRoleService.resolveRoles(99L, 77L))
+            .thenReturn(java.util.Set.of(Role.PRO));
+        when(tokenService.generateToken(eq(99L), eq("newpro@example.com"), anyList(), eq(77L)))
+            .thenReturn("jwt-upgrade-token");
+
+        String body = """
+            { "tier": "GESTION", "billing": "YEARLY" }
+            """;
+        mockMvc.perform(post("/api/auth/upgrade-to-pro")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.accessToken").value("jwt-upgrade-token"));
     }
 }

@@ -4,6 +4,7 @@ import com.luxpretty.app.auth.dto.AuthResponse;
 import com.luxpretty.app.auth.dto.ForgotPasswordRequest;
 import com.luxpretty.app.auth.dto.LoginRequest;
 import com.luxpretty.app.auth.dto.ProRegisterRequest;
+import com.luxpretty.app.auth.dto.ProUpgradeRequest;
 import com.luxpretty.app.auth.dto.RegisterRequest;
 import com.luxpretty.app.auth.dto.ResetPasswordRequest;
 import com.luxpretty.app.auth.dto.UserDto;
@@ -89,6 +90,41 @@ public class AuthController {
     @Transactional
     public ResponseEntity<AuthResponse> registerClient(@Valid @RequestBody RegisterRequest request) {
         return registerWithRole(request, false);
+    }
+
+    @PostMapping("/upgrade-to-pro")
+    @Transactional
+    public ResponseEntity<AuthResponse> upgradeToPro(
+            @Valid @RequestBody ProUpgradeRequest request
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getName() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
+        }
+
+        User user = userRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        // Reject if user already has any tenant (conservative — covers any pro role)
+        boolean alreadyPro = !userRoleService.findUserTenantIds(user.getId()).isEmpty();
+        if (alreadyPro) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already has a tenant");
+        }
+
+        var tenant = tenantProvisioningService.provision(user);
+        tenant.setName(user.getName());
+        tenant.setSubscriptionTier(request.tier());
+        tenant.setSubscriptionBilling(request.billing());
+        tenantRepository.save(tenant);
+
+        try {
+            subscriptionService.initializeForTenant(user, tenant);
+        } catch (Exception e) {
+            logger.warn("Failed to initialize Stripe customer for upgraded user {}: {}", user.getEmail(), e.getMessage());
+        }
+
+        return ResponseEntity.ok(buildAuthResponse(user, tenant.getId()));
     }
 
     private ResponseEntity<AuthResponse> registerWithRole(RegisterRequest request, boolean provisionTenant) {
