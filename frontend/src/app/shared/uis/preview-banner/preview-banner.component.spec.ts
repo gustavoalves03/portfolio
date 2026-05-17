@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpErrorResponse } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
@@ -86,5 +86,26 @@ describe('PreviewBannerComponent', () => {
     fixture.detectChanges();
     component.onPublish();
     expect(component.publishing()).toBe(false);
+  });
+
+  it('redirects to /pro/onboarding/payment on 402', () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+    dashboardSpy.publish.and.returnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 402,
+            error: { message: 'Active subscription required', tier: 'PREMIUM', billing: 'MONTHLY' },
+          })
+      )
+    );
+    fixture.componentRef.setInput('canPublish', true);
+    fixture.detectChanges();
+    component.onPublish();
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ['/pro/onboarding/payment'],
+      { queryParams: { tier: 'PREMIUM', billing: 'MONTHLY' } }
+    );
   });
 });

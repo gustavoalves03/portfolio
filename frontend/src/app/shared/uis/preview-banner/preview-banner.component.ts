@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -22,6 +23,7 @@ export class PreviewBannerComponent {
   readonly publishing = signal(false);
 
   private readonly dashboardService = inject(DashboardService);
+  private readonly router = inject(Router);
 
   onPublish(): void {
     if (this.publishing()) return;
@@ -31,8 +33,15 @@ export class PreviewBannerComponent {
         this.publishing.set(false);
         this.published.emit();
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.publishing.set(false);
+        if (err.status === 402) {
+          const tier = err.error?.tier ?? 'GESTION';
+          const billing = err.error?.billing ?? 'YEARLY';
+          this.router.navigate(['/pro/onboarding/payment'], {
+            queryParams: { tier, billing },
+          });
+        }
       },
     });
   }
