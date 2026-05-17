@@ -1,5 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, pipe, switchMap, tap } from 'rxjs';
@@ -44,7 +45,8 @@ export const DashboardStore = signalStore(
     (
       store,
       dashboardService = inject(DashboardService),
-      bookingsService = inject(BookingsService)
+      bookingsService = inject(BookingsService),
+      router = inject(Router)
     ) => ({
       loadReadiness: rxMethod<void>(
         pipe(
@@ -104,7 +106,14 @@ export const DashboardStore = signalStore(
                 patchState(store, { readiness, publishSuccess: true }, setFulfilled());
               }),
               catchError((err: HttpErrorResponse) => {
-                if (err.status === 422 && err.error?.missing) {
+                if (err.status === 402) {
+                  const tier = err.error?.tier ?? 'GESTION';
+                  const billing = err.error?.billing ?? 'YEARLY';
+                  patchState(store, setFulfilled());
+                  router.navigate(['/pro/onboarding/payment'], {
+                    queryParams: { tier, billing },
+                  });
+                } else if (err.status === 422 && err.error?.missing) {
                   patchState(
                     store,
                     { publishMissing: err.error.missing as string[] },

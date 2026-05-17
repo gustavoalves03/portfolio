@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { DashboardStore } from './dashboard.store';
 
@@ -15,6 +17,7 @@ describe('DashboardStore', () => {
         provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         { provide: API_BASE_URL, useValue: 'http://t' },
         DashboardStore,
       ],
@@ -66,6 +69,38 @@ describe('DashboardStore', () => {
     });
     expect(store.publishSuccess()).toBeTrue();
     expect(store.publishMissing()).toEqual([]);
+  });
+
+  it('redirects to /pro/onboarding/payment on 402', async () => {
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+    store.publish();
+    http.expectOne((r) => r.url.endsWith('/api/pro/tenant/publish')).flush(
+      { message: 'Active subscription required', tier: 'PREMIUM', billing: 'MONTHLY' },
+      { status: 402, statusText: 'Payment Required' }
+    );
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/pro/onboarding/payment'],
+      { queryParams: { tier: 'PREMIUM', billing: 'MONTHLY' } }
+    );
+  });
+
+  it('falls back to GESTION/YEARLY when 402 body is incomplete', async () => {
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+    store.publish();
+    http.expectOne((r) => r.url.endsWith('/api/pro/tenant/publish')).flush(
+      {},
+      { status: 402, statusText: 'Payment Required' }
+    );
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/pro/onboarding/payment'],
+      { queryParams: { tier: 'GESTION', billing: 'YEARLY' } }
+    );
   });
 
   it('clearPublishMissing resets the array', () => {
