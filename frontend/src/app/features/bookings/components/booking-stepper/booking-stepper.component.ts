@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { BookingsService } from '../../services/bookings.service';
@@ -11,6 +12,7 @@ import { StepCareComponent } from '../step-care/step-care.component';
 import { StepDatetimeComponent } from '../step-datetime/step-datetime.component';
 import { StepClientComponent } from '../step-client/step-client.component';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
+import { EmailNotVerifiedModalComponent } from '../../modals/email-not-verified-modal/email-not-verified-modal.component';
 
 @Component({
   selector: 'app-booking-stepper',
@@ -163,6 +165,7 @@ export class BookingStepperComponent {
   readonly dialogRef = inject(MatDialogRef<BookingStepperComponent>);
   private readonly bookingsService = inject(BookingsService);
   private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
 
   readonly currentStep = signal(1);
   readonly selectedCareId = signal<number | null>(null);
@@ -222,8 +225,12 @@ export class BookingStepperComponent {
       employeeId: this.selectedEmployeeId(),
     }).subscribe({
       next: () => this.dialogRef.close(true),
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.submitting.set(false);
+        if (err.status === 403 && err.error?.error === 'EMAIL_NOT_VERIFIED') {
+          this.dialog.open(EmailNotVerifiedModalComponent, { width: '420px' });
+          return;
+        }
       },
     });
   }
