@@ -12,7 +12,6 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProDashboardComponent } from './pro-dashboard.component';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
-import { SubscriptionService } from '../../features/subscription/services/subscription.service';
 import { AnalyticsResponse } from '../../features/analytics/analytics.model';
 import { TenantReadiness } from '../../features/dashboard/models/dashboard.model';
 import { DashboardStore } from '../../features/dashboard/store/dashboard.store';
@@ -93,7 +92,6 @@ describe('ProDashboardComponent', () => {
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
         { provide: AnalyticsService, useValue: analyticsSpy },
         { provide: PersonaSetupService, useValue: personaSetupSpy },
-        { provide: SubscriptionService, useValue: jasmine.createSpyObj('SubscriptionService', ['getCurrentSubscription']) },
         DashboardStore,
       ],
     }).compileComponents();
@@ -652,70 +650,4 @@ describe('ProDashboardComponent', () => {
     });
   });
 
-  describe('publish gate (subscription check)', () => {
-    let subscriptionService: jasmine.SpyObj<SubscriptionService>;
-    let router: Router;
-
-    beforeEach(() => {
-      subscriptionService = TestBed.inject(SubscriptionService) as jasmine.SpyObj<SubscriptionService>;
-      router = TestBed.inject(Router);
-    });
-
-    it('redirects to /pro/onboarding/payment when subscription is not active', () => {
-      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-      subscriptionService.getCurrentSubscription.and.returnValue(of({
-        tier: 'GESTION',
-        billing: 'YEARLY',
-        status: 'VITRINE_FREE',
-        stripeCustomerId: null,
-        stripeSubscriptionId: null,
-        currentPeriodEnd: null,
-        trialEnd: null,
-      }));
-
-      component.onPublish();
-
-      expect(router.navigate).toHaveBeenCalledWith(
-        ['/pro/onboarding/payment'],
-        { queryParams: { tier: 'GESTION', billing: 'YEARLY' } }
-      );
-    });
-
-    it('calls store.publish() when subscription is ACTIVE', () => {
-      const publishSpy = spyOn(component.store, 'publish');
-      subscriptionService.getCurrentSubscription.and.returnValue(of({
-        tier: 'GESTION', billing: 'YEARLY', status: 'ACTIVE',
-        stripeCustomerId: 'cus_x', stripeSubscriptionId: 'sub_x',
-        currentPeriodEnd: '2026-12-01', trialEnd: null,
-      }));
-
-      component.onPublish();
-
-      expect(publishSpy).toHaveBeenCalled();
-    });
-
-    it('calls store.publish() when subscription is TRIALING', () => {
-      const publishSpy = spyOn(component.store, 'publish');
-      subscriptionService.getCurrentSubscription.and.returnValue(of({
-        tier: 'PREMIUM', billing: 'MONTHLY', status: 'TRIALING',
-        stripeCustomerId: 'cus_x', stripeSubscriptionId: 'sub_x',
-        currentPeriodEnd: '2026-12-01', trialEnd: '2026-06-01',
-      }));
-
-      component.onPublish();
-
-      expect(publishSpy).toHaveBeenCalled();
-    });
-
-    it('redirects to /pro/onboarding/payment when getCurrentSubscription errors', () => {
-      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
-      subscriptionService.getCurrentSubscription.and.returnValue(
-        throwError(() => new Error('network down'))
-      );
-
-      component.onPublish();
-
-      expect(router.navigate).toHaveBeenCalledWith(['/pro/onboarding/payment']);
-    });
-  });
 });

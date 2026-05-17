@@ -23,7 +23,6 @@ import { PERSONAS, Persona } from '../../features/onboarding/personas';
 import { PersonaSetupService } from '../../features/onboarding/persona-setup.service';
 import { OnboardingChecklistService } from '../../features/onboarding/onboarding-checklist.service';
 import { AnalyticsService } from '../../features/analytics/analytics.service';
-import { SubscriptionService } from '../../features/subscription/services/subscription.service';
 import {
   AnalyticsResponse,
   EmployeeRanking,
@@ -65,7 +64,6 @@ export class ProDashboardComponent {
   private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly analyticsService = inject(AnalyticsService);
-  private readonly subscriptionService = inject(SubscriptionService);
   private readonly personaSetupService = inject(PersonaSetupService);
   private readonly checklistService = inject(OnboardingChecklistService);
 
@@ -362,20 +360,7 @@ export class ProDashboardComponent {
   }
 
   onPublish(): void {
-    this.subscriptionService.getCurrentSubscription().subscribe({
-      next: (sub) => {
-        if (sub.status === 'ACTIVE' || sub.status === 'TRIALING') {
-          this.store.publish();
-        } else {
-          this.router.navigate(['/pro/onboarding/payment'], {
-            queryParams: { tier: sub.tier, billing: sub.billing },
-          });
-        }
-      },
-      error: () => {
-        this.router.navigate(['/pro/onboarding/payment']);
-      },
-    });
+    this.store.publish();
   }
 
   applyPersona(persona: Persona): void {
