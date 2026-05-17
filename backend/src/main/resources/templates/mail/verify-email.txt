@@ -1,0 +1,9 @@
+Bonjour [(${name})],
+
+Bienvenue chez LuxPretty ! Pour activer ton compte, ouvre ce lien :
+
+[(${verifyUrl})]
+
+Ce lien expire dans 24 heures. Si tu n'as pas créé de compte, ignore ce mail.
+
+— LuxPretty
