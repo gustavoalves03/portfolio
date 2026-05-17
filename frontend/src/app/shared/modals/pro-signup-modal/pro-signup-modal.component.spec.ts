@@ -59,18 +59,38 @@ describe('ProSignupModalComponent', () => {
     expect(component.isFormValid()).toBe(false);
   });
 
-  it('isFormValid returns true when all 4 fields are filled', () => {
+  it('isFormValid returns true when all fields are filled and emails match', () => {
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
     expect(component.isFormValid()).toBe(true);
+  });
+
+  it('isFormValid returns false when emails do not match', () => {
+    component.name.set('Alice');
+    component.email.set('a@b.com');
+    component.emailConfirm.set('other@b.com');
+    component.password.set('password123');
+    component.consent.set(true);
+    expect(component.emailMismatch()).toBe(true);
+    expect(component.isFormValid()).toBe(false);
+  });
+
+  it('applyEmailSuggestion replaces email and clears suggestion', () => {
+    component.email.set('user@gmial.com');
+    component.emailSuggestion.set('user@gmail.com');
+    component.applyEmailSuggestion();
+    expect(component.email()).toBe('user@gmail.com');
+    expect(component.emailSuggestion()).toBeNull();
   });
 
   it('submit calls registerPro with tier+billing from data', () => {
     authService.registerPro.and.returnValue(of({ id: 1 } as any));
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
 
@@ -89,6 +109,7 @@ describe('ProSignupModalComponent', () => {
     authService.registerPro.and.returnValue(of({ id: 1 } as any));
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
 
@@ -103,6 +124,7 @@ describe('ProSignupModalComponent', () => {
     );
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
 
@@ -118,6 +140,7 @@ describe('ProSignupModalComponent', () => {
     );
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
 
@@ -135,6 +158,7 @@ describe('ProSignupModalComponent', () => {
     authService.registerPro.and.returnValue(new Observable(() => {}));
     component.name.set('Alice');
     component.email.set('a@b.com');
+    component.emailConfirm.set('a@b.com');
     component.password.set('password123');
     component.consent.set(true);
 

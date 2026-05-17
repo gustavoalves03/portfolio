@@ -31,6 +31,33 @@
         }
       </mat-form-field>
 
+      <!-- Mailcheck suggestion (typo detection) -->
+      @if (emailSuggestion(); as suggestion) {
+        <div class="email-suggestion" data-testid="register-email-suggestion">
+          <button
+            type="button"
+            class="email-suggestion-btn"
+            (click)="applyEmailSuggestion()"
+            [innerHTML]="'auth.register.emailSuggestion' | transloco: { email: suggestion }"
+          ></button>
+        </div>
+      }
+
+      <!-- Confirm email field -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ 'auth.register.emailConfirm.label' | transloco }}</mat-label>
+        <input matInput formControlName="emailConfirm" type="email" autocomplete="email" data-testid="register-email-confirm" />
+        @if (emailConfirmControl?.hasError('required') && emailConfirmControl?.touched) {
+          <mat-error>{{ 'auth.errors.emailRequired' | transloco }}</mat-error>
+        }
+        @if (emailConfirmControl?.hasError('email') && emailConfirmControl?.touched) {
+          <mat-error>{{ 'auth.errors.emailInvalid' | transloco }}</mat-error>
+        }
+        @if (emailConfirmControl?.touched && form.errors?.['emailMismatch']) {
+          <mat-error data-testid="register-email-mismatch">{{ 'auth.register.emailConfirm.mismatch' | transloco }}</mat-error>
+        }
+      </mat-form-field>
+
       <!-- Password field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>

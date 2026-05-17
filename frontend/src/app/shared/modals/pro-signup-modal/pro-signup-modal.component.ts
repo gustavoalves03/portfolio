@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { suggestEmail } from '../../../core/utils/email-mailcheck.util';
 
 export interface ProSignupModalData {
   tier: 'VITRINE' | 'GESTION' | 'PREMIUM';
@@ -46,14 +47,41 @@ export class ProSignupModalComponent {
 
   readonly name = signal('');
   readonly email = signal('');
+  readonly emailConfirm = signal('');
   readonly password = signal('');
   readonly consent = signal(false);
   readonly isLoading = signal(false);
   readonly errorKey = signal<string | null>(null);
+  readonly emailSuggestion = signal<string | null>(null);
+  private emailDebounceHandle: ReturnType<typeof setTimeout> | null = null;
+
+  readonly emailMismatch = computed(
+    () =>
+      this.email().length > 0 &&
+      this.emailConfirm().length > 0 &&
+      this.email().trim().toLowerCase() !== this.emailConfirm().trim().toLowerCase(),
+  );
+
+  onEmailChange(value: string): void {
+    this.email.set(value);
+    if (this.emailDebounceHandle) clearTimeout(this.emailDebounceHandle);
+    this.emailDebounceHandle = setTimeout(() => {
+      this.emailSuggestion.set(suggestEmail(value));
+    }, 500);
+  }
+
+  applyEmailSuggestion(): void {
+    const suggestion = this.emailSuggestion();
+    if (!suggestion) return;
+    this.email.set(suggestion);
+    this.emailSuggestion.set(null);
+  }
 
   isFormValid(): boolean {
     return this.name().trim().length > 0
       && this.email().includes('@')
+      && this.emailConfirm().includes('@')
+      && !this.emailMismatch()
       && this.password().length >= 8
       && this.consent();
   }

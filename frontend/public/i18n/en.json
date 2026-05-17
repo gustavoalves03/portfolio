@@ -70,6 +70,11 @@
       "subtitle": "Join LuxPretty and grow your business",
       "name": "Full name",
       "email": "Email address",
+      "emailConfirm": {
+        "label": "Confirm email",
+        "mismatch": "Emails don't match"
+      },
+      "emailSuggestion": "Did you mean <strong>{{email}}</strong>?",
       "password": "Password",
       "passwordHint": "At least 8 characters",
       "consent": "I accept the <a href='/tos' target='_blank'>Terms of Service</a> and <a href='/privacy' target='_blank'>Privacy Policy</a>",
