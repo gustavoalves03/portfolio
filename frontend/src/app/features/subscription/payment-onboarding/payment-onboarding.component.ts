@@ -109,12 +109,27 @@ export class PaymentOnboardingComponent implements OnInit, OnDestroy {
     return mod.loadStripe(publishableKey);
   }
 
-  // Extracted for testability — waits one microtask for CD, then mounts
+  // Extracted for testability — polls until the #cardElement div is rendered,
+  // then mounts. Single microtask isn't enough in zoneless mode: change
+  // detection may not have run yet, and ViewChild can still be undefined.
   protected async mountPaymentElement(): Promise<void> {
-    await Promise.resolve(); // let Angular run CD so #cardElement renders
-    if (this.paymentElement && this.cardElementRef?.nativeElement) {
-      this.paymentElement.mount(this.cardElementRef.nativeElement);
+    const maxAttempts = 50; // ~500ms total
+    for (let i = 0; i < maxAttempts; i++) {
+      if (this.cardElementRef?.nativeElement) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
     }
+    if (!this.paymentElement) {
+      this.error.set(this.transloco.translate('paymentOnboarding.errors.init'));
+      return;
+    }
+    if (!this.cardElementRef?.nativeElement) {
+      console.error('payment-onboarding: #cardElement never appeared in DOM');
+      this.error.set(this.transloco.translate('paymentOnboarding.errors.init'));
+      return;
+    }
+    this.paymentElement.mount(this.cardElementRef.nativeElement);
   }
 
   async submit(): Promise<void> {
