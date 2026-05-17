@@ -8,6 +8,38 @@ header a {
   -webkit-tap-highlight-color: transparent;
 }
 
+// Wraps brand + caret so they stay inline-aligned in the center column.
+.brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// TikTok-style caret next to the brand that opens the account switcher modal.
+.account-switcher-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--pf-ink-mute, #8a8079);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 8px;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--pf-ink, #2b2622);
+  }
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
 // Salon brand name in header (PRO mode)
 .salon-brand {
   display: block;

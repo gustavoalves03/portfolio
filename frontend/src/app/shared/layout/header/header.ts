@@ -12,7 +12,7 @@ import { SidenavService } from '../navigation/sidenav.service';
 import { SidenavOverlay } from '../navigation/sidenav-overlay';
 import { LoginModalComponent } from '../../modals/login-modal/login-modal.component';
 import { bottomSheetConfig } from '../../uis/sheet-handle/bottom-sheet.config';
-import { TenantSwitcherComponent } from './tenant-switcher/tenant-switcher.component';
+import { AccountSwitcherModalComponent } from './account-switcher-modal/account-switcher-modal.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
@@ -21,7 +21,7 @@ import { NotificationsStore } from '../../../features/notifications/store/notifi
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe, LpLogoComponent, TenantSwitcherComponent],
+  imports: [RouterLink, SidenavOverlay, MatMenuModule, MatButtonModule, MatIconModule, TranslocoPipe, LpLogoComponent],
   templateUrl: './header.html',
   styleUrl: './header.scss'
 })
@@ -36,6 +36,13 @@ export class Header {
     this.authService.user();
     return this.authService.hasRole(Role.PRO, Role.ADMIN, Role.EMPLOYEE);
   });
+
+  // Caret next to the brand is shown only when the user is authenticated and
+  // has at least one tenant they could be a member of — i.e. switching
+  // between "Mode Client" and a salon is a meaningful action.
+  protected readonly canSwitchAccount = computed(
+    () => this.authService.isAuthenticated() && this.authService.availableTenants().length >= 1,
+  );
 
   protected readonly salonName = signal('');
   protected readonly salonSlug = signal('');
@@ -143,6 +150,13 @@ export class Header {
     this.dialog.open(LoginModalComponent, bottomSheetConfig({
       width: '500px',
       disableClose: false,
+    }));
+  }
+
+  protected openAccountSwitcher(): void {
+    this.dialog.open(AccountSwitcherModalComponent, bottomSheetConfig({
+      width: '420px',
+      autoFocus: false,
     }));
   }
 

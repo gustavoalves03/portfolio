@@ -48,15 +48,28 @@
 
       <!-- Center: salon name (PRO/salon visit) or LuxPretty logo (public) -->
       <div class="justify-self-center">
-        @if (headerBrand(); as brand) {
-          <a [routerLink]="['/salon', brand.slug]" class="salon-brand">
-            {{ brand.name }}
-          </a>
-        } @else {
-          <a routerLink="/" class="select-none" data-testid="header-home-link">
-            <app-lp-logo />
-          </a>
-        }
+        <span class="brand-wrap">
+          @if (headerBrand(); as brand) {
+            <a [routerLink]="['/salon', brand.slug]" class="salon-brand">
+              {{ brand.name }}
+            </a>
+          } @else {
+            <a routerLink="/" class="select-none" data-testid="header-home-link">
+              <app-lp-logo />
+            </a>
+          }
+          @if (canSwitchAccount()) {
+            <button
+              type="button"
+              class="account-switcher-caret"
+              [attr.aria-label]="'nav.accountSwitcher.title' | transloco"
+              data-testid="account-switcher-trigger"
+              (click)="openAccountSwitcher()"
+            >
+              <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+          }
+        </span>
       </div>
 
       <!-- Right: actions rapides -->
@@ -79,7 +92,6 @@
           </a>
         }
         @if (authService.isAuthenticated()) {
-          <lp-tenant-switcher></lp-tenant-switcher>
           <button
             type="button"
             [matMenuTriggerFor]="userMenu"
