@@ -1685,6 +1685,52 @@
   "legal": {
     "common": {
       "lastUpdated": "Last updated:"
+    },
+    "cgu": {
+      "title": "Terms of Use",
+      "sections": {
+        "placeholder": {
+          "title": "Section to write",
+          "body": "<p>Content to be written in PR3.</p>"
+        }
+      }
+    },
+    "cgv": {
+      "title": "Terms of Sale (Pros)",
+      "sections": {
+        "placeholder": {
+          "title": "Section to write",
+          "body": "<p>Content to be written in PR3.</p>"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": {
+        "placeholder": {
+          "title": "Section to write",
+          "body": "<p>Content to be written in PR3.</p>"
+        }
+      }
+    },
+    "notice": {
+      "title": "Legal Notice",
+      "preLaunchBanner": "⚠️ LuxPretty is currently a pre-launch project run as a personal venture. The publishing entity is being incorporated.",
+      "sections": {
+        "placeholder": {
+          "title": "Section to write",
+          "body": "<p>Content to be written in PR3.</p>"
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookies Policy",
+      "sections": {
+        "placeholder": {
+          "title": "Section to write",
+          "body": "<p>Content to be written in PR3.</p>"
+        }
+      }
     }
   }
 }

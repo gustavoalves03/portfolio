@@ -1689,6 +1689,52 @@
   "legal": {
     "common": {
       "lastUpdated": "Dernière mise à jour :"
+    },
+    "cgu": {
+      "title": "Conditions Générales d'Utilisation",
+      "sections": {
+        "placeholder": {
+          "title": "Section à rédiger",
+          "body": "<p>Contenu à rédiger en PR2.</p>"
+        }
+      }
+    },
+    "cgv": {
+      "title": "Conditions Générales de Vente",
+      "sections": {
+        "placeholder": {
+          "title": "Section à rédiger",
+          "body": "<p>Contenu à rédiger en PR2.</p>"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "sections": {
+        "placeholder": {
+          "title": "Section à rédiger",
+          "body": "<p>Contenu à rédiger en PR2.</p>"
+        }
+      }
+    },
+    "notice": {
+      "title": "Mentions légales",
+      "preLaunchBanner": "⚠️ LuxPretty est actuellement un projet en pré-lancement opéré à titre personnel. La société éditrice est en cours d'immatriculation.",
+      "sections": {
+        "placeholder": {
+          "title": "Section à rédiger",
+          "body": "<p>Contenu à rédiger en PR2.</p>"
+        }
+      }
+    },
+    "cookies": {
+      "title": "Politique cookies",
+      "sections": {
+        "placeholder": {
+          "title": "Section à rédiger",
+          "body": "<p>Contenu à rédiger en PR2.</p>"
+        }
+      }
     }
   }
 }

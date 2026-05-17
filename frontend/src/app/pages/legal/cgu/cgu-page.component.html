@@ -1,0 +1,8 @@
+<app-legal-layout titleKey="legal.cgu.title" [updatedAt]="updatedAt">
+  @for (section of sections; track section) {
+    <section class="legal-section">
+      <h2>{{ 'legal.cgu.sections.' + section + '.title' | transloco }}</h2>
+      <div [innerHTML]="'legal.cgu.sections.' + section + '.body' | transloco"></div>
+    </section>
+  }
+</app-legal-layout>
