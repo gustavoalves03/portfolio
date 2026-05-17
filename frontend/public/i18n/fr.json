@@ -1679,5 +1679,10 @@
       "subscription": "L'abonnement n'a pas pu être créé. Réessayez.",
       "generic": "Une erreur est survenue."
     }
+  },
+  "legal": {
+    "common": {
+      "lastUpdated": "Dernière mise à jour :"
+    }
   }
 }

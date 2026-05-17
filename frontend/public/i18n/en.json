@@ -1675,5 +1675,10 @@
       "subscription": "Subscription could not be created. Try again.",
       "generic": "Something went wrong."
     }
+  },
+  "legal": {
+    "common": {
+      "lastUpdated": "Last updated:"
+    }
   }
 }

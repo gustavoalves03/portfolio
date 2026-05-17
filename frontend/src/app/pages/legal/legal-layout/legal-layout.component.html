@@ -1,0 +1,13 @@
+<main class="legal-page">
+  <article class="legal-page__article">
+    <header class="legal-page__header">
+      <h1>{{ titleKey | transloco }}</h1>
+      <p class="legal-page__updated">
+        {{ 'legal.common.lastUpdated' | transloco }} {{ updatedAt | date:'longDate' }}
+      </p>
+    </header>
+    <div class="legal-page__content">
+      <ng-content></ng-content>
+    </div>
+  </article>
+</main>
