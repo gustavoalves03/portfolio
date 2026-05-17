@@ -1560,7 +1560,8 @@
       "vitrine": {
         "name": "Vitrine",
         "free": "0 €/month",
-        "cta": "Choose Vitrine"
+        "cta": "Choose Vitrine",
+        "annualNote": "billed annually"
       },
       "gestion": {
         "name": "Gestion",
@@ -1580,6 +1581,25 @@
       "body2": "Hosted in France, fully compliant.",
       "title3": "French support",
       "body3": "Reply within 24 business hours."
+    }
+  },
+  "proSignup": {
+    "modal": {
+      "title": "Get started with {{ tier }}",
+      "subtitle": "Billing: {{ billing }}",
+      "fields": {
+        "name": "Your name",
+        "email": "Email",
+        "password": "Password (8 chars min.)",
+        "consent": "I accept the terms and conditions"
+      },
+      "submit": "Create my account",
+      "alreadyHaveAccount": "Already have an account? Log in",
+      "errors": {
+        "emailAlreadyInUse": "This email is already in use. Log in.",
+        "networkError": "Network error. Try again."
+      },
+      "noCard": "No credit card required. You'll only pay when publishing."
     }
   },
   "invoices": {

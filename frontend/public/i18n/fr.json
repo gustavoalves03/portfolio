@@ -1564,7 +1564,8 @@
       "vitrine": {
         "name": "Vitrine",
         "free": "0 €/mois",
-        "cta": "Choisir Vitrine"
+        "cta": "Choisir Vitrine",
+        "annualNote": "facturé annuellement"
       },
       "gestion": {
         "name": "Gestion",
@@ -1584,6 +1585,25 @@
       "body2": "Hébergement en France, conformité totale.",
       "title3": "Support en français",
       "body3": "Réponse sous 24h ouvrées."
+    }
+  },
+  "proSignup": {
+    "modal": {
+      "title": "Démarrer avec {{ tier }}",
+      "subtitle": "Facturation {{ billing }}",
+      "fields": {
+        "name": "Votre nom",
+        "email": "Email",
+        "password": "Mot de passe (8 caractères min.)",
+        "consent": "J'accepte les conditions générales d'utilisation"
+      },
+      "submit": "Créer mon compte",
+      "alreadyHaveAccount": "Vous avez déjà un compte ? Se connecter",
+      "errors": {
+        "emailAlreadyInUse": "Cet email est déjà utilisé. Connectez-vous.",
+        "networkError": "Erreur réseau. Réessayez."
+      },
+      "noCard": "Aucune carte bancaire demandée. Vous paierez au moment de publier."
     }
   },
   "invoices": {
