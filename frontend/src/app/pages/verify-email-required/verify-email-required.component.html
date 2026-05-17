@@ -1,0 +1,21 @@
+<div class="container">
+  <h1>{{ 'verifyEmail.required.title' | transloco }}</h1>
+  <p>{{ 'verifyEmail.required.body' | transloco }}</p>
+  @if (user()) {
+    <p class="email">{{ user()?.email }}</p>
+  }
+
+  <button mat-flat-button color="primary"
+          [disabled]="cooldownSec() > 0"
+          (click)="resend()">
+    @if (cooldownSec() > 0) {
+      {{ 'verifyEmail.required.resend' | transloco }} ({{ cooldownSec() }}s)
+    } @else {
+      {{ 'verifyEmail.required.resend' | transloco }}
+    }
+  </button>
+
+  <button mat-stroked-button (click)="logout()">
+    {{ 'auth.logout' | transloco }}
+  </button>
+</div>

@@ -43,6 +43,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
   },
+  {
+    path: 'verify-email-required',
+    loadComponent: () =>
+      import('./pages/verify-email-required/verify-email-required.component').then(
+        (m) => m.VerifyEmailRequiredComponent,
+      ),
+  },
   { path: 'oauth2/redirect', component: OAuth2RedirectComponent },
   {
     path: 'discover',
