@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{mail/_layout :: html(pageTitle='Rappel : ton RDV est demain')}">
+<body>
+<div th:fragment="content">
+    <h1>Rappel : ton RDV est demain</h1>
+    <p>Bonjour <span th:text="${clientName}">…</span>,</p>
+    <p>Petit rappel : tu as un rendez-vous demain chez <strong th:text="${salonName}">…</strong>.</p>
+    <p>
+        <strong>Soin :</strong> <span th:text="${careName}">…</span><br/>
+        <strong>Date :</strong> <span th:text="${dateStr}">…</span> à <span th:text="${timeStr}">…</span><br/>
+        <span th:if="${address}"><strong>Adresse :</strong> <span th:text="${address}">…</span><br/></span>
+    </p>
+    <p><a th:href="${bookingUrl}" class="cta">Voir mon RDV</a></p>
+    <p>À demain !</p>
+</div>
+</body>
+</html>
