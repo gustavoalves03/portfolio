@@ -179,5 +179,17 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
         CareBookingStatus status,
         LocalDate today
     );
+
+    /**
+     * Find CONFIRMED bookings on a target date that have not yet had a reminder
+     * dispatched. Used by the hourly J-1 reminder scheduler.
+     */
+    @Query("""
+        SELECT b FROM CareBooking b
+        WHERE b.status = com.luxpretty.app.bookings.domain.CareBookingStatus.CONFIRMED
+          AND b.reminderSentAt IS NULL
+          AND b.appointmentDate = :targetDate
+        """)
+    List<CareBooking> findRemindersDueOnDate(@Param("targetDate") LocalDate targetDate);
 }
 
