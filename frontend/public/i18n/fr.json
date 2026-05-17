@@ -1688,6 +1688,11 @@
     }
   },
   "verifyEmail": {
+    "banner": {
+      "title": "Vérifie ton email",
+      "body": "Pour activer toutes les fonctionnalités, vérifie ton email à {{email}}.",
+      "resend": "Renvoyer le mail"
+    },
     "required": {
       "title": "Vérifie ton email",
       "body": "Pour accéder à ton espace pro, vérifie ton email.",

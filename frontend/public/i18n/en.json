@@ -1684,6 +1684,11 @@
     }
   },
   "verifyEmail": {
+    "banner": {
+      "title": "Verify your email",
+      "body": "To activate all features, verify your email at {{email}}.",
+      "resend": "Resend email"
+    },
     "required": {
       "title": "Verify your email",
       "body": "To access your pro space, please verify your email.",
