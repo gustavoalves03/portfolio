@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,6 +33,15 @@ class UserRoleServiceTests {
                 mock(com.luxpretty.app.tenant.repo.TenantRepository.class);
         com.luxpretty.app.multitenancy.ApplicationSchemaExecutor applicationSchemaExecutor =
                 mock(com.luxpretty.app.multitenancy.ApplicationSchemaExecutor.class);
+        // UserRoleService wraps repo access in applicationSchemaExecutor.call/run.
+        // In unit tests we don't actually switch schema — just execute the lambda
+        // so the mocked repo behaves the same as before that refactor.
+        when(applicationSchemaExecutor.call(any(Supplier.class)))
+                .thenAnswer(inv -> ((Supplier<?>) inv.getArgument(0)).get());
+        doAnswer(inv -> {
+            ((Runnable) inv.getArgument(0)).run();
+            return null;
+        }).when(applicationSchemaExecutor).run(any(Runnable.class));
         service = new UserRoleService(repo, tenantRepository, applicationSchemaExecutor);
     }
 

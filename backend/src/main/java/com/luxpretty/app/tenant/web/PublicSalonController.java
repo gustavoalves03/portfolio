@@ -274,6 +274,13 @@ public class PublicSalonController {
     public ClientBookingResponse book(@PathVariable String slug,
                                        @Valid @RequestBody ClientBookingRequest request,
                                        @AuthenticationPrincipal UserPrincipal principal) {
+        // Booking requires authentication. Spring's security filter is
+        // permissive on /api/salon/** (public read), so reject here explicitly
+        // rather than NPE on principal access.
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Login required to book");
+        }
+
         // Client booking is for "client mode" only. A PRO/EMPLOYEE/ADMIN with an
         // active tenant context must switch back to client mode first.
         Object activeTenantId = principal.getAttributes() == null
