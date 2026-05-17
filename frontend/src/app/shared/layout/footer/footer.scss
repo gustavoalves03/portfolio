@@ -166,6 +166,12 @@
     opacity: 1;
     text-decoration: underline;
   }
+
+  &:focus-visible {
+    opacity: 1;
+    text-decoration: underline;
+    outline-offset: 2px;
+  }
 }
 
 /* ==========================================================================
