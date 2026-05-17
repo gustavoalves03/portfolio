@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -25,10 +25,18 @@ export class VerifyEmailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly state = signal<VerifyState>('pending');
 
   ngOnInit() {
+    // Skip on SSR — the verify endpoint mutates server state (clears the token).
+    // Running it twice (once during prerender, once during hydration) causes the
+    // second call to return 400 INVALID_TOKEN after the first one already
+    // consumed it, flashing "success" then "invalid" to the user.
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     const token = this.route.snapshot.queryParamMap.get('token');
     if (!token) {
       this.state.set('invalid');
