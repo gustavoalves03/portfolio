@@ -79,8 +79,8 @@ class CareBookingServiceTests {
         // explicitly before invoking the method under test.
         TenantContext.setCurrentTenant("test-tenant");
 
-        client = User.builder().id(1L).name("Marie").email("marie@test.com").build();
-        owner = User.builder().id(2L).name("Sophie").email("sophie@test.com").build();
+        client = User.builder().id(1L).name("Marie").email("marie@test.com").emailVerified(true).build();
+        owner = User.builder().id(2L).name("Sophie").email("sophie@test.com").emailVerified(true).build();
 
         care30min = new Care();
         care30min.setId(10L);

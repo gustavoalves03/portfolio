@@ -183,6 +183,13 @@ public class CareBookingService {
         TenantContext.requireActive();
         var user = userRepository.findById(req.userId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + req.userId()));
+
+        // Block booking creation when the client's email is not verified.
+        // Frontend intercepts 403 EMAIL_NOT_VERIFIED to open a resend modal.
+        if (!Boolean.TRUE.equals(user.getEmailVerified())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "EMAIL_NOT_VERIFIED");
+        }
+
         var care = careRepository.findById(req.careId())
                 .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + req.careId()));
 
