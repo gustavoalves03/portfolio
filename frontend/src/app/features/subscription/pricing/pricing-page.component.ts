@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 
 import { SubscriptionService } from '../services/subscription.service';
@@ -29,7 +28,7 @@ interface FeatureGroup {
 @Component({
   selector: 'app-pricing-page',
   standalone: true,
-  imports: [RouterLink, TranslocoModule],
+  imports: [TranslocoModule],
   templateUrl: './pricing-page.component.html',
   styleUrl: './pricing-page.component.scss',
 })
@@ -50,12 +49,15 @@ export class PricingPageComponent implements OnInit {
 
   // Fallback defaults from spec
   private readonly FALLBACKS = {
+    vitrineMonthly: 9.99,
+    vitrineYearly: 7.99,
     gestionMonthly: 49.99,
     gestionYearly: 42.49,
     premiumMonthly: 67.99,
     premiumYearly: 57.79,
   };
 
+  vitrinePrice = computed(() => this.priceFor('VITRINE', this.billing()));
   gestionPrice = computed(() => this.priceFor('GESTION', this.billing()));
   premiumPrice = computed(() => this.priceFor('PREMIUM', this.billing()));
 
@@ -134,10 +136,13 @@ export class PricingPageComponent implements OnInit {
     });
   }
 
-  priceFor(tier: 'GESTION' | 'PREMIUM', billing: 'MONTHLY' | 'YEARLY'): number {
+  priceFor(tier: 'VITRINE' | 'GESTION' | 'PREMIUM', billing: 'MONTHLY' | 'YEARLY'): number {
     const plans = this.plans();
     if (plans.length === 0) {
       // Fallback to spec defaults
+      if (tier === 'VITRINE') {
+        return billing === 'YEARLY' ? this.FALLBACKS.vitrineYearly : this.FALLBACKS.vitrineMonthly;
+      }
       if (tier === 'GESTION') {
         return billing === 'YEARLY' ? this.FALLBACKS.gestionYearly : this.FALLBACKS.gestionMonthly;
       }
@@ -145,6 +150,9 @@ export class PricingPageComponent implements OnInit {
     }
     const plan = plans.find((p) => p.tier === tier && p.billing === billing);
     if (!plan) {
+      if (tier === 'VITRINE') {
+        return billing === 'YEARLY' ? this.FALLBACKS.vitrineYearly : this.FALLBACKS.vitrineMonthly;
+      }
       if (tier === 'GESTION') {
         return billing === 'YEARLY' ? this.FALLBACKS.gestionYearly : this.FALLBACKS.gestionMonthly;
       }
@@ -163,6 +171,11 @@ export class PricingPageComponent implements OnInit {
 
   isAccordionOpen(tier: string): boolean {
     return this.openAccordion() === tier;
+  }
+
+  /** Stub — full implementation comes in next task. */
+  onStartTier(tier: 'VITRINE' | 'GESTION' | 'PREMIUM'): void {
+    console.warn('onStartTier stub called for tier:', tier);
   }
 
 }
