@@ -17,7 +17,7 @@ describe('PrivacyPageComponent', () => {
                 common: { lastUpdated: 'Last updated:' },
                 privacy: {
                   title: 'Privacy Policy',
-                  sections: { placeholder: { title: 'Section', body: '<p>body</p>' } },
+                  sections: { responsable: { title: 'Responsable', body: '<p>body</p>' } },
                 },
               },
             },

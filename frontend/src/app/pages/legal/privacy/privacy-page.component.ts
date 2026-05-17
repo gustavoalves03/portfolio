@@ -11,5 +11,9 @@ import { LEGAL_LAST_UPDATED } from '../legal.constants';
 })
 export class PrivacyPageComponent {
   readonly updatedAt = LEGAL_LAST_UPDATED;
-  readonly sections: ReadonlyArray<string> = ['placeholder'];
+  readonly sections: ReadonlyArray<string> = [
+    'responsable', 'donneesCollectees', 'baseLegale', 'finalites', 'destinataires',
+    'transferts', 'conservation', 'droits', 'exercice', 'reclamation', 'securite',
+    'mineurs', 'modification',
+  ];
 }

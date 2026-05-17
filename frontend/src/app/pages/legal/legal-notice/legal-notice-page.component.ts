@@ -12,5 +12,7 @@ import { LEGAL_LAST_UPDATED } from '../legal.constants';
 })
 export class LegalNoticePageComponent {
   readonly updatedAt = LEGAL_LAST_UPDATED;
-  readonly sections: ReadonlyArray<string> = ['placeholder'];
+  readonly sections: ReadonlyArray<string> = [
+    'editeur', 'directeur', 'hebergeur', 'cdn', 'conception', 'credits', 'signalement',
+  ];
 }

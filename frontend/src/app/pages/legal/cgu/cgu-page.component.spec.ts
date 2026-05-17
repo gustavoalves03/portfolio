@@ -17,7 +17,7 @@ describe('CguPageComponent', () => {
                 common: { lastUpdated: 'Last updated:' },
                 cgu: {
                   title: 'Terms of Use',
-                  sections: { placeholder: { title: 'Section', body: '<p>body</p>' } },
+                  sections: { objet: { title: 'Objet', body: '<p>body</p>' } },
                 },
               },
             },

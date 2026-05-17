@@ -17,7 +17,7 @@ describe('CookiesPageComponent', () => {
                 common: { lastUpdated: 'Last updated:' },
                 cookies: {
                   title: 'Cookies Policy',
-                  sections: { placeholder: { title: 'Section', body: '<p>body</p>' } },
+                  sections: { definition: { title: 'Definition', body: '<p>body</p>' } },
                 },
               },
             },

@@ -17,7 +17,7 @@ describe('CgvPageComponent', () => {
                 common: { lastUpdated: 'Last updated:' },
                 cgv: {
                   title: 'Terms of Sale (Pros)',
-                  sections: { placeholder: { title: 'Section', body: '<p>body</p>' } },
+                  sections: { objet: { title: 'Objet', body: '<p>body</p>' } },
                 },
               },
             },

@@ -18,7 +18,7 @@ describe('LegalNoticePageComponent', () => {
                 notice: {
                   title: 'Legal Notice',
                   preLaunchBanner: 'pre-launch test text',
-                  sections: { placeholder: { title: 'Section', body: '<p>body</p>' } },
+                  sections: { editeur: { title: 'Editor', body: '<p>body</p>' } },
                 },
               },
             },

@@ -11,5 +11,9 @@ import { LEGAL_LAST_UPDATED } from '../legal.constants';
 })
 export class CgvPageComponent {
   readonly updatedAt = LEGAL_LAST_UPDATED;
-  readonly sections: ReadonlyArray<string> = ['placeholder'];
+  readonly sections: ReadonlyArray<string> = [
+    'objet', 'b2b', 'service', 'prix', 'essai', 'duree', 'annulation',
+    'defautPaiement', 'evolution', 'sla', 'responsabilite', 'donnees',
+    'forceMajeure', 'droit',
+  ];
 }

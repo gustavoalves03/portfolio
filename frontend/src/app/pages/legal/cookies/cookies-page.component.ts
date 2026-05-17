@@ -11,5 +11,7 @@ import { LEGAL_LAST_UPDATED } from '../legal.constants';
 })
 export class CookiesPageComponent {
   readonly updatedAt = LEGAL_LAST_UPDATED;
-  readonly sections: ReadonlyArray<string> = ['placeholder'];
+  readonly sections: ReadonlyArray<string> = [
+    'definition', 'utilises', 'aucunTracking', 'gestion', 'modification',
+  ];
 }

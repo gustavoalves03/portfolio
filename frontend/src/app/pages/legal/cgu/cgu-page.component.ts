@@ -11,5 +11,9 @@ import { LEGAL_LAST_UPDATED } from '../legal.constants';
 })
 export class CguPageComponent {
   readonly updatedAt = LEGAL_LAST_UPDATED;
-  readonly sections: ReadonlyArray<string> = ['placeholder'];
+  readonly sections: ReadonlyArray<string> = [
+    'objet', 'definitions', 'role', 'inscription', 'engagementsUser', 'engagementsPro',
+    'contenus', 'pi', 'responsabilite', 'suspension', 'donnees', 'modification',
+    'droit', 'contact',
+  ];
 }
