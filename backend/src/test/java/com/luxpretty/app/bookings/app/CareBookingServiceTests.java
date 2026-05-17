@@ -1388,6 +1388,25 @@ class CareBookingServiceTests {
                 });
     }
 
+    @Test
+    @DisplayName("createClientBooking — client emailVerified=false → 403 EMAIL_NOT_VERIFIED")
+    void createClientBooking_clientEmailNotVerified_throws403() {
+        User unverifiedClient = User.builder()
+                .id(1L).name("Marie").email("marie@test.com")
+                .emailVerified(false)
+                .build();
+
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+
+        assertThatThrownBy(() -> service.createClientBooking(unverifiedClient, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                    assertThat(rse.getReason()).isEqualTo("EMAIL_NOT_VERIFIED");
+                });
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
