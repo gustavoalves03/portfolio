@@ -1681,5 +1681,10 @@
     "learnMore": "Learn more",
     "dismiss": "Got it",
     "ariaLabel": "Cookie usage notice"
+  },
+  "legal": {
+    "common": {
+      "lastUpdated": "Last updated:"
+    }
   }
 }

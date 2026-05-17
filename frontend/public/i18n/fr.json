@@ -1685,5 +1685,10 @@
     "learnMore": "En savoir plus",
     "dismiss": "J'ai compris",
     "ariaLabel": "Information sur l'utilisation des cookies"
+  },
+  "legal": {
+    "common": {
+      "lastUpdated": "Dernière mise à jour :"
+    }
   }
 }
