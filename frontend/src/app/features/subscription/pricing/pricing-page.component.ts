@@ -1,9 +1,18 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslocoModule } from '@jsverse/transloco';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 import { SubscriptionService } from '../services/subscription.service';
 import { PricingPlan } from '../models/subscription.model';
+import { AuthService } from '../../../core/auth/auth.service';
+import { Role } from '../../../core/auth/auth.model';
+import {
+  ProSignupModalComponent,
+  ProSignupModalResult,
+} from '../../../shared/modals/pro-signup-modal/pro-signup-modal.component';
 
 interface FeatureValue {
   yes?: boolean;
@@ -35,6 +44,10 @@ interface FeatureGroup {
 export class PricingPageComponent implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   private svg(raw: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(raw);
@@ -173,9 +186,37 @@ export class PricingPageComponent implements OnInit {
     return this.openAccordion() === tier;
   }
 
-  /** Stub — full implementation comes in next task. */
   onStartTier(tier: 'VITRINE' | 'GESTION' | 'PREMIUM'): void {
-    console.warn('onStartTier stub called for tier:', tier);
+    const billing = this.billing();
+    const user = this.authService.user();
+
+    if (!user) {
+      this.dialog.open(ProSignupModalComponent, {
+        data: { tier, billing },
+        width: '480px',
+      }).afterClosed().subscribe((result: ProSignupModalResult | undefined) => {
+        if (result?.authenticated) {
+          this.router.navigate(['/pro/dashboard']);
+        }
+      });
+      return;
+    }
+
+    if (user.roles.includes(Role.PRO)) {
+      this.router.navigate(['/pro/dashboard']);
+      return;
+    }
+
+    this.authService.upgradeToPro({ tier, billing }).subscribe({
+      next: () => this.router.navigate(['/pro/dashboard']),
+      error: (err) => {
+        if (err.status === 409) {
+          this.router.navigate(['/pro/dashboard']);
+        } else {
+          this.snackBar.open('Une erreur est survenue', 'OK', { duration: 4000 });
+        }
+      },
+    });
   }
 
 }

@@ -2,13 +2,19 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { of, throwError } from 'rxjs';
 
 import { PricingPageComponent } from './pricing-page.component';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { PricingPlan } from '../models/subscription.model';
+import { AuthService } from '../../../core/auth/auth.service';
+import { Role } from '../../../core/auth/auth.model';
+import { ProSignupModalComponent } from '../../../shared/modals/pro-signup-modal/pro-signup-modal.component';
 
 const API = 'http://localhost:8080';
 
@@ -106,6 +112,9 @@ describe('PricingPageComponent', () => {
         provideRouter([]),
         provideNoopAnimations(),
         { provide: API_BASE_URL, useValue: API },
+        { provide: AuthService, useValue: jasmine.createSpyObj('AuthService', ['user', 'upgradeToPro']) },
+        { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
+        { provide: MatSnackBar, useValue: jasmine.createSpyObj('MatSnackBar', ['open']) },
       ],
     }).compileComponents();
 
@@ -200,5 +209,81 @@ describe('PricingPageComponent', () => {
 
     fixture.detectChanges();
     expect(fixture.nativeElement.innerHTML).toBeTruthy();
+  });
+
+  describe('onStartTier', () => {
+    let authService: jasmine.SpyObj<AuthService>;
+    let dialog: jasmine.SpyObj<MatDialog>;
+    let router: Router;
+    let component: PricingPageComponent;
+
+    beforeEach(() => {
+      authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      dialog = TestBed.inject(MatDialog) as jasmine.SpyObj<MatDialog>;
+      router = TestBed.inject(Router);
+      // Set up component; flush the /api/pricing HTTP request so tests are clean
+      const { component: c, fixture } = setup();
+      component = c;
+      httpMock.expectOne(`${API}/api/pricing`).flush([]);
+      fixture.detectChanges();
+    });
+
+    it('opens ProSignupModal when user is not authenticated', () => {
+      authService.user.and.returnValue(null);
+      const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+      dialogRef.afterClosed.and.returnValue(of({ authenticated: true }));
+      dialog.open.and.returnValue(dialogRef);
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+      component.onStartTier('GESTION');
+
+      expect(dialog.open).toHaveBeenCalledWith(ProSignupModalComponent, jasmine.objectContaining({
+        data: jasmine.objectContaining({ tier: 'GESTION' }),
+      }));
+      expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    });
+
+    it('does not navigate when modal closes without authentication', () => {
+      authService.user.and.returnValue(null);
+      const dialogRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+      dialogRef.afterClosed.and.returnValue(of({ authenticated: false }));
+      dialog.open.and.returnValue(dialogRef);
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+      component.onStartTier('GESTION');
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('navigates directly to /pro/dashboard when user has PRO role', () => {
+      authService.user.and.returnValue({ id: 1, roles: [Role.PRO] } as any);
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+      component.onStartTier('PREMIUM');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+      expect(dialog.open).not.toHaveBeenCalled();
+    });
+
+    it('calls upgradeToPro and navigates when user is a client (no PRO role)', () => {
+      authService.user.and.returnValue({ id: 1, roles: [] } as any);
+      authService.upgradeToPro.and.returnValue(of({ id: 1, roles: [Role.PRO] } as any));
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+      component.onStartTier('VITRINE');
+
+      expect(authService.upgradeToPro).toHaveBeenCalledWith({ tier: 'VITRINE', billing: jasmine.any(String) });
+      expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    });
+
+    it('redirects to dashboard on 409 (user already has tenant)', () => {
+      authService.user.and.returnValue({ id: 1, roles: [] } as any);
+      authService.upgradeToPro.and.returnValue(throwError(() => ({ status: 409 })));
+      spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
+      component.onStartTier('GESTION');
+
+      expect(router.navigate).toHaveBeenCalledWith(['/pro/dashboard']);
+    });
   });
 });
