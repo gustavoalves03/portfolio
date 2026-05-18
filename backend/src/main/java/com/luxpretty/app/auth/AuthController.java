@@ -101,11 +101,11 @@ public class AuthController {
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()
-                || authentication.getName() == null) {
+                || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
 
-        User user = userRepository.findByEmail(authentication.getName())
+        User user = userRepository.findById(principal.getId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         // Reject if user already has any tenant (conservative — covers any pro role)

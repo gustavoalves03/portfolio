@@ -492,7 +492,6 @@ class AuthControllerTests {
     }
 
     @Test
-    @WithMockUser(username = "newpro@example.com")
     void upgradeToPro_authenticatedClient_returns200() throws Exception {
         User client = User.builder()
             .id(99L)
@@ -501,7 +500,7 @@ class AuthControllerTests {
             .password("$2a$encoded")
             .provider(AuthProvider.LOCAL)
             .build();
-        when(userRepository.findByEmail("newpro@example.com")).thenReturn(Optional.of(client));
+        when(userRepository.findById(99L)).thenReturn(Optional.of(client));
         when(userRoleService.findUserTenantIds(99L)).thenReturn(java.util.List.of());
 
         com.luxpretty.app.tenant.domain.Tenant tenant = new com.luxpretty.app.tenant.domain.Tenant();
@@ -513,13 +512,22 @@ class AuthControllerTests {
         when(tokenService.generateToken(eq(99L), eq("newpro@example.com"), anyList(), eq(77L)))
             .thenReturn("jwt-upgrade-token");
 
-        String body = """
-            { "tier": "GESTION", "billing": "YEARLY" }
-            """;
-        mockMvc.perform(post("/api/auth/upgrade-to-pro")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.accessToken").value("jwt-upgrade-token"));
+        UserPrincipal principal = UserPrincipal.create(client);
+        var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+            principal, null, java.util.List.of());
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+
+        try {
+            String body = """
+                { "tier": "GESTION", "billing": "YEARLY" }
+                """;
+            mockMvc.perform(post("/api/auth/upgrade-to-pro")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("jwt-upgrade-token"));
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+        }
     }
 }
