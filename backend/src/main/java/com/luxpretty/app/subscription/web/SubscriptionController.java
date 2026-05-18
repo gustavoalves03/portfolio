@@ -11,12 +11,17 @@ import com.luxpretty.app.subscription.web.dto.PricingPlanDto;
 import com.luxpretty.app.subscription.web.dto.SetupIntentResponse;
 import com.luxpretty.app.subscription.web.dto.StripeConfigResponse;
 import com.luxpretty.app.subscription.web.dto.SubscriptionResponse;
+import com.luxpretty.app.auth.UserPrincipal;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
+import com.luxpretty.app.users.domain.User;
+import com.luxpretty.app.users.repo.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +47,7 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
     private final PricingCatalog pricingCatalog;
     private final TenantRepository tenantRepository;
+    private final UserRepository userRepository;
 
     @Value("${app.stripe.publishable-key:}")
     private String stripePublishableKey;
@@ -84,9 +90,24 @@ public class SubscriptionController {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Tenant not found: " + tenantSlug));
 
+        // Lazy-init the Stripe Customer if missing — covers tenants provisioned
+        // before STRIPE_SECRET_KEY was configured server-side (initializeForTenant
+        // is wrapped in try/catch at signup so it silently no-ops in that case).
         if (tenant.getStripeCustomerId() == null || tenant.getStripeCustomerId().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Stripe customer not yet initialized for this tenant");
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !(auth.getPrincipal() instanceof UserPrincipal principal)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Cannot resolve current user");
+            }
+            User owner = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "User not found"));
+            try {
+                subscriptionService.initializeForTenant(owner, tenant);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to initialize Stripe customer: " + e.getMessage(), e);
+            }
         }
 
         var setupIntent = subscriptionService.createSetupIntent(tenant.getId());
