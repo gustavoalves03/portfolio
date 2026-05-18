@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { CreateCategoryRequest, Category } from '../../models/categories.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
+import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 import { TranslocoService } from '@jsverse/transloco';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
@@ -24,6 +25,7 @@ export interface CategoryDialogData {
       iconColor="#fa8e8e"
       [saveLabel]="saveLabel"
       [saveDisabled]="categoryForm.invalid"
+      [form]="categoryForm"
       (save)="onSave()"
       (cancel)="onCancel()">
       <dynamic-form [config]="formConfig" [formGroup]="categoryForm" />
@@ -100,7 +102,7 @@ export class CreateCategoryComponent implements OnInit {
       const categoryData: CreateCategoryRequest = this.categoryForm.value;
       this.dialogRef.close(categoryData);
     } else {
-      this.categoryForm.markAllAsTouched();
+      focusFirstInvalid(this.categoryForm);
     }
   }
 }

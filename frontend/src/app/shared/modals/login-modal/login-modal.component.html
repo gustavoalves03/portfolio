@@ -61,13 +61,15 @@
       {{ 'auth.login.noAccount' | transloco }}
       <a href="javascript:void(0)" (click)="goToRegister()">{{ 'auth.login.signUp' | transloco }}</a>
     </p>
+
+    <app-form-validation-hint [form]="loginForm" />
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button (click)="close()" [disabled]="loading()">
       {{ 'common.cancel' | transloco }}
     </button>
-    <button mat-raised-button color="primary" data-testid="login-submit" (click)="login()" [disabled]="loading() || loginForm.invalid">
+    <button mat-raised-button color="primary" data-testid="login-submit" (click)="login()" [disabled]="loading()">
       @if (loading()) {
         <mat-spinner diameter="20"></mat-spinner>
       } @else {

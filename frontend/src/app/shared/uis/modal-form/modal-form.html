@@ -17,6 +17,13 @@
     <ng-content></ng-content>
   </mat-dialog-content>
 
+  <!-- Validation hint (when a FormGroup is provided) -->
+  @if (form(); as f) {
+    <div class="modal-validation-hint">
+      <app-form-validation-hint [form]="f" />
+    </div>
+  }
+
   <!-- Actions -->
   <mat-dialog-actions class="modal-actions">
     <button mat-stroked-button (click)="onCancel()" type="button">

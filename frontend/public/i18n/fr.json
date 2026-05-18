@@ -22,7 +22,37 @@
     "apply": "Appliquer",
     "clientMode": "Mode client",
     "form": {
-      "fillRequiredFields": "Remplissez tous les champs requis pour continuer"
+      "fillRequiredFields": "Remplissez tous les champs requis pour continuer",
+      "checkTheseFields": "Vérifie ces champs :",
+      "field": {
+        "name": "Nom",
+        "email": "Email",
+        "emailConfirm": "Confirmation de l'email",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmation du mot de passe",
+        "phone": "Téléphone",
+        "consent": "Consentement RGPD",
+        "salonName": "Nom du salon",
+        "addressStreet": "Adresse",
+        "addressPostalCode": "Code postal",
+        "addressCity": "Ville",
+        "siret": "SIRET",
+        "tier": "Formule",
+        "billing": "Facturation",
+        "categoryId": "Catégorie",
+        "title": "Titre",
+        "description": "Description",
+        "price": "Prix",
+        "durationMinutes": "Durée",
+        "role": "Rôle",
+        "startAt": "Date de début",
+        "endAt": "Date de fin",
+        "notes": "Notes"
+      },
+      "crossError": {
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "emailMismatch": "Les emails ne correspondent pas"
+      }
     },
     "close": "Fermer"
   },

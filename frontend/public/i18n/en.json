@@ -22,7 +22,37 @@
     "apply": "Apply",
     "clientMode": "Client mode",
     "form": {
-      "fillRequiredFields": "Fill in all required fields to continue"
+      "fillRequiredFields": "Fill in all required fields to continue",
+      "checkTheseFields": "Check these fields:",
+      "field": {
+        "name": "Name",
+        "email": "Email",
+        "emailConfirm": "Email confirmation",
+        "password": "Password",
+        "confirmPassword": "Password confirmation",
+        "phone": "Phone",
+        "consent": "GDPR consent",
+        "salonName": "Salon name",
+        "addressStreet": "Address",
+        "addressPostalCode": "Postal code",
+        "addressCity": "City",
+        "siret": "Business ID",
+        "tier": "Plan",
+        "billing": "Billing",
+        "categoryId": "Category",
+        "title": "Title",
+        "description": "Description",
+        "price": "Price",
+        "durationMinutes": "Duration",
+        "role": "Role",
+        "startAt": "Start date",
+        "endAt": "End date",
+        "notes": "Notes"
+      },
+      "crossError": {
+        "passwordMismatch": "Passwords do not match",
+        "emailMismatch": "Emails do not match"
+      }
     },
     "close": "Close"
   },

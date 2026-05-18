@@ -10,6 +10,7 @@ import { DynamicFormConfig, FormFieldConfig } from '../../../../shared/models/fo
 import { ImageManager } from '../../../../shared/uis/image-manager/image-manager.component';
 import { ImageCarousel } from '../../../../shared/uis/image-carousel/image-carousel.component';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
+import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
 
 interface CreateCareDialogData {
   categories: Category[];
@@ -257,7 +258,7 @@ export class CreateCare implements OnInit {
       const careData = this.mapFormToRequest();
       this.dialogRef.close(careData);
     } else {
-      this.careForm.markAllAsTouched();
+      focusFirstInvalid(this.careForm);
     }
   }
 

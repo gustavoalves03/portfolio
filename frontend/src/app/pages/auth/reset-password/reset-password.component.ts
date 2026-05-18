@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
 import { passwordMatchValidator } from '../../../core/auth/password-match.validator';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
@@ -61,7 +62,7 @@ export class ResetPasswordComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.invalid || !this.token) {
-      this.form.markAllAsTouched();
+      focusFirstInvalid(this.form);
       return;
     }
 

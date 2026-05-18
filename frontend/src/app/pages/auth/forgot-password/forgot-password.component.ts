@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
+import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -21,6 +23,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatButtonModule,
     MatProgressSpinnerModule,
     TranslocoModule,
+    FormValidationHintComponent,
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
@@ -42,7 +45,7 @@ export class ForgotPasswordComponent {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      focusFirstInvalid(this.form);
       return;
     }
 

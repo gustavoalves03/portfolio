@@ -9,6 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
+import { FormValidationHintComponent } from '../../uis/form-validation-hint/form-validation-hint.component';
 import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
 
 @Component({
@@ -24,6 +26,7 @@ import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.compon
     MatDividerModule,
     TranslocoPipe,
     SheetHandleComponent,
+    FormValidationHintComponent,
   ],
   templateUrl: './login-modal.component.html',
   styleUrl: './login-modal.component.scss'
@@ -44,6 +47,7 @@ export class LoginModalComponent {
 
   login(): void {
     if (this.loginForm.invalid) {
+      focusFirstInvalid(this.loginForm);
       return;
     }
 

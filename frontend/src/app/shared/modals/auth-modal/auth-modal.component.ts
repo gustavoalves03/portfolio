@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/auth/auth.service';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
+import { FormValidationHintComponent } from '../../uis/form-validation-hint/form-validation-hint.component';
 import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
 
 export interface AuthModalResult {
@@ -34,6 +36,7 @@ export interface AuthModalResult {
     ReactiveFormsModule,
     TranslocoPipe,
     SheetHandleComponent,
+    FormValidationHintComponent,
   ],
   templateUrl: './auth-modal.component.html',
   styleUrl: './auth-modal.component.scss',
@@ -74,7 +77,7 @@ export class AuthModalComponent {
 
   onLogin(): void {
     if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
+      focusFirstInvalid(this.loginForm);
       return;
     }
 
@@ -103,7 +106,7 @@ export class AuthModalComponent {
 
   onRegister(): void {
     if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
+      focusFirstInvalid(this.registerForm);
       return;
     }
 

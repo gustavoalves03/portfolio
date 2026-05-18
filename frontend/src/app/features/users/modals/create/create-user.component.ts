@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { CreateUserRequest } from '../../models/users.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
+import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 
@@ -19,6 +20,7 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
       iconColor="#fa8e8e"
       saveLabel="Créer l'utilisateur"
       [saveDisabled]="userForm.invalid"
+      [form]="userForm"
       (save)="onSave()"
       (cancel)="onCancel()">
       <dynamic-form [config]="formConfig" [formGroup]="userForm" />
@@ -80,7 +82,7 @@ export class CreateUserComponent implements OnInit {
       const userData: CreateUserRequest = this.userForm.value;
       this.dialogRef.close(userData);
     } else {
-      this.userForm.markAllAsTouched();
+      focusFirstInvalid(this.userForm);
     }
   }
 }

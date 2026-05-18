@@ -15,7 +15,7 @@ describe('FormValidationHintComponent', () => {
         ReactiveFormsModule,
         FormValidationHintComponent,
         TranslocoTestingModule.forRoot({
-          langs: { en: { common: { form: { fillRequiredFields: 'Fill required' } } } },
+          langs: { en: { common: { form: { fillRequiredFields: 'Fill required', checkTheseFields: 'Check these fields:', field: { name: 'Name' } } } } },
           translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
         }),
       ],

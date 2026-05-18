@@ -1,7 +1,9 @@
 import { Component, input, output } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { FormValidationHintComponent } from '../form-validation-hint/form-validation-hint.component';
 
 /**
  * Composant modal réutilisable pour les formulaires
@@ -22,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   styleUrl: 'modal-form.scss',
   templateUrl: 'modal-form.html',
-  imports: [MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, FormValidationHintComponent],
 })
 export class ModalForm {
   // Inputs
@@ -36,6 +38,9 @@ export class ModalForm {
   saveDisabled = input<boolean>(false);
   showCloseButton = input<boolean>(true);
   hideSaveButton = input<boolean>(false);
+  // Optional: pass the modal's FormGroup so we can render an inline
+  // "check these fields" hint above the save button.
+  form = input<FormGroup | null>(null);
 
   // Outputs
   save = output<void>();

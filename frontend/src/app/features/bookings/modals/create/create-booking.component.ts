@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { CareBookingStatus, CreateCareBookingRequest } from '../../models/bookings.model';
 import { ModalForm } from '../../../../shared/uis/modal-form/modal-form';
 import { DynamicForm } from '../../../../shared/uis/dynamic-form/dynamic-form';
+import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
 import { DynamicFormConfig } from '../../../../shared/models/form-field.model';
 import { CaresStore } from '../../../cares/store/cares.store';
 import { UsersStore } from '../../../users/store/users.store';
@@ -21,6 +22,7 @@ import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-
       iconColor="#fa8e8e"
       saveLabel="Créer la réservation"
       [saveDisabled]="bookingForm.invalid"
+      [form]="bookingForm"
       (save)="onSave()"
       (cancel)="onCancel()">
       <dynamic-form [config]="formConfig" [formGroup]="bookingForm" />
@@ -126,7 +128,7 @@ export class CreateBookingComponent implements OnInit {
       const bookingData: CreateCareBookingRequest = this.bookingForm.value;
       this.dialogRef.close(bookingData);
     } else {
-      this.bookingForm.markAllAsTouched();
+      focusFirstInvalid(this.bookingForm);
     }
   }
 }

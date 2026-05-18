@@ -48,6 +48,8 @@
   </form>
 </mat-dialog-content>
 
+<app-form-validation-hint [form]="form" />
+
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">
     {{ 'common.cancel' | transloco }}

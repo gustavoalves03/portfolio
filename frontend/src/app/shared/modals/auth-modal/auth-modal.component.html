@@ -51,6 +51,8 @@
             }
           </button>
 
+          <app-form-validation-hint [form]="loginForm" />
+
           <p class="forgot-password-link">
             <a (click)="goToForgotPassword()">{{ 'auth.login.forgotPassword' | transloco }}</a>
           </p>
@@ -136,6 +138,8 @@
               {{ 'auth.modal.createAccount' | transloco }}
             }
           </button>
+
+          <app-form-validation-hint [form]="registerForm" />
         </form>
 
         <p class="switch-link">

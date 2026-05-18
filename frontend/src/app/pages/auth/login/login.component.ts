@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
+import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +26,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatProgressSpinnerModule,
     MatDividerModule,
     TranslocoModule,
+    FormValidationHintComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -54,7 +57,7 @@ export class LoginComponent {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      focusFirstInvalid(this.form);
       return;
     }
 

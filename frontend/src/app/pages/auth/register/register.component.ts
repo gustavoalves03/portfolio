@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { passwordMatchValidator } from '../../../core/auth/password-match.validator';
 import { emailMatchValidator } from '../../../core/auth/email-match.validator';
 import { suggestEmail } from '../../../core/utils/email-mailcheck.util';
+import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 @Component({
@@ -93,7 +94,7 @@ export class RegisterComponent {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
+      focusFirstInvalid(this.form);
       return;
     }
 

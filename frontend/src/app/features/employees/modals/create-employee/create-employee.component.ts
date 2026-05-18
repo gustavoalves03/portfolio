@@ -15,6 +15,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { Care } from '../../../cares/models/cares.model';
 import { CreateEmployeeRequest } from '../../employees.model';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
+import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
+import { FormValidationHintComponent } from '../../../../shared/uis/form-validation-hint/form-validation-hint.component';
 
 interface CreateEmployeeDialogData {
   cares: Care[];
@@ -33,6 +35,7 @@ interface CreateEmployeeDialogData {
     MatIconModule,
     TranslocoPipe,
     SheetHandleComponent,
+    FormValidationHintComponent,
   ],
   templateUrl: './create-employee.component.html',
   styleUrl: './create-employee.component.scss',
@@ -81,7 +84,7 @@ export class CreateEmployeeComponent implements OnInit {
       }
       this.dialogRef.close(req);
     } else {
-      this.form.markAllAsTouched();
+      focusFirstInvalid(this.form);
     }
   }
 }

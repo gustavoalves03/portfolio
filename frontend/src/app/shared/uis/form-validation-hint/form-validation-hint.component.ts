@@ -1,20 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, signal } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { inject } from '@angular/core';
 
 /**
- * Renders a small inline hint when its bound FormGroup is invalid AND the user
- * has interacted with it (touched or dirty). Defaults to the
- * `common.form.fillRequiredFields` i18n key.
+ * Inline hint shown next to a submit button when the bound FormGroup is invalid
+ * AND the user has interacted with it. Lists the specific fields that are
+ * blocking submission, so the user knows what to fix.
  *
- * Place it next to a submit button: when the button is disabled because the
- * form is invalid, this hint explains why.
+ * Field labels are looked up via i18n key `common.form.field.<controlName>`,
+ * falling back to the raw control name if no translation exists.
  *
- * Note: FormGroup is not natively reactive to signals. We bump a tick signal
- * whenever the form's status changes so the `visible` computed re-evaluates.
- * Calling markAsDirty() alone (without a value change) won't emit statusChanges,
- * so the hint responds to actual field interactions, which is the primary use case.
+ * Cross-field errors at the FormGroup level (e.g. passwordMismatch) are picked
+ * up via i18n key `common.form.crossError.<errorCode>` and listed last.
  */
 @Component({
   selector: 'app-form-validation-hint',
@@ -23,9 +22,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
-      <p class="form-validation-hint" role="status">
+      <p class="form-validation-hint" role="status" aria-live="polite">
         <mat-icon aria-hidden="true">info</mat-icon>
-        <span>{{ message() | transloco }}</span>
+        <span>
+          {{ 'common.form.checkTheseFields' | transloco }}
+          <strong>{{ invalidFieldLabels() }}</strong>
+        </span>
       </p>
     }
   `,
@@ -33,8 +35,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 })
 export class FormValidationHintComponent {
   readonly form = input.required<FormGroup>();
-  readonly message = input<string>('common.form.fillRequiredFields');
 
+  private readonly transloco = inject(TranslocoService);
   private readonly tick = signal(0);
 
   protected readonly visible = computed(() => {
@@ -43,11 +45,43 @@ export class FormValidationHintComponent {
     return f.invalid && (f.touched || f.dirty);
   });
 
+  protected readonly invalidFieldLabels = computed(() => {
+    void this.tick();
+    const f = this.form();
+    const labels: string[] = [];
+
+    for (const [name, control] of Object.entries(f.controls)) {
+      if (this.isControlInvalid(control)) {
+        labels.push(this.labelFor(name));
+      }
+    }
+
+    for (const errorCode of Object.keys(f.errors ?? {})) {
+      const key = `common.form.crossError.${errorCode}`;
+      const translated = this.transloco.translate(key);
+      if (translated && translated !== key) {
+        labels.push(translated);
+      }
+    }
+
+    return labels.join(', ');
+  });
+
   constructor() {
     effect((onCleanup) => {
       const f = this.form();
       const sub = f.statusChanges.subscribe(() => this.tick.update((n) => n + 1));
       onCleanup(() => sub.unsubscribe());
     });
+  }
+
+  private isControlInvalid(control: AbstractControl): boolean {
+    return control.invalid && (control.touched || control.dirty);
+  }
+
+  private labelFor(controlName: string): string {
+    const key = `common.form.field.${controlName}`;
+    const translated = this.transloco.translate(key);
+    return translated && translated !== key ? translated : controlName;
   }
 }

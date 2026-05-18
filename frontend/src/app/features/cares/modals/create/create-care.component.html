@@ -5,6 +5,7 @@
   iconColor="#fa8e8e"
   [saveLabel]="saveLabel"
   [saveDisabled]="careForm.invalid"
+  [form]="careForm"
   [hideSaveButton]="isViewOnly"
   (save)="onSave()"
   (cancel)="onCancel()">
