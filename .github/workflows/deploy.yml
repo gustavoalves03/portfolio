@@ -129,25 +129,37 @@ jobs:
         if: needs.deploy.result == 'success' && needs.build-backend.result == 'success' && needs.build-frontend.result == 'success'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          # Headers reject newlines — keep only the first line for the title.
+          # The full message goes in the body where multi-line is fine.
+          SUBJECT=$(printf '%s' "$COMMIT_MESSAGE" | head -n 1)
           curl -sS \
-            -H "Title: 🚀 Deploy OK — ${{ github.event.head_commit.message }}" \
+            -H "Title: 🚀 Deploy OK — ${SUBJECT}" \
             -H "Tags: rocket" \
             -H "Click: https://luxpretty.lu/" \
-            -d "https://luxpretty.lu is live with ${{ github.sha }}" \
+            --data-binary "$(printf 'https://luxpretty.lu is live with %s\n\n%s' "$COMMIT_SHA" "$COMMIT_MESSAGE")" \
             "https://ntfy.sh/${NTFY_TOPIC}"
 
       - name: Notify on failure
         if: needs.deploy.result == 'failure' || needs.build-backend.result == 'failure' || needs.build-frontend.result == 'failure'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          GH_ACTOR: ${{ github.actor }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUILD_BACKEND: ${{ needs.build-backend.result }}
+          BUILD_FRONTEND: ${{ needs.build-frontend.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
         run: |
           if [ -z "${NTFY_TOPIC:-}" ]; then echo "NTFY_TOPIC unset, skipping"; exit 0; fi
+          SUBJECT=$(printf '%s' "$COMMIT_MESSAGE" | head -n 1)
           curl -sS \
-            -H "Title: ⚠️ Deploy failed — ${{ github.event.head_commit.message }}" \
+            -H "Title: ⚠️ Deploy failed — ${SUBJECT}" \
             -H "Priority: high" \
-            -H "Tags: warning,${{ github.actor }}" \
-            -H "Click: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            -d "build-backend=${{ needs.build-backend.result }} · build-frontend=${{ needs.build-frontend.result }} · deploy=${{ needs.deploy.result }}" \
+            -H "Tags: warning,${GH_ACTOR}" \
+            -H "Click: ${RUN_URL}" \
+            --data-binary "build-backend=${BUILD_BACKEND} · build-frontend=${BUILD_FRONTEND} · deploy=${DEPLOY_RESULT}" \
             "https://ntfy.sh/${NTFY_TOPIC}"
