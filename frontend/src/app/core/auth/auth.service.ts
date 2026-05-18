@@ -166,11 +166,26 @@ export class AuthService {
 
   /**
    * Verify the user's email using a token received by email.
+   *
+   * After a successful verification, refetch /api/auth/me so the cached
+   * `currentUser` signal reflects emailVerified=true. Without this,
+   * downstream signals (banner visibility, pro-email-verified guard,
+   * booking modal interception) keep using the stale value until the
+   * user manually logs out / back in.
    */
   verifyEmail(token: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${this.apiBaseUrl}/api/auth/verify-email`,
       { token }
+    ).pipe(
+      tap(() => {
+        // Only refresh when the caller is actually logged in. Anonymous
+        // visitors hitting /verify-email from an email link cannot reach
+        // /api/auth/me; the refresh is a no-op for them.
+        if (this.token()) {
+          this.loadCurrentUser().subscribe();
+        }
+      })
     );
   }
 
@@ -182,6 +197,17 @@ export class AuthService {
       `${this.apiBaseUrl}/api/auth/send-verification`,
       {}
     );
+  }
+
+  /**
+   * Public method to force-refresh `currentUser` from /api/auth/me.
+   * Used by pages that need to react to server-side mutations the SPA
+   * didn't trigger itself (e.g. email verified from another tab).
+   * Safe no-op if not authenticated.
+   */
+  refreshCurrentUser(): void {
+    if (!this.token()) return;
+    this.loadCurrentUser().subscribe();
   }
 
   /**
