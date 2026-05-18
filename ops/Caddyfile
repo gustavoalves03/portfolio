@@ -1,0 +1,31 @@
+luxpretty.lu, www.luxpretty.lu {
+    encode gzip zstd
+
+    # Backend API
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    # OAuth2 authorization start (Spring Security)
+    handle /oauth2/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    # OAuth2 callbacks (Spring Security uses /login/oauth2/code/{provider})
+    handle /login/oauth2/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+
+    # Frontend Angular (Nginx)
+    handle {
+        reverse_proxy 127.0.0.1:8081
+    }
+
+    log {
+        output file /var/log/caddy/luxpretty.log {
+            roll_size 50mb
+            roll_keep 5
+        }
+        format json
+    }
+}
