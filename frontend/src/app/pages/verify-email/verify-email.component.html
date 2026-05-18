@@ -1,4 +1,11 @@
 <div class="container">
+  @if (state() === 'confirm') {
+    <h1>{{ 'verifyEmail.confirm.title' | transloco }}</h1>
+    <p>{{ 'verifyEmail.confirm.body' | transloco }}</p>
+    <button mat-flat-button color="primary" (click)="verify()">
+      {{ 'verifyEmail.confirm.cta' | transloco }}
+    </button>
+  }
   @if (state() === 'pending') {
     <mat-spinner diameter="40"></mat-spinner>
     <p>{{ 'common.loading' | transloco }}</p>

@@ -1711,6 +1711,11 @@
       "resend": "Renvoyer le mail",
       "resendCooldown": "Mail renvoyé, vérifie ta boîte."
     },
+    "confirm": {
+      "title": "Confirme la vérification",
+      "body": "Clique ci-dessous pour activer ton compte.",
+      "cta": "Vérifier mon email"
+    },
     "success": {
       "title": "Email vérifié ✓",
       "body": "Bienvenue sur LuxPretty"

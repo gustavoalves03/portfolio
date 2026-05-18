@@ -43,11 +43,20 @@ describe('VerifyEmailComponent', () => {
     auth = jasmine.createSpyObj('AuthService', ['verifyEmail', 'sendVerification']);
   });
 
-  it('shows success when token is valid', () => {
+  it('starts in confirm state when token is present and does not call backend', () => {
+    configure('valid-token');
+    fixture = TestBed.createComponent(VerifyEmailComponent);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.state()).toBe('confirm');
+    expect(auth.verifyEmail).not.toHaveBeenCalled();
+  });
+
+  it('shows success when verify() is called and backend returns ok', () => {
     auth.verifyEmail.and.returnValue(of({ message: 'Email verified' }));
     configure('valid-token');
     fixture = TestBed.createComponent(VerifyEmailComponent);
     fixture.detectChanges();
+    fixture.componentInstance.verify();
     expect(fixture.componentInstance.state()).toBe('success');
     expect(auth.verifyEmail).toHaveBeenCalledWith('valid-token');
   });
@@ -59,6 +68,7 @@ describe('VerifyEmailComponent', () => {
     configure('expired-token');
     fixture = TestBed.createComponent(VerifyEmailComponent);
     fixture.detectChanges();
+    fixture.componentInstance.verify();
     expect(fixture.componentInstance.state()).toBe('expired');
   });
 

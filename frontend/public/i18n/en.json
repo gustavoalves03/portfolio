@@ -1707,6 +1707,11 @@
       "resend": "Resend email",
       "resendCooldown": "Email sent, check your inbox."
     },
+    "confirm": {
+      "title": "Confirm verification",
+      "body": "Click below to activate your account.",
+      "cta": "Verify my email"
+    },
     "success": {
       "title": "Email verified ✓",
       "body": "Welcome to LuxPretty"

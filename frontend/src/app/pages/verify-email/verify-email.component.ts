@@ -6,7 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../core/auth/auth.service';
 
-type VerifyState = 'pending' | 'success' | 'expired' | 'invalid';
+type VerifyState = 'confirm' | 'pending' | 'success' | 'expired' | 'invalid';
 
 @Component({
   selector: 'app-verify-email',
@@ -27,22 +27,23 @@ export class VerifyEmailComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  readonly state = signal<VerifyState>('pending');
+  readonly state = signal<VerifyState>('confirm');
+  private token: string | null = null;
 
   ngOnInit() {
-    // Skip on SSR — the verify endpoint mutates server state (clears the token).
-    // Running it twice (once during prerender, once during hydration) causes the
-    // second call to return 400 INVALID_TOKEN after the first one already
-    // consumed it, flashing "success" then "invalid" to the user.
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    const token = this.route.snapshot.queryParamMap.get('token');
-    if (!token) {
+    this.token = this.route.snapshot.queryParamMap.get('token');
+    if (!this.token) {
       this.state.set('invalid');
-      return;
     }
-    this.auth.verifyEmail(token).subscribe({
+  }
+
+  verify() {
+    if (!this.token || this.state() === 'pending') return;
+    this.state.set('pending');
+    this.auth.verifyEmail(this.token).subscribe({
       next: () => {
         this.state.set('success');
         setTimeout(() => this.router.navigate(['/']), 2000);
