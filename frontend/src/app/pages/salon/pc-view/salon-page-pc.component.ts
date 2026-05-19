@@ -6,13 +6,14 @@ import {
   PublicCareDto,
 } from '../../../features/salon-profile/models/salon-profile.model';
 import { SalonPostsViewerComponent } from '../../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
+import { CareImageCarouselComponent } from '../../../shared/uis/care-image-carousel/care-image-carousel.component';
 
 /** No opening hours in PublicSalonResponse, so we just show contact info. */
 
 @Component({
   selector: 'app-salon-page-pc',
   standalone: true,
-  imports: [TranslocoPipe, SalonPostsViewerComponent],
+  imports: [TranslocoPipe, SalonPostsViewerComponent, CareImageCarouselComponent],
   templateUrl: './salon-page-pc.component.html',
   styleUrl: './salon-page-pc.component.scss',
 })
@@ -93,6 +94,10 @@ export class SalonPagePcComponent {
 
   protected fallbackGradient(index: number): string {
     return this.fallbackGradients[index % this.fallbackGradients.length];
+  }
+
+  protected carouselImagesFor(care: PublicCareDto): { url: string }[] {
+    return care.imageUrls.map((url) => ({ url }));
   }
 
   protected onBook(care: PublicCareDto): void {

@@ -136,7 +136,10 @@
                    [class.no-img]="!care.images || care.images.length === 0"
                    [style.background]="care.images && care.images.length > 0 ? 'none' : fallbackGradient(i)">
                 @if (care.images && care.images.length > 0) {
-                  <img [src]="care.images[0].url" [alt]="care.name"/>
+                  <app-care-image-carousel
+                    [images]="care.images"
+                    [alt]="care.name"
+                  />
                 }
                 @if (care.category) {
                   <span class="care-cat" [style.--cat-color]="getCategoryColor(care.category.id)">

@@ -84,7 +84,10 @@
                         <div class="care-image-wrapper"
                              [style.background]="care.imageUrls.length > 0 ? 'none' : fallbackGradient($index)">
                           @if (care.imageUrls.length > 0) {
-                            <img [src]="care.imageUrls[0]" [alt]="care.name" class="care-image" />
+                            <app-care-image-carousel
+                              [images]="carouselImagesFor(care)"
+                              [alt]="care.name"
+                            />
                           }
                         </div>
                         <div class="care-content">

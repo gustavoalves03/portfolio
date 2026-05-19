@@ -26,10 +26,10 @@ export interface Care {
   status: CareStatus;
   /**
    * The backend returns `categoryId` (Long). Older code paths read
-   * `care.category.id` — keep that field optional so existing usages don't
-   * break, but new code should rely on `categoryId`.
+   * `care.category.id` — both fields are optional so existing fixtures
+   * keep typechecking; runtime code reads whichever is present.
    */
-  categoryId: number;
+  categoryId?: number;
   category?: Category;
   displayOrder?: number;
   images?: CareImage[];

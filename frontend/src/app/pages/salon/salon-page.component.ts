@@ -15,6 +15,7 @@ import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.co
 import { SalonPostsViewerComponent } from '../../features/posts/salon-posts-viewer/salon-posts-viewer.component';
 import { PreviewBannerComponent } from '../../shared/uis/preview-banner/preview-banner.component';
 import { SalonPagePcComponent } from './pc-view/salon-page-pc.component';
+import { CareImageCarouselComponent } from '../../shared/uis/care-image-carousel/care-image-carousel.component';
 
 @Component({
   selector: 'app-salon-page',
@@ -28,6 +29,7 @@ import { SalonPagePcComponent } from './pc-view/salon-page-pc.component';
     SalonPostsViewerComponent,
     PreviewBannerComponent,
     SalonPagePcComponent,
+    CareImageCarouselComponent,
   ],
   templateUrl: './salon-page.component.html',
   styleUrl: './salon-page.component.scss',
@@ -143,6 +145,10 @@ export class SalonPageComponent implements OnDestroy {
 
   protected fallbackGradient(index: number): string {
     return this.fallbackGradients[index % this.fallbackGradients.length];
+  }
+
+  protected carouselImagesFor(care: PublicCareDto): { url: string }[] {
+    return care.imageUrls.map((url) => ({ url }));
   }
 
   protected onBook(care: PublicCareDto): void {

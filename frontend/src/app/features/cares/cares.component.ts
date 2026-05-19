@@ -20,6 +20,7 @@ import { CaresService } from './services/cares.service';
 import { CreateCategoryComponent } from '../categories/modals/create/create-category.component';
 import { ReassignCategoryDialogComponent } from '../categories/modals/reassign-category/reassign-category-dialog.component';
 import { Category } from '../categories/models/categories.model';
+import { CareImageCarouselComponent } from '../../shared/uis/care-image-carousel/care-image-carousel.component';
 
 const CATEGORY_COLORS = [
   '#f4e1d2', // sable
@@ -45,6 +46,7 @@ const CATEGORY_COLORS = [
     MatSlideToggleModule,
     MatProgressSpinnerModule,
     FormsModule,
+    CareImageCarouselComponent,
   ],
   templateUrl: './cares.component.html',
   styleUrl: './cares.component.scss',

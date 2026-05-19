@@ -168,7 +168,7 @@ describe('CaresComponent', () => {
     const filtered = component.filteredCares();
     expect(filtered.length).toBe(1);
     expect(filtered[0].name).toBe('Soin hydratant');
-    expect(filtered.every((c) => c.category.id === 1)).toBeTrue();
+    expect(filtered.every((c) => c.category?.id === 1)).toBeTrue();
   });
 
   it('should show all available cares when no category selected', () => {

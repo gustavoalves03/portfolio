@@ -1,0 +1,47 @@
+@if (images().length > 0) {
+  <div
+    class="carousel"
+    (touchstart)="onTouchStart($event)"
+    (touchend)="onTouchEnd($event)"
+  >
+    <img
+      [src]="images()[safeIndex()].url"
+      [alt]="images()[safeIndex()].name || alt()"
+      class="carousel-img"
+      draggable="false"
+    />
+
+    @if (hasMultiple()) {
+      <div class="carousel-controls">
+        <button
+          type="button"
+          class="carousel-btn carousel-btn-prev"
+          (click)="previous($event)"
+          aria-label="Image précédente"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          type="button"
+          class="carousel-btn carousel-btn-next"
+          (click)="next($event)"
+          aria-label="Image suivante"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div class="carousel-dots">
+        @for (img of images(); track $index) {
+          <button
+            type="button"
+            class="dot"
+            [class.active]="$index === safeIndex()"
+            (click)="onDotClick($index, $event)"
+            [attr.aria-label]="'Aller à l’image ' + ($index + 1)"
+          ></button>
+        }
+      </div>
+    }
+  </div>
+}

@@ -86,7 +86,10 @@
                        [class.no-img]="!care.imageUrls || care.imageUrls.length === 0"
                        [style.background]="care.imageUrls && care.imageUrls.length > 0 ? 'none' : fallbackGradient(i)">
                     @if (care.imageUrls && care.imageUrls.length > 0) {
-                      <img [src]="care.imageUrls[0]" [alt]="care.name"/>
+                      <app-care-image-carousel
+                        [images]="carouselImagesFor(care)"
+                        [alt]="care.name"
+                      />
                     } @else {
                       ~ {{ 'salon.pc.photoSoon' | transloco }} ~
                     }
