@@ -1,6 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { filter } from 'rxjs/operators';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Care, CareStatus, CreateCareRequest, CareImage, CareImageRequest } from '../../models/cares.model';
 import { Category } from '../../../categories/models/categories.model';
@@ -60,11 +62,13 @@ export class CreateCare implements OnInit {
   private dialogRef = inject(MatDialogRef<CreateCare>);
   private fb = inject(FormBuilder);
   private data = inject<CreateCareDialogData>(MAT_DIALOG_DATA);
+  private destroyRef = inject(DestroyRef);
 
   careForm!: FormGroup;
   categories: Category[] = this.mergeCategoriesWithCurrent();
   formConfig!: DynamicFormConfig;
   images = signal<CareImage[]>([]);
+  private initialImagesSnapshot = '';
 
   readonly isViewOnly = !!this.data?.viewOnly;
   readonly isEditMode = !!this.data?.care && !this.isViewOnly;
@@ -77,16 +81,31 @@ export class CreateCare implements OnInit {
     if (this.data?.care) {
       this.populateForm(this.data.care);
       if (this.data.care.images) {
-        // Sort images by order before setting them
         const sortedImages = [...this.data.care.images].sort((a, b) => a.order - b.order);
         this.images.set(sortedImages);
       }
     }
+    this.initialImagesSnapshot = this.snapshotImages(this.images());
+    this.careForm.markAsPristine();
 
-    // Disable all form controls in view-only mode
     if (this.isViewOnly) {
       this.careForm.disable();
     }
+
+    // Guard against accidental close (backdrop click or Escape) when the form
+    // is dirty — confirm before throwing away the user's work.
+    this.dialogRef.disableClose = !this.isViewOnly;
+    this.dialogRef
+      .backdropClick()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.requestClose());
+    this.dialogRef
+      .keydownEvents()
+      .pipe(
+        filter((e) => e.key === 'Escape'),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.requestClose());
   }
 
   onImagesChange(updatedImages: CareImage[]): void {
@@ -239,8 +258,8 @@ export class CreateCare implements OnInit {
       return CareStatus.ACTIVE;
     }
     if (field.name === 'categoryId') {
-      const careId = this.data?.care?.category?.id;
-      if (careId != null) return Number(careId);
+      const careCatId = this.data?.care?.categoryId ?? this.data?.care?.category?.id;
+      if (careCatId != null) return Number(careCatId);
       const firstId = this.categories[0]?.id;
       return firstId != null ? Number(firstId) : null;
     }
@@ -250,7 +269,29 @@ export class CreateCare implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.requestClose();
+  }
+
+  private requestClose(): void {
+    if (this.isViewOnly || !this.isDirty()) {
+      this.dialogRef.close();
+      return;
+    }
+    const ok = window.confirm(
+      'Modifications non enregistrées. Voulez-vous vraiment fermer ?',
+    );
+    if (ok) this.dialogRef.close();
+  }
+
+  private isDirty(): boolean {
+    if (this.careForm?.dirty) return true;
+    return this.snapshotImages(this.images()) !== this.initialImagesSnapshot;
+  }
+
+  private snapshotImages(imgs: CareImage[]): string {
+    return imgs
+      .map((i) => `${i.id ?? 'new'}:${i.order}:${i.name ?? ''}:${i.file ? 'F' : 'S'}`)
+      .join('|');
   }
 
   onSave(): void {
@@ -302,10 +343,11 @@ export class CreateCare implements OnInit {
   }
 
   private populateForm(care: Care): void {
-    // Force categoryId to a number — defense against JSON values that come back
-    // as strings on some endpoints. mat-select uses strict equality to highlight
-    // the matching option.
-    const categoryId = care.category?.id != null ? Number(care.category.id) : null;
+    // The backend returns `categoryId` (Long); legacy code paths may still
+    // pass a nested `category.id`. Force to number — mat-select uses strict
+    // equality to highlight the matching option.
+    const rawCatId = care.categoryId ?? care.category?.id;
+    const categoryId = rawCatId != null ? Number(rawCatId) : null;
     this.careForm.patchValue({
       name: care.name,
       description: care.description,
@@ -319,11 +361,15 @@ export class CreateCare implements OnInit {
 
   private mergeCategoriesWithCurrent(): Category[] {
     const categories = this.data?.categories ?? [];
-    const careCategory = this.data?.care?.category;
-    if (!careCategory) {
-      return categories;
-    }
-    const exists = categories.some(category => category.id === careCategory.id);
-    return exists ? categories : [...categories, careCategory];
+    const care = this.data?.care;
+    if (!care) return categories;
+    // If the care references a category that isn't in the dropdown list yet,
+    // make sure the mat-select can still resolve it.
+    const targetId = care.categoryId ?? care.category?.id;
+    if (targetId == null) return categories;
+    const exists = categories.some((c) => c.id === targetId);
+    if (exists) return categories;
+    if (care.category) return [...categories, care.category];
+    return categories;
   }
 }

@@ -24,7 +24,13 @@ export interface Care {
   description: string;
   duration: number;
   status: CareStatus;
-  category: Category;
+  /**
+   * The backend returns `categoryId` (Long). Older code paths read
+   * `care.category.id` — keep that field optional so existing usages don't
+   * break, but new code should rely on `categoryId`.
+   */
+  categoryId: number;
+  category?: Category;
   displayOrder?: number;
   images?: CareImage[];
 }

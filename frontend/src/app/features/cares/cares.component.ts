@@ -245,7 +245,7 @@ export class CaresComponent {
 
   onAddCare() {
     const dialogRef = this.dialog.open(CreateCare, bottomSheetConfig({
-      disableClose: false,
+      disableClose: true,
       autoFocus: true,
       data: {
         categories: this.categoriesStore.categories(),
@@ -267,7 +267,7 @@ export class CaresComponent {
         console.log('[CaresComponent] Images:', freshCare.images);
 
         const dialogRef = this.dialog.open(CreateCare, bottomSheetConfig({
-          disableClose: false,
+          disableClose: true,
           autoFocus: true,
           data: {
             categories: this.categoriesStore.categories(),
@@ -279,7 +279,7 @@ export class CaresComponent {
           if (result) {
             const payload = {
               ...result,
-              categoryId: Number(result.categoryId ?? freshCare.category.id),
+              categoryId: Number(result.categoryId ?? freshCare.categoryId ?? freshCare.category?.id),
             };
             this.store.updateCare({ id: freshCare.id, payload });
           }
