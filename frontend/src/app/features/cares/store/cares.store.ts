@@ -98,7 +98,7 @@ export const CaresStore = signalStore(
           caresGateway.create(payload).pipe(
             tap((newCare) => {
               patchState(store, { cares: [...store.cares(), newCare] }, setFulfilled());
-              // Refresh tenant readiness so the guided tour auto-advances
+              // Refresh tenant readiness so the onboarding indicator updates
               // when this is the first active care created.
               dashboardStore.loadReadiness();
             }),
@@ -163,7 +163,7 @@ export const CaresStore = signalStore(
                 cares: store.cares().map((care) => (care.id === id ? updatedCare : care)),
               });
               // Toggling status changes hasActiveCare → refresh readiness so
-              // the guided tour auto-advances.
+              // the onboarding indicator updates.
               dashboardStore.loadReadiness();
             }),
             catchError((err) => {

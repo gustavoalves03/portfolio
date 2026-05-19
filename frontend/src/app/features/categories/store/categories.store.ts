@@ -99,7 +99,7 @@ export const CategoriesStore = signalStore(
           gateway.createPro(payload).pipe(
             tap((created) => {
               patchState(store, { categories: [...store.categories(), created] }, setFulfilled());
-              // Refresh tenant readiness so the guided tour auto-advances
+              // Refresh tenant readiness so the onboarding indicator updates
               // when this is the first category created.
               dashboardStore.loadReadiness();
             }),

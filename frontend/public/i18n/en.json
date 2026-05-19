@@ -837,40 +837,6 @@
       "deleteSuccess": "Post deleted",
       "editPost": "Edit post",
       "saveBtn": "Save"
-    },
-    "tour": {
-      "steps": {
-        "name": {
-          "title": "Set your salon's name",
-          "desc": "The name shown to clients on your public page, confirmations, and invoices."
-        },
-        "contact": {
-          "title": "Add your contact details",
-          "desc": "Full address + phone or email. This is how clients find and reach you."
-        },
-        "logo": {
-          "title": "Add your logo",
-          "desc": "A square image representing your salon. Shown on your storefront and in confirmations."
-        },
-        "categories": {
-          "title": "Create your first category",
-          "desc": "Group your services by family (facial, nails, massage…) so clients can browse easily."
-        },
-        "cares": {
-          "title": "Add your first service",
-          "desc": "At least one active service is required to publish. You can add more afterwards."
-        },
-        "openingHours": {
-          "title": "Set your opening hours",
-          "desc": "The days and times you welcome clients. Closures and exceptions can be added later."
-        }
-      },
-      "transition": {
-        "success": "Saved — next step…"
-      },
-      "actions": {
-        "later": "Later"
-      }
     }
   },
   "home": {

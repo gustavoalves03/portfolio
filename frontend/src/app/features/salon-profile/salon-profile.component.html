@@ -19,7 +19,6 @@
         class="logo-box"
         [class.has-logo]="logoImages().length > 0"
         (click)="triggerLogoUpload()"
-        data-tour-step="logo"
       >
         @if (logoImages().length > 0) {
           <img [src]="logoImages()[0].url" alt="Logo"/>
@@ -59,7 +58,7 @@
             <label class="field-label">
               {{ 'pro.salon.name' | transloco }}<span class="req">*</span>
             </label>
-            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name" data-tour-step="name">
+            <mat-form-field appearance="outline" class="full-width" appFocusOnQueryParam="name">
               <input matInput
                 [ngModel]="name()"
                 (ngModelChange)="name.set($event); markDirty()"
@@ -107,9 +106,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Wrap address + contact so the tour highlights both: hasContact requires full address + phone/email. -->
-    <div data-tour-step="contact">
 
     <!-- ============ Row 2 : adresse 8 + country 4 ============ -->
     <section class="grid">
@@ -211,8 +207,6 @@
         </div>
       }
     </section>
-
-    </div><!-- /data-tour-step="contact" -->
 
     <!-- ============ Preview share block ============ -->
     <app-preview-share class="preview-share-block"/>

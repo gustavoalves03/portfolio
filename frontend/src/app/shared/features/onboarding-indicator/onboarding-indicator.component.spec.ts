@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, signal, WritableSignal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,7 +9,6 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import { patchState } from '@ngrx/signals';
 import { DashboardStore } from '../../../features/dashboard/store/dashboard.store';
 import { TenantReadiness } from '../../../features/dashboard/models/dashboard.model';
-import { TourService } from '../../../features/onboarding/tour/tour.service';
 import { OnboardingIndicatorComponent } from './onboarding-indicator.component';
 import { ONBOARDING_BREAKPOINT } from './breakpoint.token';
 
@@ -32,11 +31,9 @@ describe('OnboardingIndicatorComponent', () => {
   let fixture: ComponentFixture<OnboardingIndicatorComponent>;
   let store: InstanceType<typeof DashboardStore>;
   let isDesktop: WritableSignal<boolean>;
-  let tourSpy: jasmine.SpyObj<TourService>;
 
   function setup(initialDesktop: boolean) {
     isDesktop = signal(initialDesktop);
-    tourSpy = jasmine.createSpyObj<TourService>('TourService', ['start', 'stop']);
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
@@ -46,7 +43,6 @@ describe('OnboardingIndicatorComponent', () => {
         provideHttpClientTesting(),
         DashboardStore,
         { provide: ONBOARDING_BREAKPOINT, useValue: () => isDesktop },
-        { provide: TourService, useValue: tourSpy },
       ],
       imports: [
         OnboardingIndicatorComponent,
@@ -159,14 +155,16 @@ describe('OnboardingIndicatorComponent', () => {
     expect(stepName.nativeElement).toBeTruthy();
   });
 
-  it('clicking a covered step calls tour.start with the step key', () => {
+  it('clicking a step navigates to its link with the focus query param', () => {
     setup(true);
     patchState(store as any, { readiness: readiness({ name: false }) });
     fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    const navSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
     const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
       '[data-testid="stepper-step-name"]'
     );
     link?.click();
-    expect(tourSpy.start).toHaveBeenCalledWith('name');
+    expect(navSpy).toHaveBeenCalledWith(['/pro/salon'], { queryParams: { focus: 'name' } });
   });
 });

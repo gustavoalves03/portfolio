@@ -112,7 +112,7 @@ export class SalonProfileComponent {
     });
 
     // Show snackbar on save success and refresh tenant readiness so the
-    // guided tour (which reacts to readiness flags) auto-advances.
+    // onboarding indicator (which reacts to readiness flags) updates.
     effect(() => {
       if (this.store.saveSuccess()) {
         this.snackBar.open(
