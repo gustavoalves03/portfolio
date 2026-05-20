@@ -75,32 +75,37 @@ class SubscriptionControllerTests {
     void getPricing_returnsAllTiers_withCorrectPrices() throws Exception {
         mockMvc.perform(get("/api/pricing"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(5)))
-                // VITRINE/FREE
+                .andExpect(jsonPath("$", hasSize(6)))
+                // VITRINE/MONTHLY
                 .andExpect(jsonPath("$[0].tier").value("VITRINE"))
-                .andExpect(jsonPath("$[0].billing").value("FREE"))
-                .andExpect(jsonPath("$[0].monthlyPriceEuros", closeTo(0.0, 0.01)))
+                .andExpect(jsonPath("$[0].billing").value("MONTHLY"))
+                .andExpect(jsonPath("$[0].monthlyPriceEuros", closeTo(9.99, 0.01)))
                 .andExpect(jsonPath("$[0].currency").value("EUR"))
-                // GESTION/MONTHLY
-                .andExpect(jsonPath("$[1].tier").value("GESTION"))
-                .andExpect(jsonPath("$[1].billing").value("MONTHLY"))
-                .andExpect(jsonPath("$[1].monthlyPriceEuros", closeTo(49.99, 0.01)))
+                // VITRINE/YEARLY
+                .andExpect(jsonPath("$[1].tier").value("VITRINE"))
+                .andExpect(jsonPath("$[1].billing").value("YEARLY"))
+                .andExpect(jsonPath("$[1].monthlyPriceEuros", closeTo(7.99, 0.01)))
                 .andExpect(jsonPath("$[1].currency").value("EUR"))
-                // GESTION/YEARLY
+                // GESTION/MONTHLY
                 .andExpect(jsonPath("$[2].tier").value("GESTION"))
-                .andExpect(jsonPath("$[2].billing").value("YEARLY"))
-                .andExpect(jsonPath("$[2].monthlyPriceEuros", closeTo(42.49, 0.01)))
+                .andExpect(jsonPath("$[2].billing").value("MONTHLY"))
+                .andExpect(jsonPath("$[2].monthlyPriceEuros", closeTo(49.99, 0.01)))
                 .andExpect(jsonPath("$[2].currency").value("EUR"))
-                // PREMIUM/MONTHLY
-                .andExpect(jsonPath("$[3].tier").value("PREMIUM"))
-                .andExpect(jsonPath("$[3].billing").value("MONTHLY"))
-                .andExpect(jsonPath("$[3].monthlyPriceEuros", closeTo(67.99, 0.01)))
+                // GESTION/YEARLY
+                .andExpect(jsonPath("$[3].tier").value("GESTION"))
+                .andExpect(jsonPath("$[3].billing").value("YEARLY"))
+                .andExpect(jsonPath("$[3].monthlyPriceEuros", closeTo(42.49, 0.01)))
                 .andExpect(jsonPath("$[3].currency").value("EUR"))
-                // PREMIUM/YEARLY
+                // PREMIUM/MONTHLY
                 .andExpect(jsonPath("$[4].tier").value("PREMIUM"))
-                .andExpect(jsonPath("$[4].billing").value("YEARLY"))
-                .andExpect(jsonPath("$[4].monthlyPriceEuros", closeTo(57.79, 0.01)))
-                .andExpect(jsonPath("$[4].currency").value("EUR"));
+                .andExpect(jsonPath("$[4].billing").value("MONTHLY"))
+                .andExpect(jsonPath("$[4].monthlyPriceEuros", closeTo(67.99, 0.01)))
+                .andExpect(jsonPath("$[4].currency").value("EUR"))
+                // PREMIUM/YEARLY
+                .andExpect(jsonPath("$[5].tier").value("PREMIUM"))
+                .andExpect(jsonPath("$[5].billing").value("YEARLY"))
+                .andExpect(jsonPath("$[5].monthlyPriceEuros", closeTo(57.79, 0.01)))
+                .andExpect(jsonPath("$[5].currency").value("EUR"));
     }
 
     // Test 2: createSetupIntent_returnsClientSecret
