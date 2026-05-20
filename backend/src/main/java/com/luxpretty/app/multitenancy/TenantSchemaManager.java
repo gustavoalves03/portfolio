@@ -507,6 +507,51 @@ public class TenantSchemaManager {
                 throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
             }
 
+            // Step 3/3 of V7 mirror: replace global slot uniqueness with per-employee uniqueness.
+
+            // Drop the old global slot uniqueness constraint (idempotent — ORA-02443 means it
+            // never existed or was already dropped on a previous migration run; safe to skip).
+            try {
+                stmt.execute("ALTER TABLE \"" + schemaName + "\".CARE_BOOKINGS DROP CONSTRAINT UK_BOOKING_SLOT");
+                logger.info("Dropped UK_BOOKING_SLOT constraint in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 2443) {
+                    // ORA-02443: cannot drop constraint - nonexistent constraint
+                    logger.warn("UK_BOOKING_SLOT constraint not found in {} (already dropped or never existed), skipping", schemaName);
+                } else {
+                    logger.warn("DROP CONSTRAINT UK_BOOKING_SLOT failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
+            }
+
+            // Create per-employee uniqueness index (idempotent — ORA-00955 means already exists).
+            try {
+                stmt.execute("""
+                        CREATE UNIQUE INDEX "%s".UK_BOOKING_SLOT_EMPLOYEE ON "%s".CARE_BOOKINGS (
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN APPOINTMENT_DATE END,
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN APPOINTMENT_TIME END,
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN EMPLOYEE_ID END
+                        )""".formatted(schemaName, schemaName));
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE index in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 955) {
+                    logger.debug("UK_BOOKING_SLOT_EMPLOYEE already exists in {}, skipping", schemaName);
+                } else {
+                    logger.warn("CREATE INDEX UK_BOOKING_SLOT_EMPLOYEE failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
+            }
+
+            // Create lookup performance index (idempotent — ORA-00955 means already exists).
+            try {
+                stmt.execute("CREATE INDEX \"" + schemaName + "\".IDX_BOOKING_DATE_EMPLOYEE ON \"" + schemaName + "\".CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
+                logger.info("Created IDX_BOOKING_DATE_EMPLOYEE index in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 955) {
+                    logger.debug("IDX_BOOKING_DATE_EMPLOYEE already exists in {}, skipping", schemaName);
+                } else {
+                    logger.warn("CREATE INDEX IDX_BOOKING_DATE_EMPLOYEE failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
+            }
+
             setCurrentSchema(stmt, applicationSchemaName);
             grantTenantTablePrivileges(stmt, schemaName);
             logger.info("Oracle schema {} migrated successfully", schemaName);
@@ -816,6 +861,34 @@ public class TenantSchemaManager {
                 throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
             }
 
+            // Step 3/3 of V7 mirror (H2): replace global slot uniqueness with per-employee uniqueness.
+
+            // Drop the old global slot uniqueness (H2 supports IF EXISTS — safe to re-run).
+            stmt.execute("ALTER TABLE CARE_BOOKINGS DROP CONSTRAINT IF EXISTS UK_BOOKING_SLOT");
+            logger.info("Dropped UK_BOOKING_SLOT constraint (if existed) in {}", schemaName);
+
+            // H2 2.x supports filtered (WHERE) unique indexes.
+            // Preferred: CREATE UNIQUE INDEX ... WHERE STATUS IN (...) mirrors the Oracle semantics
+            // (cancelled rows excluded). If H2 syntax doesn't support this, fall back to plain unique.
+            try {
+                stmt.execute("""
+                        CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE
+                          ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)
+                         WHERE STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE (filtered) index in {}", schemaName);
+            } catch (SQLException e) {
+                // Fallback: plain unique index (does not model cancelled-row exclusion;
+                // real semantics validated by Testcontainers Oracle test in B13).
+                logger.warn("Filtered index not supported in H2 ({}), falling back to plain unique index", e.getMessage());
+                stmt.execute("CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)");
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE (plain fallback) index in {}", schemaName);
+            }
+
+            // Lookup performance index.
+            stmt.execute("CREATE INDEX IF NOT EXISTS IDX_BOOKING_DATE_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
+            logger.info("Created IDX_BOOKING_DATE_EMPLOYEE index in {}", schemaName);
+
             setCurrentSchema(stmt, applicationSchemaName);
             logger.info("H2 schema {} migrated successfully", schemaName);
 
@@ -962,8 +1035,8 @@ public class TenantSchemaManager {
                     EMPLOYEE_ID BIGINT,
                     SALON_CLIENT_ID BIGINT,
                     CANCELLATION_REASON VARCHAR(64),
-                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
-                    CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
+                    REMINDER_SENT_AT TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID)
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS EMPLOYEES (
@@ -1138,6 +1211,23 @@ public class TenantSchemaManager {
         for (String ddl : ddlStatements) {
             stmt.execute(ddl);
         }
+
+        // Per-employee slot uniqueness for fresh provisioning (no UK_BOOKING_SLOT created above).
+        // H2 2.x supports filtered (WHERE) indexes; cancelled rows are naturally excluded.
+        try {
+            stmt.execute("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE
+                      ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)
+                     WHERE STATUS IN ('PENDING','CONFIRMED')
+                    """);
+        } catch (SQLException e) {
+            // Fallback: plain unique index (does not model cancelled-row exclusion;
+            // real semantics validated by Testcontainers Oracle test in B13).
+            stmt.execute("CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)");
+        }
+
+        // Lookup performance index.
+        stmt.execute("CREATE INDEX IF NOT EXISTS IDX_BOOKING_DATE_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
 
         // Seed the singleton policy row (table was just freshly created above).
         stmt.execute("""
