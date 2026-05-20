@@ -3067,42 +3067,8 @@ class SlotAvailabilityServiceTests {
     }
 
     @Test
-    @DisplayName("TC20: Sophie on approved leave — greyed ON_LEAVE in every slot")
+    @DisplayName("TC20: Sophie on leave + Marie available — Sophie greyed ON_LEAVE in returned slots")
     void perEmployeeSlots_employeeOnApprovedLeave_greyedAllDay() {
-        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
-        mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
-        mockNoSalonWideBlocks();
-
-        Employee sophie = buildEmployee(20L, "Sophie");
-        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(sophie));
-
-        LeaveRequest sophieLeave = new LeaveRequest();
-        sophieLeave.setEmployee(sophie);
-        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
-                .thenReturn(List.of(sophieLeave));
-        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
-                .thenReturn(List.of());
-
-        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
-
-        // Sophie is on leave but still appears in slots that have other available employees
-        // Since Sophie is the only employee and on leave, ALL slots should be pruned
-        // Actually: with 1 employee on leave, no slot has an available employee → empty
-        // But we need to check the ON_LEAVE reason — so we need a 2nd available employee here
-        // Re-reading TC20: "in every returned slot, Sophie.available=false, reason=ON_LEAVE"
-        // This implies there IS another available employee. Let's add Marie.
-        // HOWEVER: we already set up with only Sophie. This test verifies Sophie is greyed.
-        // Result will be empty (no slot has available employee), so we check Sophie's state
-        // by adding another employee so some slots are returned.
-        // This test as-written (Sophie only) should return empty — see TC22 for that case.
-        // TC20 needs at least 1 available employee to show greyed Sophie in returned slots.
-        // Let's adjust: add Marie as also qualified, Marie is free.
-        assertThat(result).isEmpty(); // all slots pruned since Sophie is only qualified and on leave
-    }
-
-    @Test
-    @DisplayName("TC20b: Sophie on leave + Marie available — Sophie greyed ON_LEAVE in returned slots")
-    void perEmployeeSlots_onLeave_greyedInReturnedSlots() {
         when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
         mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
         mockNoSalonWideBlocks();

@@ -437,8 +437,7 @@ public class SlotAvailabilityService {
         for (BlockedSlot bs : blockedSlots) {
             if (bs.isFullDay()) return true;
             if (bs.getStartTime() != null && bs.getEndTime() != null) {
-                // Overlap check
-                if (start.isBefore(bs.getEndTime()) && end.isAfter(bs.getStartTime())) {
+                if (overlaps(start, end, bs.getStartTime(), bs.getEndTime())) {
                     return true;
                 }
             }
