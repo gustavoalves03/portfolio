@@ -3,6 +3,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { EMPTY } from 'rxjs';
 
 import { CreateCare } from './create-care.component';
 
@@ -22,7 +23,15 @@ describe('Create', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideNoopAnimations(),
-        { provide: MatDialogRef, useValue: { close: () => {} } },
+        {
+          provide: MatDialogRef,
+          useValue: {
+            close: () => {},
+            backdropClick: () => EMPTY,
+            keydownEvents: () => EMPTY,
+            disableClose: false,
+          },
+        },
         { provide: MAT_DIALOG_DATA, useValue: { categories: [] } },
       ],
     })
