@@ -479,6 +479,34 @@ public class TenantSchemaManager {
                 logger.warn("Could not seed BOOKING_POLICY in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
             }
 
+            // Step 2/3 of V7 mirror: backfill NULL EMPLOYEE_ID on active bookings.
+            // The WHERE clause makes each statement idempotent (already-backfilled rows are no-ops).
+            try {
+                stmt.execute("""
+                        UPDATE "%s".CARE_BOOKINGS
+                           SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM "%s".EMPLOYEES e WHERE e.ACTIVE = 1)
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """.formatted(schemaName, schemaName));
+                logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Backfill EMPLOYEE_ID failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Backfill EMPLOYEE_ID failed for: " + schemaName, e);
+            }
+
+            try {
+                stmt.execute("""
+                        UPDATE "%s".CARE_BOOKINGS
+                           SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """.formatted(schemaName, schemaName));
+                logger.info("Cancelled no-employee bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Cancel no-employee bookings failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
+            }
+
             setCurrentSchema(stmt, applicationSchemaName);
             grantTenantTablePrivileges(stmt, schemaName);
             logger.info("Oracle schema {} migrated successfully", schemaName);
@@ -732,7 +760,9 @@ public class TenantSchemaManager {
                 // Align legacy H2 tenant schemas with the nullable PHONE column declared in CREATE TABLE.
                 "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL",
                 // @Version on LeaveRequest (legacy schemas miss it).
-                "ALTER TABLE LEAVE_REQUESTS ADD COLUMN IF NOT EXISTS VERSION BIGINT"
+                "ALTER TABLE LEAVE_REQUESTS ADD COLUMN IF NOT EXISTS VERSION BIGINT",
+                // Mirror of V7__booking_per_employee.sql step 1: add CANCELLATION_REASON column.
+                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS CANCELLATION_REASON VARCHAR(64)"
         };
 
         try (Connection conn = dataSource.getConnection();
@@ -757,6 +787,24 @@ public class TenantSchemaManager {
                     ) SELECT 1, 1, CURRENT_TIMESTAMP
                       WHERE NOT EXISTS (SELECT 1 FROM BOOKING_POLICY)
                     """);
+
+            // Step 2/3 of V7 mirror: backfill NULL EMPLOYEE_ID on active bookings.
+            // The WHERE clause makes each statement idempotent (already-backfilled rows are no-ops).
+            stmt.execute("""
+                    UPDATE CARE_BOOKINGS
+                       SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM EMPLOYEES e WHERE e.ACTIVE = TRUE)
+                     WHERE EMPLOYEE_ID IS NULL
+                       AND STATUS IN ('PENDING','CONFIRMED')
+                    """);
+            logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+
+            stmt.execute("""
+                    UPDATE CARE_BOOKINGS
+                       SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
+                     WHERE EMPLOYEE_ID IS NULL
+                       AND STATUS IN ('PENDING','CONFIRMED')
+                    """);
+            logger.info("Cancelled no-employee bookings in {}", schemaName);
 
             setCurrentSchema(stmt, applicationSchemaName);
             logger.info("H2 schema {} migrated successfully", schemaName);
@@ -903,6 +951,7 @@ public class TenantSchemaManager {
                     CREATED_AT TIMESTAMP NOT NULL,
                     EMPLOYEE_ID BIGINT,
                     SALON_CLIENT_ID BIGINT,
+                    CANCELLATION_REASON VARCHAR(64),
                     CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
                     CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
                 )""",
