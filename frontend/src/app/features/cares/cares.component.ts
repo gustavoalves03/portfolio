@@ -75,7 +75,7 @@ export class CaresComponent {
     const query = this.searchQuery().toLowerCase().trim();
     let cares = this.store.availableCares();
     if (selectedId) {
-      cares = cares.filter(c => c.category?.id === selectedId);
+      cares = cares.filter((c) => this.careCategoryId(c) === selectedId);
     }
     if (query) {
       cares = cares.filter(
@@ -143,7 +143,19 @@ export class CaresComponent {
   }
 
   countCaresInCategory(categoryId: number): number {
-    return this.store.cares().filter((c) => c.category?.id === categoryId).length;
+    return this.store.cares().filter((c) => this.careCategoryId(c) === categoryId).length;
+  }
+
+  /** Backend returns `categoryId`; legacy fixtures sometimes carry a nested `category`. */
+  careCategoryId(care: Care): number | null {
+    return care.categoryId ?? care.category?.id ?? null;
+  }
+
+  careCategoryName(care: Care): string | null {
+    const id = this.careCategoryId(care);
+    if (id == null) return care.category?.name ?? null;
+    const found = this.categoriesStore.categories().find((c) => c.id === id);
+    return found?.name ?? care.category?.name ?? null;
   }
 
   fallbackGradient(index: number): string {
@@ -207,7 +219,7 @@ export class CaresComponent {
   }
 
   onDeleteCategory(category: Category): void {
-    const caresInCategory = this.store.cares().filter(c => c.category?.id === category.id);
+    const caresInCategory = this.store.cares().filter((c) => this.careCategoryId(c) === category.id);
 
     if (caresInCategory.length > 0) {
       const dialogRef = this.dialog.open(ReassignCategoryDialogComponent, bottomSheetConfig({

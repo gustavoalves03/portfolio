@@ -141,10 +141,10 @@
                     [alt]="care.name"
                   />
                 }
-                @if (care.category) {
-                  <span class="care-cat" [style.--cat-color]="getCategoryColor(care.category.id)">
-                    <span class="dot" [style.background]="getCategoryColor(care.category.id)"></span>
-                    {{ care.category.name }}
+                @if (careCategoryId(care); as catId) {
+                  <span class="care-cat" [style.--cat-color]="getCategoryColor(catId)">
+                    <span class="dot" [style.background]="getCategoryColor(catId)"></span>
+                    {{ careCategoryName(care) }}
                   </span>
                 }
                 <div class="care-status" (click)="$event.stopPropagation()">
