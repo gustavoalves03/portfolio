@@ -48,6 +48,9 @@ public class CareBooking {
     @Column(name = "status", nullable = false)
     private CareBookingStatus status = CareBookingStatus.PENDING;
 
+    @Column(name = "cancellation_reason", length = 64)
+    private String cancellationReason;
+
     @Column(name = "employee_id")
     private Long employeeId; // null = unassigned
 
