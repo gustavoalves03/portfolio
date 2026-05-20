@@ -62,10 +62,12 @@ public class SubscriptionController {
     @GetMapping("/api/pricing")
     public List<PricingPlanDto> getPricing() {
         // Return all (tier, billing) combos with their price label/euros.
-        // Hardcoded prices from spec: VITRINE 0€, GESTION 49.99/42.49, PREMIUM 67.99/57.79
+        // Prices: VITRINE 9.99/7.99, GESTION 49.99/42.49, PREMIUM 67.99/57.79
         return List.of(
-            new PricingPlanDto(SubscriptionTier.VITRINE, SubscriptionBilling.FREE,
-                BigDecimal.valueOf(0.00), "EUR"),
+            new PricingPlanDto(SubscriptionTier.VITRINE, SubscriptionBilling.MONTHLY,
+                BigDecimal.valueOf(9.99), "EUR"),
+            new PricingPlanDto(SubscriptionTier.VITRINE, SubscriptionBilling.YEARLY,
+                BigDecimal.valueOf(7.99), "EUR"),
             new PricingPlanDto(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY,
                 BigDecimal.valueOf(49.99), "EUR"),
             new PricingPlanDto(SubscriptionTier.GESTION, SubscriptionBilling.YEARLY,
@@ -126,12 +128,6 @@ public class SubscriptionController {
         Tenant tenant = tenantRepository.findBySlug(tenantSlug)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Tenant not found: " + tenantSlug));
-
-        // Reject if tier=VITRINE
-        if (body.tier() == SubscriptionTier.VITRINE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "VITRINE tier does not require a Stripe subscription");
-        }
 
         // Reject if pricingCatalog.priceIdFor(tier, billing) is empty
         if (pricingCatalog.priceIdFor(body.tier(), body.billing()).isEmpty()) {
