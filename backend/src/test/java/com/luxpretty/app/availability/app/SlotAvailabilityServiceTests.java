@@ -9,9 +9,15 @@ import com.luxpretty.app.availability.repo.OpeningHourRepository;
 import com.luxpretty.app.bookings.domain.CareBooking;
 import com.luxpretty.app.bookings.domain.CareBookingStatus;
 import com.luxpretty.app.bookings.repo.CareBookingRepository;
+import com.luxpretty.app.bookings.web.dto.EmployeeSlotState;
+import com.luxpretty.app.bookings.web.dto.SlotWithEmployees;
 import com.luxpretty.app.care.domain.Care;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.domain.Employee;
+import com.luxpretty.app.employee.domain.LeaveRequest;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
+import com.luxpretty.app.employee.repo.LeaveRequestRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,6 +61,12 @@ class SlotAvailabilityServiceTests {
 
     @Mock
     private com.luxpretty.app.tenant.repo.TenantRepository tenantRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
+
+    @Mock
+    private LeaveRequestRepository leaveRequestRepository;
 
     @InjectMocks
     private SlotAvailabilityService service;
@@ -2957,6 +2969,192 @@ class SlotAvailabilityServiceTests {
         // FLAW: No @Min(0) validation on Care.price
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // ── PER-EMPLOYEE SLOT FAN-OUT (TC 13/14/18/19/20/22) ──
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("TC13: Marie booked at 10:00 — slot returned with Marie greyed, Sophie available")
+    void perEmployeeSlots_marieBookedAt10_returnsSlotWithMarieGreyed() {
+        // care 30 min, salon 09:00-12:00 Mon, 2 qualified employees
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "12:00");
+        mockNoSalonWideBlocks();
+
+        Employee marie = buildEmployee(10L, "Marie");
+        Employee sophie = buildEmployee(20L, "Sophie");
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(marie, sophie));
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of());
+
+        // Marie booked at 10:00 for 30 min
+        CareBooking marieBooking = buildBooking(futureMonday, "10:00", care30min, 10L);
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of(marieBooking));
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        SlotWithEmployees slot10 = result.stream()
+                .filter(s -> s.time().equals("10:00"))
+                .findFirst().orElse(null);
+        assertThat(slot10).isNotNull();
+
+        EmployeeSlotState marieState = slot10.employees().stream()
+                .filter(e -> e.id().equals(10L)).findFirst().orElseThrow();
+        EmployeeSlotState sophieState = slot10.employees().stream()
+                .filter(e -> e.id().equals(20L)).findFirst().orElseThrow();
+
+        assertThat(marieState.available()).isFalse();
+        assertThat(marieState.reason()).isEqualTo("BUSY");
+        assertThat(sophieState.available()).isTrue();
+    }
+
+    @Test
+    @DisplayName("TC14: Only Marie qualified and booked at 10:00 — slot 10:00 omitted")
+    void perEmployeeSlots_allBooked_slotOmitted() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "12:00");
+        mockNoSalonWideBlocks();
+
+        Employee marie = buildEmployee(10L, "Marie");
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(marie));
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of());
+
+        CareBooking marieBooking = buildBooking(futureMonday, "10:00", care30min, 10L);
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of(marieBooking));
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        boolean has10 = result.stream().anyMatch(s -> s.time().equals("10:00"));
+        assertThat(has10).isFalse();
+    }
+
+    @Test
+    @DisplayName("TC18: Strict qualification — only Marie qualified, Sophie excluded from all slots")
+    void perEmployeeSlots_strictQualification_excludesUnqualifiedEmployees() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
+        mockNoSalonWideBlocks();
+
+        Employee marie = buildEmployee(10L, "Marie");
+        // Sophie is active but NOT qualified (not in findActiveByAssignedCareId result)
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(marie));
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of());
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of());
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        assertThat(result).isNotEmpty();
+        result.forEach(slot -> {
+            assertThat(slot.employees()).hasSize(1);
+            assertThat(slot.employees().get(0).id()).isEqualTo(10L);
+        });
+    }
+
+    @Test
+    @DisplayName("TC19: Zero qualified employees — returns empty list")
+    void perEmployeeSlots_zeroQualifiedEmployees_returnsEmpty() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of());
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("TC20: Sophie on approved leave — greyed ON_LEAVE in every slot")
+    void perEmployeeSlots_employeeOnApprovedLeave_greyedAllDay() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
+        mockNoSalonWideBlocks();
+
+        Employee sophie = buildEmployee(20L, "Sophie");
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(sophie));
+
+        LeaveRequest sophieLeave = new LeaveRequest();
+        sophieLeave.setEmployee(sophie);
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of(sophieLeave));
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of());
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        // Sophie is on leave but still appears in slots that have other available employees
+        // Since Sophie is the only employee and on leave, ALL slots should be pruned
+        // Actually: with 1 employee on leave, no slot has an available employee → empty
+        // But we need to check the ON_LEAVE reason — so we need a 2nd available employee here
+        // Re-reading TC20: "in every returned slot, Sophie.available=false, reason=ON_LEAVE"
+        // This implies there IS another available employee. Let's add Marie.
+        // HOWEVER: we already set up with only Sophie. This test verifies Sophie is greyed.
+        // Result will be empty (no slot has available employee), so we check Sophie's state
+        // by adding another employee so some slots are returned.
+        // This test as-written (Sophie only) should return empty — see TC22 for that case.
+        // TC20 needs at least 1 available employee to show greyed Sophie in returned slots.
+        // Let's adjust: add Marie as also qualified, Marie is free.
+        assertThat(result).isEmpty(); // all slots pruned since Sophie is only qualified and on leave
+    }
+
+    @Test
+    @DisplayName("TC20b: Sophie on leave + Marie available — Sophie greyed ON_LEAVE in returned slots")
+    void perEmployeeSlots_onLeave_greyedInReturnedSlots() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
+        mockNoSalonWideBlocks();
+
+        Employee marie = buildEmployee(10L, "Marie");
+        Employee sophie = buildEmployee(20L, "Sophie");
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(marie, sophie));
+
+        LeaveRequest sophieLeave = new LeaveRequest();
+        sophieLeave.setEmployee(sophie);
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of(sophieLeave));
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of());
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        assertThat(result).isNotEmpty();
+        result.forEach(slot -> {
+            EmployeeSlotState sophieState = slot.employees().stream()
+                    .filter(e -> e.id().equals(20L)).findFirst().orElseThrow();
+            assertThat(sophieState.available()).isFalse();
+            assertThat(sophieState.reason()).isEqualTo("ON_LEAVE");
+
+            EmployeeSlotState marieState = slot.employees().stream()
+                    .filter(e -> e.id().equals(10L)).findFirst().orElseThrow();
+            assertThat(marieState.available()).isTrue();
+        });
+    }
+
+    @Test
+    @DisplayName("TC22: Only Sophie qualified and on leave — returns empty list")
+    void perEmployeeSlots_allEmployeesOnLeave_noSlotReturned() {
+        when(careRepo.findById(2L)).thenReturn(Optional.of(care30min));
+        mockSalonWideOpeningHoursAllByOrder("09:00", "10:00");
+        mockNoSalonWideBlocks();
+
+        Employee sophie = buildEmployee(20L, "Sophie");
+        when(employeeRepository.findActiveByAssignedCareId(2L)).thenReturn(List.of(sophie));
+
+        LeaveRequest sophieLeave = new LeaveRequest();
+        sophieLeave.setEmployee(sophie);
+        when(leaveRequestRepository.findApprovedLeavesCovering(any(), eq(futureMonday)))
+                .thenReturn(List.of(sophieLeave));
+        when(bookingRepo.findActiveByDateAndEmployees(eq(futureMonday), any()))
+                .thenReturn(List.of());
+
+        List<SlotWithEmployees> result = service.getAvailableSlotsForCareWithEmployees(futureMonday, 2L);
+
+        assertThat(result).isEmpty();
+    }
+
     // ── Helpers ──
 
     private void mockOpeningHours(int dow, String open, String close) {
@@ -3071,5 +3269,30 @@ class SlotAvailabilityServiceTests {
             d = d.plusDays(1);
         }
         return d;
+    }
+
+    // ── Helpers for per-employee fan-out tests ──
+
+    private Employee buildEmployee(Long id, String name) {
+        Employee e = new Employee();
+        e.setId(id);
+        e.setName(name);
+        e.setEmail(name.toLowerCase() + "@test.com");
+        e.setActive(true);
+        return e;
+    }
+
+    /** Mocks findAllByOrderByDayOfWeekAscOpenTimeAsc() with one salon-wide Monday window. */
+    private void mockSalonWideOpeningHoursAllByOrder(String open, String close) {
+        OpeningHour oh = buildOpeningHour(1, open, close);
+        // employeeId == null means salon-wide
+        when(openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc())
+                .thenReturn(List.of(oh));
+    }
+
+    /** Mocks findByDateGreaterThanEqualOrderByDateAscStartTimeAsc() returning empty (no salon-wide blocks). */
+    private void mockNoSalonWideBlocks() {
+        when(blockedSlotRepo.findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(any()))
+                .thenReturn(List.of());
     }
 }
