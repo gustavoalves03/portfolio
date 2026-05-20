@@ -191,5 +191,28 @@ public interface CareBookingRepository extends JpaRepository<CareBooking, Long> 
           AND b.appointmentDate = :targetDate
         """)
     List<CareBooking> findRemindersDueOnDate(@Param("targetDate") LocalDate targetDate);
+
+    /**
+     * Returns (employeeId, count) pairs for active (PENDING/CONFIRMED) bookings on a given date.
+     * Used to sort employees by workload for auto-assignment.
+     */
+    @Query("SELECT b.employeeId, COUNT(b) FROM CareBooking b " +
+           "WHERE b.appointmentDate = :date " +
+           "AND b.status IN (com.luxpretty.app.bookings.domain.CareBookingStatus.PENDING, " +
+           "                 com.luxpretty.app.bookings.domain.CareBookingStatus.CONFIRMED) " +
+           "GROUP BY b.employeeId")
+    List<Object[]> countActiveByEmployeeAndDate(@Param("date") LocalDate date);
+
+    /**
+     * Returns active (PENDING/CONFIRMED) bookings for specific employees on a given date.
+     * Used to check slot conflicts when assigning an employee to a new booking.
+     */
+    @Query("SELECT b FROM CareBooking b " +
+           "WHERE b.appointmentDate = :date " +
+           "AND b.employeeId IN :employeeIds " +
+           "AND b.status IN (com.luxpretty.app.bookings.domain.CareBookingStatus.PENDING, " +
+           "                 com.luxpretty.app.bookings.domain.CareBookingStatus.CONFIRMED)")
+    List<CareBooking> findActiveByDateAndEmployees(@Param("date") LocalDate date,
+                                                   @Param("employeeIds") Collection<Long> employeeIds);
 }
 
