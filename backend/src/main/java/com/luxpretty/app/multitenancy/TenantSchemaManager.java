@@ -790,21 +790,31 @@ public class TenantSchemaManager {
 
             // Step 2/3 of V7 mirror: backfill NULL EMPLOYEE_ID on active bookings.
             // The WHERE clause makes each statement idempotent (already-backfilled rows are no-ops).
-            stmt.execute("""
-                    UPDATE CARE_BOOKINGS
-                       SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM EMPLOYEES e WHERE e.ACTIVE = TRUE)
-                     WHERE EMPLOYEE_ID IS NULL
-                       AND STATUS IN ('PENDING','CONFIRMED')
-                    """);
-            logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+            try {
+                stmt.execute("""
+                        UPDATE CARE_BOOKINGS
+                           SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM EMPLOYEES e WHERE e.ACTIVE = TRUE)
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Backfill EMPLOYEE_ID failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Backfill EMPLOYEE_ID failed for: " + schemaName, e);
+            }
 
-            stmt.execute("""
-                    UPDATE CARE_BOOKINGS
-                       SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
-                     WHERE EMPLOYEE_ID IS NULL
-                       AND STATUS IN ('PENDING','CONFIRMED')
-                    """);
-            logger.info("Cancelled no-employee bookings in {}", schemaName);
+            try {
+                stmt.execute("""
+                        UPDATE CARE_BOOKINGS
+                           SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Cancelled no-employee bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Cancel no-employee bookings failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
+            }
 
             setCurrentSchema(stmt, applicationSchemaName);
             logger.info("H2 schema {} migrated successfully", schemaName);
