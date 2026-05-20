@@ -427,7 +427,9 @@ public class TenantSchemaManager {
                 // @Version on LeaveRequest — added after the LEAVE_REQUESTS table existed in
                 // some tenants. Without this column Hibernate fails ORA-00904 on every read,
                 // surfacing as a 500 on /api/pro/leaves/pending.
-                "ALTER TABLE LEAVE_REQUESTS ADD (VERSION NUMBER(19))"
+                "ALTER TABLE LEAVE_REQUESTS ADD (VERSION NUMBER(19))",
+                // Mirror of V7__add_cancellation_reason_to_care_bookings.sql
+                "ALTER TABLE CARE_BOOKINGS ADD (CANCELLATION_REASON VARCHAR2(64))"
         };
 
         // Use provisioning connection (Oracle admin) — app user lacks CREATE TABLE privilege

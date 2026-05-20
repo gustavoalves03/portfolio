@@ -58,12 +58,12 @@ class CareBookingRepositoryTests {
         b.setUser(u);
         b.setCare(c);
         b.setStatus(CareBookingStatus.CANCELLED);
-        b.setCancellationReason("LEGACY_NO_EMPLOYEE");
+        b.setCancellationReason("test reason");
         b.setAppointmentDate(LocalDate.of(2026, 6, 1));
         b.setAppointmentTime(LocalTime.of(10, 0));
         b.setQuantity(1);
         CareBooking saved = repo.saveAndFlush(b);
         CareBooking reloaded = repo.findById(saved.getId()).orElseThrow();
-        assertEquals("LEGACY_NO_EMPLOYEE", reloaded.getCancellationReason());
+        assertEquals("test reason", reloaded.getCancellationReason());
     }
 }
