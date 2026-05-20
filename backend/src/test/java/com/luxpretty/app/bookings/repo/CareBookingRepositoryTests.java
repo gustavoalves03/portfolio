@@ -36,7 +36,10 @@ class CareBookingRepositoryTests {
     @Autowired EmployeeRepository employeeRepo;
 
     private static final AtomicLong USER_COUNTER = new AtomicLong(0);
-    private static final AtomicLong EMPLOYEE_COUNTER = new AtomicLong(0);
+    // Static counter is intentional: @DataJpaTest rolls back rows per test, but
+    // the JVM-wide counter survives so each test gets a distinct userId, avoiding
+    // UK_EMPLOYEE_USER collisions between successive tests within the same run.
+    private static final AtomicLong USER_ID_SEQ = new AtomicLong(1_000_000L);
 
     private User persistMinimalUser() {
         long n = USER_COUNTER.incrementAndGet();
@@ -48,11 +51,11 @@ class CareBookingRepositoryTests {
     }
 
     private Employee persistEmployee(String name) {
-        long n = EMPLOYEE_COUNTER.incrementAndGet();
+        long userId = USER_ID_SEQ.getAndIncrement();
         Employee e = new Employee();
-        e.setUserId(1000L + n);
+        e.setUserId(userId);
         e.setName(name);
-        e.setEmail(name.toLowerCase() + "-" + n + "@test.com");
+        e.setEmail(name.toLowerCase() + "-" + userId + "@test.com");
         return employeeRepo.save(e);
     }
 
@@ -112,7 +115,7 @@ class CareBookingRepositoryTests {
 
         Map<Long, Long> counts = repo.countActiveByEmployeeAndDate(LocalDate.of(2026, 6, 1)).stream()
                 .collect(Collectors.toMap(r -> ((Number) r[0]).longValue(), r -> ((Number) r[1]).longValue()));
-        assertEquals(2L, counts.get(marie.getId()));
+        assertEquals(2L, counts.get(marie.getId())); // CONFIRMED + PENDING; CANCELLED excluded
     }
 
     @Test
