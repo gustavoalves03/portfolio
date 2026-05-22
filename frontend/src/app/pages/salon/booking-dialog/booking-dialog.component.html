@@ -12,7 +12,7 @@
         <p class="success-care">{{ care.name }}</p>
         <p class="success-datetime">
           {{ selectedDate()!.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) }}
-          — {{ selectedSlot()!.startTime }}
+          — {{ selectedSlot()!.time }}
         </p>
       </div>
       <button mat-flat-button class="confirm-btn" (click)="close()">
@@ -67,17 +67,29 @@
         } @else if (slots().length === 0) {
           <p class="no-slots">{{ 'booking.dialog.noSlots' | transloco }}</p>
         } @else {
-          <div class="slots-grid">
-            @for (slot of slots(); track slot.startTime) {
-              <button
-                type="button"
-                class="slot-btn"
-                data-testid="booking-slot"
-                [class.selected]="selectedSlot()?.startTime === slot.startTime"
-                (click)="selectSlot(slot)"
-              >
-                {{ slot.startTime }}
-              </button>
+          <div class="slots-list">
+            @for (slot of slots(); track slot.time) {
+              <div class="slot-row" data-testid="booking-slot-row">
+                <span class="slot-time">{{ slot.time }}</span>
+                <div class="slot-employee-chips">
+                  @for (emp of slot.employees; track emp.id) {
+                    @if (!selectedEmployee() || selectedEmployee()?.id === emp.id) {
+                      <button
+                        type="button"
+                        class="slot-employee-chip"
+                        data-testid="employee-chip"
+                        [class.chip-grey]="!emp.available"
+                        [class.chip-selected]="isChipSelected(slot, emp)"
+                        [disabled]="!emp.available"
+                        [attr.title]="chipTooltip(emp)"
+                        (click)="onChipClick(slot, emp)"
+                      >
+                        {{ emp.name }}
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
             }
           </div>
         }
@@ -109,7 +121,7 @@
         @if (submitting()) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
-          {{ 'booking.dialog.confirm' | transloco }} — {{ selectedSlot()!.startTime }}
+          {{ 'booking.dialog.confirm' | transloco }} — {{ selectedSlot()!.time }}
         }
       </button>
     }

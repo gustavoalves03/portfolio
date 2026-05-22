@@ -1356,7 +1356,9 @@
     },
     "booking": {
       "limitDaily": "Vous avez déjà un rendez-vous ce jour-là chez ce salon.",
-      "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine."
+      "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine.",
+      "employeeBusy": "Praticien(ne) déjà occupé(e) à cette heure",
+      "employeeOnLeave": "Praticien(ne) absent(e) ce jour"
     },
     "tenantSwitchFailed": "Impossible de changer de salon"
   },

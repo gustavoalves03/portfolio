@@ -1352,7 +1352,9 @@
     },
     "booking": {
       "limitDaily": "You already have a booking that day at this salon.",
-      "limitNewClientWeekly": "First visits are limited to one booking per week."
+      "limitNewClientWeekly": "First visits are limited to one booking per week.",
+      "employeeBusy": "Practitioner is already booked at this time",
+      "employeeOnLeave": "Practitioner is not available this day"
     },
     "tenantSwitchFailed": "Could not switch salon"
   },
