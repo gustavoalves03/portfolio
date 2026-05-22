@@ -1252,7 +1252,6 @@
       "registerDone": "Account created! You can now confirm."
     },
     "errors": {
-      "slotTaken": "This slot was just booked. Please choose another.",
       "generic": "An error occurred. Please try again.",
       "tooSoon": "Booking too soon. Please book at least {{min}} minutes in advance.",
       "tooFarAhead": "Booking too far ahead. Maximum {{max}} days in advance.",

@@ -1256,7 +1256,6 @@
       "registerDone": "Compte créé ! Vous pouvez maintenant confirmer."
     },
     "errors": {
-      "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
       "generic": "Une erreur est survenue. Veuillez réessayer.",
       "tooSoon": "Réservation trop proche. Veuillez réserver au moins {{min}} minutes à l'avance.",
       "tooFarAhead": "Réservation trop lointaine. Maximum {{max}} jours à l'avance.",
