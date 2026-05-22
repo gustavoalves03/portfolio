@@ -39,14 +39,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.luxpretty.app.common.error.BookingErrorCodes;
+import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.domain.Employee;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CareBookingService {
@@ -66,6 +72,8 @@ public class CareBookingService {
     private final SalonClientService salonClientService;
     private final BookingPolicyService bookingPolicyService;
     private final com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private final EmployeeAssignmentService employeeAssignmentService;
+    private final LeaveRequestService leaveRequestService;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
@@ -76,7 +84,9 @@ public class CareBookingService {
                                com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher,
                                SalonClientService salonClientService,
                                BookingPolicyService bookingPolicyService,
-                               com.luxpretty.app.users.app.UserRoleService userRoleService) {
+                               com.luxpretty.app.users.app.UserRoleService userRoleService,
+                               EmployeeAssignmentService employeeAssignmentService,
+                               LeaveRequestService leaveRequestService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -90,6 +100,8 @@ public class CareBookingService {
         this.salonClientService = salonClientService;
         this.bookingPolicyService = bookingPolicyService;
         this.userRoleService = userRoleService;
+        this.employeeAssignmentService = employeeAssignmentService;
+        this.leaveRequestService = leaveRequestService;
     }
 
     @Transactional(readOnly = true)
@@ -204,24 +216,66 @@ public class CareBookingService {
                     "The requested time slot is not available.");
         }
 
-        // Clear any stale CANCELLED row for the same slot triple so the unique
-        // constraint UK_BOOKING_SLOT doesn't fire on re-booking (see createClientBooking).
-        evictCancelledBookingsForSlot(req.appointmentDate(), req.appointmentTime(), req.careId());
+        // Resolve employee (explicit validation OR auto-assign)
+        Employee employee = resolveEmployee(req.appointmentDate(), req.appointmentTime(),
+                req.careId(), req.employeeId(), care);
 
-        CareBooking b = new CareBooking();
-        b.setUser(user);
-        b.setCare(care);
-        CareBookingMapper.updateEntity(b, req);
-        if (req.salonClientId() != null) {
-            b.setSalonClientId(req.salonClientId());
+        // Insert (with retry once on collision only when auto-assigned)
+        return insertBookingWithRetry(req, user, care, employee, req.employeeId() == null);
+    }
+
+    private Employee resolveEmployee(LocalDate date, LocalTime time, Long careId,
+                                     Long requestedEmployeeId, Care care) {
+        if (requestedEmployeeId != null) {
+            Employee e = employeeRepository.findById(requestedEmployeeId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Employee not found: " + requestedEmployeeId));
+            boolean qualified = e.isActive()
+                    && e.getAssignedCares().stream().anyMatch(c -> c.getId().equals(care.getId()));
+            if (!qualified) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        BookingErrorCodes.EMPLOYEE_NOT_QUALIFIED);
+            }
+            if (leaveRequestService.isOnLeave(e.getId(), date)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        BookingErrorCodes.EMPLOYEE_ON_LEAVE);
+            }
+            return e;
         }
         try {
-            return CareBookingMapper.toResponse(repo.save(b));
-        } catch (DataIntegrityViolationException ex) {
-            // Same translation as createClientBooking: unique-slot collision on a
-            // concurrent insert should surface as a clean 409 with a user-friendly
-            // message, not a raw DataIntegrityViolationException.
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+            return employeeAssignmentService.pickLeastLoaded(date, time, careId);
+        } catch (NoEmployeeAvailableException nope) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    BookingErrorCodes.NO_EMPLOYEE_AVAILABLE);
+        }
+    }
+
+    private CareBookingResponse insertBookingWithRetry(CareBookingRequest req, User user, Care care,
+                                                       Employee employee, boolean allowRetry) {
+        Set<Long> excluded = new HashSet<>();
+        while (true) {
+            CareBooking b = new CareBooking();
+            b.setUser(user);
+            b.setCare(care);
+            CareBookingMapper.updateEntity(b, req);
+            b.setEmployeeId(employee.getId()); // overrides whatever the mapper set
+            if (req.salonClientId() != null) b.setSalonClientId(req.salonClientId());
+            try {
+                return CareBookingMapper.toResponse(repo.save(b));
+            } catch (DataIntegrityViolationException ex) {
+                if (!allowRetry) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, BookingErrorCodes.SLOT_TAKEN);
+                }
+                excluded.add(employee.getId());
+                try {
+                    employee = employeeAssignmentService.pickLeastLoaded(
+                            req.appointmentDate(), req.appointmentTime(), req.careId(), excluded);
+                } catch (NoEmployeeAvailableException nope) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            BookingErrorCodes.NO_EMPLOYEE_AVAILABLE);
+                }
+                allowRetry = false; // one retry only
+            }
         }
     }
 
