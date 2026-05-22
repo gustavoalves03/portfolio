@@ -247,6 +247,38 @@ private loadSlots(date: Date): void {
       this.matDialog.open(EmailNotVerifiedModalComponent, { width: '420px' });
       return;
     }
+
+    if (err instanceof HttpErrorResponse) {
+      const errorCode = err.error?.error as string | undefined;
+
+      // Per-employee booking errors (key: err.error.error — from ResponseStatusException handler)
+      if (err.status === 409 && errorCode === 'SLOT_TAKEN') {
+        this.snackBar.open(this.transloco.translate('errors.booking.slotTaken'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        return;
+      }
+      if (err.status === 409 && errorCode === 'NO_EMPLOYEE_AVAILABLE') {
+        this.snackBar.open(this.transloco.translate('errors.booking.noEmployeeAvailable'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        return;
+      }
+      if (err.status === 400 && errorCode === 'EMPLOYEE_NOT_QUALIFIED') {
+        this.snackBar.open(this.transloco.translate('errors.booking.employeeNotQualified'), undefined, { duration: 4000 });
+        this.selectedSlot.set(null);
+        this.selectedEmployee.set(null);
+        return;
+      }
+      if (err.status === 409 && errorCode === 'EMPLOYEE_ON_LEAVE') {
+        this.snackBar.open(this.transloco.translate('errors.booking.employeeOnLeaveBlock'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        this.selectedEmployee.set(null);
+        return;
+      }
+    }
+
     if (err instanceof HttpErrorResponse && err.status === 409) {
       const code = err.error?.code as string | undefined;
       if (code === 'BOOKING_LIMIT_DAILY_EXCEEDED') {

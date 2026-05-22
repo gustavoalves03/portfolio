@@ -262,6 +262,90 @@ describe('BookingDialogComponent', () => {
       expect(snackOpen).not.toHaveBeenCalled();
       expect(component.bookingError()).toBe('Internal Server Error');
     });
+
+    it('handles 409 SLOT_TAKEN by reloading slots and clearing selectedSlot', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'SLOT_TAKEN' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.slotTaken/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+    });
+
+    it('handles 409 NO_EMPLOYEE_AVAILABLE by reloading slots and clearing selectedSlot', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'NO_EMPLOYEE_AVAILABLE' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.noEmployeeAvailable/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+    });
+
+    it('handles 400 EMPLOYEE_NOT_QUALIFIED by clearing employee and slot without reload', () => {
+      const employee = { id: 1, name: 'Marie', available: true, imageUrl: null };
+      component.selectedEmployee.set(employee);
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 400,
+          error: { error: 'EMPLOYEE_NOT_QUALIFIED' },
+        })),
+      );
+
+      const slotCallsBefore = salonSpy.getAvailableSlotsByCare.calls.count();
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.employeeNotQualified/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(component.selectedSlot()).toBeNull();
+      expect(component.selectedEmployee()).toBeNull();
+      // No slot reload should happen for EMPLOYEE_NOT_QUALIFIED
+      expect(salonSpy.getAvailableSlotsByCare.calls.count()).toBe(slotCallsBefore);
+    });
+
+    it('handles 409 EMPLOYEE_ON_LEAVE by reloading slots and clearing both slot and employee', () => {
+      const employee = { id: 1, name: 'Marie', available: true, imageUrl: null };
+      component.selectedEmployee.set(employee);
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'EMPLOYEE_ON_LEAVE' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.employeeOnLeaveBlock/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+      expect(component.selectedEmployee()).toBeNull();
+    });
   });
 
   describe('client-mode guard (regression)', () => {

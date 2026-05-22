@@ -1354,7 +1354,11 @@
       "limitDaily": "You already have a booking that day at this salon.",
       "limitNewClientWeekly": "First visits are limited to one booking per week.",
       "employeeBusy": "Practitioner is already booked at this time",
-      "employeeOnLeave": "Practitioner is not available this day"
+      "employeeOnLeave": "Practitioner is not available this day",
+      "slotTaken": "This slot was just taken — please choose another.",
+      "noEmployeeAvailable": "No practitioner is available for this slot.",
+      "employeeNotQualified": "This practitioner does not offer this service.",
+      "employeeOnLeaveBlock": "This practitioner is on leave on this date."
     },
     "tenantSwitchFailed": "Could not switch salon"
   },
