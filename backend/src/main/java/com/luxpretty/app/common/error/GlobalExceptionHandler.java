@@ -1,5 +1,6 @@
 package com.luxpretty.app.common.error;
 
+import com.luxpretty.app.feature.app.FeatureDisabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -82,6 +83,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String,Object>> conflict(org.springframework.dao.DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", "A record with this value already exists"));
+    }
+
+    @ExceptionHandler(FeatureDisabledException.class)
+    public ResponseEntity<Map<String, Object>> featureDisabled(FeatureDisabledException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "error", "FEATURE_DISABLED",
+                "featureKey", ex.featureKey.name(),
+                "minimumTier", ex.minimumTier.name()
+        ));
     }
 
     @ExceptionHandler(BookingLimitExceededException.class)
