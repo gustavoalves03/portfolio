@@ -6,6 +6,8 @@ import com.luxpretty.app.bookings.domain.CareBookingStatus;
 import com.luxpretty.app.bookings.web.dto.CareBookingDetailedResponse;
 import com.luxpretty.app.bookings.web.dto.CareBookingRequest;
 import com.luxpretty.app.bookings.web.dto.CareBookingResponse;
+import com.luxpretty.app.feature.app.RequiresFeature;
+import com.luxpretty.app.feature.domain.FeatureKey;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.Map;
 
+@RequiresFeature(FeatureKey.BOOKING)
 @RestController
 @RequestMapping("/api/bookings")
 public class CareBookingController {
