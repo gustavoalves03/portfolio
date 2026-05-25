@@ -3,12 +3,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { EmployeesComponent } from '../../features/employees/employees.component';
 import { LeavesComponent } from '../../features/leaves/leaves.component';
+import { FeatureLockedComponent } from '../../core/feature-flags/feature-locked.component';
 
 @Component({
     selector: 'app-pro-employees',
     standalone: true,
-    imports: [MatTabsModule, TranslocoPipe, EmployeesComponent, LeavesComponent],
+    imports: [MatTabsModule, TranslocoPipe, EmployeesComponent, LeavesComponent, FeatureLockedComponent],
     template: `
+        <lp-feature-locked feature="EMPLOYEES">
         <div class="employees-page">
             <h1 class="page-title">{{ 'pro.employees.title' | transloco }}</h1>
             <mat-tab-group animationDuration="150ms">
@@ -20,6 +22,7 @@ import { LeavesComponent } from '../../features/leaves/leaves.component';
                 </mat-tab>
             </mat-tab-group>
         </div>
+        </lp-feature-locked>
     `,
     styles: [`
         .employees-page { background: var(--pf-paper); padding: 16px; max-width: 1440px; margin: 0 auto; }

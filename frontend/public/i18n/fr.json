@@ -1368,6 +1368,21 @@
       "disabled": "Cette fonctionnalité nécessite l'abonnement {{tier}}."
     }
   },
+  "features": {
+    "locked": {
+      "cta": "Découvrir les offres",
+      "booking": "La réservation en ligne est disponible avec Gestion ou Premium.",
+      "employees": "La gestion des praticiens est disponible avec Gestion ou Premium.",
+      "photos": "Les photos sont disponibles avec Gestion ou Premium.",
+      "sms_reminder": "Les rappels SMS sont disponibles avec Gestion ou Premium.",
+      "client_files": "Les fiches clients sont disponibles avec Gestion ou Premium.",
+      "absence_mgmt": "La gestion des absences est disponible avec Gestion ou Premium.",
+      "online_payment": "Le paiement en ligne est disponible avec Premium.",
+      "shop": "La boutique est disponible avec Premium.",
+      "loyalty": "La fidélité est disponible avec Premium.",
+      "multi_location": "Le multi-locations est disponible avec Premium."
+    }
+  },
   "evolution": {
     "title": "Mon évolution",
     "visits": "visites",

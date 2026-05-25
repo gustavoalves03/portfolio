@@ -15,6 +15,7 @@ import {
 } from '../../features/bookings/models/bookings.model';
 import { BookingStepperComponent } from '../../features/bookings/components/booking-stepper/booking-stepper.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
+import { FeatureLockedComponent } from '../../core/feature-flags/feature-locked.component';
 
 interface DayCell {
   date: string;          // YYYY-MM-DD
@@ -51,7 +52,7 @@ const STATUS_COLORS: Record<string, string> = {
 @Component({
   selector: 'app-pro-bookings',
   standalone: true,
-  imports: [MatIconModule, MatProgressSpinnerModule, TranslocoPipe],
+  imports: [MatIconModule, MatProgressSpinnerModule, TranslocoPipe, FeatureLockedComponent],
   templateUrl: './pro-bookings.component.html',
   styleUrl: './pro-bookings.component.scss',
 })

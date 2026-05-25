@@ -7,6 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PostsService } from '../../features/posts/posts.service';
+import { FeatureLockedComponent } from '../../core/feature-flags/feature-locked.component';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PostResponse, PostType } from '../../features/posts/posts.model';
 import { CaresService } from '../../features/cares/services/cares.service';
@@ -26,6 +27,7 @@ interface ImagePreview {
     MatProgressSpinnerModule,
     FormsModule,
     TranslocoPipe,
+    FeatureLockedComponent,
   ],
   templateUrl: './pro-posts.component.html',
   styleUrl: './pro-posts.component.scss',
