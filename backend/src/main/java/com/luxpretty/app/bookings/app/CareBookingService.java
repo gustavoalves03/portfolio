@@ -344,7 +344,16 @@ public class CareBookingService {
             }
         }
 
+        Long preservedEmployeeId = b.getEmployeeId();
+
         CareBookingMapper.updateEntity(b, req);
+
+        // If the request did not provide an employeeId, keep the previous one to avoid
+        // silent nullification. Explicit reassignment (req.employeeId != null) is honored.
+        if (req.employeeId() == null) {
+            b.setEmployeeId(preservedEmployeeId);
+        }
+
         return CareBookingMapper.toResponse(repo.save(b));
     }
 

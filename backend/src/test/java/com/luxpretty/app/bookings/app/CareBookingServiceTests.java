@@ -1771,6 +1771,70 @@ class CareBookingServiceTests {
         verify(bookingRepo, atLeastOnce()).save(argThat(b -> Long.valueOf(7L).equals(b.getEmployeeId())));
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── B13: update() — employeeId nullability guard ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("B13: update — null employeeId in request preserves existing employeeId")
+    void update_nullEmployeeIdInRequest_preservesExistingEmployeeId() {
+        // Existing booking has employeeId = 42L
+        CareBooking existing = new CareBooking();
+        existing.setId(300L);
+        existing.setUser(client);
+        existing.setCare(care30min);
+        existing.setQuantity(1);
+        existing.setAppointmentDate(futureDate);
+        existing.setAppointmentTime(LocalTime.of(10, 0));
+        existing.setStatus(CareBookingStatus.CONFIRMED);
+        existing.setEmployeeId(42L);
+
+        when(bookingRepo.findById(300L)).thenReturn(Optional.of(existing));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Request omits employeeId (null) — only changes status
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(10, 0),
+                        CareBookingStatus.CONFIRMED, null, null); // employeeId = null
+
+        service.update(300L, req, null);
+
+        // The saved booking must keep employeeId = 42L (not null)
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(42L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B13: update — explicit employeeId in request overrides existing employeeId")
+    void update_explicitEmployeeIdInRequest_overridesExisting() {
+        // Existing booking has employeeId = 42L
+        CareBooking existing = new CareBooking();
+        existing.setId(301L);
+        existing.setUser(client);
+        existing.setCare(care30min);
+        existing.setQuantity(1);
+        existing.setAppointmentDate(futureDate);
+        existing.setAppointmentTime(LocalTime.of(10, 0));
+        existing.setStatus(CareBookingStatus.CONFIRMED);
+        existing.setEmployeeId(42L);
+
+        when(bookingRepo.findById(301L)).thenReturn(Optional.of(existing));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Request explicitly sets employeeId = 99L
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(10, 0),
+                        CareBookingStatus.CONFIRMED, null, 99L); // employeeId = 99L
+
+        service.update(301L, req, null);
+
+        // The saved booking must have the new employeeId = 99L
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(99L).equals(b.getEmployeeId())));
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
