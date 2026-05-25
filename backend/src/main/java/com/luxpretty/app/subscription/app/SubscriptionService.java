@@ -1,5 +1,6 @@
 package com.luxpretty.app.subscription.app;
 
+import com.luxpretty.app.feature.app.FeatureFlagService;
 import com.luxpretty.app.subscription.domain.SubscriptionBilling;
 import com.luxpretty.app.subscription.domain.SubscriptionStatus;
 import com.luxpretty.app.subscription.domain.SubscriptionTier;
@@ -33,6 +34,7 @@ public class SubscriptionService {
     private final StripeService stripeService;
     private final PricingCatalog pricingCatalog;
     private final TenantRepository tenantRepository;
+    private final FeatureFlagService featureFlagService;
 
     /**
      * Idempotent: Creates a Stripe Customer for a tenant if one doesn't already exist.
@@ -80,6 +82,7 @@ public class SubscriptionService {
         tenant.setStripeSubscriptionId(stripeSub.getId());
         tenant.setSubscriptionTier(tier);
         tenant.setSubscriptionBilling(billing);
+        featureFlagService.applyTierDefaults(tier);
         // Sync status immediately. Webhooks will reconcile later if state changes,
         // but in dev (no webhook listener) we must not leave the tenant in
         // VITRINE_FREE — otherwise the publish gate keeps blocking after payment.
@@ -132,6 +135,7 @@ public class SubscriptionService {
             pricingCatalog.tierBillingFor(priceId).ifPresent(tierBilling -> {
                 tenant.setSubscriptionTier(tierBilling.tier());
                 tenant.setSubscriptionBilling(tierBilling.billing());
+                featureFlagService.applyTierDefaults(tierBilling.tier());
             });
         }
 
