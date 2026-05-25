@@ -3,9 +3,11 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { signal } from '@angular/core';
 import { AuthService } from './auth.service';
 import { AuthProvider, Role, User } from './auth.model';
 import { API_BASE_URL } from '../config/api-base-url.token';
+import { FeatureFlagsStore } from '../feature-flags/feature-flags.store';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -19,6 +21,14 @@ describe('AuthService', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         { provide: API_BASE_URL, useValue: 'http://localhost:8080' },
+        {
+          provide: FeatureFlagsStore,
+          useValue: {
+            load: jasmine.createSpy('load'),
+            reset: jasmine.createSpy('reset'),
+            isEnabled: () => signal(false),
+          },
+        },
       ],
     });
     service = TestBed.inject(AuthService);
