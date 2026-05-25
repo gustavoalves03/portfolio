@@ -10,6 +10,11 @@ export const AVAILABLE_SLOTS = [
   { startTime: '14:30', endTime: '15:15' },
 ];
 
+export const SLOTS_BY_CARE = [
+  { time: '10:00', employees: [{ id: 1, name: 'Test Employee', available: true }] },
+  { time: '14:30', employees: [{ id: 1, name: 'Test Employee', available: true }] },
+];
+
 export const SALON_CLIENTS = [
   { id: 10, name: 'Marie Dupont', phone: '+33612345678', email: 'marie@test.fr' },
   { id: 11, name: 'Julie Robert', phone: '+33698765432', email: 'julie@test.fr' },

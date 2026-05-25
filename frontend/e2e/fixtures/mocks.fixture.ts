@@ -3,6 +3,7 @@ import { Page } from '@playwright/test';
 import {
   CARES,
   AVAILABLE_SLOTS,
+  SLOTS_BY_CARE,
   SALON_CLIENTS,
   EMPLOYEES,
   PUBLIC_SALON,
@@ -75,8 +76,8 @@ export async function setupClientBookingMocks(page: Page): Promise<void> {
     r => r.fulfill(json(PUBLIC_SALON))
   );
   await page.route(
-    `**/api/salon/${PUBLIC_SALON.slug}/available-slots*`,
-    r => r.fulfill(json(AVAILABLE_SLOTS))
+    `**/api/salon/${PUBLIC_SALON.slug}/slots/by-care*`,
+    r => r.fulfill(json(SLOTS_BY_CARE))
   );
   await page.route(
     `**/api/salon/${PUBLIC_SALON.slug}/employees*`,
