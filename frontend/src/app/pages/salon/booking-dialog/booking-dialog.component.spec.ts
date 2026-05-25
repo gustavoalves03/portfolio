@@ -14,6 +14,7 @@ import { ClosedDay, ClosedDaysService } from '../../../features/availability/clo
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PublicCareDto } from '../../../features/salon-profile/models/salon-profile.model';
+import { SlotWithEmployees } from '../../../features/bookings/models/bookings.model';
 
 describe('BookingDialogComponent', () => {
   let closedDaysService: jasmine.SpyObj<ClosedDaysService>;
@@ -38,6 +39,7 @@ describe('BookingDialogComponent', () => {
     salonService = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
       'getEmployeesForCare',
       'getAvailableSlots',
+      'getAvailableSlotsByCare',
       'createBooking',
     ]);
     salonService.getEmployeesForCare.and.returnValue(of([]));
@@ -117,7 +119,10 @@ describe('BookingDialogComponent', () => {
     let component: BookingDialogComponent;
     let salonSpy: jasmine.SpyObj<SalonProfileService>;
     let snackOpen: jasmine.Spy;
-    const selectedSlot = { startTime: '10:00', endTime: '11:00' };
+    const selectedSlot: SlotWithEmployees = {
+      time: '10:00',
+      employees: [{ id: 1, name: 'Marie', available: true }],
+    };
 
     beforeEach(() => {
       const closedDaysSvc = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
@@ -129,10 +134,11 @@ describe('BookingDialogComponent', () => {
       salonSpy = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
         'getEmployeesForCare',
         'getAvailableSlots',
+        'getAvailableSlotsByCare',
         'createBooking',
       ]);
       salonSpy.getEmployeesForCare.and.returnValue(of([]));
-      salonSpy.getAvailableSlots.and.returnValue(of([selectedSlot]));
+      salonSpy.getAvailableSlotsByCare.and.returnValue(of([selectedSlot]));
 
       const auth = jasmine.createSpyObj<AuthService>(
         'AuthService',
@@ -256,6 +262,90 @@ describe('BookingDialogComponent', () => {
       expect(snackOpen).not.toHaveBeenCalled();
       expect(component.bookingError()).toBe('Internal Server Error');
     });
+
+    it('handles 409 SLOT_TAKEN by reloading slots and clearing selectedSlot', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'SLOT_TAKEN' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.slotTaken/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+    });
+
+    it('handles 409 NO_EMPLOYEE_AVAILABLE by reloading slots and clearing selectedSlot', () => {
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'NO_EMPLOYEE_AVAILABLE' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.noEmployeeAvailable/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+    });
+
+    it('handles 400 EMPLOYEE_NOT_QUALIFIED by clearing employee and slot without reload', () => {
+      const employee = { id: 1, name: 'Marie', available: true, imageUrl: null };
+      component.selectedEmployee.set(employee);
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 400,
+          error: { error: 'EMPLOYEE_NOT_QUALIFIED' },
+        })),
+      );
+
+      const slotCallsBefore = salonSpy.getAvailableSlotsByCare.calls.count();
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.employeeNotQualified/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(component.selectedSlot()).toBeNull();
+      expect(component.selectedEmployee()).toBeNull();
+      // No slot reload should happen for EMPLOYEE_NOT_QUALIFIED
+      expect(salonSpy.getAvailableSlotsByCare.calls.count()).toBe(slotCallsBefore);
+    });
+
+    it('handles 409 EMPLOYEE_ON_LEAVE by reloading slots and clearing both slot and employee', () => {
+      const employee = { id: 1, name: 'Marie', available: true, imageUrl: null };
+      component.selectedEmployee.set(employee);
+      salonSpy.createBooking.and.returnValue(
+        throwError(() => new HttpErrorResponse({
+          status: 409,
+          error: { error: 'EMPLOYEE_ON_LEAVE' },
+        })),
+      );
+
+      component.confirm();
+
+      expect(snackOpen).toHaveBeenCalledWith(
+        jasmine.stringMatching(/errors\.booking\.employeeOnLeaveBlock/),
+        undefined,
+        jasmine.objectContaining({ duration: 4000 }),
+      );
+      expect(salonSpy.getAvailableSlotsByCare).toHaveBeenCalled();
+      expect(component.selectedSlot()).toBeNull();
+      expect(component.selectedEmployee()).toBeNull();
+    });
   });
 
   describe('client-mode guard (regression)', () => {
@@ -276,6 +366,7 @@ describe('BookingDialogComponent', () => {
       const salonSpy = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
         'getEmployeesForCare',
         'getAvailableSlots',
+        'getAvailableSlotsByCare',
         'createBooking',
       ]);
       salonSpy.getEmployeesForCare.and.returnValue(of([]));
@@ -328,7 +419,7 @@ describe('BookingDialogComponent', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
       cmp.selectedDate.set(futureDate);
-      cmp.selectedSlot.set({ startTime: '10:00', endTime: '11:00' });
+      cmp.selectedSlot.set({ time: '10:00', employees: [{ id: 1, name: 'Marie', available: true }] });
       return { cmp, salonSpy };
     }
 
@@ -342,6 +433,108 @@ describe('BookingDialogComponent', () => {
       const { cmp, salonSpy } = setupWithMode(true);
       cmp.confirm();
       expect(salonSpy.createBooking).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('per-employee chip rendering', () => {
+    function setupWithSlots(slots: SlotWithEmployees[]): {
+      cmp: BookingDialogComponent;
+      fixture: ReturnType<typeof TestBed.createComponent<BookingDialogComponent>>;
+    } {
+      const closedDaysSvc = jasmine.createSpyObj<ClosedDaysService>('ClosedDaysService', [
+        'loadPublicClosedDays',
+        'loadClosedDays',
+      ]);
+      closedDaysSvc.loadPublicClosedDays.and.returnValue(of([]));
+
+      const salonSpy = jasmine.createSpyObj<SalonProfileService>('SalonProfileService', [
+        'getEmployeesForCare',
+        'getAvailableSlots',
+        'getAvailableSlotsByCare',
+        'createBooking',
+      ]);
+      salonSpy.getEmployeesForCare.and.returnValue(of([]));
+
+      const auth = jasmine.createSpyObj<AuthService>('AuthService', ['isAuthenticated', 'isClientMode']);
+      const data: BookingDialogData = { slug: 'test-salon', care };
+
+      TestBed.configureTestingModule({
+        imports: [
+          BookingDialogComponent,
+          TranslocoTestingModule.forRoot({ langs: { fr: {} }, translocoConfig: { defaultLang: 'fr' } }),
+        ],
+        providers: [
+          provideZonelessChangeDetection(),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideNoopAnimations(),
+          { provide: MatDialogRef, useValue: { close: () => undefined } },
+          { provide: MAT_DIALOG_DATA, useValue: data },
+          { provide: MatDialog, useValue: { open: () => ({ afterClosed: () => of(null) }) } },
+          { provide: ClosedDaysService, useValue: closedDaysSvc },
+          { provide: SalonProfileService, useValue: salonSpy },
+          { provide: AuthService, useValue: auth },
+        ],
+      });
+
+      const fixture = TestBed.createComponent(BookingDialogComponent);
+      fixture.detectChanges();
+      const cmp = fixture.componentInstance;
+      cmp.slots.set(slots);
+      // Trigger a date selection so the slots section renders
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 1);
+      cmp.selectedDate.set(futureDate);
+      fixture.detectChanges();
+      return { cmp, fixture };
+    }
+
+    it('greys out unavailable employee chips', () => {
+      const { fixture } = setupWithSlots([
+        {
+          time: '10:00',
+          employees: [
+            { id: 1, name: 'Marie', available: true },
+            { id: 2, name: 'Sophie', available: false, reason: 'BUSY' },
+          ],
+        },
+      ]);
+
+      const chips = fixture.nativeElement.querySelectorAll('[data-testid="employee-chip"]');
+      expect(chips.length).toBe(2);
+
+      const marie = chips[0] as HTMLButtonElement;
+      const sophie = chips[1] as HTMLButtonElement;
+
+      expect(marie.classList.contains('chip-grey')).toBeFalse();
+      expect(sophie.classList.contains('chip-grey')).toBeTrue();
+      expect(sophie.disabled).toBeTrue();
+    });
+
+    it('onChipClick sets selectedSlot and selectedEmployee for available chip', () => {
+      const slot: SlotWithEmployees = {
+        time: '09:00',
+        employees: [{ id: 3, name: 'Lea', available: true }],
+      };
+      const { cmp } = setupWithSlots([slot]);
+
+      cmp.onChipClick(slot, slot.employees[0]);
+
+      expect(cmp.selectedSlot()?.time).toBe('09:00');
+      expect(cmp.selectedEmployee()?.id).toBe(3);
+    });
+
+    it('onChipClick does nothing for unavailable chip', () => {
+      const slot: SlotWithEmployees = {
+        time: '11:00',
+        employees: [{ id: 4, name: 'Anna', available: false, reason: 'ON_LEAVE' }],
+      };
+      const { cmp } = setupWithSlots([slot]);
+
+      cmp.onChipClick(slot, slot.employees[0]);
+
+      expect(cmp.selectedSlot()).toBeNull();
+      expect(cmp.selectedEmployee()).toBeNull();
     });
   });
 });

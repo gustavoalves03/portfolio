@@ -5,6 +5,20 @@ export enum CareBookingStatus {
   NO_SHOW = 'NO_SHOW',
 }
 
+export type EmployeeAvailabilityReason = 'BUSY' | 'ON_LEAVE';
+
+export interface EmployeeSlotState {
+  id: number;
+  name: string;
+  available: boolean;
+  reason?: EmployeeAvailabilityReason;
+}
+
+export interface SlotWithEmployees {
+  time: string;
+  employees: EmployeeSlotState[];
+}
+
 export interface CareBooking {
   id: number;
   userId: number;

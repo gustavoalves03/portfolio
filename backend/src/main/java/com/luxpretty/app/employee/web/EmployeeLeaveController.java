@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// TODO(chantier-T): add @RequiresFeature(ABSENCE_MGMT) at class level once tier gating ships
 @RestController
 @RequestMapping("/api/pro/leaves")
 public class EmployeeLeaveController {

@@ -39,14 +39,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.luxpretty.app.common.error.BookingErrorCodes;
+import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.domain.Employee;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 
 @Service
 public class CareBookingService {
@@ -66,6 +73,8 @@ public class CareBookingService {
     private final SalonClientService salonClientService;
     private final BookingPolicyService bookingPolicyService;
     private final com.luxpretty.app.users.app.UserRoleService userRoleService;
+    private final EmployeeAssignmentService employeeAssignmentService;
+    private final LeaveRequestService leaveRequestService;
 
     public CareBookingService(CareBookingRepository repo, UserRepository userRepository,
                                CareRepository careRepository, SlotAvailabilityService slotAvailabilityService,
@@ -76,7 +85,9 @@ public class CareBookingService {
                                com.luxpretty.app.notification.app.NotificationDispatcher notificationDispatcher,
                                SalonClientService salonClientService,
                                BookingPolicyService bookingPolicyService,
-                               com.luxpretty.app.users.app.UserRoleService userRoleService) {
+                               com.luxpretty.app.users.app.UserRoleService userRoleService,
+                               EmployeeAssignmentService employeeAssignmentService,
+                               LeaveRequestService leaveRequestService) {
         this.repo = repo;
         this.userRepository = userRepository;
         this.careRepository = careRepository;
@@ -90,6 +101,8 @@ public class CareBookingService {
         this.salonClientService = salonClientService;
         this.bookingPolicyService = bookingPolicyService;
         this.userRoleService = userRoleService;
+        this.employeeAssignmentService = employeeAssignmentService;
+        this.leaveRequestService = leaveRequestService;
     }
 
     @Transactional(readOnly = true)
@@ -204,44 +217,74 @@ public class CareBookingService {
                     "The requested time slot is not available.");
         }
 
-        // Clear any stale CANCELLED row for the same slot triple so the unique
-        // constraint UK_BOOKING_SLOT doesn't fire on re-booking (see createClientBooking).
-        evictCancelledBookingsForSlot(req.appointmentDate(), req.appointmentTime(), req.careId());
+        // Resolve employee (explicit validation OR auto-assign)
+        Employee employee = resolveEmployee(req.appointmentDate(), req.appointmentTime(),
+                req.careId(), req.employeeId(), care);
 
-        CareBooking b = new CareBooking();
-        b.setUser(user);
-        b.setCare(care);
-        CareBookingMapper.updateEntity(b, req);
-        if (req.salonClientId() != null) {
-            b.setSalonClientId(req.salonClientId());
+        // Insert (with retry once on collision only when auto-assigned)
+        CareBooking saved = insertBookingWithRetry(
+                req.appointmentDate(), req.appointmentTime(), req.careId(), employee,
+                req.employeeId() == null,
+                emp -> {
+                    CareBooking b = new CareBooking();
+                    b.setUser(user);
+                    b.setCare(care);
+                    CareBookingMapper.updateEntity(b, req);
+                    if (req.salonClientId() != null) b.setSalonClientId(req.salonClientId());
+                    return b;
+                });
+        return CareBookingMapper.toResponse(saved);
+    }
+
+    private Employee resolveEmployee(LocalDate date, LocalTime time, Long careId,
+                                     Long requestedEmployeeId, Care care) {
+        if (requestedEmployeeId != null) {
+            Employee e = employeeRepository.findById(requestedEmployeeId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Employee not found: " + requestedEmployeeId));
+            boolean qualified = e.isActive()
+                    && e.getAssignedCares().stream().anyMatch(c -> c.getId().equals(care.getId()));
+            if (!qualified) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        BookingErrorCodes.EMPLOYEE_NOT_QUALIFIED);
+            }
+            if (leaveRequestService.isOnLeave(e.getId(), date)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        BookingErrorCodes.EMPLOYEE_ON_LEAVE);
+            }
+            return e;
         }
         try {
-            return CareBookingMapper.toResponse(repo.save(b));
-        } catch (DataIntegrityViolationException ex) {
-            // Same translation as createClientBooking: unique-slot collision on a
-            // concurrent insert should surface as a clean 409 with a user-friendly
-            // message, not a raw DataIntegrityViolationException.
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
+            return employeeAssignmentService.pickLeastLoaded(date, time, careId);
+        } catch (NoEmployeeAvailableException nope) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    BookingErrorCodes.NO_EMPLOYEE_AVAILABLE);
         }
     }
 
-    /**
-     * Hard-deletes any CANCELLED booking rows holding the given (date, time, care)
-     * slot triple. Needed because {@code UK_BOOKING_SLOT} is a plain unique constraint
-     * (no {@code status} filter) and the cancel flow is a soft-delete, so a stale
-     * cancelled row would block a legitimate re-book on the same slot.
-     *
-     * <p>Called from {@link #create(CareBookingRequest)} and
-     * {@link #createClientBooking(User, User, String, ClientBookingRequest)} right
-     * before the insert. The cancelled booking's history is already preserved
-     * in the shared {@code CLIENT_BOOKING_HISTORY} table.
-     */
-    private void evictCancelledBookingsForSlot(LocalDate date, LocalTime time, Long careId) {
-        List<CareBooking> stale = repo.findByAppointmentDateAndAppointmentTimeAndCareIdAndStatus(
-                date, time, careId, CareBookingStatus.CANCELLED);
-        if (!stale.isEmpty()) {
-            repo.deleteAll(stale);
-            repo.flush();
+    private CareBooking insertBookingWithRetry(LocalDate date, LocalTime time, Long careId,
+                                               Employee initialEmployee, boolean allowRetry,
+                                               Function<Employee, CareBooking> bookingBuilder) {
+        Employee employee = initialEmployee;
+        Set<Long> excluded = new HashSet<>();
+        while (true) {
+            CareBooking b = bookingBuilder.apply(employee);
+            b.setEmployeeId(employee.getId()); // ensure override
+            try {
+                return repo.save(b);
+            } catch (DataIntegrityViolationException ex) {
+                if (!allowRetry) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, BookingErrorCodes.SLOT_TAKEN);
+                }
+                excluded.add(employee.getId());
+                try {
+                    employee = employeeAssignmentService.pickLeastLoaded(date, time, careId, excluded);
+                } catch (NoEmployeeAvailableException nope) {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,
+                            BookingErrorCodes.NO_EMPLOYEE_AVAILABLE);
+                }
+                allowRetry = false; // one retry only
+            }
         }
     }
 
@@ -301,7 +344,16 @@ public class CareBookingService {
             }
         }
 
+        Long preservedEmployeeId = b.getEmployeeId();
+
         CareBookingMapper.updateEntity(b, req);
+
+        // If the request did not provide an employeeId, keep the previous one to avoid
+        // silent nullification. Explicit reassignment (req.employeeId != null) is honored.
+        if (req.employeeId() == null) {
+            b.setEmployeeId(preservedEmployeeId);
+        }
+
         return CareBookingMapper.toResponse(repo.save(b));
     }
 
@@ -396,7 +448,7 @@ public class CareBookingService {
             }
         }
 
-        // Re-verify slot availability (concurrency protection)
+        // Re-verify slot availability (concurrency protection / opening-hours sanity check)
         boolean slotAvailable = slotAvailabilityService.getAvailableSlots(req.appointmentDate(), req.careId())
                 .stream()
                 .anyMatch(slot -> LocalTime.parse(slot.startTime()).equals(time));
@@ -405,26 +457,22 @@ public class CareBookingService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
         }
 
-        // UK_BOOKING_SLOT (appointment_date, appointment_time, care_id) is a plain
-        // unique constraint — cancel is a soft-delete that leaves the row in place,
-        // so a stale CANCELLED row would collide on re-booking. Hard-delete any
-        // cancelled booking for the same slot triple before inserting the new one.
-        // History/audit is preserved independently in CLIENT_BOOKING_HISTORY.
-        evictCancelledBookingsForSlot(req.appointmentDate(), time, req.careId());
+        // Resolve employee (explicit validation OR auto-assign least-loaded)
+        Employee employee = resolveEmployee(req.appointmentDate(), time, req.careId(), req.employeeId(), care);
 
-        CareBooking booking = new CareBooking();
-        booking.setUser(client);
-        booking.setCare(care);
-        booking.setQuantity(1);
-        booking.setAppointmentDate(req.appointmentDate());
-        booking.setAppointmentTime(time);
-        booking.setStatus(CareBookingStatus.CONFIRMED);
-
-        try {
-            booking = repo.save(booking);
-        } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Slot no longer available");
-        }
+        CareBooking booking = insertBookingWithRetry(
+                req.appointmentDate(), time, req.careId(), employee,
+                req.employeeId() == null,
+                emp -> {
+                    CareBooking b = new CareBooking();
+                    b.setUser(client);
+                    b.setCare(care);
+                    b.setQuantity(1);
+                    b.setAppointmentDate(req.appointmentDate());
+                    b.setAppointmentTime(time);
+                    b.setStatus(CareBookingStatus.CONFIRMED);
+                    return b;
+                });
 
         // Auto-create/find SalonClient for this user
         var salonClient = salonClientService.getOrCreateForUser(client.getId(), client.getName(), null);

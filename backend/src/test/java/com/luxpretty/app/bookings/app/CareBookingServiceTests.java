@@ -7,11 +7,15 @@ import com.luxpretty.app.bookings.domain.CareBookingStatus;
 import com.luxpretty.app.bookings.domain.ClientBookingHistory;
 import com.luxpretty.app.bookings.repo.CareBookingRepository;
 import com.luxpretty.app.bookings.repo.ClientBookingHistoryRepository;
+import com.luxpretty.app.bookings.web.dto.CareBookingRequest;
 import com.luxpretty.app.bookings.web.dto.ClientBookingRequest;
 import com.luxpretty.app.bookings.web.dto.ClientBookingResponse;
 import com.luxpretty.app.care.domain.Care;
 import com.luxpretty.app.care.domain.CareStatus;
 import com.luxpretty.app.care.repo.CareRepository;
+import com.luxpretty.app.common.error.BookingErrorCodes;
+import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.domain.Employee;
 import com.luxpretty.app.multitenancy.ApplicationSchemaExecutor;
 import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.mail.app.MailOutboxService;
@@ -37,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +67,8 @@ class CareBookingServiceTests {
     @Mock private com.luxpretty.app.tracking.app.SalonClientService salonClientService;
     @Mock private BookingPolicyService bookingPolicyService;
     @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
+    @Mock private EmployeeAssignmentService employeeAssignmentService;
+    @Mock private LeaveRequestService leaveRequestService;
 
     @InjectMocks
     private CareBookingService service;
@@ -100,6 +107,16 @@ class CareBookingServiceTests {
         defaultSalonClient.setId(1L);
         lenient().when(salonClientService.getOrCreateForUser(any(Long.class), any(String.class), any()))
                 .thenReturn(defaultSalonClient);
+
+        // Default: auto-assign employee (no-preference path) returns a default employee
+        Employee defaultEmployee = employeeWithCare(99L, "Default", 10L);
+        lenient().when(employeeAssignmentService.pickLeastLoaded(
+                any(LocalDate.class), any(LocalTime.class), any(Long.class)))
+                .thenReturn(defaultEmployee);
+        // Default: retry with excluded set → no employee available (prevents NPE in collision tests)
+        lenient().when(employeeAssignmentService.pickLeastLoaded(
+                any(LocalDate.class), any(LocalTime.class), any(Long.class), any(Set.class)))
+                .thenThrow(new NoEmployeeAvailableException(10L, LocalDate.now(), LocalTime.NOON));
     }
 
     @AfterEach
@@ -242,20 +259,28 @@ class CareBookingServiceTests {
     }
 
     @Test
-    @DisplayName("Race condition: slot check passes but DB save fails (unique constraint) → CONFLICT")
+    @DisplayName("Race condition: slot check passes but DB save fails (unique constraint) → CONFLICT SLOT_TAKEN")
     void raceCondition_dbConstraintViolation_conflict() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
         mockSlotAvailable("09:00");
+        // Explicit employee so no retry is attempted
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
 
         // Simulate: slot check passes but another thread saved first → DB constraint violation
         when(bookingRepo.save(any(CareBooking.class)))
                 .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
 
-        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", 5L);
 
         assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
                 .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("Slot no longer available");
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.SLOT_TAKEN);
+                });
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -893,51 +918,58 @@ class CareBookingServiceTests {
     }
 
     @Test
-    @DisplayName("Sec3: create_raceConditionBetweenCheckAndPersist — check passes, save throws → 409")
+    @DisplayName("Sec3: create_raceConditionBetweenCheckAndPersist — check passes, save throws → 409 SLOT_TAKEN")
     void create_raceConditionBetweenCheckAndPersist() {
-        // NOTE-SEC: demonstrates check-then-act window closure via UK_BOOKING_SLOT.
+        // NOTE-SEC: demonstrates check-then-act window closure via UK_BOOKING_SLOT_EMPLOYEE.
         // Two threads pass the availability check simultaneously; the first save wins,
         // the second save raises DataIntegrityViolationException which the service maps
-        // to HttpStatus.CONFLICT with the same "Slot no longer available" message.
+        // to HttpStatus.CONFLICT with SLOT_TAKEN. Using explicit employeeId to disable retry.
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
         mockSlotAvailable("09:00");
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
         when(bookingRepo.save(any(CareBooking.class)))
                 .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
 
-        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", null);
+        ClientBookingRequest req = new ClientBookingRequest(10L, futureDate, "09:00", 5L);
 
         assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
                 .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT))
-                .hasMessageContaining("Slot no longer available");
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.SLOT_TAKEN);
+                });
     }
 
     @Test
-    @DisplayName("Sec3: create_adminPathHandlesRaceConditionCleanly — admin POST /api/bookings translates UK race to 409")
+    @DisplayName("Sec3: create_adminPathHandlesRaceConditionCleanly — explicit employeeId + DB collision → 409 SLOT_TAKEN")
     void create_adminPathHandlesRaceConditionCleanly() {
-        // CareBookingService.create(CareBookingRequest) now wraps save() so that a
-        // concurrent unique-constraint violation (e.g. UK_BOOKING_SLOT) surfaces as
-        // HTTP 409 "Slot no longer available" — same translation as
-        // createClientBooking — instead of a raw DataIntegrityViolationException.
+        // When the admin picks a SPECIFIC employee and the DB raises a UK collision,
+        // no retry is attempted and the service returns 409 SLOT_TAKEN.
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(client));
         when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
         when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
                 .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
         when(bookingRepo.save(any(CareBooking.class)))
-                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT"));
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE"));
 
-        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
-                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
-                        1L, 10L, 1, futureDate,
-                        LocalTime.of(9, 0),
-                        CareBookingStatus.CONFIRMED, null, null);
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate,
+                LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, 5L);
 
         assertThatThrownBy(() -> service.create(req))
                 .isInstanceOf(ResponseStatusException.class)
-                .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT))
-                .hasMessageContaining("Slot no longer available");
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.SLOT_TAKEN);
+                });
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -985,14 +1017,15 @@ class CareBookingServiceTests {
         assertThat(firstResult.status()).isEqualTo("CONFIRMED");
 
         // Client 2: same slot, check passes (stale view), save hits UK → CONFLICT
+        // With null employeeId, a retry is attempted; when no other employee is available
+        // the service responds with NO_EMPLOYEE_AVAILABLE (also CONFLICT).
         User client2 = User.builder().id(3L).name("Julie").email("julie@test.com").emailVerified(true).build();
         ClientBookingRequest req2 = new ClientBookingRequest(10L, futureDate, "09:00", null);
 
         assertThatThrownBy(() -> service.createClientBooking(client2, owner, "Salon", req2))
                 .isInstanceOf(ResponseStatusException.class)
                 .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
-                        .isEqualTo(HttpStatus.CONFLICT))
-                .hasMessageContaining("Slot no longer available");
+                        .isEqualTo(HttpStatus.CONFLICT));
     }
 
     @Test
@@ -1407,6 +1440,401 @@ class CareBookingServiceTests {
                 });
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // ── B11: Employee validation + auto-assign + retry ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("B11: explicit employee not qualified (no assignedCares) → 400 EMPLOYEE_NOT_QUALIFIED")
+    void create_explicitEmployee_notQualified_throws400EmployeeNotQualified() {
+        Employee marie = new Employee();
+        marie.setId(5L);
+        marie.setActive(true);
+        // assignedCares is empty — not qualified for care 10
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, 5L);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.EMPLOYEE_NOT_QUALIFIED);
+                });
+    }
+
+    @Test
+    @DisplayName("B11: explicit employee qualified but on leave → 409 EMPLOYEE_ON_LEAVE")
+    void create_explicitEmployee_onLeave_throws409EmployeeOnLeave() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(true);
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, 5L);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.EMPLOYEE_ON_LEAVE);
+                });
+    }
+
+    @Test
+    @DisplayName("B11: explicit employee qualified and available → insert with that employeeId")
+    void create_explicitEmployee_qualifiedAndAvailable_insertsWithEmployeeId() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> {
+            CareBooking b = inv.getArgument(0);
+            b.setId(200L);
+            return b;
+        });
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, 5L);
+
+        service.create(req);
+
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(5L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B11: null employeeId → auto-assign least-loaded → insert with that employeeId")
+    void create_nullEmployee_autoAssignsLeastLoaded() {
+        Employee sophie = employeeWithCare(7L, "Sophie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeAssignmentService.pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L))
+                .thenReturn(sophie);
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> {
+            CareBooking b = inv.getArgument(0);
+            b.setId(201L);
+            return b;
+        });
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, null);
+
+        service.create(req);
+
+        verify(employeeAssignmentService).pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L);
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(7L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B11: explicit employee + DB collision → 409 SLOT_TAKEN (no retry)")
+    void create_explicitEmployee_dbCollision_returns409SlotTaken() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE"));
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, 5L);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.SLOT_TAKEN);
+                });
+        // No retry: pickLeastLoaded must never be called
+        verify(employeeAssignmentService, never()).pickLeastLoaded(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("B11: null employee + DB collision + retry succeeds with second employee")
+    void create_nullEmployee_dbCollisionThenRetrySucceeds() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+        Employee sophie = employeeWithCare(7L, "Sophie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeAssignmentService.pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L))
+                .thenReturn(marie);
+        when(employeeAssignmentService.pickLeastLoaded(
+                eq(futureDate), eq(LocalTime.of(9, 0)), eq(10L), eq(Set.of(5L))))
+                .thenReturn(sophie);
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE")) // first save fails
+                .thenAnswer(inv -> {                                                          // retry succeeds
+                    CareBooking b = inv.getArgument(0);
+                    b.setId(202L);
+                    return b;
+                });
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, null);
+
+        service.create(req);
+
+        verify(bookingRepo, times(2)).save(any(CareBooking.class));
+        verify(employeeAssignmentService).pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L);
+        verify(employeeAssignmentService).pickLeastLoaded(
+                futureDate, LocalTime.of(9, 0), 10L, Set.of(5L));
+        // Final booking must use sophie's id
+        verify(bookingRepo, times(1)).save(argThat(b -> Long.valueOf(7L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B11: null employee + DB collision + retry fails (no employee available) → 409 NO_EMPLOYEE_AVAILABLE")
+    void create_nullEmployee_dbCollisionAndRetryFails_returns409NoEmployeeAvailable() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(client));
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("09:00", "09:30")));
+        when(employeeAssignmentService.pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L))
+                .thenReturn(marie);
+        when(employeeAssignmentService.pickLeastLoaded(
+                eq(futureDate), eq(LocalTime.of(9, 0)), eq(10L), eq(Set.of(5L))))
+                .thenThrow(new NoEmployeeAvailableException(10L, futureDate, LocalTime.of(9, 0)));
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE"));
+
+        CareBookingRequest req = new CareBookingRequest(
+                1L, 10L, 1, futureDate, LocalTime.of(9, 0),
+                CareBookingStatus.CONFIRMED, null, null);
+
+        assertThatThrownBy(() -> service.create(req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.NO_EMPLOYEE_AVAILABLE);
+                });
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── B12: createClientBooking — employee resolution + retry ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("B12: createClientBooking — null employee → auto-assigns least-loaded")
+    void createClientBooking_nullEmployee_autoAssignsLeastLoaded() {
+        Employee sophie = employeeWithCare(7L, "Sophie", 10L);
+
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(employeeAssignmentService.pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L))
+                .thenReturn(sophie);
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> {
+            CareBooking b = inv.getArgument(0);
+            b.setId(300L);
+            return b;
+        });
+
+        ClientBookingRequest req = clientReq(10L, null, futureDate.toString(), "09:00");
+        ClientBookingResponse result = service.createClientBooking(client, owner, "Salon", req);
+
+        assertThat(result.status()).isEqualTo("CONFIRMED");
+        verify(employeeAssignmentService).pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L);
+        verify(bookingRepo, atLeastOnce()).save(argThat(b -> Long.valueOf(7L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B12: createClientBooking — explicit employee not qualified → 400 EMPLOYEE_NOT_QUALIFIED")
+    void createClientBooking_explicitEmployee_notQualified_throws400() {
+        Employee unqualified = new Employee();
+        unqualified.setId(5L);
+        unqualified.setActive(true);
+        // assignedCares is empty — not qualified for care 10
+
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(unqualified));
+
+        ClientBookingRequest req = clientReq(10L, 5L, futureDate.toString(), "09:00");
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.EMPLOYEE_NOT_QUALIFIED);
+                });
+    }
+
+    @Test
+    @DisplayName("B12: createClientBooking — explicit employee on leave → 409 EMPLOYEE_ON_LEAVE")
+    void createClientBooking_explicitEmployee_onLeave_throws409() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(true);
+
+        ClientBookingRequest req = clientReq(10L, 5L, futureDate.toString(), "09:00");
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.EMPLOYEE_ON_LEAVE);
+                });
+    }
+
+    @Test
+    @DisplayName("B12: createClientBooking — explicit employee + DB collision → 409 SLOT_TAKEN (no retry)")
+    void createClientBooking_explicitEmployee_dbCollision_throws409SlotTaken() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(marie));
+        when(leaveRequestService.isOnLeave(5L, futureDate)).thenReturn(false);
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE"));
+
+        ClientBookingRequest req = clientReq(10L, 5L, futureDate.toString(), "09:00");
+
+        assertThatThrownBy(() -> service.createClientBooking(client, owner, "Salon", req))
+                .isInstanceOf(ResponseStatusException.class)
+                .satisfies(ex -> {
+                    ResponseStatusException rse = (ResponseStatusException) ex;
+                    assertThat(rse.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+                    assertThat(rse.getReason()).isEqualTo(BookingErrorCodes.SLOT_TAKEN);
+                });
+        verify(employeeAssignmentService, never()).pickLeastLoaded(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("B12: createClientBooking — null employee + DB collision → retry succeeds with second employee")
+    void createClientBooking_nullEmployee_dbCollisionThenRetrySucceeds() {
+        Employee marie = employeeWithCare(5L, "Marie", 10L);
+        Employee sophie = employeeWithCare(7L, "Sophie", 10L);
+
+        when(careRepository.findById(10L)).thenReturn(Optional.of(care30min));
+        mockSlotAvailable("09:00");
+        when(employeeAssignmentService.pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L))
+                .thenReturn(marie);
+        when(employeeAssignmentService.pickLeastLoaded(
+                eq(futureDate), eq(LocalTime.of(9, 0)), eq(10L), eq(Set.of(5L))))
+                .thenReturn(sophie);
+        when(bookingRepo.save(any(CareBooking.class)))
+                .thenThrow(new DataIntegrityViolationException("UK_BOOKING_SLOT_EMPLOYEE")) // first attempt fails
+                .thenAnswer(inv -> {                                                          // retry succeeds
+                    CareBooking b = inv.getArgument(0);
+                    b.setId(301L);
+                    return b;
+                })
+                .thenAnswer(inv -> inv.getArgument(0)); // salonClientId update
+
+        ClientBookingRequest req = clientReq(10L, null, futureDate.toString(), "09:00");
+        ClientBookingResponse result = service.createClientBooking(client, owner, "Salon", req);
+
+        assertThat(result.status()).isEqualTo("CONFIRMED");
+        verify(employeeAssignmentService).pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L);
+        verify(employeeAssignmentService).pickLeastLoaded(futureDate, LocalTime.of(9, 0), 10L, Set.of(5L));
+        verify(bookingRepo, atLeastOnce()).save(argThat(b -> Long.valueOf(7L).equals(b.getEmployeeId())));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── B13: update() — employeeId nullability guard ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("B13: update — null employeeId in request preserves existing employeeId")
+    void update_nullEmployeeIdInRequest_preservesExistingEmployeeId() {
+        // Existing booking has employeeId = 42L
+        CareBooking existing = new CareBooking();
+        existing.setId(300L);
+        existing.setUser(client);
+        existing.setCare(care30min);
+        existing.setQuantity(1);
+        existing.setAppointmentDate(futureDate);
+        existing.setAppointmentTime(LocalTime.of(10, 0));
+        existing.setStatus(CareBookingStatus.CONFIRMED);
+        existing.setEmployeeId(42L);
+
+        when(bookingRepo.findById(300L)).thenReturn(Optional.of(existing));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Request omits employeeId (null) — only changes status
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(10, 0),
+                        CareBookingStatus.CONFIRMED, null, null); // employeeId = null
+
+        service.update(300L, req, null);
+
+        // The saved booking must keep employeeId = 42L (not null)
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(42L).equals(b.getEmployeeId())));
+    }
+
+    @Test
+    @DisplayName("B13: update — explicit employeeId in request overrides existing employeeId")
+    void update_explicitEmployeeIdInRequest_overridesExisting() {
+        // Existing booking has employeeId = 42L
+        CareBooking existing = new CareBooking();
+        existing.setId(301L);
+        existing.setUser(client);
+        existing.setCare(care30min);
+        existing.setQuantity(1);
+        existing.setAppointmentDate(futureDate);
+        existing.setAppointmentTime(LocalTime.of(10, 0));
+        existing.setStatus(CareBookingStatus.CONFIRMED);
+        existing.setEmployeeId(42L);
+
+        when(bookingRepo.findById(301L)).thenReturn(Optional.of(existing));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Request explicitly sets employeeId = 99L
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest req =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(10, 0),
+                        CareBookingStatus.CONFIRMED, null, 99L); // employeeId = 99L
+
+        service.update(301L, req, null);
+
+        // The saved booking must have the new employeeId = 99L
+        verify(bookingRepo).save(argThat(b -> Long.valueOf(99L).equals(b.getEmployeeId())));
+    }
+
     // ── Helpers ──
 
     private void mockSlotAvailable(String time) {
@@ -1432,5 +1860,28 @@ class CareBookingServiceTests {
         LocalDate d = LocalDate.now().plusDays(1);
         while (d.getDayOfWeek().getValue() != 1) d = d.plusDays(1);
         return d;
+    }
+
+    /**
+     * Creates an active Employee qualified for the given care IDs.
+     */
+    private Employee employeeWithCare(Long employeeId, String name, Long... careIds) {
+        Employee e = new Employee();
+        e.setId(employeeId);
+        e.setName(name);
+        e.setActive(true);
+        for (Long careId : careIds) {
+            Care c = new Care();
+            c.setId(careId);
+            e.getAssignedCares().add(c);
+        }
+        return e;
+    }
+
+    /**
+     * Builds a ClientBookingRequest for B12 tests.
+     */
+    private ClientBookingRequest clientReq(Long careId, Long employeeId, String dateStr, String timeStr) {
+        return new ClientBookingRequest(careId, LocalDate.parse(dateStr), timeStr, employeeId);
     }
 }

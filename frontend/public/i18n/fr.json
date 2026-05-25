@@ -1256,7 +1256,6 @@
       "registerDone": "Compte créé ! Vous pouvez maintenant confirmer."
     },
     "errors": {
-      "slotTaken": "Ce créneau vient d'être réservé. Veuillez en choisir un autre.",
       "generic": "Une erreur est survenue. Veuillez réessayer.",
       "tooSoon": "Réservation trop proche. Veuillez réserver au moins {{min}} minutes à l'avance.",
       "tooFarAhead": "Réservation trop lointaine. Maximum {{max}} jours à l'avance.",
@@ -1356,7 +1355,13 @@
     },
     "booking": {
       "limitDaily": "Vous avez déjà un rendez-vous ce jour-là chez ce salon.",
-      "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine."
+      "limitNewClientWeekly": "Pour une première visite, un seul rendez-vous est autorisé cette semaine.",
+      "employeeBusy": "Praticien(ne) déjà occupé(e) à cette heure",
+      "employeeOnLeave": "Praticien(ne) absent(e) ce jour",
+      "slotTaken": "Ce créneau vient d'être pris, veuillez en choisir un autre.",
+      "noEmployeeAvailable": "Aucun praticien disponible pour ce créneau.",
+      "employeeNotQualified": "Ce praticien ne réalise pas ce soin.",
+      "employeeOnLeaveBlock": "Ce praticien est en congé à cette date."
     },
     "tenantSwitchFailed": "Impossible de changer de salon"
   },

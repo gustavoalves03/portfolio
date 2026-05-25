@@ -10,6 +10,8 @@ import com.luxpretty.app.care.domain.CareStatus;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.category.domain.Category;
 import com.luxpretty.app.category.repo.CategoryRepository;
+import com.luxpretty.app.employee.domain.Employee;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
 import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.tenant.domain.Tenant;
@@ -46,8 +48,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Full-stack integration test verifying that two concurrent client-booking
  * attempts for the exact same slot cannot both succeed. The test exercises the
- * real Spring context, Hibernate + H2, and the {@code UK_BOOKING_SLOT} unique
- * constraint on {@code (appointment_date, appointment_time, care_id)}.
+ * real Spring context, Hibernate + H2, and the {@code UK_BOOKING_SLOT_EMPLOYEE}
+ * unique constraint on {@code (appointment_date, appointment_time, employee_id)}.
+ * Both threads target the same employee so the per-employee slot constraint
+ * arbitrates the race — exactly one insert wins, the other receives 409.
  *
  * <p>Unit tests mock the repository, so they can't prove the DB-level race
  * protection actually works end-to-end. This test does.
@@ -81,11 +85,15 @@ class CareBookingConcurrencyIntegrationTests {
     @Autowired
     private TenantSchemaManager tenantSchemaManager;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
     private static final String TENANT_SLUG = "concurrency-salon";
 
     private Long careId;
     private Long clientUserId;
     private Long ownerUserId;
+    private Long employeeId;
     private LocalDate appointmentDate;
     private LocalTime appointmentTime;
 
@@ -146,6 +154,17 @@ class CareBookingConcurrencyIntegrationTests {
             care = careRepository.save(care);
             careId = care.getId();
 
+            // Seed an employee qualified for this care — resolveEmployee requires
+            // at least one active employee with the care in their assignedCares set.
+            Employee employee = new Employee();
+            employee.setName("Test Employee");
+            employee.setEmail("employee-concurrency@test.com");
+            employee.setUserId(ownerUserId);
+            employee.setActive(true);
+            employee.setAssignedCares(java.util.Set.of(care));
+            employee = employeeRepository.saveAndFlush(employee);
+            employeeId = employee.getId();
+
             // Pick a weekday ~two weeks out so both min-advance (120 min) and
             // max-advance (90 days) tenant limits are satisfied.
             appointmentDate = LocalDate.now().plusDays(14);
@@ -178,11 +197,12 @@ class CareBookingConcurrencyIntegrationTests {
 
     @Test
     void twoConcurrentBookingsForSameSlot_onlyOneSucceeds() throws Exception {
+        // Both threads target the same employee so UK_BOOKING_SLOT_EMPLOYEE arbitrates the race.
         ClientBookingRequest request = new ClientBookingRequest(
                 careId,
                 appointmentDate,
                 appointmentTime.toString(),
-                null
+                employeeId
         );
 
         User client = loadUser(clientUserId);

@@ -7,6 +7,7 @@ import com.luxpretty.app.availability.app.ClosedDaysService;
 import com.luxpretty.app.availability.app.HolidayAvailabilityService;
 import com.luxpretty.app.availability.app.SlotAvailabilityService;
 import com.luxpretty.app.availability.web.dto.BlockedSlotResponse;
+import com.luxpretty.app.bookings.web.dto.SlotWithEmployees;
 import com.luxpretty.app.availability.web.dto.ClosedDayResponse;
 import com.luxpretty.app.availability.web.dto.OpeningHourResponse;
 import com.luxpretty.app.bookings.app.CareBookingService;
@@ -198,6 +199,25 @@ public class PublicSalonController {
                             return ResponseEntity.ok(List.<SlotAvailabilityService.TimeSlot>of());
                         }
                         return ResponseEntity.ok(slotAvailabilityService.getAvailableSlots(date, careId));
+                    } finally {
+                        TenantContext.clear();
+                    }
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{slug}/slots/by-care")
+    public ResponseEntity<List<SlotWithEmployees>> getAvailableSlotsByCareWithEmployees(
+            @PathVariable String slug,
+            @RequestParam Long careId,
+            @RequestParam LocalDate date) {
+        return tenantService.findBySlug(slug)
+                .filter(tenant -> tenant.getStatus() == TenantStatus.ACTIVE)
+                .map(tenant -> {
+                    TenantContext.setCurrentTenant(tenant.getSlug());
+                    try {
+                        return ResponseEntity.ok(
+                                slotAvailabilityService.getAvailableSlotsForCareWithEmployees(date, careId));
                     } finally {
                         TenantContext.clear();
                     }

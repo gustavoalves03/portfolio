@@ -121,29 +121,53 @@
   margin: 12px 0;
 }
 
-.slots-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+.slots-list {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.slot-btn {
-  background: #f5f5f5;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 8px 0;
+.slot-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.slot-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  min-width: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-employee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-employee-chip {
+  padding: 4px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 9999px;
+  background: white;
   font-size: 12px;
   color: #333;
   cursor: pointer;
-  transition: all 150ms ease;
-  text-align: center;
+  transition: opacity 150ms, background 200ms, border-color 200ms;
 
-  &:hover {
+  &:hover:not(.chip-grey):not(:disabled) {
     border-color: var(--pf-rose);
     background: #fdf0f4;
   }
 
-  &.selected {
+  &.chip-grey {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.chip-selected {
     background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
     color: white;
     border-color: transparent;

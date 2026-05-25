@@ -12,7 +12,8 @@ import { provideFrenchDateAdapter } from '../../../shared/providers/french-date-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SalonProfileService } from '../../../features/salon-profile/services/salon-profile.service';
 import { PublicClosedDaysStore } from '../../../features/availability/public-closed-days.store';
-import { PublicCareDto, TimeSlot, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
+import { PublicCareDto, ClientBookingRequest, EmployeeSlim } from '../../../features/salon-profile/models/salon-profile.model';
+import { SlotWithEmployees, EmployeeSlotState } from '../../../features/bookings/models/bookings.model';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthModalComponent, AuthModalResult } from '../../../shared/modals/auth-modal/auth-modal.component';
 import { EmailNotVerifiedModalComponent } from '../../../features/bookings/modals/email-not-verified-modal/email-not-verified-modal.component';
@@ -58,9 +59,9 @@ export class BookingDialogComponent {
 
   readonly minDate = new Date();
   readonly selectedDate = signal<Date | null>(null);
-  readonly slots = signal<TimeSlot[]>([]);
+  readonly slots = signal<SlotWithEmployees[]>([]);
   readonly loadingSlots = signal(false);
-  readonly selectedSlot = signal<TimeSlot | null>(null);
+  readonly selectedSlot = signal<SlotWithEmployees | null>(null);
   readonly submitting = signal(false);
   readonly bookingSuccess = signal(false);
   readonly bookingError = signal<string | null>(null);
@@ -113,12 +114,26 @@ export class BookingDialogComponent {
     }
   }
 
-  selectSlot(slot: TimeSlot): void {
-    this.selectedSlot.set(slot);
-  }
-
   selectEmployee(emp: EmployeeSlim | null): void {
     this.selectedEmployee.set(emp);
+  }
+
+  isChipSelected(slot: SlotWithEmployees, emp: EmployeeSlotState): boolean {
+    return this.selectedSlot()?.time === slot.time
+        && this.selectedEmployee()?.id === emp.id;
+  }
+
+  onChipClick(slot: SlotWithEmployees, emp: EmployeeSlotState): void {
+    if (!emp.available) return;
+    this.selectedSlot.set(slot);
+    this.selectedEmployee.set({ id: emp.id, name: emp.name, imageUrl: null });
+  }
+
+  chipTooltip(emp: EmployeeSlotState): string | null {
+    if (emp.available) return null;
+    return emp.reason === 'ON_LEAVE'
+      ? this.transloco.translate('errors.booking.employeeOnLeave')
+      : this.transloco.translate('errors.booking.employeeBusy');
   }
 
   confirm(): void {
@@ -166,22 +181,22 @@ private loadSlots(date: Date): void {
     this.loadingSlots.set(true);
     this.slots.set([]);
 
-    this.salonService.getAvailableSlots(this.slug, this.care.id, this.formatDate(date)).subscribe({
+    this.salonService.getAvailableSlotsByCare(this.slug, this.care.id, this.formatDate(date)).subscribe({
       next: (slots) => {
         // Filter out past slots if the selected date is today
         const now = new Date();
         const isToday = date.getFullYear() === now.getFullYear()
             && date.getMonth() === now.getMonth()
             && date.getDate() === now.getDate();
+        let filtered = slots;
         if (isToday) {
           const currentMinutes = now.getHours() * 60 + now.getMinutes();
-          this.slots.set(slots.filter(s => {
-            const [h, m] = s.startTime.split(':').map(Number);
+          filtered = slots.filter(s => {
+            const [h, m] = s.time.split(':').map(Number);
             return h * 60 + m > currentMinutes;
-          }));
-        } else {
-          this.slots.set(slots);
+          });
         }
+        this.slots.set(filtered);
         this.loadingSlots.set(false);
       },
       error: () => {
@@ -211,7 +226,7 @@ private loadSlots(date: Date): void {
     const request: ClientBookingRequest = {
       careId: this.care.id,
       appointmentDate: this.formatDate(this.selectedDate()!),
-      appointmentTime: this.selectedSlot()!.startTime,
+      appointmentTime: this.selectedSlot()!.time,
       employeeId: this.selectedEmployee()?.id,
     };
 
@@ -232,6 +247,38 @@ private loadSlots(date: Date): void {
       this.matDialog.open(EmailNotVerifiedModalComponent, { width: '420px' });
       return;
     }
+
+    if (err instanceof HttpErrorResponse) {
+      const errorCode = err.error?.error as string | undefined;
+
+      // Per-employee booking errors (key: err.error.error — from ResponseStatusException handler)
+      if (err.status === 409 && errorCode === 'SLOT_TAKEN') {
+        this.snackBar.open(this.transloco.translate('errors.booking.slotTaken'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        return;
+      }
+      if (err.status === 409 && errorCode === 'NO_EMPLOYEE_AVAILABLE') {
+        this.snackBar.open(this.transloco.translate('errors.booking.noEmployeeAvailable'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        return;
+      }
+      if (err.status === 400 && errorCode === 'EMPLOYEE_NOT_QUALIFIED') {
+        this.snackBar.open(this.transloco.translate('errors.booking.employeeNotQualified'), undefined, { duration: 4000 });
+        this.selectedSlot.set(null);
+        this.selectedEmployee.set(null);
+        return;
+      }
+      if (err.status === 409 && errorCode === 'EMPLOYEE_ON_LEAVE') {
+        this.snackBar.open(this.transloco.translate('errors.booking.employeeOnLeaveBlock'), undefined, { duration: 4000 });
+        this.loadSlots(this.selectedDate()!);
+        this.selectedSlot.set(null);
+        this.selectedEmployee.set(null);
+        return;
+      }
+    }
+
     if (err instanceof HttpErrorResponse && err.status === 409) {
       const code = err.error?.code as string | undefined;
       if (code === 'BOOKING_LIMIT_DAILY_EXCEEDED') {

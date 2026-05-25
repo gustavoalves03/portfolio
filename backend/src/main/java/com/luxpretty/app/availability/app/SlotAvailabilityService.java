@@ -9,9 +9,14 @@ import com.luxpretty.app.availability.repo.OpeningHourRepository;
 import com.luxpretty.app.bookings.domain.CareBooking;
 import com.luxpretty.app.bookings.domain.CareBookingStatus;
 import com.luxpretty.app.bookings.repo.CareBookingRepository;
+import com.luxpretty.app.bookings.web.dto.EmployeeSlotState;
+import com.luxpretty.app.bookings.web.dto.SlotWithEmployees;
 import com.luxpretty.app.care.domain.Care;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.domain.Employee;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
+import com.luxpretty.app.employee.repo.LeaveRequestRepository;
 import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -21,7 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -36,6 +44,8 @@ public class SlotAvailabilityService {
     private final LeaveRequestService leaveRequestService;
     private final HolidayAvailabilityService holidayAvailabilityService;
     private final TenantRepository tenantRepository;
+    private final EmployeeRepository employeeRepository;
+    private final LeaveRequestRepository leaveRequestRepository;
 
     public SlotAvailabilityService(OpeningHourRepository openingHourRepo,
                                    BlockedSlotRepository blockedSlotRepo,
@@ -43,7 +53,9 @@ public class SlotAvailabilityService {
                                    CareRepository careRepo,
                                    LeaveRequestService leaveRequestService,
                                    HolidayAvailabilityService holidayAvailabilityService,
-                                   TenantRepository tenantRepository) {
+                                   TenantRepository tenantRepository,
+                                   EmployeeRepository employeeRepository,
+                                   LeaveRequestRepository leaveRequestRepository) {
         this.openingHourRepo = openingHourRepo;
         this.blockedSlotRepo = blockedSlotRepo;
         this.bookingRepo = bookingRepo;
@@ -51,6 +63,8 @@ public class SlotAvailabilityService {
         this.leaveRequestService = leaveRequestService;
         this.holidayAvailabilityService = holidayAvailabilityService;
         this.tenantRepository = tenantRepository;
+        this.employeeRepository = employeeRepository;
+        this.leaveRequestRepository = leaveRequestRepository;
     }
 
     /**
@@ -242,6 +256,113 @@ public class SlotAvailabilityService {
     }
 
     /**
+     * For each candidate time slot on the given date, returns a list of all qualified employees
+     * with their individual availability state (available, BUSY, ON_LEAVE).
+     * Slots where no qualified employee is available are pruned from the result.
+     */
+    @Transactional(readOnly = true)
+    public List<SlotWithEmployees> getAvailableSlotsForCareWithEmployees(LocalDate date, Long careId) {
+        if (date.isBefore(LocalDate.now())) return List.of();
+        if (isClosedForHoliday(date)) return List.of();
+
+        Care care = careRepo.findById(careId)
+                .orElseThrow(() -> new ResourceNotFoundException("Care not found: " + careId));
+
+        // Qualified active employees only (strict mode)
+        List<Employee> qualified = employeeRepository.findActiveByAssignedCareId(careId);
+        if (qualified.isEmpty()) return List.of();
+
+        List<Long> employeeIds = qualified.stream().map(Employee::getId).toList();
+
+        // Approved leaves covering this date (batch fetch)
+        Set<Long> onLeaveIds = leaveRequestRepository.findApprovedLeavesCovering(employeeIds, date)
+                .stream()
+                .map(lr -> lr.getEmployee().getId())
+                .collect(Collectors.toSet());
+
+        // Active bookings (PENDING/CONFIRMED) for these employees on this date
+        List<CareBooking> activeBookings = bookingRepo.findActiveByDateAndEmployees(date, employeeIds);
+
+        // Candidate time windows (salon-wide: opening hours, blocked slots, holidays)
+        List<TimeSlot> candidateTimes = computeSalonTimeWindows(date, care.getDuration());
+
+        int bufferMinutes = getBufferMinutes();
+        List<SlotWithEmployees> result = new ArrayList<>();
+
+        for (TimeSlot slot : candidateTimes) {
+            LocalTime slotStart = LocalTime.parse(slot.startTime());
+            LocalTime slotEnd = LocalTime.parse(slot.endTime());
+
+            List<EmployeeSlotState> perEmployee = qualified.stream().map(e -> {
+                if (onLeaveIds.contains(e.getId())) {
+                    return EmployeeSlotState.onLeave(e.getId(), e.getName());
+                }
+                boolean busy = activeBookings.stream().anyMatch(b ->
+                        b.getEmployeeId() != null && b.getEmployeeId().equals(e.getId())
+                        && overlaps(slotStart, slotEnd,
+                                    b.getAppointmentTime(),
+                                    b.getAppointmentTime().plusMinutes(
+                                            b.getCare().getDuration() + bufferMinutes)));
+                return busy ? EmployeeSlotState.busy(e.getId(), e.getName())
+                            : EmployeeSlotState.available(e.getId(), e.getName());
+            }).toList();
+
+            // Only include slot if at least one employee is available
+            if (perEmployee.stream().anyMatch(EmployeeSlotState::available)) {
+                result.add(new SlotWithEmployees(slot.startTime(), perEmployee));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Compute candidate time windows from salon-wide opening hours, excluding salon-wide
+     * blocked slots. Employee-specific availability is handled separately in
+     * {@link #getAvailableSlotsForCareWithEmployees}.
+     */
+    private List<TimeSlot> computeSalonTimeWindows(LocalDate date, int careDuration) {
+        int dow = date.getDayOfWeek().getValue();
+
+        List<OpeningHour> openingHours = openingHourRepo.findAllByOrderByDayOfWeekAscOpenTimeAsc()
+                .stream()
+                .filter(oh -> oh.getDayOfWeek() == dow)
+                .filter(oh -> oh.getEmployeeId() == null) // salon-wide only
+                .toList();
+        if (openingHours.isEmpty()) return List.of();
+
+        List<BlockedSlot> blockedSlots = blockedSlotRepo
+                .findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(date)
+                .stream()
+                .filter(bs -> bs.getDate().equals(date))
+                .filter(bs -> bs.getEmployeeId() == null) // salon-wide only
+                .toList();
+        if (blockedSlots.stream().anyMatch(BlockedSlot::isFullDay)) return List.of();
+
+        List<TimeSlot> result = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+
+        for (OpeningHour oh : openingHours) {
+            LocalTime cursor = oh.getOpenTime();
+            LocalTime windowEnd = oh.getCloseTime();
+
+            while (cursor.plusMinutes(careDuration).compareTo(windowEnd) <= 0) {
+                LocalTime slotEnd = cursor.plusMinutes(careDuration);
+                String key = cursor.toString();
+                if (!seen.contains(key) && !isBlockedAt(cursor, slotEnd, blockedSlots)) {
+                    result.add(new TimeSlot(key, slotEnd.toString()));
+                }
+                seen.add(key);
+                cursor = cursor.plusMinutes(SLOT_INTERVAL_MINUTES);
+            }
+        }
+        return result;
+    }
+
+    private boolean overlaps(LocalTime aStart, LocalTime aEnd, LocalTime bStart, LocalTime bEnd) {
+        return aStart.isBefore(bEnd) && aEnd.isAfter(bStart);
+    }
+
+    /**
      * Find the first available employee for a specific time slot from a list of candidates.
      * Returns the employee ID of the first available employee, or null if none are available.
      */
@@ -316,8 +437,7 @@ public class SlotAvailabilityService {
         for (BlockedSlot bs : blockedSlots) {
             if (bs.isFullDay()) return true;
             if (bs.getStartTime() != null && bs.getEndTime() != null) {
-                // Overlap check
-                if (start.isBefore(bs.getEndTime()) && end.isAfter(bs.getStartTime())) {
+                if (overlaps(start, end, bs.getStartTime(), bs.getEndTime())) {
                     return true;
                 }
             }

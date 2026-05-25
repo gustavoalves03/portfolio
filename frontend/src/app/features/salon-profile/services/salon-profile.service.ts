@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api-base-url.token';
 import { TenantResponse, UpdateTenantRequest, PublicSalonResponse, TimeSlot, ClientBookingRequest, ClientBookingResponse, EmployeeSlim } from '../models/salon-profile.model';
+import { SlotWithEmployees } from '../../bookings/models/bookings.model';
 
 @Injectable({ providedIn: 'root' })
 export class SalonProfileService {
@@ -32,6 +33,13 @@ export class SalonProfileService {
   getAvailableSlots(slug: string, careId: number, date: string): Observable<TimeSlot[]> {
     return this.http.get<TimeSlot[]>(
       `${this.baseUrl}/api/salon/${slug}/available-slots`,
+      { params: { careId: careId.toString(), date } }
+    );
+  }
+
+  getAvailableSlotsByCare(slug: string, careId: number, date: string): Observable<SlotWithEmployees[]> {
+    return this.http.get<SlotWithEmployees[]>(
+      `${this.baseUrl}/api/salon/${slug}/slots/by-care`,
       { params: { careId: careId.toString(), date } }
     );
   }

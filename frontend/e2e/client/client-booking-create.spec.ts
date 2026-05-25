@@ -86,7 +86,7 @@ test.describe('Client booking creation', () => {
     await setupClientBookingMocks(page);
 
     // Override slots endpoint to return empty
-    await page.route(`**/api/salon/${PUBLIC_SALON.slug}/available-slots*`, r =>
+    await page.route(`**/api/salon/${PUBLIC_SALON.slug}/slots/by-care*`, r =>
       r.fulfill({
         status: 200,
         contentType: 'application/json',

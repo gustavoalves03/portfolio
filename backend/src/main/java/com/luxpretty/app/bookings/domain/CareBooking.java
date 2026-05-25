@@ -13,12 +13,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "CARE_BOOKINGS", uniqueConstraints = {
-        @UniqueConstraint(
-                name = "UK_BOOKING_SLOT",
-                columnNames = {"appointment_date", "appointment_time", "care_id"}
-        )
-})
+@Table(name = "CARE_BOOKINGS")
 public class CareBooking {
 
     @Id
@@ -47,6 +42,9 @@ public class CareBooking {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private CareBookingStatus status = CareBookingStatus.PENDING;
+
+    @Column(name = "cancellation_reason", length = 64)
+    private String cancellationReason;
 
     @Column(name = "employee_id")
     private Long employeeId; // null = unassigned

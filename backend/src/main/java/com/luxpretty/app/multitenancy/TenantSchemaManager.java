@@ -427,7 +427,9 @@ public class TenantSchemaManager {
                 // @Version on LeaveRequest — added after the LEAVE_REQUESTS table existed in
                 // some tenants. Without this column Hibernate fails ORA-00904 on every read,
                 // surfacing as a 500 on /api/pro/leaves/pending.
-                "ALTER TABLE LEAVE_REQUESTS ADD (VERSION NUMBER(19))"
+                "ALTER TABLE LEAVE_REQUESTS ADD (VERSION NUMBER(19))",
+                // Mirror of V7__add_cancellation_reason_to_care_bookings.sql
+                "ALTER TABLE CARE_BOOKINGS ADD (CANCELLATION_REASON VARCHAR2(64))"
         };
 
         // Use provisioning connection (Oracle admin) — app user lacks CREATE TABLE privilege
@@ -475,6 +477,79 @@ public class TenantSchemaManager {
                 logger.info("Seeded BOOKING_POLICY default row in {}", schemaName);
             } catch (SQLException e) {
                 logger.warn("Could not seed BOOKING_POLICY in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+            }
+
+            // Step 2/3 of V7 mirror: backfill NULL EMPLOYEE_ID on active bookings.
+            // The WHERE clause makes each statement idempotent (already-backfilled rows are no-ops).
+            try {
+                stmt.execute("""
+                        UPDATE "%s".CARE_BOOKINGS
+                           SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM "%s".EMPLOYEES e WHERE e.ACTIVE = 1)
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """.formatted(schemaName, schemaName));
+                logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Backfill EMPLOYEE_ID failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Backfill EMPLOYEE_ID failed for: " + schemaName, e);
+            }
+
+            try {
+                stmt.execute("""
+                        UPDATE "%s".CARE_BOOKINGS
+                           SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """.formatted(schemaName, schemaName));
+                logger.info("Cancelled no-employee bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Cancel no-employee bookings failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
+            }
+
+            // Step 3/3 of V7 mirror: replace global slot uniqueness with per-employee uniqueness.
+
+            // Drop the old global slot uniqueness constraint (idempotent — ORA-02443 means it
+            // never existed or was already dropped on a previous migration run; safe to skip).
+            try {
+                stmt.execute("ALTER TABLE \"" + schemaName + "\".CARE_BOOKINGS DROP CONSTRAINT UK_BOOKING_SLOT");
+                logger.info("Dropped UK_BOOKING_SLOT constraint in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 2443) {
+                    // ORA-02443: cannot drop constraint - nonexistent constraint
+                    logger.warn("UK_BOOKING_SLOT constraint not found in {} (already dropped or never existed), skipping", schemaName);
+                } else {
+                    logger.warn("DROP CONSTRAINT UK_BOOKING_SLOT failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
+            }
+
+            // Create per-employee uniqueness index (idempotent — ORA-00955 means already exists).
+            try {
+                stmt.execute("""
+                        CREATE UNIQUE INDEX "%s".UK_BOOKING_SLOT_EMPLOYEE ON "%s".CARE_BOOKINGS (
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN APPOINTMENT_DATE END,
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN APPOINTMENT_TIME END,
+                          CASE WHEN STATUS IN ('PENDING','CONFIRMED') THEN EMPLOYEE_ID END
+                        )""".formatted(schemaName, schemaName));
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE index in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 955) {
+                    logger.debug("UK_BOOKING_SLOT_EMPLOYEE already exists in {}, skipping", schemaName);
+                } else {
+                    logger.warn("CREATE INDEX UK_BOOKING_SLOT_EMPLOYEE failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
+            }
+
+            // Create lookup performance index (idempotent — ORA-00955 means already exists).
+            try {
+                stmt.execute("CREATE INDEX \"" + schemaName + "\".IDX_BOOKING_DATE_EMPLOYEE ON \"" + schemaName + "\".CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
+                logger.info("Created IDX_BOOKING_DATE_EMPLOYEE index in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 955) {
+                    logger.debug("IDX_BOOKING_DATE_EMPLOYEE already exists in {}, skipping", schemaName);
+                } else {
+                    logger.warn("CREATE INDEX IDX_BOOKING_DATE_EMPLOYEE failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                }
             }
 
             setCurrentSchema(stmt, applicationSchemaName);
@@ -730,7 +805,9 @@ public class TenantSchemaManager {
                 // Align legacy H2 tenant schemas with the nullable PHONE column declared in CREATE TABLE.
                 "ALTER TABLE SALON_CLIENTS ALTER COLUMN PHONE DROP NOT NULL",
                 // @Version on LeaveRequest (legacy schemas miss it).
-                "ALTER TABLE LEAVE_REQUESTS ADD COLUMN IF NOT EXISTS VERSION BIGINT"
+                "ALTER TABLE LEAVE_REQUESTS ADD COLUMN IF NOT EXISTS VERSION BIGINT",
+                // Mirror of V7__booking_per_employee.sql step 1: add CANCELLATION_REASON column.
+                "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS CANCELLATION_REASON VARCHAR(64)"
         };
 
         try (Connection conn = dataSource.getConnection();
@@ -755,6 +832,62 @@ public class TenantSchemaManager {
                     ) SELECT 1, 1, CURRENT_TIMESTAMP
                       WHERE NOT EXISTS (SELECT 1 FROM BOOKING_POLICY)
                     """);
+
+            // Step 2/3 of V7 mirror: backfill NULL EMPLOYEE_ID on active bookings.
+            // The WHERE clause makes each statement idempotent (already-backfilled rows are no-ops).
+            try {
+                stmt.execute("""
+                        UPDATE CARE_BOOKINGS
+                           SET EMPLOYEE_ID = (SELECT MIN(e.ID) FROM EMPLOYEES e WHERE e.ACTIVE = TRUE)
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Backfilled EMPLOYEE_ID on active bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Backfill EMPLOYEE_ID failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Backfill EMPLOYEE_ID failed for: " + schemaName, e);
+            }
+
+            try {
+                stmt.execute("""
+                        UPDATE CARE_BOOKINGS
+                           SET STATUS = 'CANCELLED', CANCELLATION_REASON = 'LEGACY_NO_EMPLOYEE'
+                         WHERE EMPLOYEE_ID IS NULL
+                           AND STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Cancelled no-employee bookings in {}", schemaName);
+            } catch (SQLException e) {
+                logger.warn("Cancel no-employee bookings failed in {} (error {}): {}", schemaName, e.getErrorCode(), e.getMessage());
+                throw new RuntimeException("Cancel no-employee bookings failed for: " + schemaName, e);
+            }
+
+            // Step 3/3 of V7 mirror (H2): replace global slot uniqueness with per-employee uniqueness.
+
+            // Drop the old global slot uniqueness (H2 supports IF EXISTS — safe to re-run).
+            stmt.execute("ALTER TABLE CARE_BOOKINGS DROP CONSTRAINT IF EXISTS UK_BOOKING_SLOT");
+            logger.info("Dropped UK_BOOKING_SLOT constraint (if existed) in {}", schemaName);
+
+            // H2 2.x supports filtered (WHERE) unique indexes.
+            // Preferred: CREATE UNIQUE INDEX ... WHERE STATUS IN (...) mirrors the Oracle semantics
+            // (cancelled rows excluded). If H2 syntax doesn't support this, fall back to plain unique.
+            try {
+                stmt.execute("""
+                        CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE
+                          ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)
+                         WHERE STATUS IN ('PENDING','CONFIRMED')
+                        """);
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE (filtered) index in {}", schemaName);
+            } catch (SQLException e) {
+                // Fallback: plain unique index (does not model cancelled-row exclusion;
+                // real semantics validated by Testcontainers Oracle test in B13).
+                logger.warn("Filtered index not supported in H2 ({}), falling back to plain unique index", e.getMessage());
+                stmt.execute("CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)");
+                logger.info("Created UK_BOOKING_SLOT_EMPLOYEE (plain fallback) index in {}", schemaName);
+            }
+
+            // Lookup performance index.
+            stmt.execute("CREATE INDEX IF NOT EXISTS IDX_BOOKING_DATE_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
+            logger.info("Created IDX_BOOKING_DATE_EMPLOYEE index in {}", schemaName);
 
             setCurrentSchema(stmt, applicationSchemaName);
             logger.info("H2 schema {} migrated successfully", schemaName);
@@ -901,8 +1034,9 @@ public class TenantSchemaManager {
                     CREATED_AT TIMESTAMP NOT NULL,
                     EMPLOYEE_ID BIGINT,
                     SALON_CLIENT_ID BIGINT,
-                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID),
-                    CONSTRAINT UK_BOOKING_SLOT UNIQUE (APPOINTMENT_DATE, APPOINTMENT_TIME, CARE_ID)
+                    CANCELLATION_REASON VARCHAR(64),
+                    REMINDER_SENT_AT TIMESTAMP WITH TIME ZONE,
+                    CONSTRAINT FK_BOOKING_CARE FOREIGN KEY (CARE_ID) REFERENCES SERVICES(ID)
                 )""",
                 """
                 CREATE TABLE IF NOT EXISTS EMPLOYEES (
@@ -1077,6 +1211,23 @@ public class TenantSchemaManager {
         for (String ddl : ddlStatements) {
             stmt.execute(ddl);
         }
+
+        // Per-employee slot uniqueness for fresh provisioning (no UK_BOOKING_SLOT created above).
+        // H2 2.x supports filtered (WHERE) indexes; cancelled rows are naturally excluded.
+        try {
+            stmt.execute("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE
+                      ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)
+                     WHERE STATUS IN ('PENDING','CONFIRMED')
+                    """);
+        } catch (SQLException e) {
+            // Fallback: plain unique index (does not model cancelled-row exclusion;
+            // real semantics validated by Testcontainers Oracle test in B13).
+            stmt.execute("CREATE UNIQUE INDEX IF NOT EXISTS UK_BOOKING_SLOT_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, APPOINTMENT_TIME, EMPLOYEE_ID)");
+        }
+
+        // Lookup performance index.
+        stmt.execute("CREATE INDEX IF NOT EXISTS IDX_BOOKING_DATE_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
 
         // Seed the singleton policy row (table was just freshly created above).
         stmt.execute("""

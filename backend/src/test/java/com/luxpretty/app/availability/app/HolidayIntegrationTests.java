@@ -9,6 +9,8 @@ import com.luxpretty.app.bookings.repo.CareBookingRepository;
 import com.luxpretty.app.care.domain.Care;
 import com.luxpretty.app.care.repo.CareRepository;
 import com.luxpretty.app.employee.app.LeaveRequestService;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
+import com.luxpretty.app.employee.repo.LeaveRequestRepository;
 import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -51,6 +53,8 @@ class HolidayIntegrationTests {
     @Mock private CareRepository careRepo;
     @Mock private LeaveRequestService leaveRequestService;
     @Mock private TenantRepository tenantRepository;
+    @Mock private EmployeeRepository employeeRepository;
+    @Mock private LeaveRequestRepository leaveRequestRepository;
 
     // ── Services under test ──
     private HolidayAvailabilityService holidayAvailabilityService;
@@ -76,7 +80,8 @@ class HolidayIntegrationTests {
         // Wire everything into SlotAvailabilityService
         slotAvailabilityService = new SlotAvailabilityService(
                 openingHourRepo, blockedSlotRepo, bookingRepo, careRepo,
-                leaveRequestService, holidayAvailabilityService, tenantRepository);
+                leaveRequestService, holidayAvailabilityService, tenantRepository,
+                employeeRepository, leaveRequestRepository);
 
         // Shared care
         care60min = new Care();
