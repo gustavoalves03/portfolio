@@ -1,7 +1,9 @@
 package com.luxpretty.app.tenant.app;
 
 import com.luxpretty.app.employee.app.EmployeeService;
+import com.luxpretty.app.feature.app.FeatureFlagService;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -26,12 +28,13 @@ class TenantProvisioningServiceTests {
     @Mock private TenantSchemaManager schemaManager;
     @Mock private EmployeeService employeeService;
     @Mock private com.luxpretty.app.users.app.UserRoleService userRoleService;
+    @Mock private FeatureFlagService featureFlagService;
 
     private TenantProvisioningService service;
 
     @BeforeEach
     void setUp() {
-        service = new TenantProvisioningService(tenantRepository, schemaManager, employeeService, userRoleService);
+        service = new TenantProvisioningService(tenantRepository, schemaManager, employeeService, userRoleService, featureFlagService);
         when(tenantRepository.save(any(Tenant.class))).thenAnswer(inv -> {
             Tenant t = inv.getArgument(0);
             if (t.getId() == null) t.setId(42L);
@@ -121,5 +124,15 @@ class TenantProvisioningServiceTests {
                 com.luxpretty.app.users.domain.Role.PRO, 42L);
         verify(userRoleService).assignOnTenant(7L,
                 com.luxpretty.app.users.domain.Role.EMPLOYEE, 42L);
+    }
+
+    @Test
+    void provision_seedsFeatureFlagsFromCurrentTier() {
+        // Tenant has no subscriptionTier set → defaults to VITRINE
+        when(tenantRepository.existsBySlug(anyString())).thenReturn(false);
+
+        service.provision(user(1L, "Sophie Martin"));
+
+        verify(featureFlagService).applyTierDefaults(SubscriptionTier.VITRINE);
     }
 }
