@@ -56,7 +56,8 @@ public class TenantSchemaManager {
             "PRO_INVOICES",
             "CLIENT_INVOICES",
             "CLIENT_INVOICE_LINES",
-            "SALON_PREVIEW_TOKENS"
+            "SALON_PREVIEW_TOKENS",
+            "TENANT_FEATURES"
     );
 
     private final DataSource dataSource;
@@ -552,6 +553,24 @@ public class TenantSchemaManager {
                 }
             }
 
+            // V8: TENANT_FEATURES table (idempotent for legacy tenants — ORA-00955 means already exists).
+            try {
+                stmt.execute("CREATE TABLE \"" + schemaName + "\".TENANT_FEATURES (" +
+                        "FEATURE_KEY VARCHAR2(64) PRIMARY KEY," +
+                        "ENABLED NUMBER(1) NOT NULL CHECK (ENABLED IN (0,1))," +
+                        "SOURCE VARCHAR2(16) NOT NULL CHECK (SOURCE IN ('TIER_DEFAULT','ADMIN_OVERRIDE'))," +
+                        "UPDATED_AT TIMESTAMP WITH TIME ZONE NOT NULL)");
+                logger.info("Created TENANT_FEATURES in {}", schemaName);
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 955) { // ORA-00955: name is already used by an existing object
+                    logger.warn("TENANT_FEATURES already exists in {}, skipping", schemaName);
+                } else {
+                    logger.warn("CREATE TABLE TENANT_FEATURES failed in {} (error {}): {}",
+                            schemaName, e.getErrorCode(), e.getMessage());
+                    throw new RuntimeException(e);
+                }
+            }
+
             setCurrentSchema(stmt, applicationSchemaName);
             grantTenantTablePrivileges(stmt, schemaName);
             logger.info("Oracle schema {} migrated successfully", schemaName);
@@ -810,6 +829,17 @@ public class TenantSchemaManager {
                 "ALTER TABLE CARE_BOOKINGS ADD COLUMN IF NOT EXISTS CANCELLATION_REASON VARCHAR(64)"
         };
 
+        // V8: TENANT_FEATURES table — new table, created idempotently.
+        String[] newTableV8 = {
+                """
+                CREATE TABLE IF NOT EXISTS TENANT_FEATURES (
+                    FEATURE_KEY VARCHAR(64) PRIMARY KEY,
+                    ENABLED BOOLEAN NOT NULL,
+                    SOURCE VARCHAR(16) NOT NULL CHECK (SOURCE IN ('TIER_DEFAULT','ADMIN_OVERRIDE')),
+                    UPDATED_AT TIMESTAMP WITH TIME ZONE NOT NULL
+                )"""
+        };
+
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
 
@@ -889,6 +919,12 @@ public class TenantSchemaManager {
             stmt.execute("CREATE INDEX IF NOT EXISTS IDX_BOOKING_DATE_EMPLOYEE ON CARE_BOOKINGS (APPOINTMENT_DATE, EMPLOYEE_ID)");
             logger.info("Created IDX_BOOKING_DATE_EMPLOYEE index in {}", schemaName);
 
+            // V8: create TENANT_FEATURES table (idempotent — CREATE TABLE IF NOT EXISTS).
+            for (String ddl : newTableV8) {
+                stmt.execute(ddl);
+            }
+            logger.info("Applied V8 TENANT_FEATURES table in {}", schemaName);
+
             setCurrentSchema(stmt, applicationSchemaName);
             logger.info("H2 schema {} migrated successfully", schemaName);
 
@@ -956,6 +992,7 @@ public class TenantSchemaManager {
         // CLIENT_INVOICE_LINES → CLIENT_INVOICES → CARE_BOOKINGS chain.
         // PRO_INVOICES also references CARE_BOOKINGS.
         List<String> reverseTables = List.of(
+                "TENANT_FEATURES",
                 "SALON_PREVIEW_TOKENS",
                 "CLIENT_INVOICE_LINES", "CLIENT_INVOICES", "PRO_INVOICES",
                 "BOOKING_POLICY",
@@ -1205,6 +1242,13 @@ public class TenantSchemaManager {
                     EXPIRES_AT TIMESTAMP,
                     REVOKED_AT TIMESTAMP,
                     CONSTRAINT UK_PREVIEW_TOKEN_TOKEN UNIQUE (TOKEN)
+                )""",
+                """
+                CREATE TABLE IF NOT EXISTS TENANT_FEATURES (
+                    FEATURE_KEY VARCHAR(64) PRIMARY KEY,
+                    ENABLED BOOLEAN NOT NULL,
+                    SOURCE VARCHAR(16) NOT NULL CHECK (SOURCE IN ('TIER_DEFAULT','ADMIN_OVERRIDE')),
+                    UPDATED_AT TIMESTAMP WITH TIME ZONE NOT NULL
                 )"""
         };
 
