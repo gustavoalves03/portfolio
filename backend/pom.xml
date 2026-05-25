@@ -182,6 +182,16 @@
 			<artifactId>s3</artifactId>
 		</dependency>
 
+		<!-- Caching: Spring Cache abstraction + Caffeine (TTL-based, in-process) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
