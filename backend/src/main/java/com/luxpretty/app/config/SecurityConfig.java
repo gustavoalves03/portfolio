@@ -164,6 +164,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/care/**", "/api/categories/**").hasAnyRole("PRO", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/care/**", "/api/categories/**").hasAnyRole("PRO", "ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/care/**").hasAnyRole("PRO", "ADMIN")
+                        // Admin-only endpoints (cross-tenant operations)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Admin-only user management
                         .requestMatchers(HttpMethod.POST, "/api/users/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("ADMIN")
