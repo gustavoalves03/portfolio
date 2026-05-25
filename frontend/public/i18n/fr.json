@@ -1363,7 +1363,10 @@
       "employeeNotQualified": "Ce praticien ne réalise pas ce soin.",
       "employeeOnLeaveBlock": "Ce praticien est en congé à cette date."
     },
-    "tenantSwitchFailed": "Impossible de changer de salon"
+    "tenantSwitchFailed": "Impossible de changer de salon",
+    "features": {
+      "disabled": "Cette fonctionnalité nécessite l'abonnement {{tier}}."
+    }
   },
   "evolution": {
     "title": "Mon évolution",

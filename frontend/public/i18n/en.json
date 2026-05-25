@@ -1359,7 +1359,10 @@
       "employeeNotQualified": "This practitioner does not offer this service.",
       "employeeOnLeaveBlock": "This practitioner is on leave on this date."
     },
-    "tenantSwitchFailed": "Could not switch salon"
+    "tenantSwitchFailed": "Could not switch salon",
+    "features": {
+      "disabled": "This feature requires the {{tier}} subscription."
+    }
   },
   "evolution": {
     "title": "My Evolution",
