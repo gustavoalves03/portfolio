@@ -187,6 +187,20 @@ class HolidayIntegrationTests {
         lenient().when(exceptionRepo.findByHolidayDate(any())).thenReturn(Optional.empty());
     }
 
+    /**
+     * Returns the next future date (strictly after today) matching the given day-of-week
+     * that is NOT a French public holiday. Used by tests asserting "salon open" so they
+     * never bit-rot when the hardcoded date drifts into the past (SlotAvailabilityService
+     * returns no slots for past dates).
+     */
+    private LocalDate nextOpenDay(java.time.DayOfWeek dayOfWeek) {
+        LocalDate d = LocalDate.now().plusDays(1);
+        while (d.getDayOfWeek() != dayOfWeek || realHolidayService.isPublicHoliday(d, "FR")) {
+            d = d.plusDays(1);
+        }
+        return d;
+    }
+
     // ══════════════════════════════════════════════════════════════
     // ── 1. May 1st (Fete du Travail) in France → salon closed, 0 slots ──
     // ══════════════════════════════════════════════════════════════
@@ -307,18 +321,21 @@ class HolidayIntegrationTests {
     @Test
     @DisplayName("6. June 23 for FR tenant → not a holiday, salon open")
     void june23_france_notHoliday_open() {
-        LocalDate june23 = LocalDate.of(2026, 6, 23);
+        // Next future Tuesday that is not a French holiday (kept relative to today
+        // so the test never drifts into the past — past dates return 0 slots).
+        LocalDate tuesday = nextOpenDay(java.time.DayOfWeek.TUESDAY);
 
-        assertThat(realHolidayService.isPublicHoliday(june23, "FR")).isFalse();
+        assertThat(realHolidayService.isPublicHoliday(tuesday, "FR")).isFalse();
 
         setTenantContext(SLUG_FR, frTenant);
         setupStandardOpeningHours();
         setupCare();
-        setupNoBlockedSlots(june23);
-        setupNoBookings(june23);
+        setupNoBlockedSlots(tuesday);
+        setupNoBookings(tuesday);
+        setupNoExceptions();
 
-        List<SlotAvailabilityService.TimeSlot> slots = slotAvailabilityService.getAvailableSlots(june23, 1L);
-        // June 23, 2026 is a Tuesday (dow=2), salon is open
+        List<SlotAvailabilityService.TimeSlot> slots = slotAvailabilityService.getAvailableSlots(tuesday, 1L);
+        // A non-holiday Tuesday (dow=2), salon is open
         assertThat(slots).isNotEmpty();
     }
 
@@ -382,18 +399,19 @@ class HolidayIntegrationTests {
     @Test
     @DisplayName("9. Non-holiday date → salon open, has normal slots")
     void nonHolidayDate_salonOpen_normalSlots() {
-        // June 15, 2026 is a Monday (not a holiday)
-        LocalDate june15 = LocalDate.of(2026, 6, 15);
+        // Next future Monday that is not a holiday (relative to today, never past).
+        LocalDate monday = nextOpenDay(java.time.DayOfWeek.MONDAY);
 
-        assertThat(realHolidayService.isPublicHoliday(june15, "FR")).isFalse();
+        assertThat(realHolidayService.isPublicHoliday(monday, "FR")).isFalse();
 
         setTenantContext(SLUG_FR, frTenant);
         setupStandardOpeningHours();
         setupCare();
-        setupNoBlockedSlots(june15);
-        setupNoBookings(june15);
+        setupNoBlockedSlots(monday);
+        setupNoBookings(monday);
+        setupNoExceptions();
 
-        List<SlotAvailabilityService.TimeSlot> slots = slotAvailabilityService.getAvailableSlots(june15, 1L);
+        List<SlotAvailabilityService.TimeSlot> slots = slotAvailabilityService.getAvailableSlots(monday, 1L);
         assertThat(slots).isNotEmpty();
         // With 09:00-18:00 and 60min care, slots: 09:00, 09:30, ..., 17:00
         assertThat(slots.get(0).startTime()).isEqualTo("09:00");
