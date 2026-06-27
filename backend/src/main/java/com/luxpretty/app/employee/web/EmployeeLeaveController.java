@@ -5,13 +5,15 @@ import com.luxpretty.app.employee.app.LeaveRequestService;
 import com.luxpretty.app.employee.domain.LeaveType;
 import com.luxpretty.app.employee.web.dto.LeaveResponse;
 import com.luxpretty.app.employee.web.dto.LeaveReviewDto;
+import com.luxpretty.app.feature.app.RequiresFeature;
+import com.luxpretty.app.feature.domain.FeatureKey;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// TODO(chantier-T): add @RequiresFeature(ABSENCE_MGMT) at class level once tier gating ships
+@RequiresFeature(FeatureKey.ABSENCE_MGMT)
 @RestController
 @RequestMapping("/api/pro/leaves")
 public class EmployeeLeaveController {

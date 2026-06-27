@@ -1359,7 +1359,25 @@
       "employeeNotQualified": "This practitioner does not offer this service.",
       "employeeOnLeaveBlock": "This practitioner is on leave on this date."
     },
-    "tenantSwitchFailed": "Could not switch salon"
+    "tenantSwitchFailed": "Could not switch salon",
+    "features": {
+      "disabled": "This feature requires the {{tier}} subscription."
+    }
+  },
+  "features": {
+    "locked": {
+      "cta": "Discover plans",
+      "booking": "Online booking is available with Gestion or Premium.",
+      "employees": "Practitioner management is available with Gestion or Premium.",
+      "photos": "Photos are available with Gestion or Premium.",
+      "sms_reminder": "SMS reminders are available with Gestion or Premium.",
+      "client_files": "Client files are available with Gestion or Premium.",
+      "absence_mgmt": "Absence management is available with Gestion or Premium.",
+      "online_payment": "Online payment is available with Premium.",
+      "shop": "The shop is available with Premium.",
+      "loyalty": "Loyalty programme is available with Premium.",
+      "multi_location": "Multi-location is available with Premium."
+    }
   },
   "evolution": {
     "title": "My Evolution",

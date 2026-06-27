@@ -1,5 +1,6 @@
 package com.luxpretty.app.subscription.app;
 
+import com.luxpretty.app.feature.app.FeatureFlagService;
 import com.luxpretty.app.subscription.domain.SubscriptionBilling;
 import com.luxpretty.app.subscription.domain.SubscriptionStatus;
 import com.luxpretty.app.subscription.domain.SubscriptionTier;
@@ -41,6 +42,9 @@ class SubscriptionServiceTests {
 
     @Mock
     private TenantRepository tenantRepository;
+
+    @Mock
+    private FeatureFlagService featureFlagService;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -307,5 +311,66 @@ class SubscriptionServiceTests {
         // Then
         assertThat(result.getUrl()).isEqualTo("https://billing.stripe.com/p/session/test");
         verify(stripeService).createPortalSession("cus_123");
+    }
+
+    @Test
+    void startCheckout_appliesTierDefaultsForNewTier() throws Exception {
+        // Given
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .build();
+
+        Subscription stripeSubscription = new Subscription();
+        stripeSubscription.setId("sub_premium");
+        stripeSubscription.setStatus("active");
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+        when(pricingCatalog.priceIdFor(SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY))
+            .thenReturn(Optional.of("price_premium_monthly"));
+        when(stripeService.createSubscription("cus_123", "price_premium_monthly", "pm_x"))
+            .thenReturn(stripeSubscription);
+
+        // When
+        subscriptionService.startCheckout(1L, SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY, "pm_x");
+
+        // Then
+        verify(featureFlagService).applyTierDefaults(SubscriptionTier.PREMIUM);
+    }
+
+    @Test
+    void applySubscriptionUpdate_appliesTierDefaultsWhenTierChanges() throws Exception {
+        // Given
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeSubscriptionId("sub_456")
+            .build();
+
+        Subscription stripeSub = new Subscription();
+        stripeSub.setId("sub_456");
+        stripeSub.setStatus("active");
+
+        SubscriptionItem item = new SubscriptionItem();
+        Price price = new Price();
+        price.setId("price_gestion_monthly");
+        item.setPrice(price);
+
+        SubscriptionItemCollection items = new SubscriptionItemCollection();
+        List<SubscriptionItem> itemList = new ArrayList<>();
+        itemList.add(item);
+        items.setData(itemList);
+        stripeSub.setItems(items);
+
+        when(tenantRepository.findByStripeSubscriptionId("sub_456")).thenReturn(Optional.of(tenant));
+        when(pricingCatalog.tierBillingFor("price_gestion_monthly")).thenReturn(Optional.of(
+            new PricingCatalog.TierBilling(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY)));
+
+        // When
+        subscriptionService.applySubscriptionUpdate(stripeSub);
+
+        // Then
+        verify(featureFlagService).applyTierDefaults(SubscriptionTier.GESTION);
     }
 }

@@ -6,6 +6,7 @@ import { Observable, tap, catchError, of, map } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { API_BASE_URL } from '../config/api-base-url.token';
 import { TenantStatusService } from '../tenant/tenant-status.service';
+import { FeatureFlagsStore } from '../feature-flags/feature-flags.store';
 
 const TOKEN_KEY = 'auth_token';
 
@@ -18,6 +19,7 @@ export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly apiBaseUrl = inject(API_BASE_URL);
   private readonly tenantStatus = inject(TenantStatusService);
+  private readonly featureFlags = inject(FeatureFlagsStore);
 
   // Signals for reactive state
   private readonly currentUser = signal<User | null>(null);
@@ -67,6 +69,7 @@ export class AuthService {
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
+        this.featureFlags.load();
       }),
       map(response => response.user),
       catchError(error => { throw error; })
@@ -87,6 +90,7 @@ export class AuthService {
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
+        this.featureFlags.load();
       }),
       map(response => response.user),
     );
@@ -103,6 +107,7 @@ export class AuthService {
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
+        this.featureFlags.load();
       }),
       map(response => response.user),
       catchError(error => {
@@ -119,6 +124,7 @@ export class AuthService {
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
+        this.featureFlags.load();
       }),
       map(response => response.user),
       tap(() => console.log('Login successful')),
@@ -215,7 +221,10 @@ export class AuthService {
    */
   private loadCurrentUser(): Observable<User> {
     return this.http.get<User>(`${this.apiBaseUrl}/api/auth/me`).pipe(
-      tap(user => this.currentUser.set(user)),
+      tap(user => {
+        this.currentUser.set(user);
+        this.featureFlags.load();
+      }),
       catchError(error => {
         console.error('Failed to load user:', error);
         this.logout();
@@ -248,6 +257,7 @@ export class AuthService {
     this.tenantStatus.reset();
     this.token.set(null);
     this.currentUser.set(null);
+    this.featureFlags.reset();
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(TOKEN_KEY);
     }
@@ -293,6 +303,7 @@ export class AuthService {
       tap(response => {
         this.setToken(response.accessToken);
         this.currentUser.set(response.user);
+        this.featureFlags.load();
       })
     );
   }

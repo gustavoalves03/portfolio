@@ -17,6 +17,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../core/auth/auth.model';
 import { TenantFeaturesService } from '../../../core/tenant/tenant-features.service';
 import { TenantStatusService } from '../../../core/tenant/tenant-status.service';
+import { FeatureFlagsStore } from '../../../core/feature-flags/feature-flags.store';
 
 @Component({
   selector: 'app-sidenav-menu',
@@ -30,6 +31,7 @@ export class SidenavMenu {
   protected readonly langService = inject(LangService);
   protected readonly featuresService = inject(TenantFeaturesService);
   protected readonly tenantStatus = inject(TenantStatusService);
+  private readonly featureFlagsStore = inject(FeatureFlagsStore);
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
   protected readonly languages = [
@@ -43,12 +45,12 @@ export class SidenavMenu {
     const isEmployee = this.authService.hasRole(Role.EMPLOYEE);
 
     // PRO: only show pro routes (no public Accueil/À propos)
-    // Filter out the employees route when the feature is disabled
+    // Filter out routes whose featureKey is not enabled
     if (isPro) {
-      const employeesEnabled = this.featuresService.employeesEnabled();
-      return PRO_NAVIGATION_ROUTES.filter(
-        (r) => r.path !== '/pro/employees' || employeesEnabled
-      );
+      return PRO_NAVIGATION_ROUTES.filter((r) => {
+        if (!r.featureKey) return true;
+        return this.featureFlagsStore.isEnabled(r.featureKey)();
+      });
     }
 
     // EMPLOYEE: only show employee routes

@@ -1,0 +1,11 @@
+<div class="feature-locked-wrapper" [class.locked]="!enabled()">
+  <ng-content />
+  @if (!enabled()) {
+    <div class="overlay" data-testid="upsell-overlay" aria-hidden="false">
+      <p class="overlay-text">{{ upsellKey() | transloco }}</p>
+      <a class="overlay-cta" routerLink="/pricing" [queryParams]="{ highlight: feature() }">
+        {{ 'features.locked.cta' | transloco }}
+      </a>
+    </div>
+  }
+</div>

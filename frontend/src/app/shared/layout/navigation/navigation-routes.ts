@@ -1,3 +1,5 @@
+import { FeatureKey } from '../../../core/feature-flags/feature-key';
+
 export interface NavigationRoute {
   label: string;
   path: string;
@@ -10,6 +12,10 @@ export interface NavigationRoute {
    * Renders a disabled link with a "available after publication" tooltip.
    */
   lockedUntilPublished?: boolean;
+  /**
+   * If set, this nav entry is only shown when the feature flag is enabled.
+   */
+  featureKey?: FeatureKey;
 }
 
 /**
@@ -63,6 +69,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiresAuth: true,
     requiredRole: 'PRO',
     lockedUntilPublished: true,
+    featureKey: 'BOOKING',
   },
   {
     label: 'nav.pro.posts',
@@ -71,6 +78,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiresAuth: true,
     requiredRole: 'PRO',
     lockedUntilPublished: true,
+    featureKey: 'PHOTOS',
   },
   {
     label: 'nav.pro.salon',
@@ -86,6 +94,7 @@ export const PRO_NAVIGATION_ROUTES: NavigationRoute[] = [
     requiresAuth: true,
     requiredRole: 'PRO',
     lockedUntilPublished: true,
+    featureKey: 'EMPLOYEES',
   },
   {
     label: 'nav.pro.settings',

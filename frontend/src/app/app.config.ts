@@ -17,6 +17,7 @@ import {API_BASE_URL} from './core/config/api-base-url.token';
 import {credentialsInterceptor} from './core/interceptors/credentials.interceptor';
 import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { featureFlagInterceptor } from './core/feature-flags/feature-flag.interceptor';
 import {CsrfService} from './core/security/csrf.service';
 import {AuthService} from './core/auth/auth.service';
 import {provideTransloco} from '@jsverse/transloco';
@@ -37,7 +38,7 @@ export const appConfig: ApplicationConfig = {
     {provide: API_BASE_URL, useValue: isDevMode() ? 'http://localhost:8080' : ''},
     provideHttpClient(
       withFetch(),
-      withInterceptors([credentialsInterceptor, csrfInterceptor, authInterceptor]),
+      withInterceptors([credentialsInterceptor, csrfInterceptor, authInterceptor, featureFlagInterceptor]),
       withXsrfConfiguration({
         cookieName: 'XSRF-TOKEN',
         headerName: 'X-XSRF-TOKEN',

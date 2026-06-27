@@ -2,12 +2,15 @@ package com.luxpretty.app.employee.web;
 
 import com.luxpretty.app.employee.app.EmployeeService;
 import com.luxpretty.app.employee.web.dto.*;
+import com.luxpretty.app.feature.app.RequiresFeature;
+import com.luxpretty.app.feature.domain.FeatureKey;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiresFeature(FeatureKey.EMPLOYEES)
 @RestController
 @RequestMapping("/api/pro/employees")
 public class EmployeeController {

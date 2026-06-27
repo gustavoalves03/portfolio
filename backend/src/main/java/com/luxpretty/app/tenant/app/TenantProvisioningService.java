@@ -1,8 +1,10 @@
 package com.luxpretty.app.tenant.app;
 
 import com.luxpretty.app.employee.app.EmployeeService;
+import com.luxpretty.app.feature.app.FeatureFlagService;
 import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
 import com.luxpretty.app.tenant.repo.TenantRepository;
@@ -23,16 +25,19 @@ public class TenantProvisioningService {
     private final TenantSchemaManager tenantSchemaManager;
     private final EmployeeService employeeService;
     private final UserRoleService userRoleService;
+    private final FeatureFlagService featureFlagService;
 
     public TenantProvisioningService(
             TenantRepository tenantRepository,
             TenantSchemaManager tenantSchemaManager,
             EmployeeService employeeService,
-            UserRoleService userRoleService) {
+            UserRoleService userRoleService,
+            FeatureFlagService featureFlagService) {
         this.tenantRepository = tenantRepository;
         this.tenantSchemaManager = tenantSchemaManager;
         this.employeeService = employeeService;
         this.userRoleService = userRoleService;
+        this.featureFlagService = featureFlagService;
     }
 
     @Transactional
@@ -66,6 +71,11 @@ public class TenantProvisioningService {
         TenantContext.setCurrentTenant(slug);
         try {
             employeeService.createSelfEmployee(owner);
+            // T7: seed feature flags from the current tier's defaults (VITRINE if not subscribed yet).
+            SubscriptionTier initialTier = saved.getSubscriptionTier() != null
+                    ? saved.getSubscriptionTier()
+                    : SubscriptionTier.VITRINE;
+            featureFlagService.applyTierDefaults(initialTier);
         } finally {
             TenantContext.clear();
         }

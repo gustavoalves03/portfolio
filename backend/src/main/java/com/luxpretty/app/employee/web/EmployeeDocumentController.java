@@ -5,6 +5,8 @@ import com.luxpretty.app.common.storage.StorageNotFoundException;
 import com.luxpretty.app.employee.app.EmployeeDocumentService;
 import com.luxpretty.app.employee.domain.DocumentType;
 import com.luxpretty.app.employee.web.dto.DocumentResponse;
+import com.luxpretty.app.feature.app.RequiresFeature;
+import com.luxpretty.app.feature.domain.FeatureKey;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+// TODO(T12-mapping): EmployeeDocumentController manages EMPLOYEE contracts/payslips, not client
+// files. CLIENT_FILES in the catalog is intended for client dossiers (photos, consent forms).
+// Using CLIENT_FILES here is an approximation until a dedicated EMPLOYEE_DOCS feature key is added.
+// If those concerns are split, replace FeatureKey.CLIENT_FILES with EMPLOYEE_DOCS.
+@RequiresFeature(FeatureKey.CLIENT_FILES)
 @RestController
 @RequestMapping("/api/pro/employees/{employeeId}/documents")
 public class EmployeeDocumentController {
