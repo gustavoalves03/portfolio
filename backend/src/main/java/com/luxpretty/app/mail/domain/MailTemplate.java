@@ -3,6 +3,7 @@ package com.luxpretty.app.mail.domain;
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
 import com.luxpretty.app.mail.vars.BookingReminderVars;
+import com.luxpretty.app.mail.vars.BookingRescheduledVars;
 import com.luxpretty.app.mail.vars.InvoicePaidVars;
 import com.luxpretty.app.mail.vars.InvoicePaymentFailedVars;
 import com.luxpretty.app.mail.vars.MailVars;
@@ -33,7 +34,8 @@ public enum MailTemplate {
     INVOICE_PAYMENT_FAILED("invoice-payment-failed", InvoicePaymentFailedVars.class),
     TRIAL_ENDING("trial-ending", TrialEndingVars.class),
     VERIFY_EMAIL("verify-email", VerifyEmailVars.class),
-    BOOKING_REMINDER_J1("booking-reminder-j1", BookingReminderVars.class);
+    BOOKING_REMINDER_J1("booking-reminder-j1", BookingReminderVars.class),
+    BOOKING_RESCHEDULED("booking-rescheduled", BookingRescheduledVars.class);
 
     private final String templatePath;
     private final Class<? extends MailVars> varsClass;

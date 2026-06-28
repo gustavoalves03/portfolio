@@ -1,0 +1,13 @@
+Bonjour [(${clientName})],
+
+Votre rendez-vous chez [(${salonName})] a été reprogrammé.
+
+  Soin     : [(${careName})] ([(${careDuration})])
+  Avant    : [(${oldAppointmentDate})] à [(${oldAppointmentTime})]
+  Désormais: [(${newAppointmentDate})] à [(${newAppointmentTime})]
+  Tarif    : [(${carePrice})] €
+
+Voir mes rendez-vous : [(${dashboardUrl})]
+
+À très bientôt !
+— LuxPretty

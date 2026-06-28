@@ -8,4 +8,4 @@ package com.luxpretty.app.mail.vars;
 public sealed interface MailVars
     permits ResetPasswordVars, BookingConfirmedVars, BookingReceivedProVars, WelcomeProVars,
             InvoicePaidVars, InvoicePaymentFailedVars, TrialEndingVars,
-            VerifyEmailVars, BookingReminderVars {}
+            VerifyEmailVars, BookingReminderVars, BookingRescheduledVars {}
