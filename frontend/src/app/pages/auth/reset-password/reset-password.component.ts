@@ -12,11 +12,13 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { passwordMatchValidator } from '../../../core/auth/password-match.validator';
 import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
+import { PasswordToggleDirective } from '../../../shared/directives/password-toggle.directive';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

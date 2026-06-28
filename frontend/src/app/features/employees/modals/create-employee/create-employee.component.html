@@ -27,7 +27,7 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>{{ 'pro.employees.password' | transloco }}</mat-label>
       <mat-icon matPrefix>lock</mat-icon>
-      <input matInput type="password" formControlName="password" autocomplete="new-password" data-testid="employee-password" />
+      <input matInput type="password" appPasswordToggle formControlName="password" autocomplete="new-password" data-testid="employee-password" />
     </mat-form-field>
 
     @if (cares.length > 0) {

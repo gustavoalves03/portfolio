@@ -27,7 +27,7 @@
 
           <mat-form-field appearance="fill" class="full-width">
             <mat-label>{{ 'auth.login.password' | transloco }}</mat-label>
-            <input matInput type="password" formControlName="password" />
+            <input matInput type="password" appPasswordToggle formControlName="password" />
             @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
               <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
             }
@@ -106,7 +106,7 @@
 
           <mat-form-field appearance="fill" class="full-width">
             <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>
-            <input matInput type="password" formControlName="password" />
+            <input matInput type="password" appPasswordToggle formControlName="password" />
             @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
               <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
             }

@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
 import { suggestEmail } from '../../../core/utils/email-mailcheck.util';
+import { PasswordToggleDirective } from '../../directives/password-toggle.directive';
 
 export interface ProSignupModalData {
   tier: 'VITRINE' | 'GESTION' | 'PREMIUM';
@@ -25,6 +26,7 @@ export interface ProSignupModalResult {
   selector: 'app-pro-signup-modal',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     FormsModule,
     MatDialogModule,
     MatButtonModule,

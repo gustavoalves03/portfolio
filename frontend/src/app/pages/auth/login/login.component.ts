@@ -12,11 +12,13 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from '../../../core/auth/auth.service';
 import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
+import { PasswordToggleDirective } from '../../../shared/directives/password-toggle.directive';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

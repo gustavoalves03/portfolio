@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../uis/form-validation-hint/form-validation-hint.component';
 import { SheetHandleComponent } from '../../uis/sheet-handle/sheet-handle.component';
+import { PasswordToggleDirective } from '../../directives/password-toggle.directive';
 
 export interface AuthModalResult {
   authenticated: boolean;
@@ -25,6 +26,7 @@ export interface AuthModalResult {
   selector: 'app-auth-modal',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,

@@ -61,7 +61,7 @@
       <!-- Password field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.register.password' | transloco }}</mat-label>
-        <input matInput formControlName="password" type="password" autocomplete="new-password" data-testid="register-password" />
+        <input matInput formControlName="password" type="password" appPasswordToggle autocomplete="new-password" data-testid="register-password" />
         <mat-hint>{{ 'auth.register.passwordHint' | transloco }}</mat-hint>
         @if (passwordControl?.hasError('required') && passwordControl?.touched) {
           <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
@@ -74,7 +74,7 @@
       <!-- Confirm password field -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.field.confirmPassword' | transloco }}</mat-label>
-        <input matInput type="password" formControlName="confirmPassword" required />
+        <input matInput type="password" appPasswordToggle formControlName="confirmPassword" required />
         @if (confirmPasswordControl?.touched && confirmPasswordControl?.errors?.['required']) {
           <mat-error>{{ 'auth.errors.required' | transloco }}</mat-error>
         }

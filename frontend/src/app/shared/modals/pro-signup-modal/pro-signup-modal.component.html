@@ -42,7 +42,7 @@
 
     <mat-form-field appearance="outline">
       <mat-label>{{ 'proSignup.modal.fields.password' | transloco }}</mat-label>
-      <input matInput required type="password" minlength="8" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" />
+      <input matInput required type="password" appPasswordToggle minlength="8" [ngModel]="password()" (ngModelChange)="password.set($event)" name="password" />
     </mat-form-field>
 
     <mat-checkbox required [ngModel]="consent()" (ngModelChange)="consent.set($event)" name="consent">
