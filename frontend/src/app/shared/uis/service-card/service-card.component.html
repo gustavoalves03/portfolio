@@ -3,6 +3,7 @@
   <div class="service-card-front">
     <!-- Image Section (60%) -->
     <div class="service-image-wrapper"
+         [style.--card-img-url]="hasImages() ? 'url(' + images()[getCurrentImageIndex()].url + ')' : null"
          (touchstart)="onTouchStart($event)"
          (touchend)="onTouchEnd($event, images().length)">
       @if (hasImages()) {

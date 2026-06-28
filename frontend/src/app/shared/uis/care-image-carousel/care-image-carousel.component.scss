@@ -22,6 +22,37 @@
   pointer-events: none;
 }
 
+/* =====================================================================
+   Mobile image rendering — show the whole care photo (no crop).
+   The image is contained within a 4:5 frame; empty margins are filled
+   with a blurred, scaled copy of the same photo (--carousel-img-url).
+   ===================================================================== */
+@media (max-width: 768px) {
+  .carousel {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    isolation: isolate;
+  }
+
+  .carousel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--carousel-img-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(18px) brightness(0.9);
+    transform: scale(1.15);
+  }
+
+  .carousel-img {
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+  }
+}
+
 .carousel-controls {
   position: absolute;
   top: 0;

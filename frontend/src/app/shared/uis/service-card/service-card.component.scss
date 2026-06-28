@@ -360,3 +360,37 @@
     color: #9ca3af;
   }
 }
+
+/* =====================================================================
+   Mobile image rendering — show the whole care photo (no crop).
+   The image is contained within a 4:5 frame, and the empty margins are
+   filled with a blurred, scaled copy of the same photo (set via the
+   --card-img-url custom property on .service-image-wrapper).
+   ===================================================================== */
+@media (max-width: 768px) {
+  .service-image-wrapper {
+    flex: 0 0 auto;
+    aspect-ratio: 4 / 5;
+    height: auto;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .service-image-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--card-img-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(18px) brightness(0.9);
+    transform: scale(1.15);
+  }
+
+  .service-image {
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+  }
+}

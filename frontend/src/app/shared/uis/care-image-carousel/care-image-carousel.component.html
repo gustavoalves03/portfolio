@@ -1,6 +1,7 @@
 @if (images().length > 0) {
   <div
     class="carousel"
+    [style.--carousel-img-url]="'url(' + images()[safeIndex()].url + ')'"
     (touchstart)="onTouchStart($event)"
     (touchend)="onTouchEnd($event)"
   >
