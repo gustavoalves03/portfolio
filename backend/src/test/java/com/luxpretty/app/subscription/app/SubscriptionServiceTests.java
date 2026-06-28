@@ -180,6 +180,34 @@ class SubscriptionServiceTests {
     }
 
     @Test
+    void applySubscriptionUpdate_setsStatusUnpaid_whenStripeStatusIsUnpaid() throws Exception {
+        // Given — Stripe moves a subscription to "unpaid" once the grace period
+        // (past_due) is exhausted. This MUST map to UNPAID so SubscriptionGuard
+        // blocks access; mapping it to VITRINE_FREE would wrongly keep access open.
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .stripeSubscriptionId("sub_456")
+            .build();
+
+        Subscription stripeSub = new Subscription();
+        stripeSub.setId("sub_456");
+        stripeSub.setCustomer("cus_123");
+        stripeSub.setStatus("unpaid");
+
+        when(tenantRepository.findByStripeSubscriptionId("sub_456")).thenReturn(Optional.of(tenant));
+
+        // When
+        subscriptionService.applySubscriptionUpdate(stripeSub);
+
+        // Then
+        assertThat(tenant.getSubscriptionStatus()).isEqualTo(SubscriptionStatus.UNPAID);
+        assertThat(tenant.getSubscriptionStatus().grantsAccess()).isFalse();
+        verify(tenantRepository).save(tenant);
+    }
+
+    @Test
     void applySubscriptionUpdate_setsCurrentPeriodEnd() throws Exception {
         // Given
         Tenant tenant = Tenant.builder()
