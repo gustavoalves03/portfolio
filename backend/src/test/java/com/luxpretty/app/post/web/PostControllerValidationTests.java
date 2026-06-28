@@ -102,6 +102,25 @@ class PostControllerValidationTests {
 
     @Test
     @WithMockUser(roles = "PRO")
+    @DisplayName("Publishing a photo without a caption succeeds (caption is optional)")
+    void upload_withoutCaption_succeeds() throws Exception {
+        when(service.createPhoto(any(), any(), any(), any()))
+                .thenReturn(new PostResponse(
+                        1L, PostType.PHOTO, null, null, "/img/p.jpg",
+                        List.of(), null, null, LocalDateTime.now()));
+
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "photo.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[16]);
+
+        // No .param("caption", ...) at all — must not be rejected as a missing param.
+        mvc.perform(multipart("/api/pro/posts/photo")
+                        .file(image)
+                        .with(csrf()))
+                .andExpect(status().isCreated()); // 201
+    }
+
+    @Test
+    @WithMockUser(roles = "PRO")
     @DisplayName("Lot4#55: non-image payload rejected with 400 (content-type validation)")
     void upload_nonImage_returns400() throws Exception {
         // PostService.saveFile now validates content-type against an allowlist.

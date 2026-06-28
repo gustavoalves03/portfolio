@@ -22,7 +22,7 @@ public class PostController {
     @PostMapping("/before-after")
     @ResponseStatus(HttpStatus.CREATED)
     public PostResponse createBeforeAfter(
-            @RequestParam("caption") String caption,
+            @RequestParam(value = "caption", required = false) String caption,
             @RequestParam(value = "careId", required = false) Long careId,
             @RequestParam(value = "careName", required = false) String careName,
             @RequestParam("beforeImage") MultipartFile beforeImage,
@@ -33,7 +33,7 @@ public class PostController {
     @PostMapping("/photo")
     @ResponseStatus(HttpStatus.CREATED)
     public PostResponse createPhoto(
-            @RequestParam("caption") String caption,
+            @RequestParam(value = "caption", required = false) String caption,
             @RequestParam(value = "careId", required = false) Long careId,
             @RequestParam(value = "careName", required = false) String careName,
             @RequestParam("image") MultipartFile image) {
@@ -43,7 +43,7 @@ public class PostController {
     @PostMapping("/carousel")
     @ResponseStatus(HttpStatus.CREATED)
     public PostResponse createCarousel(
-            @RequestParam("caption") String caption,
+            @RequestParam(value = "caption", required = false) String caption,
             @RequestParam(value = "careId", required = false) Long careId,
             @RequestParam(value = "careName", required = false) String careName,
             @RequestParam("images") List<MultipartFile> images) {
