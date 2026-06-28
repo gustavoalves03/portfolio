@@ -21,4 +21,16 @@ public enum SubscriptionStatus {
     public boolean grantsAccess() {
         return this == VITRINE_FREE || this == TRIALING || this == ACTIVE || this == PAST_DUE;
     }
+
+    /**
+     * True when a live Stripe subscription already exists, so a plan change must
+     * go through the billing portal / a plan-change flow — NOT a fresh checkout.
+     * Starting a new checkout in these states would create a second concurrent
+     * subscription on the same Stripe customer (double billing).
+     * Dead states (CANCELED, UNPAID, INCOMPLETE_EXPIRED, VITRINE_FREE) are
+     * intentionally excluded so a lapsed tenant can re-subscribe.
+     */
+    public boolean hasLiveSubscription() {
+        return this == TRIALING || this == ACTIVE || this == PAST_DUE || this == INCOMPLETE;
+    }
 }

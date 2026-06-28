@@ -135,6 +135,15 @@ public class SubscriptionController {
                 "Invalid subscription tier/billing combination: " + body.tier() + "/" + body.billing());
         }
 
+        // Guard against double-subscription: a tenant with a live Stripe
+        // subscription must change plans via the billing portal, not by starting
+        // a fresh checkout (which would create a second concurrent subscription).
+        if (tenant.getSubscriptionStatus() != null
+                && tenant.getSubscriptionStatus().hasLiveSubscription()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "SUBSCRIPTION_ALREADY_ACTIVE");
+        }
+
         // Call subscriptionService.startCheckout
         Tenant updated = subscriptionService.startCheckout(
             tenant.getId(), body.tier(), body.billing(), body.paymentMethodId());
