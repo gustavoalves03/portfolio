@@ -60,6 +60,11 @@ export const routes: Routes = [
     path: 'salon/:slug',
     loadComponent: () => import('./pages/salon/salon-page.component').then(m => m.SalonPageComponent),
   },
+  {
+    path: 'salon/:slug/soin/:careId',
+    loadComponent: () =>
+      import('./pages/salon/care-detail/care-detail-page.component').then(m => m.CareDetailPageComponent),
+  },
 
   // Protected pro routes
   {

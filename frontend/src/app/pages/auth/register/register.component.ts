@@ -17,11 +17,13 @@ import { emailMatchValidator } from '../../../core/auth/email-match.validator';
 import { suggestEmail } from '../../../core/utils/email-mailcheck.util';
 import { focusFirstInvalid } from '../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../shared/uis/form-validation-hint/form-validation-hint.component';
+import { PasswordToggleDirective } from '../../../shared/directives/password-toggle.directive';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     CommonModule,
     ReactiveFormsModule,
     RouterLink,

@@ -480,6 +480,12 @@ describe('BookingDialogComponent', () => {
       const fixture = TestBed.createComponent(BookingDialogComponent);
       fixture.detectChanges();
       const cmp = fixture.componentInstance;
+      // Per-slot employee chips only render in multi-practitioner mode; seed two
+      // practitioners so isMultiEmployee() is true.
+      cmp.employees.set([
+        { id: 1, name: 'Marie', imageUrl: null },
+        { id: 2, name: 'Sophie', imageUrl: null },
+      ]);
       cmp.slots.set(slots);
       // Trigger a date selection so the slots section renders
       const futureDate = new Date();

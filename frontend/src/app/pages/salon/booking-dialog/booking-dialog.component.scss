@@ -175,6 +175,42 @@
   }
 }
 
+/* Single-practitioner: grid of time pills, no names */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+}
+
+.slot-time-btn {
+  padding: 9px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 9999px;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background 200ms, border-color 200ms, color 200ms;
+
+  &:hover:not(:disabled) {
+    border-color: var(--pf-rose);
+    background: #fdf0f4;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose));
+    color: white;
+    border-color: transparent;
+  }
+}
+
 .confirm-btn {
   display: block;
   width: 100%;

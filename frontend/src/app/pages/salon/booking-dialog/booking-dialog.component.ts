@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -67,6 +67,14 @@ export class BookingDialogComponent {
   readonly bookingError = signal<string | null>(null);
   readonly registerJustCompleted = signal(false);
   readonly employees = signal<EmployeeSlim[]>([]);
+
+  /**
+   * Single-practitioner salons should not surface practitioner names: showing
+   * one name next to every time slot is noise. The per-employee UI (chips on
+   * each slot + the "choose a practitioner" picker) is only meaningful when
+   * there is more than one practitioner.
+   */
+  readonly isMultiEmployee = computed(() => this.employees().length > 1);
   readonly selectedEmployee = signal<EmployeeSlim | null>(null);
 
   readonly dateFilter = (date: Date | null): boolean => {
@@ -127,6 +135,24 @@ export class BookingDialogComponent {
     if (!emp.available) return;
     this.selectedSlot.set(slot);
     this.selectedEmployee.set({ id: emp.id, name: emp.name, imageUrl: null });
+  }
+
+  /** Single-practitioner mode: pick the slot (and its only available employee)
+   *  by clicking the time itself — no name shown. */
+  onSlotClick(slot: SlotWithEmployees): void {
+    const emp = slot.employees.find((e) => e.available);
+    if (!emp) return;
+    this.selectedSlot.set(slot);
+    this.selectedEmployee.set({ id: emp.id, name: emp.name, imageUrl: null });
+  }
+
+  /** True if this slot has at least one bookable employee. */
+  isSlotAvailable(slot: SlotWithEmployees): boolean {
+    return slot.employees.some((e) => e.available);
+  }
+
+  isSlotSelected(slot: SlotWithEmployees): boolean {
+    return this.selectedSlot()?.time === slot.time;
   }
 
   chipTooltip(emp: EmployeeSlotState): string | null {

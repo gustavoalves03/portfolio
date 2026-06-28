@@ -17,6 +17,7 @@ import { CreateEmployeeRequest } from '../../employees.model';
 import { SheetHandleComponent } from '../../../../shared/uis/sheet-handle/sheet-handle.component';
 import { focusFirstInvalid } from '../../../../core/utils/form-focus.util';
 import { FormValidationHintComponent } from '../../../../shared/uis/form-validation-hint/form-validation-hint.component';
+import { PasswordToggleDirective } from '../../../../shared/directives/password-toggle.directive';
 
 interface CreateEmployeeDialogData {
   cares: Care[];
@@ -26,6 +27,7 @@ interface CreateEmployeeDialogData {
   selector: 'app-create-employee',
   standalone: true,
   imports: [
+    PasswordToggleDirective,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,

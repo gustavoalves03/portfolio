@@ -40,7 +40,7 @@
 
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ 'auth.login.password' | transloco }}</mat-label>
-        <input matInput type="password" formControlName="password" autocomplete="current-password" />
+        <input matInput type="password" appPasswordToggle formControlName="password" autocomplete="current-password" />
         @if (loginForm.controls.password.hasError('required')) {
           <mat-error>{{ 'auth.errors.passwordRequired' | transloco }}</mat-error>
         }

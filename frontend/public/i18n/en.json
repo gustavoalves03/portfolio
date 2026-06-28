@@ -1133,6 +1133,14 @@
       "phoneLabel": "Phone",
       "emailLabel": "Email",
       "poweredBy": "Powered by"
+    },
+    "care": {
+      "seeDetail": "View details",
+      "backToSalon": "Back to salon",
+      "notFound": "This service could not be found.",
+      "duration": "Duration",
+      "price": "Price",
+      "description": "Description"
     }
   },
   "posts": {

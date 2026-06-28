@@ -8,7 +8,7 @@ import {
 import {registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
-import {provideRouter} from '@angular/router';
+import {provideRouter, withInMemoryScrolling} from '@angular/router';
 
 import {routes} from './app.routes';
 import {provideClientHydration, withEventReplay} from '@angular/platform-browser';
@@ -63,7 +63,14 @@ export const appConfig: ApplicationConfig = {
     NotificationsStore,
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes), provideClientHydration(withEventReplay()),
+    provideRouter(
+      routes,
+      // Reset scroll to top on navigation (and restore on back/forward).
+      // Without this, navigating from a scrolled list landed lower on the
+      // next page (e.g. the care detail page opened scrolled to the bottom).
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+    ),
+    provideClientHydration(withEventReplay()),
     provideTransloco({
       config: {
         availableLangs: ['fr', 'en'],

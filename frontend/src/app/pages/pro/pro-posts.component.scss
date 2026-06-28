@@ -288,6 +288,28 @@
   justify-content: flex-end;
 }
 
+// On mobile the form can be longer than the viewport and the bottom is taken
+// by the fixed bottom-nav (+ cookie banner), so the publish/save button used to
+// scroll out of sight. Pin the footer just above the bottom-nav so the action
+// is always reachable. (≤767px matches the bottom-nav breakpoint.)
+@media (max-width: 767px) {
+  .form-footer {
+    position: sticky;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    z-index: 10;
+    margin: 16px -20px -20px; // bleed to the card edges (.create-section has 20px padding)
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .publish-btn {
+    width: 100%; // easy thumb target
+  }
+}
+
 .publish-btn {
   padding: 10px 28px;
   border: none;
