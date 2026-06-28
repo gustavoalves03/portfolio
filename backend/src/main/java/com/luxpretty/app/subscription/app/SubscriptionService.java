@@ -192,6 +192,7 @@ public class SubscriptionService {
             case "trialing" -> SubscriptionStatus.TRIALING;
             case "active" -> SubscriptionStatus.ACTIVE;
             case "past_due" -> SubscriptionStatus.PAST_DUE;
+            case "unpaid" -> SubscriptionStatus.UNPAID;
             case "canceled" -> SubscriptionStatus.CANCELED;
             case "incomplete" -> SubscriptionStatus.INCOMPLETE;
             case "incomplete_expired" -> SubscriptionStatus.INCOMPLETE_EXPIRED;
