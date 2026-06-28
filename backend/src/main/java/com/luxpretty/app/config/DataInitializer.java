@@ -5,6 +5,8 @@ import com.luxpretty.app.availability.repo.OpeningHourRepository;
 import com.luxpretty.app.care.domain.Care;
 import com.luxpretty.app.care.domain.CareStatus;
 import com.luxpretty.app.care.repo.CareRepository;
+import com.luxpretty.app.employee.domain.Employee;
+import com.luxpretty.app.employee.repo.EmployeeRepository;
 import com.luxpretty.app.category.domain.Category;
 import com.luxpretty.app.category.repo.CategoryRepository;
 import com.luxpretty.app.multitenancy.TenantContext;
@@ -54,7 +56,8 @@ public class DataInitializer {
             OpeningHourRepository openingHourRepository,
             PostRepository postRepository,
             UserRoleService userRoleService,
-            FeatureFlagService featureFlagService
+            FeatureFlagService featureFlagService,
+            EmployeeRepository employeeRepository
     ) {
         return args -> {
             if (userRepository.count() > 0) {
@@ -90,6 +93,7 @@ public class DataInitializer {
             tenantRepository.save(salonSophie);
             tenantSchemaManager.provisionSchema(salonSophie.getSlug());
             seedSalonSophie(salonSophie.getSlug(), categoryRepository, careRepository, openingHourRepository);
+            assignCaresToSelfEmployee(salonSophie.getSlug(), sophie.getId(), careRepository, employeeRepository);
             seedTierFeatures(salonSophie.getSlug(), SubscriptionTier.VITRINE, featureFlagService);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: VITRINE)", salonSophie.getName(), salonSophie.getSlug(), sophie.getEmail());
 
@@ -114,6 +118,7 @@ public class DataInitializer {
             tenantRepository.save(salonCamille);
             tenantSchemaManager.provisionSchema(salonCamille.getSlug());
             seedSalonCamille(salonCamille.getSlug(), categoryRepository, careRepository, openingHourRepository);
+            assignCaresToSelfEmployee(salonCamille.getSlug(), camille.getId(), careRepository, employeeRepository);
             seedTierFeatures(salonCamille.getSlug(), SubscriptionTier.GESTION, featureFlagService);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: GESTION)", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
 
@@ -138,6 +143,7 @@ public class DataInitializer {
             tenantRepository.save(salonIsabelle);
             tenantSchemaManager.provisionSchema(salonIsabelle.getSlug());
             seedSalonIsabelle(salonIsabelle.getSlug(), categoryRepository, careRepository, openingHourRepository);
+            assignCaresToSelfEmployee(salonIsabelle.getSlug(), isabelle.getId(), careRepository, employeeRepository);
             seedTierFeatures(salonIsabelle.getSlug(), SubscriptionTier.PREMIUM, featureFlagService);
             logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: PREMIUM)", salonIsabelle.getName(), salonIsabelle.getSlug(), isabelle.getEmail());
 
@@ -197,6 +203,30 @@ public class DataInitializer {
         Tenant saved = tenantRepository.save(tenant);
         logger.info("  → Demo tenant created: {} ({}) — tier {}", saved.getName(), saved.getSlug(), tier);
         return saved;
+    }
+
+    /**
+     * Links the salon's self-employee (the owner) to every care, so the seeded
+     * services are bookable. Slots are computed per qualified employee; without an
+     * employee_cares row a care yields zero availability. The Flyway V4 seed only
+     * covers cares that exist at provisioning time, but demo cares are created
+     * afterwards by seedSalonX(), so we assign them here. Runs in tenant context.
+     */
+    private void assignCaresToSelfEmployee(String slug, Long ownerId,
+                                           CareRepository careRepo,
+                                           EmployeeRepository employeeRepo) {
+        TenantContext.setCurrentTenant(slug);
+        try {
+            Employee self = employeeRepo.findByUserId(ownerId).orElse(null);
+            if (self == null) {
+                logger.warn("No self-employee for tenant {} — cares left unassigned", slug);
+                return;
+            }
+            self.setAssignedCares(new java.util.HashSet<>(careRepo.findAll()));
+            employeeRepo.save(self);
+        } finally {
+            TenantContext.clear();
+        }
     }
 
     /** Seeds TENANT_FEATURES rows for a tenant from its tier (must run in tenant context). */

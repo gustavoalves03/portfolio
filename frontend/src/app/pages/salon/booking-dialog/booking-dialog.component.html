@@ -27,7 +27,7 @@
       <span class="care-meta">{{ formatDuration(care.duration) }} · {{ formatPrice(care.price) }}</span>
     </div>
 
-    @if (employees().length > 0) {
+    @if (isMultiEmployee()) {
       <div class="employee-section">
         <div class="section-label">{{ 'booking.chooseEmployee' | transloco }}</div>
         <div class="employee-chips">
@@ -67,31 +67,50 @@
         } @else if (slots().length === 0) {
           <p class="no-slots">{{ 'booking.dialog.noSlots' | transloco }}</p>
         } @else {
-          <div class="slots-list">
-            @for (slot of slots(); track slot.time) {
-              <div class="slot-row" data-testid="booking-slot-row">
-                <span class="slot-time">{{ slot.time }}</span>
-                <div class="slot-employee-chips">
-                  @for (emp of slot.employees; track emp.id) {
-                    @if (!selectedEmployee() || selectedEmployee()?.id === emp.id) {
-                      <button
-                        type="button"
-                        class="slot-employee-chip"
-                        data-testid="employee-chip"
-                        [class.chip-grey]="!emp.available"
-                        [class.chip-selected]="isChipSelected(slot, emp)"
-                        [disabled]="!emp.available"
-                        [attr.title]="chipTooltip(emp)"
-                        (click)="onChipClick(slot, emp)"
-                      >
-                        {{ emp.name }}
-                      </button>
+          @if (isMultiEmployee()) {
+            <!-- Multi-practitioner: pick a time + which practitioner -->
+            <div class="slots-list">
+              @for (slot of slots(); track slot.time) {
+                <div class="slot-row" data-testid="booking-slot-row">
+                  <span class="slot-time">{{ slot.time }}</span>
+                  <div class="slot-employee-chips">
+                    @for (emp of slot.employees; track emp.id) {
+                      @if (!selectedEmployee() || selectedEmployee()?.id === emp.id) {
+                        <button
+                          type="button"
+                          class="slot-employee-chip"
+                          data-testid="employee-chip"
+                          [class.chip-grey]="!emp.available"
+                          [class.chip-selected]="isChipSelected(slot, emp)"
+                          [disabled]="!emp.available"
+                          [attr.title]="chipTooltip(emp)"
+                          (click)="onChipClick(slot, emp)"
+                        >
+                          {{ emp.name }}
+                        </button>
+                      }
                     }
-                  }
+                  </div>
                 </div>
-              </div>
-            }
-          </div>
+              }
+            </div>
+          } @else {
+            <!-- Single practitioner: just the times, no name -->
+            <div class="slots-grid">
+              @for (slot of slots(); track slot.time) {
+                <button
+                  type="button"
+                  class="slot-time-btn"
+                  data-testid="booking-slot-row"
+                  [class.selected]="isSlotSelected(slot)"
+                  [disabled]="!isSlotAvailable(slot)"
+                  (click)="onSlotClick(slot)"
+                >
+                  {{ slot.time }}
+                </button>
+              }
+            </div>
+          }
         }
       </div>
     }
