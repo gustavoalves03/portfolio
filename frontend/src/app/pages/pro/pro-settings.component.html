@@ -72,8 +72,9 @@
           </div>
           <div class="setting-control">
             <mat-slide-toggle
+              #employeesToggle
               [checked]="featuresService.employeesEnabled()"
-              (change)="featuresService.toggleEmployees($event.checked)"
+              (change)="onToggleEmployees($event.checked, employeesToggle)"
             ></mat-slide-toggle>
           </div>
         </div>
@@ -218,6 +219,50 @@
                 </button>
               </div>
             }
+          </div>
+        }
+      </section>
+
+      <!-- ============ Abonnement ============ -->
+      <section class="section" id="subscription">
+        <div class="section-head">
+          <div class="section-titles">
+            <h3 class="section-title">{{ 'pro.settings.subscription.title' | transloco }}</h3>
+            <p class="section-desc">{{ 'pro.settings.subscription.desc' | transloco }}</p>
+          </div>
+        </div>
+        @if (hasBillingAccount()) {
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">{{ 'pro.settings.subscription.manageLabel' | transloco }}</span>
+              <span class="setting-desc">{{ 'pro.settings.subscription.manageDesc' | transloco }}</span>
+            </div>
+            <div class="setting-control">
+              <button
+                mat-stroked-button
+                color="warn"
+                [disabled]="portalLoading()"
+                (click)="openBillingPortal()"
+              >
+                @if (portalLoading()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  {{ 'pro.settings.subscription.manageBtn' | transloco }}
+                }
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="setting-row">
+            <div class="setting-info">
+              <span class="setting-label">{{ 'pro.settings.subscription.noAccountLabel' | transloco }}</span>
+              <span class="setting-desc">{{ 'pro.settings.subscription.noAccountDesc' | transloco }}</span>
+            </div>
+            <div class="setting-control">
+              <a mat-flat-button color="primary" routerLink="/pricing">
+                {{ 'pro.settings.subscription.subscribeBtn' | transloco }}
+              </a>
+            </div>
           </div>
         }
       </section>

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap } from 'rxjs';
+import { filter, pipe, switchMap, tap } from 'rxjs';
 import { BookingsService } from '../../features/bookings/services/bookings.service';
 import { toYMD } from '../../core/utils/date-format';
 import {
@@ -16,6 +16,7 @@ import {
 import { BookingStepperComponent } from '../../features/bookings/components/booking-stepper/booking-stepper.component';
 import { bottomSheetConfig } from '../../shared/uis/sheet-handle/bottom-sheet.config';
 import { FeatureLockedComponent } from '../../core/feature-flags/feature-locked.component';
+import { FeatureFlagsStore } from '../../core/feature-flags/feature-flags.store';
 
 interface DayCell {
   date: string;          // YYYY-MM-DD
@@ -65,6 +66,11 @@ export class ProBookingsComponent {
   // Required so dialogs inherit this component's injector chain (notably
   // DashboardStore from ProShellComponent, which CaresStore depends on).
   private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly featureFlags = inject(FeatureFlagsStore);
+
+  /** Booking data is only fetched when the tier unlocks it; otherwise the page
+   * renders empty behind the <lp-feature-locked> upsell overlay. */
+  protected readonly bookingEnabled = this.featureFlags.isEnabled('BOOKING');
 
   protected readonly CareBookingStatus = CareBookingStatus;
   protected readonly hourLabels = Array.from(
@@ -263,6 +269,7 @@ export class ProBookingsComponent {
   // ── Loaders ───────────────────────────────────────────────────────────
   private readonly loadBookings = rxMethod<void>(
     pipe(
+      filter(() => this.bookingEnabled()),
       tap(() => this.isLoading.set(true)),
       switchMap(() => {
         const filters = this.buildFilters();

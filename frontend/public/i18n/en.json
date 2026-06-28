@@ -663,7 +663,19 @@
       "holidaysSectionDesc": "Decide what happens by default on French public holidays.",
       "today": "today",
       "inOneDay": "in 1 day",
-      "inDays": "in {{n}} days"
+      "inDays": "in {{n}} days",
+      "subscription": {
+        "title": "Subscription",
+        "desc": "Manage your plan and payment method.",
+        "manageLabel": "Manage my subscription",
+        "manageDesc": "Update your payment method or cancel your subscription.",
+        "manageBtn": "Manage / Cancel",
+        "error": "Could not open the billing portal. Please try again.",
+        "noAccount": "No paid subscription to manage yet.",
+        "noAccountLabel": "No active subscription",
+        "noAccountDesc": "You don't have a paid subscription to manage yet.",
+        "subscribeBtn": "View plans"
+      }
     },
     "bookingPolicy": {
       "tab": "Booking rules",
@@ -1377,6 +1389,10 @@
       "shop": "The shop is available with Premium.",
       "loyalty": "Loyalty programme is available with Premium.",
       "multi_location": "Multi-location is available with Premium."
+    },
+    "upgrade": {
+      "title": "Upgrade your plan",
+      "later": "Later"
     }
   },
   "evolution": {
