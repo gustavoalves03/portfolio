@@ -13,13 +13,46 @@
   touch-action: pan-y;
 }
 
+/* =====================================================================
+   Show the WHOLE care photo (no crop), on every screen size.
+   The image is `contain`ed within the frame; the empty margins are
+   filled with a blurred, scaled copy of the same photo so the frame
+   never shows raw letterbox bars. The frame height comes from the
+   parent (fixed height on PC cards, 4:5 ratio on mobile — see below).
+   ===================================================================== */
+.carousel {
+  isolation: isolate;
+}
+
+.carousel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--carousel-img-url);
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) brightness(0.9);
+  transform: scale(1.15);
+}
+
 .carousel-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   display: block;
   pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile: no parent-imposed height, so give the frame a 4:5 ratio. */
+@media (max-width: 768px) {
+  .carousel {
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
 }
 
 .carousel-controls {
