@@ -1,5 +1,6 @@
 import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, input, output, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   PublicSalonResponse,
@@ -13,7 +14,7 @@ import { CareImageCarouselComponent } from '../../../shared/uis/care-image-carou
 @Component({
   selector: 'app-salon-page-pc',
   standalone: true,
-  imports: [TranslocoPipe, SalonPostsViewerComponent, CareImageCarouselComponent],
+  imports: [RouterLink, TranslocoPipe, SalonPostsViewerComponent, CareImageCarouselComponent],
   templateUrl: './salon-page-pc.component.html',
   styleUrl: './salon-page-pc.component.scss',
 })

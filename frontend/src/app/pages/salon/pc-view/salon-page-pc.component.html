@@ -95,10 +95,13 @@
                     }
                   </div>
                   <div class="care-body">
-                    <h4 class="care-name">{{ care.name }}</h4>
-                    @if (care.description) {
-                      <p class="care-desc">{{ care.description }}</p>
-                    }
+                    <a class="care-text-link" [routerLink]="['/salon', slug(), 'soin', care.id]">
+                      <h4 class="care-name">{{ care.name }}</h4>
+                      @if (care.description) {
+                        <p class="care-desc">{{ care.description }}</p>
+                      }
+                      <span class="care-see-detail">{{ 'salon.care.seeDetail' | transloco }} ›</span>
+                    </a>
                     <div class="care-foot">
                       <div class="care-meta">
                         <span class="care-duration">{{ formatDuration(care.duration) }}</span>

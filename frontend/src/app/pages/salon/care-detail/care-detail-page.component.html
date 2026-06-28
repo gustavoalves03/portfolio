@@ -1,0 +1,68 @@
+@if (loading()) {
+  <div class="cd-loading">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+} @else if (notFound() || !care()) {
+  <div class="cd-notfound">
+    <mat-icon>spa</mat-icon>
+    <p>{{ 'salon.care.notFound' | transloco }}</p>
+    <a mat-flat-button [routerLink]="['/salon', slug]">{{ 'salon.care.backToSalon' | transloco }}</a>
+  </div>
+} @else {
+  <div class="cd-page">
+    <!-- Top bar: back + breadcrumb -->
+    <div class="cd-topbar">
+      <a class="cd-back" [routerLink]="['/salon', slug]">
+        <mat-icon>chevron_left</mat-icon>
+        <span>{{ 'salon.care.backToSalon' | transloco }}</span>
+      </a>
+      <span class="cd-crumb">
+        {{ salon()?.name }}
+        @if (categoryName()) { · {{ categoryName() }} }
+      </span>
+    </div>
+
+    <!-- Full-width gallery -->
+    <div class="cd-gallery">
+      @if (carouselImages().length > 0) {
+        <app-care-image-carousel [images]="carouselImages()" [alt]="care()!.name" />
+      } @else {
+        <div class="cd-gallery-fallback">
+          <mat-icon>spa</mat-icon>
+        </div>
+      }
+    </div>
+
+    <!-- Info below -->
+    <div class="cd-info">
+      @if (categoryName()) {
+        <span class="cd-cat">{{ categoryName() }}</span>
+      }
+      <h1 class="cd-title">{{ care()!.name }}</h1>
+
+      <div class="cd-metarow">
+        <div class="cd-meta">
+          <span class="cd-k">{{ 'salon.care.duration' | transloco }}</span>
+          <span class="cd-v">{{ formatDuration(care()!.duration) }}</span>
+        </div>
+        <div class="cd-meta">
+          <span class="cd-k">{{ 'salon.care.price' | transloco }}</span>
+          <span class="cd-v cd-price">{{ formatPrice(care()!.price) }}</span>
+        </div>
+      </div>
+
+      @if (care()!.description) {
+        <div class="cd-desc-h">{{ 'salon.care.description' | transloco }}</div>
+        <div class="cd-desc">{{ care()!.description }}</div>
+      }
+
+      @if (!bookingDisabled()) {
+        <div class="cd-actions">
+          <button mat-flat-button class="cd-book" (click)="onBook()">
+            {{ 'booking.book' | transloco }} · {{ formatPrice(care()!.price) }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

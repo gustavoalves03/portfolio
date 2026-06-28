@@ -1,0 +1,197 @@
+:host {
+  display: block;
+  background: var(--pf-paper);
+  min-height: 100vh;
+}
+
+.cd-loading,
+.cd-notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 60vh;
+  color: var(--pf-ink-mute);
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--pf-rose);
+  }
+}
+
+.cd-page {
+  max-width: 920px;
+  margin: 0 auto;
+  background: var(--pf-paper);
+}
+
+/* Top bar */
+.cd-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--pf-surface);
+  border-bottom: 1px solid var(--pf-line-soft);
+  font-size: 13px;
+}
+
+.cd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--pf-ink-soft);
+  font-weight: 500;
+  text-decoration: none;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--pf-rose-deep);
+  }
+}
+
+.cd-crumb {
+  color: var(--pf-ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Gallery — full width on top */
+.cd-gallery {
+  width: 100%;
+  background: #000;
+  position: relative;
+
+  ::ng-deep app-care-image-carousel,
+  ::ng-deep app-care-image-carousel img {
+    width: 100%;
+    display: block;
+  }
+}
+
+.cd-gallery-fallback {
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--pf-shell), #e9c3b8);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Info below */
+.cd-info {
+  padding: 20px 22px 40px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cd-cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pf-rose);
+  background: var(--pf-shell);
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.cd-title {
+  font-family: var(--pf-font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  margin: 12px 0 0;
+  color: var(--pf-ink);
+}
+
+.cd-metarow {
+  display: flex;
+  gap: 24px;
+  margin: 16px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--pf-line);
+}
+
+.cd-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cd-k {
+  font-size: 11px;
+  color: var(--pf-ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cd-v {
+  font-family: var(--pf-font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--pf-ink);
+
+  &.cd-price {
+    color: var(--pf-rose-deep);
+  }
+}
+
+.cd-desc-h {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pf-ink-mute);
+  margin-bottom: 8px;
+}
+
+.cd-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--pf-ink-soft);
+  white-space: pre-line;
+}
+
+.cd-actions {
+  margin-top: 26px;
+}
+
+.cd-book {
+  width: 100%;
+  border-radius: 99px !important;
+  padding: 13px !important;
+  height: auto !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--pf-rose-deep), var(--pf-rose)) !important;
+  box-shadow: 0 6px 16px rgba(168, 62, 88, 0.3);
+}
+
+/* On larger screens the gallery gets a touch more height via the carousel's
+   own aspect handling; the constrained .cd-info keeps text readable. */
+@media (min-width: 768px) {
+  .cd-title {
+    font-size: 30px;
+  }
+  .cd-info {
+    padding: 28px 32px 48px;
+  }
+}

@@ -1137,6 +1137,14 @@
       "phoneLabel": "Téléphone",
       "emailLabel": "Email",
       "poweredBy": "Propulsé par"
+    },
+    "care": {
+      "seeDetail": "Voir le détail",
+      "backToSalon": "Retour au salon",
+      "notFound": "Ce soin est introuvable.",
+      "duration": "Durée",
+      "price": "Tarif",
+      "description": "Description"
     }
   },
   "posts": {

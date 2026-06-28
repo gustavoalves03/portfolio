@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, effect, OnDestroy, ElementRef, viewChild, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +25,7 @@ import { CareImageCarouselComponent } from '../../shared/uis/care-image-carousel
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
+    RouterLink,
     TranslocoPipe,
     SalonPostsViewerComponent,
     PreviewBannerComponent,

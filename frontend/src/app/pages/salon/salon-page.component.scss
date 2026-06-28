@@ -273,10 +273,29 @@
   flex-direction: column;
 }
 
+.care-text-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover .care-name {
+    color: var(--pf-rose-deep);
+  }
+}
+
+.care-see-detail {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--pf-rose-deep);
+}
+
 .care-name {
   font-size: 14px;
   font-weight: 600;
   color: #333;
+  transition: color 150ms ease;
 }
 
 .care-description {
