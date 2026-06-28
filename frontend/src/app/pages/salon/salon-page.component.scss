@@ -240,23 +240,21 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   min-height: 120px;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
+  // Stay horizontal (image left, text right) on every width — matches the
+  // validated mockup. The card must remain visible as a card even with a photo.
 }
 
 .care-image-wrapper {
   width: 130px;
   min-width: 130px;
+  align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
 
   @media (max-width: 480px) {
-    width: 100%;
-    min-width: unset;
-    height: 140px;
+    width: 110px;
+    min-width: 110px;
   }
 }
 
@@ -268,9 +266,23 @@
 
 .care-content {
   flex: 1;
+  min-width: 0; // allow the description to truncate instead of stretching the card
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
+}
+
+// Make the image carousel fill the fixed-width image column.
+.care-image-wrapper ::ng-deep app-care-image-carousel,
+.care-image-wrapper ::ng-deep app-care-image-carousel > * {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.care-image-wrapper ::ng-deep img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .care-text-link {
