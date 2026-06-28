@@ -152,20 +152,29 @@ class SubscriptionControllerTests {
     void createSubscription_callsService_andReturnsSummary() throws Exception {
         TenantContext.setCurrentTenant("my-salon");
 
+        // Tenant has no live subscription yet (first checkout) → not blocked by
+        // the double-subscription guard.
         Tenant tenant = new Tenant();
         tenant.setId(1L);
         tenant.setSlug("my-salon");
         tenant.setStripeCustomerId("cus_abc123");
-        tenant.setSubscriptionTier(SubscriptionTier.GESTION);
-        tenant.setSubscriptionBilling(SubscriptionBilling.MONTHLY);
-        tenant.setSubscriptionStatus(SubscriptionStatus.TRIALING);
-        tenant.setCurrentPeriodEnd(LocalDateTime.now().plusDays(30));
+        tenant.setSubscriptionStatus(SubscriptionStatus.VITRINE_FREE);
+
+        // What the service returns after the checkout completes.
+        Tenant subscribed = new Tenant();
+        subscribed.setId(1L);
+        subscribed.setSlug("my-salon");
+        subscribed.setStripeCustomerId("cus_abc123");
+        subscribed.setSubscriptionTier(SubscriptionTier.GESTION);
+        subscribed.setSubscriptionBilling(SubscriptionBilling.MONTHLY);
+        subscribed.setSubscriptionStatus(SubscriptionStatus.TRIALING);
+        subscribed.setCurrentPeriodEnd(LocalDateTime.now().plusDays(30));
 
         when(tenantRepository.findBySlug("my-salon")).thenReturn(Optional.of(tenant));
         when(pricingCatalog.priceIdFor(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY))
                 .thenReturn(Optional.of("price_gestion_monthly"));
         when(subscriptionService.startCheckout(1L, SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY, "pm_xyz"))
-                .thenReturn(tenant);
+                .thenReturn(subscribed);
 
         CreateSubscriptionRequest request = new CreateSubscriptionRequest(
                 SubscriptionTier.GESTION,
@@ -188,6 +197,33 @@ class SubscriptionControllerTests {
 
         verify(subscriptionService, times(1)).startCheckout(
                 1L, SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY, "pm_xyz");
+    }
+
+    @Test
+    void createSubscription_rejectsWhenLiveSubscriptionExists() throws Exception {
+        TenantContext.setCurrentTenant("my-salon");
+
+        Tenant tenant = new Tenant();
+        tenant.setId(1L);
+        tenant.setSlug("my-salon");
+        tenant.setStripeCustomerId("cus_abc123");
+        tenant.setStripeSubscriptionId("sub_live");
+        tenant.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+
+        when(tenantRepository.findBySlug("my-salon")).thenReturn(Optional.of(tenant));
+        when(pricingCatalog.priceIdFor(SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY))
+                .thenReturn(Optional.of("price_premium_monthly"));
+
+        CreateSubscriptionRequest request = new CreateSubscriptionRequest(
+                SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY, "pm_xyz");
+
+        mockMvc.perform(post("/api/pro/subscription/create")
+                .with(request_ -> { request_.setUserPrincipal(() -> "pro@example.com"); return request_; })
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+
+        verify(subscriptionService, never()).startCheckout(any(), any(), any(), any());
     }
 
     // Test 5: createSubscription_rejectsVitrineTier
