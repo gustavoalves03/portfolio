@@ -2,9 +2,11 @@ import {
   Directive,
   ElementRef,
   OnDestroy,
+  PLATFORM_ID,
   Renderer2,
   inject,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 /**
  * Adds a show/hide (eye) toggle to a password input.
@@ -23,11 +25,16 @@ import {
 export class PasswordToggleDirective implements OnDestroy {
   private readonly el = inject(ElementRef<HTMLInputElement>);
   private readonly renderer = inject(Renderer2);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private button?: HTMLButtonElement;
   private visible = false;
 
   ngOnInit(): void {
+    // DOM injection + getComputedStyle are browser-only; skip on the server
+    // (SSR/prerender). The input still works without the toggle until hydration.
+    if (!this.isBrowser) return;
+
     const input = this.el.nativeElement as HTMLInputElement;
 
     // Make room for the button so it never overlaps the typed text.

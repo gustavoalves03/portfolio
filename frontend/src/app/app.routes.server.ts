@@ -6,6 +6,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server
   },
   {
+    path: 'salon/:slug/soin/:careId',
+    renderMode: RenderMode.Server
+  },
+  {
     path: 'pro/clients/:userId',
     renderMode: RenderMode.Server
   },
