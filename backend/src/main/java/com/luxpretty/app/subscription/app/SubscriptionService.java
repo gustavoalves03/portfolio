@@ -72,6 +72,16 @@ public class SubscriptionService {
         Tenant tenant = tenantRepository.findById(tenantId)
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + tenantId));
 
+        // Defensive guard (mirrors the controller): never start a second checkout
+        // while a live Stripe subscription exists — that would double-bill the
+        // customer. Plan changes must go through the billing portal.
+        if (tenant.getSubscriptionStatus() != null
+                && tenant.getSubscriptionStatus().hasLiveSubscription()) {
+            throw new IllegalStateException(
+                "Tenant " + tenantId + " already has a live subscription ("
+                    + tenant.getSubscriptionStatus() + ")");
+        }
+
         String priceId = pricingCatalog.priceIdFor(tier, billing)
             .orElseThrow(() -> new IllegalArgumentException(
                 "No Stripe price configured for tier=" + tier + ", billing=" + billing));

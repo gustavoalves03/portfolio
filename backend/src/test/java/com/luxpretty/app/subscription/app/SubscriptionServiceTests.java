@@ -145,6 +145,56 @@ class SubscriptionServiceTests {
     }
 
     @Test
+    void startCheckout_rejectsWhenLiveSubscriptionExists() throws Exception {
+        // A tenant already actively subscribed must not start a second checkout
+        // (would create a duplicate Stripe subscription / double billing).
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .stripeSubscriptionId("sub_live")
+            .subscriptionStatus(SubscriptionStatus.ACTIVE)
+            .build();
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+
+        assertThatThrownBy(() ->
+            subscriptionService.startCheckout(1L, SubscriptionTier.PREMIUM, SubscriptionBilling.MONTHLY, "pm_789")
+        ).isInstanceOf(IllegalStateException.class);
+
+        verify(stripeService, never()).createSubscription(any(), any(), any());
+        verify(tenantRepository, never()).save(any());
+    }
+
+    @Test
+    void startCheckout_allowsResubscribe_whenStatusIsCanceled() throws Exception {
+        // A lapsed tenant (CANCELED) must be able to subscribe again.
+        Tenant tenant = Tenant.builder()
+            .id(1L)
+            .slug("test-salon")
+            .stripeCustomerId("cus_123")
+            .stripeSubscriptionId("sub_old_dead")
+            .subscriptionStatus(SubscriptionStatus.CANCELED)
+            .build();
+
+        Subscription stripeSubscription = new Subscription();
+        stripeSubscription.setId("sub_new");
+        stripeSubscription.setStatus("active");
+
+        when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+        when(pricingCatalog.priceIdFor(SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY))
+            .thenReturn(Optional.of("price_gestion_monthly"));
+        when(stripeService.createSubscription("cus_123", "price_gestion_monthly", "pm_789"))
+            .thenReturn(stripeSubscription);
+
+        Tenant result = subscriptionService.startCheckout(
+            1L, SubscriptionTier.GESTION, SubscriptionBilling.MONTHLY, "pm_789");
+
+        assertThat(result.getStripeSubscriptionId()).isEqualTo("sub_new");
+        verify(stripeService).createSubscription("cus_123", "price_gestion_monthly", "pm_789");
+    }
+
+    @Test
     void startCheckout_failsIfTierIsVitrine() throws Exception {
         // When & Then
         assertThatThrownBy(() ->
