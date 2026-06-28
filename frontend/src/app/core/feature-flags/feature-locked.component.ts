@@ -6,6 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { FeatureFlagsStore } from './feature-flags.store';
 import { FeatureKey } from './feature-key';
@@ -13,7 +14,7 @@ import { FeatureKey } from './feature-key';
 @Component({
   selector: 'lp-feature-locked',
   standalone: true,
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, MatIconModule, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './feature-locked.component.html',
   styleUrls: ['./feature-locked.component.scss'],

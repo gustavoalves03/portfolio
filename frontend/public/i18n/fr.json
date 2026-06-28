@@ -667,7 +667,19 @@
       "holidaysSectionDesc": "Décide ce qui se passe par défaut sur les jours fériés français.",
       "today": "aujourd'hui",
       "inOneDay": "dans 1 jour",
-      "inDays": "dans {{n}} jours"
+      "inDays": "dans {{n}} jours",
+      "subscription": {
+        "title": "Abonnement",
+        "desc": "Gérez votre formule et votre mode de paiement.",
+        "manageLabel": "Gérer mon abonnement",
+        "manageDesc": "Modifier le moyen de paiement ou résilier votre abonnement.",
+        "manageBtn": "Gérer / Résilier",
+        "error": "Impossible d'ouvrir le portail de facturation. Réessayez.",
+        "noAccount": "Aucun abonnement payant à gérer pour le moment.",
+        "noAccountLabel": "Aucun abonnement actif",
+        "noAccountDesc": "Vous n'avez pas encore d'abonnement payant à gérer.",
+        "subscribeBtn": "Voir les formules"
+      }
     },
     "bookingPolicy": {
       "tab": "Règles de réservation",
@@ -1381,6 +1393,10 @@
       "shop": "La boutique est disponible avec Premium.",
       "loyalty": "La fidélité est disponible avec Premium.",
       "multi_location": "Le multi-locations est disponible avec Premium."
+    },
+    "upgrade": {
+      "title": "Passer à une formule supérieure",
+      "later": "Plus tard"
     }
   },
   "evolution": {

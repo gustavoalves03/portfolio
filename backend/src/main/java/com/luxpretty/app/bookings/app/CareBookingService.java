@@ -25,6 +25,7 @@ import com.luxpretty.app.mail.app.MailOutboxService;
 import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
+import com.luxpretty.app.mail.vars.BookingRescheduledVars;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.repo.TenantRepository;
 import com.luxpretty.app.users.domain.Role;
@@ -346,6 +347,15 @@ public class CareBookingService {
 
         Long preservedEmployeeId = b.getEmployeeId();
 
+        // Capture the original schedule before mapping, so a reschedule email can
+        // show the move (old → new). Only date/time moves trigger the email; pure
+        // status or care-only changes do not.
+        boolean rescheduled = (dateChanged || timeChanged)
+                && req.status() != CareBookingStatus.CANCELLED
+                && req.status() != CareBookingStatus.NO_SHOW;
+        LocalDate oldDate = b.getAppointmentDate();
+        LocalTime oldTime = b.getAppointmentTime();
+
         CareBookingMapper.updateEntity(b, req);
 
         // If the request did not provide an employeeId, keep the previous one to avoid
@@ -354,7 +364,42 @@ public class CareBookingService {
             b.setEmployeeId(preservedEmployeeId);
         }
 
-        return CareBookingMapper.toResponse(repo.save(b));
+        CareBooking saved = repo.save(b);
+
+        if (rescheduled) {
+            queueRescheduledEmail(saved, oldDate, oldTime);
+        }
+
+        return CareBookingMapper.toResponse(saved);
+    }
+
+    /** Notifies the client (via the transactional outbox) that their booking moved. */
+    private void queueRescheduledEmail(CareBooking booking, LocalDate oldDate, LocalTime oldTime) {
+        User client = booking.getUser();
+        if (client == null || client.getEmail() == null) {
+            return;
+        }
+        Care care = booking.getCare();
+        String tenantSlug = TenantContext.getCurrentTenant();
+        String salonName = tenantRepository.findBySlug(tenantSlug)
+                .map(Tenant::getName)
+                .orElse("");
+
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
+        DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+
+        mailOutbox.queue(
+                MailTemplate.BOOKING_RESCHEDULED,
+                new BookingRescheduledVars(
+                        client.getName(), salonName, care.getName(),
+                        BigDecimal.valueOf(care.getPrice()),
+                        formatDuration(care.getDuration()),
+                        oldDate.format(dateFmt), oldTime.format(timeFmt),
+                        booking.getAppointmentDate().format(dateFmt),
+                        booking.getAppointmentTime().format(timeFmt),
+                        booking.getId(), frontendBaseUrl + "/bookings"),
+                client.getEmail(),
+                tenantSlug);
     }
 
     @Transactional

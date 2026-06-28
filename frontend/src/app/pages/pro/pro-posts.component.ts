@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PostsService } from '../../features/posts/posts.service';
 import { FeatureLockedComponent } from '../../core/feature-flags/feature-locked.component';
+import { FeatureFlagsStore } from '../../core/feature-flags/feature-flags.store';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { PostResponse, PostType } from '../../features/posts/posts.model';
 import { CaresService } from '../../features/cares/services/cares.service';
@@ -39,6 +40,10 @@ export class ProPostsComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly transloco = inject(TranslocoService);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly featureFlags = inject(FeatureFlagsStore);
+
+  /** PHOTOS gating: skip data loading so the page stays empty behind the overlay. */
+  protected readonly photosEnabled = this.featureFlags.isEnabled('PHOTOS');
 
   // Posts list
   readonly posts = signal<PostResponse[]>([]);
@@ -75,6 +80,10 @@ export class ProPostsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!this.photosEnabled()) {
+      this.loading.set(false);
+      return;
+    }
     this.loadPosts();
     this.loadCares();
   }

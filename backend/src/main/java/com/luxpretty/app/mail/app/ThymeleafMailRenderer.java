@@ -6,6 +6,7 @@ import com.luxpretty.app.mail.domain.MailTemplate;
 import com.luxpretty.app.mail.vars.BookingConfirmedVars;
 import com.luxpretty.app.mail.vars.BookingReceivedProVars;
 import com.luxpretty.app.mail.vars.BookingReminderVars;
+import com.luxpretty.app.mail.vars.BookingRescheduledVars;
 import com.luxpretty.app.mail.vars.InvoicePaidVars;
 import com.luxpretty.app.mail.vars.MailVars;
 import org.jsoup.Jsoup;
@@ -133,6 +134,10 @@ public class ThymeleafMailRenderer implements MailRenderer {
             case BOOKING_REMINDER_J1 -> {
                 BookingReminderVars v = (BookingReminderVars) vars;
                 yield "Rappel : ton RDV demain à " + v.timeStr();
+            }
+            case BOOKING_RESCHEDULED -> {
+                BookingRescheduledVars v = (BookingRescheduledVars) vars;
+                yield "Votre rendez-vous chez " + v.salonName() + " a été reprogrammé";
             }
         };
     }

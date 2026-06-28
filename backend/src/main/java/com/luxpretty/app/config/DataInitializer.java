@@ -11,7 +11,10 @@ import com.luxpretty.app.multitenancy.TenantContext;
 import com.luxpretty.app.multitenancy.TenantSchemaManager;
 import com.luxpretty.app.post.domain.Post;
 import com.luxpretty.app.post.domain.PostType;
+import com.luxpretty.app.feature.app.FeatureFlagService;
 import com.luxpretty.app.post.repo.PostRepository;
+import com.luxpretty.app.subscription.domain.SubscriptionStatus;
+import com.luxpretty.app.subscription.domain.SubscriptionTier;
 import com.luxpretty.app.tenant.app.SlugUtils;
 import com.luxpretty.app.tenant.domain.Tenant;
 import com.luxpretty.app.tenant.domain.TenantStatus;
@@ -50,7 +53,8 @@ public class DataInitializer {
             CareRepository careRepository,
             OpeningHourRepository openingHourRepository,
             PostRepository postRepository,
-            UserRoleService userRoleService
+            UserRoleService userRoleService,
+            FeatureFlagService featureFlagService
     ) {
         return args -> {
             if (userRepository.count() > 0) {
@@ -68,7 +72,8 @@ public class DataInitializer {
             // ── Pro 1: Sophie's salon ──
             User sophie = createUser(userRepository, passwordEncoder,
                     "Sophie Martin", "sophie@luxpretty.com", DEFAULT_PASSWORD);
-            Tenant salonSophie = createTenant(tenantRepository, sophie);
+            Tenant salonSophie = createTenant(tenantRepository, sophie,
+                    SubscriptionTier.VITRINE, SubscriptionStatus.VITRINE_FREE);
             userRoleService.assignOnTenant(sophie.getId(), Role.PRO, salonSophie.getId());
             userRoleService.assignOnTenant(sophie.getId(), Role.EMPLOYEE, salonSophie.getId());
             salonSophie.setName("L'Atelier de Sophie");
@@ -85,12 +90,14 @@ public class DataInitializer {
             tenantRepository.save(salonSophie);
             tenantSchemaManager.provisionSchema(salonSophie.getSlug());
             seedSalonSophie(salonSophie.getSlug(), categoryRepository, careRepository, openingHourRepository);
-            logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonSophie.getName(), salonSophie.getSlug(), sophie.getEmail());
+            seedTierFeatures(salonSophie.getSlug(), SubscriptionTier.VITRINE, featureFlagService);
+            logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: VITRINE)", salonSophie.getName(), salonSophie.getSlug(), sophie.getEmail());
 
             // ── Pro 2: Camille's salon ──
             User camille = createUser(userRepository, passwordEncoder,
                     "Camille Dubois", "camille@luxpretty.com", DEFAULT_PASSWORD);
-            Tenant salonCamille = createTenant(tenantRepository, camille);
+            Tenant salonCamille = createTenant(tenantRepository, camille,
+                    SubscriptionTier.GESTION, SubscriptionStatus.ACTIVE);
             userRoleService.assignOnTenant(camille.getId(), Role.PRO, salonCamille.getId());
             userRoleService.assignOnTenant(camille.getId(), Role.EMPLOYEE, salonCamille.getId());
             salonCamille.setName("Beauté by Camille");
@@ -107,12 +114,14 @@ public class DataInitializer {
             tenantRepository.save(salonCamille);
             tenantSchemaManager.provisionSchema(salonCamille.getSlug());
             seedSalonCamille(salonCamille.getSlug(), categoryRepository, careRepository, openingHourRepository);
-            logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
+            seedTierFeatures(salonCamille.getSlug(), SubscriptionTier.GESTION, featureFlagService);
+            logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: GESTION)", salonCamille.getName(), salonCamille.getSlug(), camille.getEmail());
 
             // ── Pro 3: Isabelle's salon (Bordeaux) ──
             User isabelle = createUser(userRepository, passwordEncoder,
                     "Isabelle Dupont", "isabelle@luxpretty.com", DEFAULT_PASSWORD);
-            Tenant salonIsabelle = createTenant(tenantRepository, isabelle);
+            Tenant salonIsabelle = createTenant(tenantRepository, isabelle,
+                    SubscriptionTier.PREMIUM, SubscriptionStatus.ACTIVE);
             userRoleService.assignOnTenant(isabelle.getId(), Role.PRO, salonIsabelle.getId());
             userRoleService.assignOnTenant(isabelle.getId(), Role.EMPLOYEE, salonIsabelle.getId());
             salonIsabelle.setName("Éclat Naturel");
@@ -129,7 +138,8 @@ public class DataInitializer {
             tenantRepository.save(salonIsabelle);
             tenantSchemaManager.provisionSchema(salonIsabelle.getSlug());
             seedSalonIsabelle(salonIsabelle.getSlug(), categoryRepository, careRepository, openingHourRepository);
-            logger.info("✅ Salon '{}' créé (slug: {}, pro: {})", salonIsabelle.getName(), salonIsabelle.getSlug(), isabelle.getEmail());
+            seedTierFeatures(salonIsabelle.getSlug(), SubscriptionTier.PREMIUM, featureFlagService);
+            logger.info("✅ Salon '{}' créé (slug: {}, pro: {}, tier: PREMIUM)", salonIsabelle.getName(), salonIsabelle.getSlug(), isabelle.getEmail());
 
             // ── Clients (CLIENT implicite — no UserRoleAssignment row) ──
             createUser(userRepository, passwordEncoder,
@@ -164,7 +174,8 @@ public class DataInitializer {
         return saved;
     }
 
-    private Tenant createTenant(TenantRepository tenantRepository, User owner) {
+    private Tenant createTenant(TenantRepository tenantRepository, User owner,
+                                SubscriptionTier tier, SubscriptionStatus subscriptionStatus) {
         String baseSlug = SlugUtils.toSlug(owner.getName());
         String slug = baseSlug;
         int counter = 2;
@@ -179,11 +190,24 @@ public class DataInitializer {
                 .name(owner.getName())
                 .ownerId(owner.getId())
                 .status(TenantStatus.ACTIVE)
+                .subscriptionTier(tier)
+                .subscriptionStatus(subscriptionStatus)
                 .build();
 
         Tenant saved = tenantRepository.save(tenant);
-        logger.info("  → Demo tenant created: {} ({})", saved.getName(), saved.getSlug());
+        logger.info("  → Demo tenant created: {} ({}) — tier {}", saved.getName(), saved.getSlug(), tier);
         return saved;
+    }
+
+    /** Seeds TENANT_FEATURES rows for a tenant from its tier (must run in tenant context). */
+    private void seedTierFeatures(String slug, SubscriptionTier tier,
+                                  FeatureFlagService featureFlagService) {
+        TenantContext.setCurrentTenant(slug);
+        try {
+            featureFlagService.applyTierDefaults(tier);
+        } finally {
+            TenantContext.clear();
+        }
     }
 
     // ── Sophie's salon: soins visage, corps, épilation ──

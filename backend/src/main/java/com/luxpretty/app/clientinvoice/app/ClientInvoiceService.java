@@ -27,7 +27,7 @@ public class ClientInvoiceService {
     }
 
     public ClientInvoice getForPro(Long id) {
-        return repo.findById(id)
+        return repo.findWithLinesById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client invoice not found"));
     }
 

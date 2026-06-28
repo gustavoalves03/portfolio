@@ -1,28 +1,11 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { TranslocoService } from '@jsverse/transloco';
-import { catchError, throwError } from 'rxjs';
+import { HttpInterceptorFn } from '@angular/common/http';
 
-export const featureFlagInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router);
-  const snack = inject(MatSnackBar);
-  const t = inject(TranslocoService);
-
-  return next(req).pipe(
-    catchError((err: unknown) => {
-      if (
-        err instanceof HttpErrorResponse &&
-        err.status === 403 &&
-        err.error?.error === 'FEATURE_DISABLED'
-      ) {
-        const featureKey = err.error.featureKey as string;
-        const minimumTier = err.error.minimumTier as string;
-        snack.open(t.translate('errors.features.disabled', { tier: minimumTier }), 'OK', { duration: 4000 });
-        router.navigate(['/pricing'], { queryParams: { highlight: featureKey } });
-      }
-      return throwError(() => err);
-    }),
-  );
-};
+/**
+ * Feature gating is enforced visually, not by redirection: a gated page still
+ * renders but is blurred behind an <lp-feature-locked> upsell overlay (driven by
+ * FeatureFlagsStore, no backend round-trip). A FEATURE_DISABLED 403 only happens
+ * if a gated request slips through; we let it propagate so the caller's own error
+ * handling kicks in — no global redirect, no snackbar that would fire on every
+ * blurred page load.
+ */
+export const featureFlagInterceptor: HttpInterceptorFn = (req, next) => next(req);

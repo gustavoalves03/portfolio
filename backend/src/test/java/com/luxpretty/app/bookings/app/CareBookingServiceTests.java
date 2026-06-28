@@ -812,6 +812,68 @@ class CareBookingServiceTests {
 
         // Verify slot service was NOT called (no date/time/care change)
         verify(slotAvailabilityService, never()).getAvailableSlots(any(), any(Long.class));
+
+        // Status-only change must NOT trigger a reschedule email
+        verify(mailOutbox, never()).queue(eq(MailTemplate.BOOKING_RESCHEDULED), any(), any(), any());
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ── Email "RDV reprogrammé" ──
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("Reschedule (time change) → queues BOOKING_RESCHEDULED email to client")
+    void reschedule_queuesRescheduledEmail() {
+        CareBooking existingBooking = new CareBooking();
+        existingBooking.setId(900L);
+        existingBooking.setUser(client);
+        existingBooking.setCare(care30min);
+        existingBooking.setQuantity(1);
+        existingBooking.setAppointmentDate(futureDate);
+        existingBooking.setAppointmentTime(LocalTime.of(9, 0));
+        existingBooking.setStatus(CareBookingStatus.CONFIRMED);
+
+        when(bookingRepo.findById(900L)).thenReturn(Optional.of(existingBooking));
+        when(slotAvailabilityService.getAvailableSlots(futureDate, 10L))
+                .thenReturn(List.of(new SlotAvailabilityService.TimeSlot("14:00", "14:30")));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest moveReq =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(14, 0),
+                        CareBookingStatus.CONFIRMED, null, null);
+
+        service.update(900L, moveReq);
+
+        verify(mailOutbox).queue(eq(MailTemplate.BOOKING_RESCHEDULED), any(), eq("marie@test.com"), eq("test-tenant"));
+    }
+
+    @Test
+    @DisplayName("Reschedule to CANCELLED status → does NOT queue reschedule email")
+    void rescheduleToCancelled_doesNotQueueEmail() {
+        CareBooking existingBooking = new CareBooking();
+        existingBooking.setId(901L);
+        existingBooking.setUser(client);
+        existingBooking.setCare(care30min);
+        existingBooking.setQuantity(1);
+        existingBooking.setAppointmentDate(futureDate);
+        existingBooking.setAppointmentTime(LocalTime.of(9, 0));
+        existingBooking.setStatus(CareBookingStatus.CONFIRMED);
+
+        when(bookingRepo.findById(901L)).thenReturn(Optional.of(existingBooking));
+        when(bookingRepo.save(any(CareBooking.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Same date/time, status → CANCELLED: not a reschedule
+        com.luxpretty.app.bookings.web.dto.CareBookingRequest cancelReq =
+                new com.luxpretty.app.bookings.web.dto.CareBookingRequest(
+                        1L, 10L, 1, futureDate,
+                        LocalTime.of(9, 0),
+                        CareBookingStatus.CANCELLED, null, null);
+
+        service.update(901L, cancelReq);
+
+        verify(mailOutbox, never()).queue(eq(MailTemplate.BOOKING_RESCHEDULED), any(), any(), any());
     }
 
     // ══════════════════════════════════════════════════════════════

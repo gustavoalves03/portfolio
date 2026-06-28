@@ -1,15 +1,23 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule, MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
-import { DatePipe } from '@angular/common';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TenantFeaturesService } from '../../core/tenant/tenant-features.service';
+import { FeatureFlagsStore } from '../../core/feature-flags/feature-flags.store';
+import { FeatureUpgradeDialogComponent } from '../../core/feature-flags/feature-upgrade-dialog.component';
+import { SubscriptionService } from '../../features/subscription/services/subscription.service';
+import { SubscriptionResponse } from '../../features/subscription/models/subscription.model';
 import { API_BASE_URL } from '../../core/config/api-base-url.token';
 import { HolidayInfo, HolidayExceptionInfo } from '../../features/salon-profile/models/salon-profile.model';
 import { ClosedDaysStore } from '../../features/availability/closed-days.store';
@@ -21,10 +29,13 @@ import { ClosedDaysStore } from '../../features/availability/closed-days.store';
         FormsModule,
         MatSlideToggleModule,
         MatIconModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
         MatChipsModule,
         MatSnackBarModule,
+        RouterLink,
         DatePipe,
         TranslocoPipe,
     ],
@@ -38,6 +49,76 @@ export class ProSettingsComponent implements OnInit {
     private readonly closedDaysStore = inject(ClosedDaysStore);
     private readonly snackBar = inject(MatSnackBar);
     private readonly i18n = inject(TranslocoService);
+    private readonly featureFlags = inject(FeatureFlagsStore);
+    private readonly dialog = inject(MatDialog);
+    private readonly subscriptionService = inject(SubscriptionService);
+    private readonly platformId = inject(PLATFORM_ID);
+
+    /** Whether the tenant's tier unlocks the EMPLOYEES capability. */
+    protected readonly employeesFeatureEnabled = this.featureFlags.isEnabled('EMPLOYEES');
+
+    /** Loading state while we fetch the Stripe billing-portal URL. */
+    protected readonly portalLoading = signal(false);
+
+    /** Current subscription; null until loaded. Drives the subscription section. */
+    protected readonly subscription = signal<SubscriptionResponse | null>(null);
+
+    /**
+     * The billing portal only exists for tenants that already have a Stripe
+     * customer (i.e. a real paid subscription). For VITRINE / never-subscribed
+     * tenants there is nothing to manage, so we show an upgrade prompt instead.
+     */
+    protected readonly hasBillingAccount = signal(false);
+
+    /**
+     * Opens the Stripe customer billing portal, where the user can update their
+     * payment method or cancel (unsubscribe). Stripe hosts the cancellation flow,
+     * so we just redirect to the session URL it returns.
+     */
+    protected openBillingPortal(): void {
+        if (this.portalLoading()) return;
+        this.portalLoading.set(true);
+        this.subscriptionService.createPortalSession().subscribe({
+            next: ({ url }) => {
+                if (isPlatformBrowser(this.platformId)) {
+                    window.location.href = url;
+                } else {
+                    this.portalLoading.set(false);
+                }
+            },
+            error: (err) => {
+                this.portalLoading.set(false);
+                // 400 = no Stripe customer yet (nothing to manage); anything else is
+                // an unexpected failure. Surface the right message either way.
+                const key =
+                    err?.status === 400
+                        ? 'pro.settings.subscription.noAccount'
+                        : 'pro.settings.subscription.error';
+                this.snackBar.open(this.i18n.translate(key), undefined, { duration: 4000 });
+            },
+        });
+    }
+
+    /**
+     * Settings toggle for the "manage employees" capability. If the tier does not
+     * include EMPLOYEES and the user tries to turn it on, show an upgrade modal and
+     * leave the setting off — the toggle reverts because [checked] is bound to the
+     * service signal, which we never mutate here.
+     */
+    protected onToggleEmployees(checked: boolean, toggle: MatSlideToggle): void {
+        if (checked && !this.employeesFeatureEnabled()) {
+            // Revert the visual state synchronously: [checked] stays false but
+            // mat-slide-toggle already flipped its own internal state, and Angular
+            // won't re-run the binding (the bound value didn't change), so force it.
+            toggle.checked = false;
+            this.dialog.open(FeatureUpgradeDialogComponent, {
+                data: { feature: 'EMPLOYEES' },
+                autoFocus: false,
+            });
+            return;
+        }
+        this.featuresService.toggleEmployees(checked);
+    }
 
     readonly upcomingHolidays = signal<HolidayInfo[]>([]);
     readonly holidaysOpen = signal(false);
@@ -49,6 +130,20 @@ export class ProSettingsComponent implements OnInit {
     ngOnInit(): void {
         this.loadUpcomingHolidays();
         this.loadExceptions();
+        this.loadSubscription();
+    }
+
+    private loadSubscription(): void {
+        this.subscriptionService.getCurrentSubscription().subscribe({
+            next: (sub) => {
+                this.subscription.set(sub);
+                this.hasBillingAccount.set(!!sub.stripeCustomerId);
+            },
+            error: () => {
+                this.subscription.set(null);
+                this.hasBillingAccount.set(false);
+            },
+        });
     }
 
     scrollTo(section: 'features' | 'leave' | 'booking' | 'holidays'): void {
