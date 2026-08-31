@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal, ElementRef, PLATFORM_ID, viewChildren } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, ElementRef, OnDestroy, PLATFORM_ID, viewChildren } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,7 +29,7 @@ interface DisplayCard {
   templateUrl: './salon-carousel.component.html',
   styleUrl: './salon-carousel.component.scss',
 })
-export class SalonCarouselComponent {
+export class SalonCarouselComponent implements OnDestroy {
   readonly salons = input.required<SalonCard[]>();
 
   readonly centerIndex = signal(0);
@@ -62,6 +62,8 @@ export class SalonCarouselComponent {
   private leaflet: any = null;
   private readonly mapRefs = viewChildren<ElementRef<HTMLElement>>('mapHost');
   private readonly mapsBuilt = new Set<string>();
+  private readonly mapInstances = new Map<string, any>();
+  private destroyed = false;
 
   constructor() {
     // When the center changes, un-flip all cards. Avoids the awkward
@@ -96,7 +98,9 @@ export class SalonCarouselComponent {
 
     if (!wasFlipped) {
       // Defer to next tick so the back face is in the DOM.
-      setTimeout(() => this.buildMapForSlug(slug), 0);
+      setTimeout(() => {
+        if (!this.destroyed) this.buildMapForSlug(slug);
+      }, 0);
     }
   }
 
@@ -146,10 +150,11 @@ export class SalonCarouselComponent {
 
     if (!this.leaflet) {
       const mod = await import('leaflet');
+      if (this.destroyed) return;
       this.leaflet = (mod as any).default ?? mod;
     }
     const coords = await this.geocoding.geocode(address);
-    if (!coords) return;
+    if (this.destroyed || !coords) return;
 
     const map = this.leaflet
       .map(host, {
@@ -172,7 +177,18 @@ export class SalonCarouselComponent {
     });
     this.leaflet.marker([coords.lat, coords.lng], { icon }).addTo(map);
     this.mapsBuilt.add(slug);
-    setTimeout(() => map.invalidateSize(), 50);
+    this.mapInstances.set(slug, map);
+    setTimeout(() => {
+      if (!this.destroyed) map.invalidateSize();
+    }, 50);
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    for (const map of this.mapInstances.values()) {
+      map.remove();
+    }
+    this.mapInstances.clear();
   }
 
   private buildMapForSlug(slug: string): void {

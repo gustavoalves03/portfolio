@@ -1,4 +1,4 @@
-import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, input, output, viewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, PLATFORM_ID, computed, effect, inject, input, output, viewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -18,8 +18,9 @@ import { CareImageCarouselComponent } from '../../../shared/uis/care-image-carou
   templateUrl: './salon-page-pc.component.html',
   styleUrl: './salon-page-pc.component.scss',
 })
-export class SalonPagePcComponent {
+export class SalonPagePcComponent implements OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
+  private destroyed = false;
 
   readonly salon = input.required<PublicSalonResponse>();
   readonly slug = input.required<string>();
@@ -111,11 +112,20 @@ export class SalonPagePcComponent {
     this.bookFromPost.emit(careId);
   }
 
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    if (this.mapInstance) {
+      this.mapInstance.remove();
+      this.mapInstance = null;
+    }
+  }
+
   private async initContactMap(salon: PublicSalonResponse): Promise<void> {
     const address = this.fullAddress();
     if (!address) return;
 
     const leaflet = await import('leaflet');
+    if (this.destroyed) return;
     this.L = leaflet.default || leaflet;
 
     const el = this.contactMapRef()?.nativeElement;
@@ -137,6 +147,7 @@ export class SalonPagePcComponent {
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
       const res = await fetch(url);
       const data = await res.json();
+      if (!this.mapInstance) return;
       if (data.length > 0) {
         const lat = parseFloat(data[0].lat);
         const lng = parseFloat(data[0].lon);
